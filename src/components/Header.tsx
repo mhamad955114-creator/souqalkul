@@ -1,6 +1,7 @@
-import { Search, Plus, User, Menu, LogOut } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import AuthModal from "./AuthModal";
 import AddListingModal from "./AddListingModal";
@@ -17,6 +18,7 @@ interface HeaderProps {
 }
 
 const Header = ({ onListingAdded }: HeaderProps) => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"login" | "signup">("login");
@@ -90,6 +92,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                           <span className="truncate">{user.email}</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate("/my-account")} className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          إعلاناتي
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive">
                           <LogOut className="h-4 w-4" />
                           تسجيل الخروج
@@ -146,6 +152,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     <div className="py-2 text-muted-foreground text-sm truncate">
                       {user.email}
                     </div>
+                    <Button variant="outline" onClick={() => navigate("/my-account")}>
+                      <FileText className="h-4 w-4" />
+                      إعلاناتي
+                    </Button>
                     <Button variant="outline" onClick={handleSignOut}>
                       <LogOut className="h-4 w-4" />
                       تسجيل الخروج
