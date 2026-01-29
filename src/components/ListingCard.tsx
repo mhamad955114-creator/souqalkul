@@ -1,7 +1,9 @@
 import { Heart, MapPin, Clock } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ListingCardProps {
+  id?: string;
   image: string;
   title: string;
   price: string;
@@ -10,11 +12,21 @@ interface ListingCardProps {
   featured?: boolean;
 }
 
-const ListingCard = ({ image, title, price, location, time, featured }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, location, time, featured }: ListingCardProps) => {
+  const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
 
+  const handleClick = () => {
+    if (id) {
+      navigate(`/listing/${id}`);
+    }
+  };
+
   return (
-    <div className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1">
+    <div 
+      className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1"
+      onClick={handleClick}
+    >
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img

@@ -145,6 +145,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <ListingCard
+                      id={listing.id}
                       image={listing.images?.[0] || "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"}
                       title={listing.title}
                       price={formatPrice(listing.price)}
