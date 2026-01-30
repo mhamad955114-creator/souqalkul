@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "./ui/button";
 import ListingCard from "./ListingCard";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Listing {
@@ -83,6 +84,7 @@ interface ListingsSectionProps {
 const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchListings = async () => {
     const { data, error } = await supabase
@@ -116,7 +118,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
               تصفح آخر الإعلانات المضافة في السوق
             </p>
           </div>
-          <Button variant="outline" className="hidden md:flex">
+          <Button variant="outline" className="hidden md:flex" onClick={() => navigate("/listings")}>
             عرض الكل
             <ArrowLeft className="h-4 w-4 mr-2" />
           </Button>
@@ -175,7 +177,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
         )}
 
         <div className="text-center mt-10 md:hidden">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => navigate("/listings")}>
             عرض الكل
             <ArrowLeft className="h-4 w-4 mr-2" />
           </Button>
