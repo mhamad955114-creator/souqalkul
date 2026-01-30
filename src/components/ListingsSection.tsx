@@ -4,6 +4,7 @@ import ListingCard from "./ListingCard";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice, formatTime } from "@/lib/constants";
 
 interface Listing {
   id: string;
@@ -20,9 +21,9 @@ const fallbackListings = [
   {
     id: "1",
     image: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500&h=375&fit=crop",
-    title: "مرسيدس E300 موديل 2022 - حالة ممتازة",
-    price: "٢٥٠,٠٠٠ ر.س",
-    location: "الرياض",
+    title: "سيارة مرسيدس موديل 2022 - حالة ممتازة",
+    price: "٢٥٠,٠٠٠,٠٠٠ ل.س",
+    location: "دمشق",
     time: "منذ ساعة",
     featured: true,
   },
@@ -30,8 +31,8 @@ const fallbackListings = [
     id: "2",
     image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=375&fit=crop",
     title: "شقة فاخرة للإيجار - 3 غرف نوم",
-    price: "٨,٠٠٠ ر.س/شهر",
-    location: "جدة",
+    price: "٨,٠٠٠,٠٠٠ ل.س/شهر",
+    location: "حلب",
     time: "منذ 3 ساعات",
     featured: true,
   },
@@ -39,8 +40,8 @@ const fallbackListings = [
     id: "3",
     image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=375&fit=crop",
     title: "آيفون 15 برو ماكس - جديد بالكرتونة",
-    price: "٤,٥٠٠ ر.س",
-    location: "الدمام",
+    price: "٤٥,٠٠٠,٠٠٠ ل.س",
+    location: "اللاذقية",
     time: "منذ 5 ساعات",
     featured: false,
   },
@@ -48,34 +49,12 @@ const fallbackListings = [
     id: "4",
     image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=375&fit=crop",
     title: "طقم كنب حديث - 7 مقاعد",
-    price: "٣,٢٠٠ ر.س",
-    location: "مكة المكرمة",
+    price: "٣٢,٠٠٠,٠٠٠ ل.س",
+    location: "حمص",
     time: "منذ 6 ساعات",
     featured: false,
   },
 ];
-
-const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat("ar-SA", {
-    style: "currency",
-    currency: "SAR",
-    maximumFractionDigits: 0,
-  }).format(price);
-};
-
-const formatTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffHours < 1) return "منذ دقائق";
-  if (diffHours < 24) return `منذ ${diffHours} ساعة`;
-  if (diffDays === 1) return "منذ يوم";
-  if (diffDays < 7) return `منذ ${diffDays} أيام`;
-  return `منذ ${Math.floor(diffDays / 7)} أسبوع`;
-};
 
 interface ListingsSectionProps {
   refreshTrigger?: number;

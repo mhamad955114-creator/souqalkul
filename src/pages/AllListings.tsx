@@ -23,6 +23,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { 
+  categoriesWithAll, 
+  citiesWithAll, 
+  sortOptions, 
+  formatPrice, 
+  formatTime 
+} from "@/lib/constants";
 
 interface Listing {
   id: string;
@@ -34,61 +41,6 @@ interface Listing {
   is_featured: boolean;
   created_at: string;
 }
-
-const categories = [
-  { value: "all", label: "جميع التصنيفات" },
-  { value: "سيارات", label: "سيارات" },
-  { value: "عقارات", label: "عقارات" },
-  { value: "الكترونيات", label: "الكترونيات" },
-  { value: "أثاث", label: "أثاث" },
-  { value: "ملابس", label: "ملابس" },
-  { value: "خدمات", label: "خدمات" },
-  { value: "وظائف", label: "وظائف" },
-  { value: "أخرى", label: "أخرى" },
-];
-
-const cities = [
-  { value: "all", label: "جميع المدن" },
-  { value: "الرياض", label: "الرياض" },
-  { value: "جدة", label: "جدة" },
-  { value: "مكة المكرمة", label: "مكة المكرمة" },
-  { value: "المدينة المنورة", label: "المدينة المنورة" },
-  { value: "الدمام", label: "الدمام" },
-  { value: "الخبر", label: "الخبر" },
-  { value: "الطائف", label: "الطائف" },
-  { value: "تبوك", label: "تبوك" },
-  { value: "بريدة", label: "بريدة" },
-  { value: "خميس مشيط", label: "خميس مشيط" },
-];
-
-const sortOptions = [
-  { value: "newest", label: "الأحدث" },
-  { value: "oldest", label: "الأقدم" },
-  { value: "price_asc", label: "السعر: من الأقل للأعلى" },
-  { value: "price_desc", label: "السعر: من الأعلى للأقل" },
-];
-
-const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat("ar-SA", {
-    style: "currency",
-    currency: "SAR",
-    maximumFractionDigits: 0,
-  }).format(price);
-};
-
-const formatTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffHours < 1) return "منذ دقائق";
-  if (diffHours < 24) return `منذ ${diffHours} ساعة`;
-  if (diffDays === 1) return "منذ يوم";
-  if (diffDays < 7) return `منذ ${diffDays} أيام`;
-  return `منذ ${Math.floor(diffDays / 7)} أسبوع`;
-};
 
 const AllListings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -103,7 +55,7 @@ const AllListings = () => {
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "newest");
   const [priceRange, setPriceRange] = useState<[number, number]>([
     Number(searchParams.get("minPrice")) || 0,
-    Number(searchParams.get("maxPrice")) || 1000000,
+    Number(searchParams.get("maxPrice")) || 500000000,
   ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -168,7 +120,7 @@ const AllListings = () => {
     if (city !== "all") params.set("city", city);
     if (sortBy !== "newest") params.set("sort", sortBy);
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
-    if (priceRange[1] < 1000000) params.set("maxPrice", priceRange[1].toString());
+    if (priceRange[1] < 500000000) params.set("maxPrice", priceRange[1].toString());
     setSearchParams(params);
   };
 
@@ -181,7 +133,7 @@ const AllListings = () => {
     setCategory("all");
     setCity("all");
     setSortBy("newest");
-    setPriceRange([0, 1000000]);
+    setPriceRange([0, 500000000]);
     setSearchParams({});
   };
 
@@ -191,7 +143,7 @@ const AllListings = () => {
     city !== "all" ||
     sortBy !== "newest" ||
     priceRange[0] > 0 ||
-    priceRange[1] < 1000000;
+    priceRange[1] < 500000000;
 
   const FilterContent = () => (
     <div className="space-y-6">
@@ -203,7 +155,7 @@ const AllListings = () => {
             <SelectValue placeholder="اختر التصنيف" />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((cat) => (
+            {categoriesWithAll.map((cat) => (
               <SelectItem key={cat.value} value={cat.value}>
                 {cat.label}
               </SelectItem>
@@ -220,7 +172,7 @@ const AllListings = () => {
             <SelectValue placeholder="اختر المدينة" />
           </SelectTrigger>
           <SelectContent>
-            {cities.map((c) => (
+            {citiesWithAll.map((c) => (
               <SelectItem key={c.value} value={c.value}>
                 {c.label}
               </SelectItem>
@@ -236,8 +188,8 @@ const AllListings = () => {
           <Slider
             value={priceRange}
             onValueChange={(value) => setPriceRange(value as [number, number])}
-            max={1000000}
-            step={1000}
+            max={500000000}
+            step={1000000}
             className="w-full"
           />
         </div>
@@ -268,7 +220,7 @@ const AllListings = () => {
       {hasActiveFilters && (
         <Button
           variant="outline"
-          onClick={clearFilters}
+          onClick={() => setPriceRange([0, 500000000])}
           className="w-full"
         >
           <X className="h-4 w-4 ml-2" />
@@ -313,7 +265,7 @@ const AllListings = () => {
                 <SelectValue placeholder="التصنيف" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((cat) => (
+                {categoriesWithAll.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
                     {cat.label}
                   </SelectItem>
@@ -326,7 +278,7 @@ const AllListings = () => {
                 <SelectValue placeholder="المدينة" />
               </SelectTrigger>
               <SelectContent>
-                {cities.map((c) => (
+                {citiesWithAll.map((c) => (
                   <SelectItem key={c.value} value={c.value}>
                     {c.label}
                   </SelectItem>
@@ -391,7 +343,7 @@ const AllListings = () => {
             )}
             {category !== "all" && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                {categories.find((c) => c.value === category)?.label}
+                {categoriesWithAll.find((c) => c.value === category)?.label}
                 <button onClick={() => setCategory("all")}>
                   <X className="h-3 w-3" />
                 </button>
@@ -399,16 +351,16 @@ const AllListings = () => {
             )}
             {city !== "all" && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                {cities.find((c) => c.value === city)?.label}
+                {citiesWithAll.find((c) => c.value === city)?.label}
                 <button onClick={() => setCity("all")}>
                   <X className="h-3 w-3" />
                 </button>
               </span>
             )}
-            {(priceRange[0] > 0 || priceRange[1] < 1000000) && (
+            {(priceRange[0] > 0 || priceRange[1] < 500000000) && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
                 السعر: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
-                <button onClick={() => setPriceRange([0, 1000000])}>
+                <button onClick={() => setPriceRange([0, 500000000])}>
                   <X className="h-3 w-3" />
                 </button>
               </span>

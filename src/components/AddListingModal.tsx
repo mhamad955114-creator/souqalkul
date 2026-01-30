@@ -9,36 +9,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Upload, X } from "lucide-react";
+import { cities, categories } from "@/lib/constants";
 
 interface AddListingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
-
-const categories = [
-  { value: "cars", label: "سيارات" },
-  { value: "real_estate", label: "عقارات" },
-  { value: "electronics", label: "إلكترونيات" },
-  { value: "clothing", label: "ملابس" },
-  { value: "furniture", label: "أثاث" },
-  { value: "jobs", label: "وظائف" },
-  { value: "games", label: "ألعاب" },
-  { value: "services", label: "خدمات" },
-];
-
-const cities = [
-  "الرياض",
-  "جدة",
-  "مكة المكرمة",
-  "المدينة المنورة",
-  "الدمام",
-  "الخبر",
-  "الطائف",
-  "تبوك",
-  "أبها",
-  "القطيف",
-];
 
 const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) => {
   const { user } = useAuth();
@@ -169,7 +146,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">السعر (ر.س) *</Label>
+              <Label htmlFor="price">السعر (ل.س) *</Label>
               <Input
                 id="price"
                 type="number"
