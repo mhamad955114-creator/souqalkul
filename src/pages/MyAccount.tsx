@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { formatPrice, formatDate, categoryLabels, statusLabels } from "@/lib/constants";
 
 interface Listing {
   id: string;
@@ -33,23 +34,6 @@ interface Listing {
   views_count: number | null;
   created_at: string;
 }
-
-const categoryLabels: Record<string, string> = {
-  cars: "سيارات",
-  real_estate: "عقارات",
-  electronics: "إلكترونيات",
-  clothing: "ملابس",
-  furniture: "أثاث",
-  jobs: "وظائف",
-  games: "ألعاب",
-  services: "خدمات",
-};
-
-const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  active: { label: "نشط", variant: "default" },
-  sold: { label: "تم البيع", variant: "secondary" },
-  expired: { label: "منتهي", variant: "destructive" },
-};
 
 const MyAccount = () => {
   const { user, loading: authLoading } = useAuth();
@@ -114,22 +98,6 @@ const MyAccount = () => {
       setDeleteLoading(false);
       setDeletingListing(null);
     }
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("ar-SA", {
-      style: "currency",
-      currency: "SAR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("ar-SA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(new Date(dateString));
   };
 
   if (authLoading) {

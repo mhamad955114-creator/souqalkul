@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Upload, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { cities, categories, statuses } from "@/lib/constants";
 
 interface Listing {
   id: string;
@@ -27,36 +28,6 @@ interface EditListingModalProps {
   listing: Listing;
   onSuccess: () => void;
 }
-
-const categories = [
-  { value: "cars", label: "سيارات" },
-  { value: "real_estate", label: "عقارات" },
-  { value: "electronics", label: "إلكترونيات" },
-  { value: "clothing", label: "ملابس" },
-  { value: "furniture", label: "أثاث" },
-  { value: "jobs", label: "وظائف" },
-  { value: "games", label: "ألعاب" },
-  { value: "services", label: "خدمات" },
-];
-
-const cities = [
-  "الرياض",
-  "جدة",
-  "مكة المكرمة",
-  "المدينة المنورة",
-  "الدمام",
-  "الخبر",
-  "الطائف",
-  "تبوك",
-  "أبها",
-  "القطيف",
-];
-
-const statuses = [
-  { value: "active", label: "نشط" },
-  { value: "sold", label: "تم البيع" },
-  { value: "expired", label: "منتهي" },
-];
 
 const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingModalProps) => {
   const { user } = useAuth();
@@ -191,7 +162,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">السعر (ر.س) *</Label>
+              <Label htmlFor="price">السعر (ل.س) *</Label>
               <Input
                 id="price"
                 type="number"

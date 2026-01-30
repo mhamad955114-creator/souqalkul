@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { formatPrice, formatDate, categoryLabels } from "@/lib/constants";
 
 interface Listing {
   id: string;
@@ -44,17 +45,6 @@ interface SellerProfile {
   avatar_url: string | null;
   created_at: string;
 }
-
-const categoryLabels: Record<string, string> = {
-  cars: "سيارات",
-  real_estate: "عقارات",
-  electronics: "إلكترونيات",
-  clothing: "ملابس",
-  furniture: "أثاث",
-  jobs: "وظائف",
-  games: "ألعاب",
-  services: "خدمات",
-};
 
 const ListingDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -113,22 +103,6 @@ const ListingDetails = () => {
 
     fetchListing();
   }, [id, navigate]);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("ar-SA", {
-      style: "currency",
-      currency: "SAR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("ar-SA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(new Date(dateString));
-  };
 
   const getTimeSince = (dateString: string) => {
     const date = new Date(dateString);
