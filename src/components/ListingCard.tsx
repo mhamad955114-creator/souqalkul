@@ -35,8 +35,9 @@ const ListingCard = ({ id, image, title, price, location, time, featured }: List
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         {featured && (
-          <div className="absolute top-3 right-3 gradient-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-            مميز
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+            <span>⭐</span>
+            <span>إعلان مدفوع</span>
           </div>
         )}
         <button
