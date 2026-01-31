@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ListingCard from "@/components/ListingCard";
+import BottomNavigation from "@/components/BottomNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Search, SlidersHorizontal, X, Loader2 } from "lucide-react";
+import { Search, SlidersHorizontal, X, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -42,11 +43,14 @@ interface Listing {
   created_at: string;
 }
 
+const ITEMS_PER_PAGE = 12;
+
 const AllListings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
@@ -58,9 +62,16 @@ const AllListings = () => {
     Number(searchParams.get("maxPrice")) || 500000000,
   ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   const fetchListings = async () => {
     setLoading(true);
+
+    const from = (currentPage - 1) * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
 
     let query = supabase
       .from("listings")
@@ -100,6 +111,9 @@ const AllListings = () => {
         query = query.order("created_at", { ascending: false });
     }
 
+    // Apply pagination
+    query = query.range(from, to);
+
     const { data, error, count } = await query;
 
     if (!error && data) {
@@ -111,6 +125,11 @@ const AllListings = () => {
 
   useEffect(() => {
     fetchListings();
+  }, [searchQuery, category, city, sortBy, priceRange, currentPage, refreshTrigger]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
   }, [searchQuery, category, city, sortBy, priceRange]);
 
   const updateSearchParams = () => {
@@ -121,12 +140,13 @@ const AllListings = () => {
     if (sortBy !== "newest") params.set("sort", sortBy);
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
     if (priceRange[1] < 500000000) params.set("maxPrice", priceRange[1].toString());
+    if (currentPage > 1) params.set("page", currentPage.toString());
     setSearchParams(params);
   };
 
   useEffect(() => {
     updateSearchParams();
-  }, [searchQuery, category, city, sortBy, priceRange]);
+  }, [searchQuery, category, city, sortBy, priceRange, currentPage]);
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -134,7 +154,55 @@ const AllListings = () => {
     setCity("all");
     setSortBy("newest");
     setPriceRange([0, 500000000]);
+    setCurrentPage(1);
     setSearchParams({});
+  };
+
+  const handleListingAdded = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+      
+      if (currentPage > 3) {
+        pages.push("...");
+      }
+      
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        if (!pages.includes(i)) {
+          pages.push(i);
+        }
+      }
+      
+      if (currentPage < totalPages - 2) {
+        pages.push("...");
+      }
+      
+      if (!pages.includes(totalPages)) {
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
   };
 
   const hasActiveFilters =
@@ -220,7 +288,7 @@ const AllListings = () => {
       {hasActiveFilters && (
         <Button
           variant="outline"
-          onClick={() => setPriceRange([0, 500000000])}
+          onClick={clearFilters}
           className="w-full"
         >
           <X className="h-4 w-4 ml-2" />
@@ -231,8 +299,8 @@ const AllListings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      <Header />
+    <div className="min-h-screen bg-background pb-20 md:pb-0" dir="rtl">
+      <Header onListingAdded={handleListingAdded} />
 
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
@@ -387,32 +455,82 @@ const AllListings = () => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {listings.map((listing, index) => (
-              <div
-                key={listing.id}
-                className="animate-fade-up"
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                <ListingCard
-                  id={listing.id}
-                  image={
-                    listing.images?.[0] ||
-                    "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"
-                  }
-                  title={listing.title}
-                  price={formatPrice(listing.price)}
-                  location={listing.city}
-                  time={formatTime(listing.created_at)}
-                  featured={listing.is_featured}
-                />
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {listings.map((listing, index) => (
+                <div
+                  key={listing.id}
+                  className="animate-fade-up"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <ListingCard
+                    id={listing.id}
+                    image={
+                      listing.images?.[0] ||
+                      "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"
+                    }
+                    title={listing.title}
+                    price={formatPrice(listing.price)}
+                    location={listing.city}
+                    time={formatTime(listing.created_at)}
+                    featured={listing.is_featured}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-12">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+
+                {getPageNumbers().map((page, index) =>
+                  page === "..." ? (
+                    <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
+                      ...
+                    </span>
+                  ) : (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => goToPage(page as number)}
+                    >
+                      {page}
+                    </Button>
+                  )
+                )}
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* Pagination Info */}
+            {totalPages > 1 && (
+              <p className="text-center text-sm text-muted-foreground mt-4">
+                عرض {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} من {totalCount} إعلان
+              </p>
+            )}
+          </>
         )}
       </main>
 
       <Footer />
+      <BottomNavigation onListingAdded={handleListingAdded} />
     </div>
   );
 };
