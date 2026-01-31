@@ -96,6 +96,9 @@ const AllListings = () => {
     // Apply price range filter
     query = query.gte("price", priceRange[0]).lte("price", priceRange[1]);
 
+    // Always show featured (paid) listings first
+    query = query.order("is_featured", { ascending: false });
+
     // Apply sorting
     switch (sortBy) {
       case "oldest":
