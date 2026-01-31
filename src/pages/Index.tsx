@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ListingsSection from "@/components/ListingsSection";
 import Footer from "@/components/Footer";
+import BottomNavigation from "@/components/BottomNavigation";
 
 const Index = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -13,7 +14,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header onListingAdded={handleListingAdded} />
       <main>
         <HeroSection />
@@ -21,6 +22,7 @@ const Index = () => {
         <ListingsSection refreshTrigger={refreshTrigger} />
       </main>
       <Footer />
+      <BottomNavigation onListingAdded={handleListingAdded} />
     </div>
   );
 };
