@@ -1,4 +1,4 @@
-import { Search, Plus, User, Menu, LogOut, FileText } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -96,6 +96,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                           <FileText className="h-4 w-4" />
                           إعلاناتي
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/my-orders")} className="flex items-center gap-2">
+                          <ShoppingBag className="h-4 w-4" />
+                          طلباتي
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive">
                           <LogOut className="h-4 w-4" />
                           تسجيل الخروج
@@ -155,6 +159,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     <Button variant="outline" onClick={() => navigate("/my-account")}>
                       <FileText className="h-4 w-4" />
                       إعلاناتي
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate("/my-orders")}>
+                      <ShoppingBag className="h-4 w-4" />
+                      طلباتي
                     </Button>
                     <Button variant="outline" onClick={handleSignOut}>
                       <LogOut className="h-4 w-4" />
