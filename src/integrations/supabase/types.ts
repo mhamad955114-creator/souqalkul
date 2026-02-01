@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       listings: {
         Row: {
+          area: string | null
           category: string
           city: string
           created_at: string
@@ -31,6 +32,7 @@ export type Database = {
           views_count: number | null
         }
         Insert: {
+          area?: string | null
           category: string
           city: string
           created_at?: string
@@ -46,6 +48,7 @@ export type Database = {
           views_count?: number | null
         }
         Update: {
+          area?: string | null
           category?: string
           city?: string
           created_at?: string
