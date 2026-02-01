@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift } from "lucide-react";
 import { cities, categories } from "@/lib/constants";
 
 interface AddListingModalProps {
@@ -27,6 +28,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     price: "",
     category: "",
     city: "",
+    is_featured: false,
   });
   const [images, setImages] = useState<string[]>([]);
 
@@ -88,6 +90,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         category: formData.category,
         city: formData.city,
         images: images,
+        is_featured: formData.is_featured,
       });
 
       if (error) {
@@ -110,6 +113,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       price: "",
       category: "",
       city: "",
+      is_featured: false,
     });
     setImages([]);
   };
@@ -196,6 +200,39 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Ad Type Section */}
+          <div className="space-y-3">
+            <Label>نوع الإعلان *</Label>
+            <RadioGroup
+              value={formData.is_featured ? "paid" : "free"}
+              onValueChange={(value) => setFormData({ ...formData, is_featured: value === "paid" })}
+              className="grid grid-cols-2 gap-4"
+            >
+              <div className="relative">
+                <RadioGroupItem value="free" id="free" className="peer sr-only" />
+                <label
+                  htmlFor="free"
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
+                >
+                  <Gift className="h-8 w-8 text-green-500" />
+                  <span className="font-semibold">إعلان مجاني</span>
+                  <span className="text-xs text-muted-foreground text-center">يظهر بعد الإعلانات المدفوعة</span>
+                </label>
+              </div>
+              <div className="relative">
+                <RadioGroupItem value="paid" id="paid" className="peer sr-only" />
+                <label
+                  htmlFor="paid"
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-amber-500 peer-data-[state=checked]:bg-amber-500/5 cursor-pointer transition-all"
+                >
+                  <Star className="h-8 w-8 text-amber-500" />
+                  <span className="font-semibold">إعلان مدفوع</span>
+                  <span className="text-xs text-muted-foreground text-center">يظهر دائماً في المقدمة</span>
+                </label>
+              </div>
+            </RadioGroup>
           </div>
 
           {/* Images Section */}
