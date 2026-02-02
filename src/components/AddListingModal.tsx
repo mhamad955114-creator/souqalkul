@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, Gift } from "lucide-react";
-import { cities, categories } from "@/lib/constants";
+import { cities, categories, areasByCity } from "@/lib/constants";
 
 interface AddListingModalProps {
   isOpen: boolean;
@@ -28,6 +28,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     price: "",
     category: "",
     city: "",
+    area: "",
+    phone: "",
     is_featured: false,
   });
   const [images, setImages] = useState<string[]>([]);
@@ -113,9 +115,19 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       price: "",
       category: "",
       city: "",
+      area: "",
+      phone: "",
       is_featured: false,
     });
     setImages([]);
+  };
+
+  // Get available areas for selected city
+  const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
+
+  // Handle city change - reset area when city changes
+  const handleCityChange = (city: string) => {
+    setFormData({ ...formData, city, area: "" });
   };
 
   return (
@@ -183,23 +195,59 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>المدينة *</Label>
+              <Select
+                value={formData.city}
+                onValueChange={handleCityChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر المدينة" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>المنطقة</Label>
+              <Select
+                value={formData.area}
+                onValueChange={(value) => setFormData({ ...formData, area: value })}
+                disabled={!formData.city || availableAreas.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={formData.city ? "اختر المنطقة" : "اختر المدينة أولاً"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableAreas.map((area) => (
+                    <SelectItem key={area} value={area}>
+                      {area}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label>المدينة *</Label>
-            <Select
-              value={formData.city}
-              onValueChange={(value) => setFormData({ ...formData, city: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="اختر المدينة" />
-              </SelectTrigger>
-              <SelectContent>
-                {cities.map((city) => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="phone">رقم الهاتف *</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="09xxxxxxxx"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              required
+              dir="ltr"
+              className="text-left"
+            />
           </div>
 
           {/* Ad Type Section */}
