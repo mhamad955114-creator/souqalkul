@@ -53,6 +53,7 @@ export type Database = {
           id: string
           images: string[] | null
           is_featured: boolean | null
+          phone: string | null
           price: number
           status: string | null
           title: string
@@ -69,6 +70,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          phone?: string | null
           price: number
           status?: string | null
           title: string
@@ -85,6 +87,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          phone?: string | null
           price?: number
           status?: string | null
           title?: string

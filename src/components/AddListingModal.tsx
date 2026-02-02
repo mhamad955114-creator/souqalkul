@@ -76,8 +76,15 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     e.preventDefault();
     if (!user) return;
 
-    if (!formData.title || !formData.price || !formData.category || !formData.city) {
+    if (!formData.title || !formData.price || !formData.category || !formData.city || !formData.phone) {
       toast.error("يرجى ملء جميع الحقول المطلوبة");
+      return;
+    }
+
+    // Validate phone number format (Syrian format)
+    const phoneRegex = /^09\d{8}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error("يرجى إدخال رقم هاتف صحيح (09xxxxxxxx)");
       return;
     }
 
@@ -86,11 +93,13 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     try {
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
-        title: formData.title,
-        description: formData.description,
+        title: formData.title.trim(),
+        description: formData.description.trim(),
         price: parseFloat(formData.price),
         category: formData.category,
         city: formData.city,
+        area: formData.area || null,
+        phone: formData.phone,
         images: images,
         is_featured: formData.is_featured,
       });
