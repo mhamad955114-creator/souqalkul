@@ -1,6 +1,6 @@
 import { Heart, MapPin, Clock } from "lucide-react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useFavoritesContext } from "@/contexts/FavoritesContext";
 
 interface ListingCardProps {
   id?: string;
@@ -14,7 +14,8 @@ interface ListingCardProps {
 
 const ListingCard = ({ id, image, title, price, location, time, featured }: ListingCardProps) => {
   const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavoritesContext();
+  const isListingFavorite = id ? isFavorite(id) : false;
 
   const handleClick = () => {
     if (id) {
@@ -43,13 +44,15 @@ const ListingCard = ({ id, image, title, price, location, time, featured }: List
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setIsFavorite(!isFavorite);
+            if (id) {
+              toggleFavorite(id);
+            }
           }}
           className="absolute top-3 left-3 w-9 h-9 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
         >
           <Heart
             className={`h-5 w-5 transition-colors ${
-              isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground"
+              isListingFavorite ? "fill-destructive text-destructive" : "text-muted-foreground"
             }`}
           />
         </button>

@@ -4,12 +4,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import Index from "./pages/Index";
 import MyAccount from "./pages/MyAccount";
 import ListingDetails from "./pages/ListingDetails";
 import AllListings from "./pages/AllListings";
 import Pricing from "./pages/Pricing";
 import MyOrders from "./pages/MyOrders";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -17,22 +19,25 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/my-account" element={<MyAccount />} />
-            <Route path="/listing/:id" element={<ListingDetails />} />
-            <Route path="/listings" element={<AllListings />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/my-orders" element={<MyOrders />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <FavoritesProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/my-account" element={<MyAccount />} />
+              <Route path="/listing/:id" element={<ListingDetails />} />
+              <Route path="/listings" element={<AllListings />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/favorites" element={<Favorites />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </FavoritesProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
