@@ -1,4 +1,4 @@
-import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -104,6 +104,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                           <Heart className="h-4 w-4" />
                           المفضلة
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/messages")} className="flex items-center gap-2">
+                          <MessageCircle className="h-4 w-4" />
+                          الرسائل
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive">
                           <LogOut className="h-4 w-4" />
                           تسجيل الخروج
@@ -171,6 +175,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     <Button variant="outline" onClick={() => navigate("/favorites")}>
                       <Heart className="h-4 w-4" />
                       المفضلة
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate("/messages")}>
+                      <MessageCircle className="h-4 w-4" />
+                      الرسائل
                     </Button>
                     <Button variant="outline" onClick={handleSignOut}>
                       <LogOut className="h-4 w-4" />

@@ -17,11 +17,15 @@ import {
   Share2,
   Heart,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageSquare
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ChatModal from "@/components/ChatModal";
+import AuthModal from "@/components/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
 import { formatPrice, formatDate, categoryLabels } from "@/lib/constants";
 
 interface Listing {
@@ -31,6 +35,8 @@ interface Listing {
   price: number;
   category: string;
   city: string;
+  area: string | null;
+  phone: string | null;
   images: string[] | null;
   status: string | null;
   views_count: number | null;
@@ -49,11 +55,14 @@ interface SellerProfile {
 const ListingDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -118,8 +127,9 @@ const ListingDetails = () => {
   };
 
   const handleCall = () => {
-    if (seller?.phone) {
-      window.location.href = `tel:${seller.phone}`;
+    const phoneNumber = seller?.phone || listing?.phone;
+    if (phoneNumber) {
+      window.location.href = `tel:${phoneNumber}`;
     } else {
       toast.error("رقم الهاتف غير متوفر");
     }
@@ -130,6 +140,10 @@ const ListingDetails = () => {
       const phone = seller.phone.replace(/[^0-9]/g, "");
       const message = encodeURIComponent(`مرحباً، أنا مهتم بإعلانك: ${listing?.title}`);
       window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+    } else if (listing?.phone) {
+      const phone = listing.phone.replace(/[^0-9]/g, "");
+      const message = encodeURIComponent(`مرحباً، أنا مهتم بإعلانك: ${listing?.title}`);
+      window.open(`https://wa.me/963${phone.slice(1)}?text=${message}`, "_blank");
     } else {
       toast.error("رقم الهاتف غير متوفر");
     }
@@ -373,7 +387,7 @@ const ListingDetails = () => {
                     onClick={handleCall}
                     className="w-full" 
                     size="lg"
-                    disabled={!seller?.phone}
+                    disabled={!seller?.phone && !listing?.phone}
                   >
                     <Phone className="h-5 w-5" />
                     اتصال
@@ -384,14 +398,33 @@ const ListingDetails = () => {
                     variant="outline" 
                     className="w-full bg-[#25D366] hover:bg-[#25D366]/90 text-white border-[#25D366] hover:text-white" 
                     size="lg"
-                    disabled={!seller?.phone}
+                    disabled={!seller?.phone && !listing?.phone}
                   >
                     <MessageCircle className="h-5 w-5" />
                     واتساب
                   </Button>
+
+                  {/* Chat Button */}
+                  {listing?.user_id !== user?.id && (
+                    <Button 
+                      onClick={() => {
+                        if (user) {
+                          setChatModalOpen(true);
+                        } else {
+                          setAuthModalOpen(true);
+                        }
+                      }}
+                      variant="outline" 
+                      className="w-full" 
+                      size="lg"
+                    >
+                      <MessageSquare className="h-5 w-5" />
+                      دردشة مع البائع
+                    </Button>
+                  )}
                 </div>
 
-                {!seller?.phone && (
+                {!seller?.phone && !listing?.phone && (
                   <p className="text-sm text-muted-foreground text-center mt-4">
                     البائع لم يضف رقم هاتف
                   </p>
@@ -418,6 +451,24 @@ const ListingDetails = () => {
       </main>
 
       <Footer />
+
+      {/* Chat Modal */}
+      {listing && (
+        <ChatModal
+          open={chatModalOpen}
+          onOpenChange={setChatModalOpen}
+          listingId={listing.id}
+          sellerId={listing.user_id}
+          listingTitle={listing.title}
+        />
+      )}
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultTab="login"
+      />
     </div>
   );
 };
