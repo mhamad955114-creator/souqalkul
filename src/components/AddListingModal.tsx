@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
 import { cities, categories, areasByCity } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -25,6 +25,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
   const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
+  const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -37,7 +38,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   });
   const [images, setImages] = useState<string[]>([]);
 
-  const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string }> => {
+  const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
     try {
       const response = await supabase.functions.invoke('moderate-image', {
         body: { imageUrl }
@@ -61,6 +62,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
     setUploadingImages(true);
     setRejectedImages([]);
+    setSuggestedCategory(null);
     const uploadedUrls: string[] = [];
     const rejected: { url: string; reason: string }[] = [];
 
@@ -92,10 +94,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
         // Moderate each uploaded image
         const approvedUrls: string[] = [];
+        let detectedCategory: string | null = null;
+        
         for (const url of uploadedUrls) {
           const result = await moderateImage(url);
           if (result.approved) {
             approvedUrls.push(url);
+            // Use the first detected category
+            if (!detectedCategory && result.suggestedCategory) {
+              detectedCategory = result.suggestedCategory;
+            }
           } else {
             rejected.push({ url, reason: result.reason });
             // Delete rejected image from storage
@@ -109,6 +117,15 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         if (approvedUrls.length > 0) {
           setImages((prev) => [...prev, ...approvedUrls]);
           toast.success(`تم قبول ${approvedUrls.length} صورة`);
+          
+          // Auto-suggest category if not already set
+          if (detectedCategory && !formData.category) {
+            setSuggestedCategory(detectedCategory);
+            setFormData(prev => ({ ...prev, category: detectedCategory! }));
+            toast.success(`تم اكتشاف التصنيف تلقائياً: ${detectedCategory}`, {
+              icon: '✨'
+            });
+          }
         }
 
         if (rejected.length > 0) {
@@ -184,6 +201,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     });
     setImages([]);
     setRejectedImages([]);
+    setSuggestedCategory(null);
   };
 
   // Get available areas for selected city
@@ -240,12 +258,20 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
 
             <div className="space-y-2">
-              <Label>التصنيف *</Label>
+              <Label className="flex items-center gap-2">
+                التصنيف *
+                {suggestedCategory && (
+                  <span className="inline-flex items-center gap-1 text-xs text-primary font-normal">
+                    <Sparkles className="h-3 w-3" />
+                    تم الاكتشاف تلقائياً
+                  </span>
+                )}
+              </Label>
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className={suggestedCategory ? "ring-2 ring-primary/50" : ""}>
                   <SelectValue placeholder="اختر التصنيف" />
                 </SelectTrigger>
                 <SelectContent>

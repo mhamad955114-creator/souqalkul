@@ -6,6 +6,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Available categories in the app (Arabic)
+const VALID_CATEGORIES = [
+  "سيارات",
+  "عقارات", 
+  "الكترونيات",
+  "أثاث",
+  "ملابس",
+  "خدمات",
+  "وظائف",
+  "ألعاب",
+  "أخرى"
+];
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -39,31 +52,37 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an image content moderation system. Your job is to analyze images and determine if they violate content policies.
+            content: `You are an image analysis system for a marketplace. Your job is to:
 
-Violations include:
-- Explicit adult/sexual content
-- Violence or graphic content
-- Weapons or dangerous items
-- Hate symbols or extremist content
-- Drugs or illegal substances
-- Personal identification documents
-- Inappropriate or offensive text overlays
+1. Check if the image violates content policies (explicit content, violence, weapons, hate symbols, drugs, etc.)
+2. Identify what product/item is in the image and suggest the best category
+
+Available categories (use EXACTLY one of these in Arabic):
+- سيارات (cars, vehicles, motorcycles, trucks)
+- عقارات (real estate, houses, apartments, buildings, land)
+- الكترونيات (electronics, phones, computers, TVs, appliances)
+- أثاث (furniture, tables, chairs, beds, sofas)
+- ملابس (clothing, shoes, accessories, fashion)
+- خدمات (services - not for physical products)
+- وظائف (jobs - not for physical products)
+- ألعاب (games, toys, gaming consoles, sports equipment)
+- أخرى (other - only if nothing else fits)
 
 Respond ONLY with a JSON object in this exact format:
 {
   "approved": true/false,
-  "reason": "Brief explanation if rejected, or 'محتوى مناسب' if approved"
+  "reason": "Brief explanation if rejected, or 'محتوى مناسب' if approved",
+  "suggestedCategory": "one of the categories above in Arabic"
 }
 
-Be strict about violations but don't reject legitimate product photos, cars, electronics, furniture, clothing, etc.`
+Be strict about policy violations but don't reject legitimate marketplace photos.`
           },
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: 'Analyze this image and determine if it should be approved for a marketplace listing. Return JSON only.'
+                text: 'Analyze this image. Check for policy violations and identify the product category. Return JSON only.'
               },
               {
                 type: 'image_url',
@@ -74,7 +93,7 @@ Be strict about violations but don't reject legitimate product photos, cars, ele
             ]
           }
         ],
-        max_tokens: 200,
+        max_tokens: 300,
         temperature: 0.1
       }),
     });
@@ -97,14 +116,25 @@ Be strict about violations but don't reject legitimate product photos, cars, ele
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         result = JSON.parse(jsonMatch[0]);
+        
+        // Validate the suggested category
+        if (result.suggestedCategory && !VALID_CATEGORIES.includes(result.suggestedCategory)) {
+          // Try to find a close match or default to "أخرى"
+          result.suggestedCategory = "أخرى";
+        }
       } else {
-        // If no JSON found, assume approved
-        result = { approved: true, reason: 'محتوى مناسب' };
+        // If no JSON found, assume approved with "أخرى" category
+        result = { approved: true, reason: 'محتوى مناسب', suggestedCategory: 'أخرى' };
       }
     } catch (parseError) {
       console.error('Parse error:', parseError);
       // Default to approved if parsing fails
-      result = { approved: true, reason: 'محتوى مناسب' };
+      result = { approved: true, reason: 'محتوى مناسب', suggestedCategory: 'أخرى' };
+    }
+
+    // Ensure suggestedCategory is always present
+    if (!result.suggestedCategory) {
+      result.suggestedCategory = 'أخرى';
     }
 
     return new Response(
