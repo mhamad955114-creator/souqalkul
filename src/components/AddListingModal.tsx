@@ -9,8 +9,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX } from "lucide-react";
 import { cities, categories, areasByCity } from "@/lib/constants";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AddListingModalProps {
   isOpen: boolean;
@@ -22,6 +23,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [moderatingImages, setModeratingImages] = useState(false);
+  const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -34,11 +37,32 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   });
   const [images, setImages] = useState<string[]>([]);
 
+  const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string }> => {
+    try {
+      const response = await supabase.functions.invoke('moderate-image', {
+        body: { imageUrl }
+      });
+
+      if (response.error) {
+        console.error('Moderation error:', response.error);
+        // If moderation fails, allow the image (fail-open)
+        return { approved: true, reason: 'محتوى مناسب' };
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Error calling moderation:', error);
+      return { approved: true, reason: 'محتوى مناسب' };
+    }
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return;
 
     setUploadingImages(true);
+    setRejectedImages([]);
     const uploadedUrls: string[] = [];
+    const rejected: { url: string; reason: string }[] = [];
 
     try {
       for (const file of Array.from(e.target.files)) {
@@ -61,10 +85,40 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         uploadedUrls.push(publicUrl);
       }
 
-      setImages((prev) => [...prev, ...uploadedUrls]);
-      toast.success(`تم رفع ${uploadedUrls.length} صورة بنجاح`);
+      if (uploadedUrls.length > 0) {
+        toast.success(`تم رفع ${uploadedUrls.length} صورة، جاري فحص المحتوى...`);
+        setUploadingImages(false);
+        setModeratingImages(true);
+
+        // Moderate each uploaded image
+        const approvedUrls: string[] = [];
+        for (const url of uploadedUrls) {
+          const result = await moderateImage(url);
+          if (result.approved) {
+            approvedUrls.push(url);
+          } else {
+            rejected.push({ url, reason: result.reason });
+            // Delete rejected image from storage
+            const path = url.split('/listings/')[1];
+            if (path) {
+              await supabase.storage.from('listings').remove([path]);
+            }
+          }
+        }
+
+        if (approvedUrls.length > 0) {
+          setImages((prev) => [...prev, ...approvedUrls]);
+          toast.success(`تم قبول ${approvedUrls.length} صورة`);
+        }
+
+        if (rejected.length > 0) {
+          setRejectedImages(rejected);
+          toast.error(`تم رفض ${rejected.length} صورة لمخالفتها القوانين`);
+        }
+      }
     } finally {
       setUploadingImages(false);
+      setModeratingImages(false);
     }
   };
 
@@ -129,6 +183,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       is_featured: false,
     });
     setImages([]);
+    setRejectedImages([]);
   };
 
   // Get available areas for selected city
@@ -303,7 +358,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 onChange={handleImageUpload}
                 className="hidden"
                 id="image-upload"
-                disabled={uploadingImages}
+                disabled={uploadingImages || moderatingImages}
               />
               <label
                 htmlFor="image-upload"
@@ -311,11 +366,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               >
                 {uploadingImages ? (
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                ) : moderatingImages ? (
+                  <ShieldCheck className="h-8 w-8 animate-pulse text-primary" />
                 ) : (
                   <Upload className="h-8 w-8 text-muted-foreground" />
                 )}
                 <span className="mt-2 text-sm text-muted-foreground">
-                  {uploadingImages ? "جاري الرفع..." : "اضغط لرفع الصور"}
+                  {uploadingImages 
+                    ? "جاري الرفع..." 
+                    : moderatingImages 
+                      ? "جاري فحص الصور بالذكاء الاصطناعي..."
+                      : "اضغط لرفع الصور"}
                 </span>
               </label>
 
@@ -326,8 +387,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                       <img
                         src={url}
                         alt={`صورة ${index + 1}`}
-                        className="w-full h-20 object-cover rounded-lg"
+                        className="w-full h-20 object-cover rounded-lg ring-2 ring-green-500/50"
                       />
+                      <div className="absolute top-1 right-1">
+                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                      </div>
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
@@ -339,11 +403,28 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   ))}
                 </div>
               )}
+
+              {/* Rejected Images Alert */}
+              {rejectedImages.length > 0 && (
+                <Alert variant="destructive" className="mt-4">
+                  <ShieldX className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="font-semibold mb-2">تم رفض الصور التالية:</div>
+                    <ul className="list-disc list-inside space-y-1">
+                      {rejectedImages.map((item, index) => (
+                        <li key={index} className="text-sm">
+                          {item.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="submit" className="flex-1" size="lg" disabled={loading}>
+            <Button type="submit" className="flex-1" size="lg" disabled={loading || moderatingImages}>
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
