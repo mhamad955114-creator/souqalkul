@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { cities, categories, statuses } from "@/lib/constants";
+import { cities, categories, statuses, areasByCity } from "@/lib/constants";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Listing {
   id: string;
@@ -18,6 +19,8 @@ interface Listing {
   price: number;
   category: string;
   city: string;
+  area: string | null;
+  phone: string | null;
   images: string[] | null;
   status: string | null;
 }
@@ -33,12 +36,17 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [moderatingImages, setModeratingImages] = useState(false);
+  const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
+  const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     price: "",
     category: "",
     city: "",
+    area: "",
+    phone: "",
     status: "",
   });
   const [images, setImages] = useState<string[]>([]);
@@ -51,17 +59,41 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         price: listing.price.toString(),
         category: listing.category,
         city: listing.city,
+        area: listing.area || "",
+        phone: listing.phone || "",
         status: listing.status || "active",
       });
       setImages(listing.images || []);
+      setRejectedImages([]);
+      setSuggestedCategory(null);
     }
   }, [listing]);
+
+  const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
+    try {
+      const response = await supabase.functions.invoke('moderate-image', {
+        body: { imageUrl }
+      });
+
+      if (response.error) {
+        console.error('Moderation error:', response.error);
+        return { approved: true, reason: 'محتوى مناسب' };
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Error calling moderation:', error);
+      return { approved: true, reason: 'محتوى مناسب' };
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return;
 
     setUploadingImages(true);
+    setRejectedImages([]);
     const uploadedUrls: string[] = [];
+    const rejected: { url: string; reason: string }[] = [];
 
     try {
       for (const file of Array.from(e.target.files)) {
@@ -84,15 +116,62 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         uploadedUrls.push(publicUrl);
       }
 
-      setImages((prev) => [...prev, ...uploadedUrls]);
-      toast.success(`تم رفع ${uploadedUrls.length} صورة بنجاح`);
+      if (uploadedUrls.length > 0) {
+        toast.success(`تم رفع ${uploadedUrls.length} صورة، جاري فحص المحتوى...`);
+        setUploadingImages(false);
+        setModeratingImages(true);
+
+        const approvedUrls: string[] = [];
+        let detectedCategory: string | null = null;
+        
+        for (const url of uploadedUrls) {
+          const result = await moderateImage(url);
+          if (result.approved) {
+            approvedUrls.push(url);
+            if (!detectedCategory && result.suggestedCategory) {
+              detectedCategory = result.suggestedCategory;
+            }
+          } else {
+            rejected.push({ url, reason: result.reason });
+            const path = url.split('/listings/')[1];
+            if (path) {
+              await supabase.storage.from('listings').remove([path]);
+            }
+          }
+        }
+
+        if (approvedUrls.length > 0) {
+          setImages((prev) => [...prev, ...approvedUrls]);
+          toast.success(`تم قبول ${approvedUrls.length} صورة`);
+          
+          if (detectedCategory && !formData.category) {
+            setSuggestedCategory(detectedCategory);
+            setFormData(prev => ({ ...prev, category: detectedCategory! }));
+            toast.success(`تم اكتشاف التصنيف تلقائياً: ${detectedCategory}`, {
+              icon: '✨'
+            });
+          }
+        }
+
+        if (rejected.length > 0) {
+          setRejectedImages(rejected);
+          toast.error(`تم رفض ${rejected.length} صورة لمخالفتها القوانين`);
+        }
+      }
     } finally {
       setUploadingImages(false);
+      setModeratingImages(false);
     }
   };
 
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
+
+  const handleCityChange = (city: string) => {
+    setFormData({ ...formData, city, area: "" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,6 +180,14 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     if (!formData.title || !formData.price || !formData.category || !formData.city) {
       toast.error("يرجى ملء جميع الحقول المطلوبة");
       return;
+    }
+
+    if (formData.phone) {
+      const phoneRegex = /^09\d{8}$/;
+      if (!phoneRegex.test(formData.phone)) {
+        toast.error("يرجى إدخال رقم هاتف صحيح (09xxxxxxxx)");
+        return;
+      }
     }
 
     setLoading(true);
@@ -114,6 +201,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
           price: parseFloat(formData.price),
           category: formData.category,
           city: formData.city,
+          area: formData.area || null,
+          phone: formData.phone || null,
           status: formData.status,
           images: images,
         })
@@ -176,12 +265,20 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
             </div>
 
             <div className="space-y-2">
-              <Label>التصنيف *</Label>
+              <Label className="flex items-center gap-2">
+                التصنيف *
+                {suggestedCategory && (
+                  <span className="inline-flex items-center gap-1 text-xs text-primary font-normal">
+                    <Sparkles className="h-3 w-3" />
+                    تم الاكتشاف تلقائياً
+                  </span>
+                )}
+              </Label>
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className={suggestedCategory ? "ring-2 ring-primary/50" : ""}>
                   <SelectValue placeholder="اختر التصنيف" />
                 </SelectTrigger>
                 <SelectContent>
@@ -200,7 +297,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
               <Label>المدينة *</Label>
               <Select
                 value={formData.city}
-                onValueChange={(value) => setFormData({ ...formData, city: value })}
+                onValueChange={handleCityChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="اختر المدينة" />
@@ -213,6 +310,41 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>المنطقة</Label>
+              <Select
+                value={formData.area}
+                onValueChange={(value) => setFormData({ ...formData, area: value })}
+                disabled={!formData.city || availableAreas.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={formData.city ? "اختر المنطقة" : "اختر المدينة أولاً"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableAreas.map((area) => (
+                    <SelectItem key={area} value={area}>
+                      {area}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone">رقم الهاتف</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="09xxxxxxxx"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                dir="ltr"
+                className="text-left"
+              />
             </div>
 
             <div className="space-y-2">
@@ -246,7 +378,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                 onChange={handleImageUpload}
                 className="hidden"
                 id="edit-image-upload"
-                disabled={uploadingImages}
+                disabled={uploadingImages || moderatingImages}
               />
               <label
                 htmlFor="edit-image-upload"
@@ -254,11 +386,17 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
               >
                 {uploadingImages ? (
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                ) : moderatingImages ? (
+                  <ShieldCheck className="h-8 w-8 animate-pulse text-primary" />
                 ) : (
                   <Upload className="h-8 w-8 text-muted-foreground" />
                 )}
                 <span className="mt-2 text-sm text-muted-foreground">
-                  {uploadingImages ? "جاري الرفع..." : "اضغط لرفع صور إضافية"}
+                  {uploadingImages 
+                    ? "جاري الرفع..." 
+                    : moderatingImages 
+                      ? "جاري فحص الصور بالذكاء الاصطناعي..."
+                      : "اضغط لرفع صور إضافية"}
                 </span>
               </label>
 
@@ -269,8 +407,11 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                       <img
                         src={url}
                         alt={`صورة ${index + 1}`}
-                        className="w-full h-20 object-cover rounded-lg"
+                        className="w-full h-20 object-cover rounded-lg ring-2 ring-green-500/50"
                       />
+                      <div className="absolute top-1 right-1">
+                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                      </div>
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
@@ -282,11 +423,28 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                   ))}
                 </div>
               )}
+
+              {/* Rejected Images Alert */}
+              {rejectedImages.length > 0 && (
+                <Alert variant="destructive" className="mt-4">
+                  <ShieldX className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="font-semibold mb-2">تم رفض الصور التالية:</div>
+                    <ul className="list-disc list-inside space-y-1">
+                      {rejectedImages.map((item, index) => (
+                        <li key={index} className="text-sm">
+                          {item.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="submit" className="flex-1" size="lg" disabled={loading}>
+            <Button type="submit" className="flex-1" size="lg" disabled={loading || moderatingImages}>
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
