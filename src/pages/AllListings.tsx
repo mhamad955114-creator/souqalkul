@@ -29,7 +29,8 @@ import {
   citiesWithAll, 
   sortOptions, 
   formatPrice, 
-  formatTime 
+  formatTime,
+  areasByCity 
 } from "@/lib/constants";
 
 interface Listing {
@@ -37,6 +38,7 @@ interface Listing {
   title: string;
   price: number;
   city: string;
+  area: string | null;
   category: string;
   images: string[];
   is_featured: boolean;
@@ -56,12 +58,16 @@ const AllListings = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [category, setCategory] = useState(searchParams.get("category") || "all");
   const [city, setCity] = useState(searchParams.get("city") || "all");
+  const [area, setArea] = useState(searchParams.get("area") || "all");
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "newest");
   const [priceRange, setPriceRange] = useState<[number, number]>([
     Number(searchParams.get("minPrice")) || 0,
     Number(searchParams.get("maxPrice")) || 500000000,
   ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  // Get available areas for selected city
+  const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
@@ -91,6 +97,11 @@ const AllListings = () => {
     // Apply city filter
     if (city && city !== "all") {
       query = query.eq("city", city);
+    }
+
+    // Apply area filter
+    if (area && area !== "all") {
+      query = query.eq("area", area);
     }
 
     // Apply price range filter
@@ -128,18 +139,24 @@ const AllListings = () => {
 
   useEffect(() => {
     fetchListings();
-  }, [searchQuery, category, city, sortBy, priceRange, currentPage, refreshTrigger]);
+  }, [searchQuery, category, city, area, sortBy, priceRange, currentPage, refreshTrigger]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, category, city, sortBy, priceRange]);
+  }, [searchQuery, category, city, area, sortBy, priceRange]);
+
+  // Reset area when city changes
+  useEffect(() => {
+    setArea("all");
+  }, [city]);
 
   const updateSearchParams = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
     if (category !== "all") params.set("category", category);
     if (city !== "all") params.set("city", city);
+    if (area !== "all") params.set("area", area);
     if (sortBy !== "newest") params.set("sort", sortBy);
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
     if (priceRange[1] < 500000000) params.set("maxPrice", priceRange[1].toString());
@@ -149,12 +166,13 @@ const AllListings = () => {
 
   useEffect(() => {
     updateSearchParams();
-  }, [searchQuery, category, city, sortBy, priceRange, currentPage]);
+  }, [searchQuery, category, city, area, sortBy, priceRange, currentPage]);
 
   const clearFilters = () => {
     setSearchQuery("");
     setCategory("all");
     setCity("all");
+    setArea("all");
     setSortBy("newest");
     setPriceRange([0, 500000000]);
     setCurrentPage(1);
@@ -212,6 +230,7 @@ const AllListings = () => {
     searchQuery ||
     category !== "all" ||
     city !== "all" ||
+    area !== "all" ||
     sortBy !== "newest" ||
     priceRange[0] > 0 ||
     priceRange[1] < 500000000;
@@ -251,6 +270,26 @@ const AllListings = () => {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Area Filter */}
+      {city !== "all" && availableAreas.length > 0 && (
+        <div className="space-y-2">
+          <Label>المنطقة</Label>
+          <Select value={area} onValueChange={setArea}>
+            <SelectTrigger>
+              <SelectValue placeholder="اختر المنطقة" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع المناطق</SelectItem>
+              {availableAreas.map((a) => (
+                <SelectItem key={a} value={a}>
+                  {a}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Price Range Filter */}
       <div className="space-y-4">
@@ -357,6 +396,22 @@ const AllListings = () => {
               </SelectContent>
             </Select>
 
+            {city !== "all" && availableAreas.length > 0 && (
+              <Select value={area} onValueChange={setArea}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="المنطقة" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع المناطق</SelectItem>
+                  {availableAreas.map((a) => (
+                    <SelectItem key={a} value={a}>
+                      {a}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="الترتيب" />
@@ -424,6 +479,14 @@ const AllListings = () => {
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
                 {citiesWithAll.find((c) => c.value === city)?.label}
                 <button onClick={() => setCity("all")}>
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
+            {area !== "all" && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
+                {area}
+                <button onClick={() => setArea("all")}>
                   <X className="h-3 w-3" />
                 </button>
               </span>
