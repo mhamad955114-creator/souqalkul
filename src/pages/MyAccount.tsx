@@ -29,6 +29,8 @@ interface Listing {
   price: number;
   category: string;
   city: string;
+  area: string | null;
+  phone: string | null;
   images: string[] | null;
   status: string | null;
   views_count: number | null;
