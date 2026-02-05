@@ -317,7 +317,7 @@ const ListingDetails = () => {
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
                   <span className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    {listing.city}
+                    {listing.city}{listing.area && ` - ${listing.area}`}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
@@ -327,6 +327,12 @@ const ListingDetails = () => {
                     <Eye className="h-4 w-4" />
                     {listing.views_count || 0} مشاهدة
                   </span>
+                  {listing.phone && (
+                    <span className="flex items-center gap-1">
+                      <Phone className="h-4 w-4" />
+                      {listing.phone}
+                    </span>
+                  )}
                 </div>
 
                 <Separator className="my-6" />
