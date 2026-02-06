@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, Plus } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, Plus, Settings } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -127,10 +127,16 @@ const MyAccount = () => {
               إدارة جميع إعلاناتك من مكان واحد
             </p>
           </div>
-          <Button onClick={() => navigate("/")} variant="outline">
-            <ArrowRight className="h-4 w-4" />
-            العودة للرئيسية
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/settings")} variant="outline">
+              <Settings className="h-4 w-4" />
+              الإعدادات
+            </Button>
+            <Button onClick={() => navigate("/")} variant="outline">
+              <ArrowRight className="h-4 w-4" />
+              العودة للرئيسية
+            </Button>
+          </div>
         </div>
 
         {/* Listings */}
