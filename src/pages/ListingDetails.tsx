@@ -25,6 +25,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatModal from "@/components/ChatModal";
 import AuthModal from "@/components/AuthModal";
+import ShareButtons from "@/components/ShareButtons";
 import { useAuth } from "@/hooks/useAuth";
 import { formatPrice, formatDate, categoryLabels } from "@/lib/constants";
 
@@ -149,22 +150,6 @@ const ListingDetails = () => {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: listing?.title,
-          text: listing?.description || "",
-          url: window.location.href,
-        });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast.success("تم نسخ الرابط");
-      }
-    } catch {
-      // User cancelled share
-    }
-  };
 
   const nextImage = () => {
     if (listing?.images && listing.images.length > 0) {
@@ -265,12 +250,11 @@ const ListingDetails = () => {
                   >
                     <Heart className={`h-5 w-5 ${isFavorite ? "fill-destructive text-destructive" : ""}`} />
                   </button>
-                  <button
-                    onClick={handleShare}
-                    className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-card transition-colors"
-                  >
-                    <Share2 className="h-5 w-5" />
-                  </button>
+                  <ShareButtons
+                    url={window.location.href}
+                    title={listing.title}
+                    description={listing.description || undefined}
+                  />
                 </div>
               </div>
 
