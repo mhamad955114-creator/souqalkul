@@ -26,6 +26,7 @@ import Footer from "@/components/Footer";
 import ChatModal from "@/components/ChatModal";
 import AuthModal from "@/components/AuthModal";
 import ShareButtons from "@/components/ShareButtons";
+import RatingSection from "@/components/RatingSection";
 import { useAuth } from "@/hooks/useAuth";
 import { formatPrice, formatDate, categoryLabels } from "@/lib/constants";
 
@@ -331,6 +332,13 @@ const ListingDetails = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Ratings Section */}
+            <RatingSection
+              sellerId={listing.user_id}
+              listingId={listing.id}
+              sellerName={seller?.full_name || undefined}
+            />
           </div>
 
           {/* Sidebar - Seller Info */}
