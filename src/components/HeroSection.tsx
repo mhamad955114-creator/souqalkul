@@ -1,8 +1,20 @@
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Loader2, Navigation } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useState } from "react";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 const HeroSection = () => {
+  const [locationValue, setLocationValue] = useState("");
+  const { loading: geoLoading, detectLocation } = useGeolocation();
+
+  const handleDetectLocation = async () => {
+    const result = await detectLocation();
+    if (result) {
+      setLocationValue(result.city);
+    }
+  };
+
   return (
     <section className="relative gradient-hero text-primary-foreground py-16 md:py-24 overflow-hidden">
       {/* Background Pattern */}
@@ -36,8 +48,23 @@ const HeroSection = () => {
                 <Input
                   type="text"
                   placeholder="المدينة أو المنطقة"
-                  className="pr-12 h-12 bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
+                  value={locationValue}
+                  onChange={(e) => setLocationValue(e.target.value)}
+                  className="pr-12 pl-12 h-12 bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
                 />
+                <button
+                  type="button"
+                  onClick={handleDetectLocation}
+                  disabled={geoLoading}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                  title="تحديد موقعي الحالي"
+                >
+                  {geoLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Navigation className="h-5 w-5" />
+                  )}
+                </button>
               </div>
               <Button variant="hero" size="lg">
                 <Search className="h-5 w-5" />
