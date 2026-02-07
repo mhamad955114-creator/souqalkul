@@ -9,8 +9,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin } from "lucide-react";
 import { cities, categories, areasByCity } from "@/lib/constants";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AddListingModalProps {
@@ -204,12 +205,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setSuggestedCategory(null);
   };
 
+  const { loading: geoLoading, detectLocation } = useGeolocation();
+
   // Get available areas for selected city
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
 
   // Handle city change - reset area when city changes
   const handleCityChange = (city: string) => {
     setFormData({ ...formData, city, area: "" });
+  };
+
+  const handleDetectLocation = async () => {
+    const result = await detectLocation();
+    if (result) {
+      setFormData(prev => ({ ...prev, city: result.city, area: "" }));
+    }
   };
 
   return (
@@ -287,7 +297,24 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>المدينة *</Label>
+              <div className="flex items-center justify-between">
+                <Label>المدينة *</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs gap-1 text-primary"
+                  onClick={handleDetectLocation}
+                  disabled={geoLoading}
+                >
+                  {geoLoading ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <MapPin className="h-3 w-3" />
+                  )}
+                  موقعي الحالي
+                </Button>
+              </div>
               <Select
                 value={formData.city}
                 onValueChange={handleCityChange}
