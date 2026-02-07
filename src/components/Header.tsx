@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import AuthModal from "./AuthModal";
 import AddListingModal from "./AddListingModal";
 import {
@@ -24,6 +25,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const [authModalTab, setAuthModalTab] = useState<"login" | "signup">("login");
   const [addListingModalOpen, setAddListingModalOpen] = useState(false);
   const { user, signOut, loading } = useAuth();
+  const { unreadCount } = useUnreadMessages();
 
   const openAuthModal = (tab: "login" | "signup") => {
     setAuthModalTab(tab);
@@ -82,8 +84,13 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                   {user ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="hidden md:flex">
+                        <Button variant="ghost" size="icon" className="hidden md:flex relative">
                           <User className="h-5 w-5" />
+                          {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                              {unreadCount > 99 ? "99+" : unreadCount}
+                            </span>
+                          )}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
@@ -107,6 +114,11 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                         <DropdownMenuItem onClick={() => navigate("/messages")} className="flex items-center gap-2">
                           <MessageCircle className="h-4 w-4" />
                           الرسائل
+                          {unreadCount > 0 && (
+                            <span className="mr-auto bg-destructive text-destructive-foreground text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
+                              {unreadCount > 99 ? "99+" : unreadCount}
+                            </span>
+                          )}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive">
                           <LogOut className="h-4 w-4" />
@@ -176,9 +188,14 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                       <Heart className="h-4 w-4" />
                       المفضلة
                     </Button>
-                    <Button variant="outline" onClick={() => navigate("/messages")}>
+                    <Button variant="outline" onClick={() => navigate("/messages")} className="relative">
                       <MessageCircle className="h-4 w-4" />
                       الرسائل
+                      {unreadCount > 0 && (
+                        <span className="bg-destructive text-destructive-foreground text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
                     </Button>
                     <Button variant="outline" onClick={handleSignOut}>
                       <LogOut className="h-4 w-4" />
