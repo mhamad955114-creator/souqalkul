@@ -268,6 +268,9 @@ export interface Translations {
     title: string;
     language: string;
     theme: string;
+    darkMode: string;
+    darkModeDesc: string;
+    lightMode: string;
     notifications: string;
     editProfile: string;
     backToListings: string;
@@ -694,6 +697,9 @@ export const ar: Translations = {
     title: "الإعدادات",
     language: "اللغة",
     theme: "المظهر",
+    darkMode: "الوضع الداكن",
+    darkModeDesc: "تبديل بين الوضع الفاتح والداكن",
+    lightMode: "الوضع الفاتح",
     notifications: "الإشعارات",
     editProfile: "تعديل معلومات الملف الشخصي",
     backToListings: "العودة لإعلاناتي",
@@ -1105,6 +1111,9 @@ export const en: Translations = {
     title: "Settings",
     language: "Language",
     theme: "Theme",
+    darkMode: "Dark Mode",
+    darkModeDesc: "Toggle between light and dark mode",
+    lightMode: "Light Mode",
     notifications: "Notifications",
     editProfile: "Edit profile information",
     backToListings: "Back to my listings",
@@ -1516,6 +1525,9 @@ export const tr: Translations = {
     title: "Ayarlar",
     language: "Dil",
     theme: "Tema",
+    darkMode: "Karanlık Mod",
+    darkModeDesc: "Açık ve karanlık mod arasında geçiş yapın",
+    lightMode: "Açık Mod",
     notifications: "Bildirimler",
     editProfile: "Profil bilgilerini düzenle",
     backToListings: "İlanlarıma dön",
