@@ -22,6 +22,7 @@ import AboutUs from "./pages/AboutUs";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ContactUs from "./pages/ContactUs";
+import Install from "./pages/Install";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/contact" element={<ContactUs />} />
+                <Route path="/install" element={<Install />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
