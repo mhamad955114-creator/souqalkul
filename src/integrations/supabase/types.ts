@@ -90,6 +90,7 @@ export type Database = {
           is_featured: boolean | null
           phone: string | null
           price: number
+          sold_at: string | null
           status: string | null
           title: string
           updated_at: string
@@ -107,6 +108,7 @@ export type Database = {
           is_featured?: boolean | null
           phone?: string | null
           price: number
+          sold_at?: string | null
           status?: string | null
           title: string
           updated_at?: string
@@ -124,6 +126,7 @@ export type Database = {
           is_featured?: boolean | null
           phone?: string | null
           price?: number
+          sold_at?: string | null
           status?: string | null
           title?: string
           updated_at?: string
