@@ -28,7 +28,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Eye, ExternalLink, Shield } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Loader2, Eye, ExternalLink, Shield, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/constants";
 
@@ -58,6 +68,8 @@ const AdminReports = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -136,6 +148,32 @@ const AdminReports = () => {
     if (selectedReport?.id === reportId) {
       setSelectedReport((prev) => prev ? { ...prev, status: newStatus } : null);
     }
+  };
+
+  const deleteListing = async (report: Report) => {
+    setDeleting(true);
+    const { error } = await supabase
+      .from("listings")
+      .delete()
+      .eq("id", report.listing_id);
+
+    if (error) {
+      toast.error("فشل حذف الإعلان");
+      setDeleting(false);
+      return;
+    }
+
+    // Update report status to resolved
+    await supabase
+      .from("reports")
+      .update({ status: "resolved", updated_at: new Date().toISOString() })
+      .eq("listing_id", report.listing_id);
+
+    toast.success("تم حذف الإعلان وتحديث البلاغات المرتبطة");
+    setDeleting(false);
+    setDeleteTarget(null);
+    setSelectedReport(null);
+    fetchReports();
   };
 
   if (roleLoading) {
@@ -245,6 +283,16 @@ const AdminReports = () => {
                           >
                             <ExternalLink className="h-4 w-4" />
                           </Button>
+                          {report.listing_title !== "إعلان محذوف" && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => setDeleteTarget(report)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -311,10 +359,43 @@ const AdminReports = () => {
                 <ExternalLink className="h-4 w-4 ml-2" />
                 عرض الإعلان
               </Button>
+              {selectedReport.listing_title !== "إعلان محذوف" && (
+                <Button
+                  className="w-full"
+                  variant="destructive"
+                  onClick={() => setDeleteTarget(selectedReport)}
+                >
+                  <Trash2 className="h-4 w-4 ml-2" />
+                  حذف الإعلان المخالف
+                </Button>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد حذف الإعلان</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف الإعلان "{deleteTarget?.listing_title}"؟ لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteTarget && deleteListing(deleteTarget)}
+              disabled={deleting}
+            >
+              {deleting && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
+              حذف الإعلان
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
