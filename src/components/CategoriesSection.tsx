@@ -1,18 +1,40 @@
+import { useState, useEffect } from "react";
 import { Car, Home, Smartphone, Shirt, Sofa, Briefcase, Gamepad2, Wrench } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import CategoryCard from "./CategoryCard";
 
-const categories = [
-  { icon: Car, title: "سيارات", count: 12500, color: "bg-primary", categoryValue: "سيارات" },
-  { icon: Home, title: "عقارات", count: 8300, color: "bg-accent", categoryValue: "عقارات" },
-  { icon: Smartphone, title: "إلكترونيات", count: 15200, color: "bg-blue-500", categoryValue: "الكترونيات" },
-  { icon: Shirt, title: "ملابس", count: 6800, color: "bg-pink-500", categoryValue: "ملابس" },
-  { icon: Sofa, title: "أثاث", count: 4200, color: "bg-amber-500", categoryValue: "أثاث" },
-  { icon: Briefcase, title: "وظائف", count: 3100, color: "bg-indigo-500", categoryValue: "وظائف" },
-  { icon: Gamepad2, title: "ألعاب", count: 2800, color: "bg-red-500", categoryValue: "ألعاب" },
-  { icon: Wrench, title: "خدمات", count: 5600, color: "bg-emerald-500", categoryValue: "خدمات" },
+const categoryDefs = [
+  { icon: Car, title: "سيارات", color: "bg-primary", categoryValue: "سيارات" },
+  { icon: Home, title: "عقارات", color: "bg-accent", categoryValue: "عقارات" },
+  { icon: Smartphone, title: "إلكترونيات", color: "bg-blue-500", categoryValue: "الكترونيات" },
+  { icon: Shirt, title: "ملابس", color: "bg-pink-500", categoryValue: "ملابس" },
+  { icon: Sofa, title: "أثاث", color: "bg-amber-500", categoryValue: "أثاث" },
+  { icon: Briefcase, title: "وظائف", color: "bg-indigo-500", categoryValue: "وظائف" },
+  { icon: Gamepad2, title: "ألعاب", color: "bg-red-500", categoryValue: "ألعاب" },
+  { icon: Wrench, title: "خدمات", color: "bg-emerald-500", categoryValue: "خدمات" },
 ];
 
 const CategoriesSection = () => {
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("category")
+        .eq("status", "active");
+
+      if (!error && data) {
+        const map: Record<string, number> = {};
+        data.forEach((row) => {
+          map[row.category] = (map[row.category] || 0) + 1;
+        });
+        setCounts(map);
+      }
+    };
+    fetchCounts();
+  }, []);
+
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -26,13 +48,16 @@ const CategoriesSection = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {categories.map((category, index) => (
+          {categoryDefs.map((category, index) => (
             <div
-              key={category.title}
+              key={category.categoryValue}
               className="animate-fade-up"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
-              <CategoryCard {...category} />
+              <CategoryCard
+                {...category}
+                count={counts[category.categoryValue] || 0}
+              />
             </div>
           ))}
         </div>
