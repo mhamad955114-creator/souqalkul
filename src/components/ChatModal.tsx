@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Send, ArrowRight, User } from "lucide-react";
+import { Loader2, Send, ArrowRight, ArrowLeft, User } from "lucide-react";
 import { useChat, useChatMessages } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice } from "@/lib/constants";
 
 interface ChatModalProps {
@@ -19,11 +20,11 @@ interface ChatModalProps {
 
 const ChatModal = ({ open, onOpenChange, listingId, sellerId, listingTitle }: ChatModalProps) => {
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
   const { conversations, loading: convLoading, getOrCreateConversation, fetchConversations } = useChat();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [view, setView] = useState<"list" | "chat">("list");
 
-  // If opening for a specific listing, create/get conversation
   useEffect(() => {
     const initConversation = async () => {
       if (open && listingId && sellerId && user && sellerId !== user.id) {
@@ -38,7 +39,6 @@ const ChatModal = ({ open, onOpenChange, listingId, sellerId, listingTitle }: Ch
     initConversation();
   }, [open, listingId, sellerId, user, getOrCreateConversation, fetchConversations]);
 
-  // Reset when modal closes
   useEffect(() => {
     if (!open) {
       if (!listingId) {
@@ -67,13 +67,15 @@ const ChatModal = ({ open, onOpenChange, listingId, sellerId, listingTitle }: Ch
         {view === "list" ? (
           <>
             <DialogHeader className="p-4 border-b">
-              <DialogTitle>الرسائل</DialogTitle>
+              <DialogTitle>{t.messages.title}</DialogTitle>
             </DialogHeader>
             <ConversationList
               conversations={conversations}
               loading={convLoading}
               onSelect={handleSelectConversation}
               currentUserId={user.id}
+              t={t}
+              dir={dir}
             />
           </>
         ) : (
@@ -83,6 +85,8 @@ const ChatModal = ({ open, onOpenChange, listingId, sellerId, listingTitle }: Ch
             currentUserId={user.id}
             conversations={conversations}
             listingTitle={listingTitle}
+            t={t}
+            dir={dir}
           />
         )}
       </DialogContent>
@@ -95,9 +99,11 @@ interface ConversationListProps {
   loading: boolean;
   onSelect: (id: string) => void;
   currentUserId: string;
+  t: any;
+  dir: "rtl" | "ltr";
 }
 
-const ConversationList = ({ conversations, loading, onSelect, currentUserId }: ConversationListProps) => {
+const ConversationList = ({ conversations, loading, onSelect, currentUserId, t, dir }: ConversationListProps) => {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -109,8 +115,8 @@ const ConversationList = ({ conversations, loading, onSelect, currentUserId }: C
   if (conversations.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
-        <p className="text-center">لا توجد محادثات بعد</p>
-        <p className="text-sm text-center mt-2">ابدأ محادثة من صفحة أي إعلان</p>
+        <p className="text-center">{t.messages.noConversations}</p>
+        <p className="text-sm text-center mt-2">{t.messages.startFromListing}</p>
       </div>
     );
   }
@@ -122,7 +128,7 @@ const ConversationList = ({ conversations, loading, onSelect, currentUserId }: C
           <button
             key={conv.id}
             onClick={() => onSelect(conv.id)}
-            className="w-full p-4 flex gap-3 hover:bg-muted/50 transition-colors text-right"
+            className={`w-full p-4 flex gap-3 hover:bg-muted/50 transition-colors ${dir === "rtl" ? "text-right" : "text-left"}`}
           >
             <Avatar className="h-12 w-12 flex-shrink-0">
               <AvatarImage src={conv.other_user?.avatar_url || undefined} />
@@ -133,7 +139,7 @@ const ConversationList = ({ conversations, loading, onSelect, currentUserId }: C
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium truncate">
-                  {conv.other_user?.full_name || "مستخدم"}
+                  {conv.other_user?.full_name || t.messages.user}
                 </span>
                 {conv.unread_count > 0 && (
                   <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
@@ -142,11 +148,11 @@ const ConversationList = ({ conversations, loading, onSelect, currentUserId }: C
                 )}
               </div>
               <p className="text-sm text-muted-foreground truncate">
-                {conv.listing?.title || "إعلان"}
+                {conv.listing?.title || t.messages.listing}
               </p>
               {conv.last_message && (
                 <p className="text-sm text-muted-foreground truncate mt-1">
-                  {conv.last_message.sender_id === currentUserId ? "أنت: " : ""}
+                  {conv.last_message.sender_id === currentUserId ? `${t.messages.you}: ` : ""}
                   {conv.last_message.content}
                 </p>
               )}
@@ -171,16 +177,19 @@ interface ChatViewProps {
   currentUserId: string;
   conversations: any[];
   listingTitle?: string;
+  t: any;
+  dir: "rtl" | "ltr";
 }
 
-const ChatView = ({ conversationId, onBack, currentUserId, conversations, listingTitle }: ChatViewProps) => {
+const ChatView = ({ conversationId, onBack, currentUserId, conversations, listingTitle, t, dir }: ChatViewProps) => {
   const { messages, loading, sendMessage } = useChatMessages(conversationId);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
   const conversation = conversations.find((c) => c.id === conversationId);
-  const title = listingTitle || conversation?.listing?.title || "محادثة";
+  const title = listingTitle || conversation?.listing?.title || t.messages.conversation;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -204,21 +213,23 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
     }
   };
 
+  const locale = dir === "rtl" ? "ar-SY" : "en-US";
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b">
         <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowRight className="h-5 w-5" />
+          <BackArrow className="h-5 w-5" />
         </Button>
         <div className="flex-1 min-w-0">
           <h3 className="font-medium truncate">
-            {conversation?.other_user?.full_name || "مستخدم"}
+            {conversation?.other_user?.full_name || t.messages.user}
           </h3>
           <p className="text-sm text-muted-foreground truncate">{title}</p>
         </div>
         {conversation?.listing && (
-          <div className="text-left">
+          <div className={dir === "rtl" ? "text-left" : "text-right"}>
             <span className="text-sm font-medium text-primary">
               {formatPrice(conversation.listing.price)}
             </span>
@@ -234,7 +245,7 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-muted-foreground">
-            <p>ابدأ المحادثة الآن</p>
+            <p>{t.messages.startNow}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -258,7 +269,7 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
                         : "text-muted-foreground"
                     }`}
                   >
-                    {new Date(msg.created_at).toLocaleTimeString("ar-SY", {
+                    {new Date(msg.created_at).toLocaleTimeString(locale, {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -277,7 +288,7 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="اكتب رسالتك..."
+            placeholder={t.messages.typeMessage}
             disabled={sending}
             className="flex-1"
           />
