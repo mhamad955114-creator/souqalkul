@@ -73,10 +73,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
               <a href="/listings" className="text-muted-foreground hover:text-primary transition-colors font-medium">
                 {t.nav.categories}
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+              <a href="/pricing" className="text-muted-foreground hover:text-primary transition-colors font-medium">
                 {t.nav.offers}
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+              <a href="/contact" className="text-muted-foreground hover:text-primary transition-colors font-medium">
                 {t.nav.contact}
               </a>
             </nav>
@@ -190,10 +190,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 <a href="/listings" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
                   {t.nav.categories}
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
+                <a href="/pricing" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
                   {t.nav.offers}
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
+                <a href="/contact" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
                   {t.nav.contact}
                 </a>
                 {user ? (
