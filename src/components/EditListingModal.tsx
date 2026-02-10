@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cities, categories, statuses, areasByCity } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -34,6 +35,7 @@ interface EditListingModalProps {
 
 const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingModalProps) => {
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
@@ -77,13 +79,13 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
       if (response.error) {
         console.error('Moderation error:', response.error);
-        return { approved: true, reason: 'محتوى مناسب' };
+        return { approved: true, reason: '' };
       }
 
       return response.data;
     } catch (error) {
       console.error('Error calling moderation:', error);
-      return { approved: true, reason: 'محتوى مناسب' };
+      return { approved: true, reason: '' };
     }
   };
 
@@ -105,7 +107,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
           .upload(fileName, file);
 
         if (uploadError) {
-          toast.error("فشل رفع الصورة: " + uploadError.message);
+          toast.error(t.listingForm.uploadFailed + ": " + uploadError.message);
           continue;
         }
 
@@ -117,7 +119,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
       }
 
       if (uploadedUrls.length > 0) {
-        toast.success(`تم رفع ${uploadedUrls.length} صورة، جاري فحص المحتوى...`);
+        toast.success(`${uploadedUrls.length} ${t.listingForm.uploadedChecking}`);
         setUploadingImages(false);
         setModeratingImages(true);
 
@@ -142,12 +144,12 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
         if (approvedUrls.length > 0) {
           setImages((prev) => [...prev, ...approvedUrls]);
-          toast.success(`تم قبول ${approvedUrls.length} صورة`);
+          toast.success(`${approvedUrls.length} ${t.listingForm.imagesApproved}`);
           
           if (detectedCategory && !formData.category) {
             setSuggestedCategory(detectedCategory);
             setFormData(prev => ({ ...prev, category: detectedCategory! }));
-            toast.success(`تم اكتشاف التصنيف تلقائياً: ${detectedCategory}`, {
+            toast.success(`${t.listingForm.categoryDetected}: ${detectedCategory}`, {
               icon: '✨'
             });
           }
@@ -155,7 +157,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
         if (rejected.length > 0) {
           setRejectedImages(rejected);
-          toast.error(`تم رفض ${rejected.length} صورة لمخالفتها القوانين`);
+          toast.error(`${rejected.length} ${t.listingForm.imagesRejected}`);
         }
       }
     } finally {
@@ -178,14 +180,14 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     e.preventDefault();
 
     if (!formData.title || !formData.price || !formData.category || !formData.city) {
-      toast.error("يرجى ملء جميع الحقول المطلوبة");
+      toast.error(t.listingForm.requiredFields);
       return;
     }
 
     if (formData.phone) {
       const phoneRegex = /^09\d{8}$/;
       if (!phoneRegex.test(formData.phone)) {
-        toast.error("يرجى إدخال رقم هاتف صحيح (09xxxxxxxx)");
+        toast.error(t.listingForm.invalidPhone);
         return;
       }
     }
@@ -209,9 +211,9 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         .eq("id", listing.id);
 
       if (error) {
-        toast.error("فشل تحديث الإعلان: " + error.message);
+        toast.error(t.listingForm.editError + ": " + error.message);
       } else {
-        toast.success("تم تحديث الإعلان بنجاح!");
+        toast.success(t.listingForm.editSuccess);
         onSuccess();
       }
     } finally {
@@ -223,15 +225,15 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">تعديل الإعلان</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">{t.listingForm.editTitle}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="title">عنوان الإعلان *</Label>
+            <Label htmlFor="title">{t.listingForm.titleLabel} *</Label>
             <Input
               id="title"
-              placeholder="أدخل عنوان الإعلان"
+              placeholder={t.listingForm.titlePlaceholder}
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
@@ -239,10 +241,10 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">الوصف</Label>
+            <Label htmlFor="description">{t.listingForm.description}</Label>
             <Textarea
               id="description"
-              placeholder="أدخل وصف تفصيلي للإعلان"
+              placeholder={t.listingForm.descriptionPlaceholder}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
@@ -251,7 +253,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">السعر (ل.س) *</Label>
+              <Label htmlFor="price">{t.listingForm.price} *</Label>
               <Input
                 id="price"
                 type="number"
@@ -266,11 +268,11 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                التصنيف *
+                {t.listingForm.category} *
                 {suggestedCategory && (
                   <span className="inline-flex items-center gap-1 text-xs text-primary font-normal">
                     <Sparkles className="h-3 w-3" />
-                    تم الاكتشاف تلقائياً
+                    {t.listingForm.autoDetected}
                   </span>
                 )}
               </Label>
@@ -279,7 +281,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger className={suggestedCategory ? "ring-2 ring-primary/50" : ""}>
-                  <SelectValue placeholder="اختر التصنيف" />
+                  <SelectValue placeholder={t.listingForm.selectCategory} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
@@ -294,13 +296,13 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>المدينة *</Label>
+              <Label>{t.listingForm.city} *</Label>
               <Select
                 value={formData.city}
                 onValueChange={handleCityChange}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="اختر المدينة" />
+                  <SelectValue placeholder={t.listingForm.selectCity} />
                 </SelectTrigger>
                 <SelectContent>
                   {cities.map((city) => (
@@ -313,14 +315,14 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
             </div>
 
             <div className="space-y-2">
-              <Label>المنطقة</Label>
+              <Label>{t.listingForm.area}</Label>
               <Select
                 value={formData.area}
                 onValueChange={(value) => setFormData({ ...formData, area: value })}
                 disabled={!formData.city || availableAreas.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={formData.city ? "اختر المنطقة" : "اختر المدينة أولاً"} />
+                  <SelectValue placeholder={formData.city ? t.listingForm.selectArea : t.listingForm.selectCityFirst} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableAreas.map((area) => (
@@ -335,7 +337,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">رقم الهاتف</Label>
+              <Label htmlFor="phone">{t.listingForm.phone}</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -343,18 +345,18 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 dir="ltr"
-                className="text-left"
+                className={dir === "rtl" ? "text-left" : "text-left"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>حالة الإعلان</Label>
+              <Label>{t.listingForm.status}</Label>
               <Select
                 value={formData.status}
                 onValueChange={(value) => setFormData({ ...formData, status: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="اختر الحالة" />
+                  <SelectValue placeholder={t.listingForm.selectStatus} />
                 </SelectTrigger>
                 <SelectContent>
                   {statuses.map((status) => (
@@ -369,7 +371,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           {/* Images Section */}
           <div className="space-y-2">
-            <Label>صور الإعلان</Label>
+            <Label>{t.listingForm.images}</Label>
             <div className="border-2 border-dashed border-border rounded-lg p-4">
               <input
                 type="file"
@@ -393,10 +395,10 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                 )}
                 <span className="mt-2 text-sm text-muted-foreground">
                   {uploadingImages 
-                    ? "جاري الرفع..." 
+                    ? t.listingForm.uploading 
                     : moderatingImages 
-                      ? "جاري فحص الصور بالذكاء الاصطناعي..."
-                      : "اضغط لرفع صور إضافية"}
+                      ? t.listingForm.moderating
+                      : t.listingForm.clickToUploadMore}
                 </span>
               </label>
 
@@ -406,7 +408,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                     <div key={index} className="relative group">
                       <img
                         src={url}
-                        alt={`صورة ${index + 1}`}
+                        alt={`${index + 1}`}
                         className="w-full h-20 object-cover rounded-lg ring-2 ring-green-500/50"
                       />
                       <div className="absolute top-1 right-1">
@@ -429,7 +431,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                 <Alert variant="destructive" className="mt-4">
                   <ShieldX className="h-4 w-4" />
                   <AlertDescription>
-                    <div className="font-semibold mb-2">تم رفض الصور التالية:</div>
+                    <div className="font-semibold mb-2">{t.listingForm.rejectedImages}</div>
                     <ul className="list-disc list-inside space-y-1">
                       {rejectedImages.map((item, index) => (
                         <li key={index} className="text-sm">
@@ -448,14 +450,14 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  جاري التحديث...
+                  {t.listingForm.updating}
                 </>
               ) : (
-                "حفظ التغييرات"
+                t.listingForm.saveChanges
               )}
             </Button>
             <Button type="button" variant="outline" size="lg" onClick={onClose}>
-              إلغاء
+              {t.listingForm.cancel}
             </Button>
           </div>
         </form>

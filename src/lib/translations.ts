@@ -329,6 +329,56 @@ export interface Translations {
     hoursAgo: string;
     daysAgo: string;
   };
+
+  // Listing Form (Add/Edit)
+  listingForm: {
+    addTitle: string;
+    editTitle: string;
+    titleLabel: string;
+    titlePlaceholder: string;
+    description: string;
+    descriptionPlaceholder: string;
+    price: string;
+    category: string;
+    selectCategory: string;
+    autoDetected: string;
+    city: string;
+    selectCity: string;
+    myLocation: string;
+    area: string;
+    selectArea: string;
+    selectCityFirst: string;
+    phone: string;
+    adType: string;
+    freeAd: string;
+    freeAdDesc: string;
+    paidAd: string;
+    paidAdDesc: string;
+    images: string;
+    uploading: string;
+    moderating: string;
+    clickToUpload: string;
+    clickToUploadMore: string;
+    rejectedImages: string;
+    publishAd: string;
+    publishing: string;
+    saveChanges: string;
+    updating: string;
+    cancel: string;
+    status: string;
+    selectStatus: string;
+    requiredFields: string;
+    invalidPhone: string;
+    uploadFailed: string;
+    uploadedChecking: string;
+    imagesApproved: string;
+    imagesRejected: string;
+    categoryDetected: string;
+    addSuccess: string;
+    addError: string;
+    editSuccess: string;
+    editError: string;
+  };
 }
 
 export const ar: Translations = {
@@ -624,6 +674,54 @@ export const ar: Translations = {
     minsAgo: "د",
     hoursAgo: "س",
     daysAgo: "ي",
+  },
+  listingForm: {
+    addTitle: "إضافة إعلان جديد",
+    editTitle: "تعديل الإعلان",
+    titleLabel: "عنوان الإعلان",
+    titlePlaceholder: "أدخل عنوان الإعلان",
+    description: "الوصف",
+    descriptionPlaceholder: "أدخل وصف تفصيلي للإعلان",
+    price: "السعر (ل.س)",
+    category: "التصنيف",
+    selectCategory: "اختر التصنيف",
+    autoDetected: "تم الاكتشاف تلقائياً",
+    city: "المدينة",
+    selectCity: "اختر المدينة",
+    myLocation: "موقعي الحالي",
+    area: "المنطقة",
+    selectArea: "اختر المنطقة",
+    selectCityFirst: "اختر المدينة أولاً",
+    phone: "رقم الهاتف",
+    adType: "نوع الإعلان",
+    freeAd: "إعلان مجاني",
+    freeAdDesc: "يظهر بعد الإعلانات المدفوعة",
+    paidAd: "إعلان مدفوع",
+    paidAdDesc: "يظهر دائماً في المقدمة",
+    images: "صور الإعلان",
+    uploading: "جاري الرفع...",
+    moderating: "جاري فحص الصور بالذكاء الاصطناعي...",
+    clickToUpload: "اضغط لرفع الصور",
+    clickToUploadMore: "اضغط لرفع صور إضافية",
+    rejectedImages: "تم رفض الصور التالية:",
+    publishAd: "نشر الإعلان",
+    publishing: "جاري الإضافة...",
+    saveChanges: "حفظ التغييرات",
+    updating: "جاري التحديث...",
+    cancel: "إلغاء",
+    status: "حالة الإعلان",
+    selectStatus: "اختر الحالة",
+    requiredFields: "يرجى ملء جميع الحقول المطلوبة",
+    invalidPhone: "يرجى إدخال رقم هاتف صحيح (09xxxxxxxx)",
+    uploadFailed: "فشل رفع الصورة",
+    uploadedChecking: "صورة، جاري فحص المحتوى...",
+    imagesApproved: "صورة",
+    imagesRejected: "صورة لمخالفتها القوانين",
+    categoryDetected: "تم اكتشاف التصنيف تلقائياً",
+    addSuccess: "تم إضافة الإعلان بنجاح!",
+    addError: "فشل إضافة الإعلان",
+    editSuccess: "تم تحديث الإعلان بنجاح!",
+    editError: "فشل تحديث الإعلان",
   },
 };
 
@@ -921,6 +1019,54 @@ export const en: Translations = {
     hoursAgo: "h",
     daysAgo: "d",
   },
+  listingForm: {
+    addTitle: "Add New Listing",
+    editTitle: "Edit Listing",
+    titleLabel: "Listing Title",
+    titlePlaceholder: "Enter listing title",
+    description: "Description",
+    descriptionPlaceholder: "Enter a detailed description",
+    price: "Price (SYP)",
+    category: "Category",
+    selectCategory: "Select category",
+    autoDetected: "Auto-detected",
+    city: "City",
+    selectCity: "Select city",
+    myLocation: "My location",
+    area: "Area",
+    selectArea: "Select area",
+    selectCityFirst: "Select city first",
+    phone: "Phone Number",
+    adType: "Ad Type",
+    freeAd: "Free Ad",
+    freeAdDesc: "Appears after paid ads",
+    paidAd: "Paid Ad",
+    paidAdDesc: "Always appears first",
+    images: "Listing Images",
+    uploading: "Uploading...",
+    moderating: "Checking images with AI...",
+    clickToUpload: "Click to upload images",
+    clickToUploadMore: "Click to upload more images",
+    rejectedImages: "The following images were rejected:",
+    publishAd: "Publish Listing",
+    publishing: "Publishing...",
+    saveChanges: "Save Changes",
+    updating: "Updating...",
+    cancel: "Cancel",
+    status: "Listing Status",
+    selectStatus: "Select status",
+    requiredFields: "Please fill in all required fields",
+    invalidPhone: "Please enter a valid phone number (09xxxxxxxx)",
+    uploadFailed: "Failed to upload image",
+    uploadedChecking: "image(s) uploaded, checking content...",
+    imagesApproved: "image(s) approved",
+    imagesRejected: "image(s) rejected for policy violations",
+    categoryDetected: "Category auto-detected",
+    addSuccess: "Listing added successfully!",
+    addError: "Failed to add listing",
+    editSuccess: "Listing updated successfully!",
+    editError: "Failed to update listing",
+  },
 };
 
 export const tr: Translations = {
@@ -1216,6 +1362,54 @@ export const tr: Translations = {
     minsAgo: "dk",
     hoursAgo: "sa",
     daysAgo: "g",
+  },
+  listingForm: {
+    addTitle: "Yeni İlan Ekle",
+    editTitle: "İlanı Düzenle",
+    titleLabel: "İlan Başlığı",
+    titlePlaceholder: "İlan başlığını girin",
+    description: "Açıklama",
+    descriptionPlaceholder: "Detaylı bir açıklama girin",
+    price: "Fiyat (SL)",
+    category: "Kategori",
+    selectCategory: "Kategori seçin",
+    autoDetected: "Otomatik algılandı",
+    city: "Şehir",
+    selectCity: "Şehir seçin",
+    myLocation: "Konumum",
+    area: "Bölge",
+    selectArea: "Bölge seçin",
+    selectCityFirst: "Önce şehir seçin",
+    phone: "Telefon Numarası",
+    adType: "İlan Türü",
+    freeAd: "Ücretsiz İlan",
+    freeAdDesc: "Ücretli ilanlardan sonra görünür",
+    paidAd: "Ücretli İlan",
+    paidAdDesc: "Her zaman önce görünür",
+    images: "İlan Görselleri",
+    uploading: "Yükleniyor...",
+    moderating: "Görseller AI ile kontrol ediliyor...",
+    clickToUpload: "Görsel yüklemek için tıklayın",
+    clickToUploadMore: "Daha fazla görsel yüklemek için tıklayın",
+    rejectedImages: "Aşağıdaki görseller reddedildi:",
+    publishAd: "İlanı Yayınla",
+    publishing: "Yayınlanıyor...",
+    saveChanges: "Değişiklikleri Kaydet",
+    updating: "Güncelleniyor...",
+    cancel: "İptal",
+    status: "İlan Durumu",
+    selectStatus: "Durum seçin",
+    requiredFields: "Lütfen tüm zorunlu alanları doldurun",
+    invalidPhone: "Lütfen geçerli bir telefon numarası girin (09xxxxxxxx)",
+    uploadFailed: "Görsel yüklenemedi",
+    uploadedChecking: "görsel yüklendi, içerik kontrol ediliyor...",
+    imagesApproved: "görsel onaylandı",
+    imagesRejected: "görsel politika ihlali nedeniyle reddedildi",
+    categoryDetected: "Kategori otomatik algılandı",
+    addSuccess: "İlan başarıyla eklendi!",
+    addError: "İlan eklenemedi",
+    editSuccess: "İlan başarıyla güncellendi!",
+    editError: "İlan güncellenemedi",
   },
 };
 
