@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -22,6 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatPrice, formatDate, categoryLabels, statusLabels } from "@/lib/constants";
+import { useListingSettings } from "@/hooks/useListingSettings";
 
 interface Listing {
   id: string;
@@ -34,6 +35,7 @@ interface Listing {
   phone: string | null;
   images: string[] | null;
   status: string | null;
+  is_featured: boolean | null;
   views_count: number | null;
   created_at: string;
 }
@@ -42,6 +44,7 @@ const MyAccount = () => {
   const { user, loading: authLoading } = useAuth();
   const { t, dir } = useLanguage();
   const navigate = useNavigate();
+  const { settings } = useListingSettings();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
@@ -245,6 +248,24 @@ const MyAccount = () => {
                           <Badge variant="outline">
                             {categoryLabels[listing.category] || listing.category}
                           </Badge>
+                          {listing.status === "active" && (() => {
+                            const durationDays = listing.is_featured
+                              ? settings.featured_listing.duration_days
+                              : settings.free_listing.duration_days;
+                            const createdAt = new Date(listing.created_at);
+                            const expiryDate = new Date(createdAt.getTime() + durationDays * 24 * 60 * 60 * 1000);
+                            const now = new Date();
+                            const daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                            const isExpiringSoon = daysLeft <= 3;
+                            return (
+                              <span className={`flex items-center gap-1 ${isExpiringSoon ? "text-destructive font-medium" : ""}`}>
+                                <CalendarClock className="h-4 w-4" />
+                                {daysLeft > 0
+                                  ? `ينتهي خلال ${daysLeft} يوم`
+                                  : "منتهي الصلاحية"}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
 
