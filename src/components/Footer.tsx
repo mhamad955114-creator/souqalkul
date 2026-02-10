@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logoImage from "@/assets/logo.png";
 
@@ -45,6 +45,12 @@ const Footer = () => {
               <li><a href="/favorites" className="text-background/70 hover:text-primary transition-colors">{t.nav.favorites}</a></li>
               <li><a href="/about" className="text-background/70 hover:text-primary transition-colors">{t.aboutUs.title}</a></li>
               <li><a href="/contact" className="text-background/70 hover:text-primary transition-colors">{t.contactForm.title}</a></li>
+              <li>
+                <a href="/install" className="text-background/70 hover:text-primary transition-colors flex items-center gap-1">
+                  <Download className="h-4 w-4" />
+                  تثبيت التطبيق
+                </a>
+              </li>
             </ul>
           </div>
 
