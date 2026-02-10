@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { cities } from "@/lib/constants";
+import { cities, areasByCity } from "@/lib/constants";
 
-// Approximate coordinates for Syrian cities
+// Fallback: approximate coordinates for Syrian cities
 const cityCoordinates: { name: string; lat: number; lng: number }[] = [
   { name: "دمشق", lat: 33.5138, lng: 36.2765 },
   { name: "ريف دمشق", lat: 33.45, lng: 36.35 },
@@ -37,15 +37,66 @@ function findNearestCity(lat: number, lng: number): string {
   return nearest.name;
 }
 
+// Match reverse geocoding result to our known cities
+function matchCity(addressParts: Record<string, string>): string | null {
+  const fieldsToCheck = [
+    addressParts.city,
+    addressParts.town,
+    addressParts.state,
+    addressParts.county,
+    addressParts.village,
+    addressParts.municipality,
+  ].filter(Boolean);
+
+  for (const field of fieldsToCheck) {
+    for (const city of cities) {
+      if (field?.includes(city) || city.includes(field || "")) {
+        return city;
+      }
+    }
+  }
+  return null;
+}
+
+// Match reverse geocoding result to our known areas
+function matchArea(city: string, addressParts: Record<string, string>): string | null {
+  const areas = areasByCity[city];
+  if (!areas || areas.length === 0) return null;
+
+  const fieldsToCheck = [
+    addressParts.suburb,
+    addressParts.neighbourhood,
+    addressParts.quarter,
+    addressParts.district,
+    addressParts.village,
+    addressParts.town,
+    addressParts.road,
+  ].filter(Boolean);
+
+  for (const field of fieldsToCheck) {
+    for (const area of areas) {
+      if (field?.includes(area) || area.includes(field || "")) {
+        return area;
+      }
+    }
+  }
+  return null;
+}
+
+interface GeolocationResult {
+  city: string;
+  area?: string;
+}
+
 interface UseGeolocationReturn {
   loading: boolean;
-  detectLocation: () => Promise<{ city: string } | null>;
+  detectLocation: () => Promise<GeolocationResult | null>;
 }
 
 export function useGeolocation(): UseGeolocationReturn {
   const [loading, setLoading] = useState(false);
 
-  const detectLocation = useCallback(async (): Promise<{ city: string } | null> => {
+  const detectLocation = useCallback(async (): Promise<GeolocationResult | null> => {
     if (!navigator.geolocation) {
       toast.error("المتصفح لا يدعم تحديد الموقع");
       return null;
@@ -57,23 +108,49 @@ export function useGeolocation(): UseGeolocationReturn {
       const position = await new Promise<GeolocationPosition>(
         (resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: false,
-            timeout: 10000,
-            maximumAge: 300000,
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 60000,
           });
         }
       );
 
       const { latitude, longitude } = position.coords;
-      const city = findNearestCity(latitude, longitude);
 
+      // Try reverse geocoding with Nominatim (OpenStreetMap)
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar&addressdetails=1&zoom=18`,
+          { headers: { "User-Agent": "SyrianMarketApp/1.0" } }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const address = data.address || {};
+
+          const matchedCity = matchCity(address);
+          if (matchedCity) {
+            const matchedArea = matchArea(matchedCity, address);
+            const locationText = matchedArea
+              ? `${matchedCity} - ${matchedArea}`
+              : matchedCity;
+            toast.success(`تم تحديد موقعك: ${locationText}`);
+            return { city: matchedCity, area: matchedArea || undefined };
+          }
+        }
+      } catch {
+        // Reverse geocoding failed, fall through to fallback
+      }
+
+      // Fallback: nearest city by coordinates
+      const city = findNearestCity(latitude, longitude);
       if (cities.includes(city)) {
         toast.success(`تم تحديد موقعك: ${city}`);
         return { city };
-      } else {
-        toast.error("لم نتمكن من تحديد مدينتك");
-        return null;
       }
+
+      toast.error("لم نتمكن من تحديد مدينتك");
+      return null;
     } catch (error: any) {
       if (error.code === 1) {
         toast.error("يرجى السماح بالوصول إلى موقعك");

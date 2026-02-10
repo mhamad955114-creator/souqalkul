@@ -218,7 +218,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const handleDetectLocation = async () => {
     const result = await detectLocation();
     if (result) {
-      setFormData(prev => ({ ...prev, city: result.city, area: "" }));
+      setFormData(prev => ({ ...prev, city: result.city, area: result.area || "" }));
     }
   };
 
