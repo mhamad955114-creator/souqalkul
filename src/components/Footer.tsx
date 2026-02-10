@@ -68,7 +68,7 @@ const Footer = () => {
                 <div className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center">
                   <Mail className="h-5 w-5" />
                 </div>
-                <span className="text-background/70">support@opensouq.com</span>
+                <span className="text-background/70">swqalkl0@gmail.com</span>
               </li>
               <li className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center">
