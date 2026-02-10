@@ -93,10 +93,10 @@ const Footer = () => {
               {t.footer.rights}
             </p>
             <div className="flex gap-6">
-              <a href="#" className="text-background/50 hover:text-primary text-sm transition-colors">
+              <a href="/privacy" className="text-background/50 hover:text-primary text-sm transition-colors">
                 {t.footer.privacy}
               </a>
-              <a href="#" className="text-background/50 hover:text-primary text-sm transition-colors">
+              <a href="/terms" className="text-background/50 hover:text-primary text-sm transition-colors">
                 {t.footer.terms}
               </a>
             </div>

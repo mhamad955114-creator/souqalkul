@@ -488,6 +488,53 @@ export interface Translations {
     contactDesc: string;
     contactEmail: string;
   };
+
+  // Privacy & Terms
+  privacy: {
+    title: string;
+    subtitle: string;
+    back: string;
+    lastUpdated: string;
+    intro: string;
+    dataCollectionTitle: string;
+    dataCollectionDesc: string;
+    dataUsageTitle: string;
+    dataUsageDesc: string;
+    dataSharingTitle: string;
+    dataSharingDesc: string;
+    dataProtectionTitle: string;
+    dataProtectionDesc: string;
+    cookiesTitle: string;
+    cookiesDesc: string;
+    userRightsTitle: string;
+    userRightsDesc: string;
+    contactTitle: string;
+    contactDesc: string;
+  };
+
+  terms: {
+    title: string;
+    subtitle: string;
+    back: string;
+    lastUpdated: string;
+    intro: string;
+    acceptanceTitle: string;
+    acceptanceDesc: string;
+    accountTitle: string;
+    accountDesc: string;
+    listingRulesTitle: string;
+    listingRulesDesc: string;
+    prohibitedTitle: string;
+    prohibitedDesc: string;
+    liabilityTitle: string;
+    liabilityDesc: string;
+    terminationTitle: string;
+    terminationDesc: string;
+    changesTitle: string;
+    changesDesc: string;
+    contactTitle: string;
+    contactDesc: string;
+  };
 }
 
 export const ar: Translations = {
@@ -931,6 +978,50 @@ export const ar: Translations = {
     contactTitle: "تواصل معنا",
     contactDesc: "نسعد بتواصلكم معنا لأي استفسار أو اقتراح.",
     contactEmail: "info@soukcom.com",
+  },
+  privacy: {
+    title: "سياسة الخصوصية",
+    subtitle: "كيف نحمي بياناتك ونحترم خصوصيتك",
+    back: "العودة للرئيسية",
+    lastUpdated: "آخر تحديث: فبراير 2026",
+    intro: "نحن في السوق المفتوح نأخذ خصوصيتك على محمل الجد. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.",
+    dataCollectionTitle: "البيانات التي نجمعها",
+    dataCollectionDesc: "نجمع المعلومات التي تقدمها لنا مباشرة عند إنشاء حساب، مثل الاسم والبريد الإلكتروني ورقم الهاتف والمدينة. كما نجمع بيانات الإعلانات التي تنشرها بما في ذلك الصور والأوصاف والأسعار.",
+    dataUsageTitle: "كيف نستخدم بياناتك",
+    dataUsageDesc: "نستخدم بياناتك لتوفير خدماتنا وتحسينها، والتواصل معك بشأن حسابك وإعلاناتك، وإرسال إشعارات مهمة، وضمان أمان المنصة ومنع الاحتيال.",
+    dataSharingTitle: "مشاركة البيانات",
+    dataSharingDesc: "لا نبيع معلوماتك الشخصية لأطراف ثالثة. قد نشارك معلومات الاتصال الخاصة بك (مثل رقم الهاتف) مع المستخدمين الآخرين فقط عند نشر إعلان، لتسهيل عمليات البيع والشراء.",
+    dataProtectionTitle: "حماية البيانات",
+    dataProtectionDesc: "نستخدم تقنيات تشفير متقدمة وإجراءات أمنية صارمة لحماية بياناتك من الوصول غير المصرح به أو التعديل أو الإفصاح أو الإتلاف.",
+    cookiesTitle: "ملفات تعريف الارتباط",
+    cookiesDesc: "نستخدم ملفات تعريف الارتباط لتحسين تجربة التصفح وتذكر تفضيلاتك مثل اللغة والوضع الداكن. يمكنك التحكم في إعدادات الكوكيز من متصفحك.",
+    userRightsTitle: "حقوقك",
+    userRightsDesc: "لديك الحق في الوصول إلى بياناتك الشخصية وتعديلها أو حذفها في أي وقت من خلال إعدادات حسابك. يمكنك أيضاً طلب نسخة من بياناتك أو طلب حذف حسابك بالكامل.",
+    contactTitle: "تواصل معنا",
+    contactDesc: "إذا كانت لديك أي أسئلة حول سياسة الخصوصية، يرجى التواصل معنا عبر البريد الإلكتروني: privacy@soukcom.com",
+  },
+  terms: {
+    title: "شروط الاستخدام",
+    subtitle: "القواعد والأحكام التي تنظم استخدام المنصة",
+    back: "العودة للرئيسية",
+    lastUpdated: "آخر تحديث: فبراير 2026",
+    intro: "باستخدامك لمنصة السوق المفتوح، فإنك توافق على الالتزام بهذه الشروط والأحكام. يرجى قراءتها بعناية قبل استخدام المنصة.",
+    acceptanceTitle: "قبول الشروط",
+    acceptanceDesc: "باستخدامك للمنصة أو إنشاء حساب فيها، فإنك تقر بأنك قد قرأت وفهمت ووافقت على هذه الشروط. إذا كنت لا توافق على أي من هذه الشروط، يرجى عدم استخدام المنصة.",
+    accountTitle: "الحساب والتسجيل",
+    accountDesc: "أنت مسؤول عن الحفاظ على سرية معلومات حسابك وكلمة المرور. يجب أن تكون المعلومات المقدمة عند التسجيل دقيقة وحقيقية. يحق لنا تعليق أو إنهاء حسابك في حالة تقديم معلومات كاذبة.",
+    listingRulesTitle: "قواعد نشر الإعلانات",
+    listingRulesDesc: "يجب أن تكون جميع الإعلانات المنشورة حقيقية ودقيقة. يتحمل المعلن المسؤولية الكاملة عن محتوى إعلانه. يجب أن تتضمن الإعلانات صوراً حقيقية للمنتج وسعراً واقعياً ومعلومات اتصال صحيحة.",
+    prohibitedTitle: "المحتوى المحظور",
+    prohibitedDesc: "يُمنع نشر إعلانات تتضمن منتجات غير قانونية أو مسروقة أو مزيفة، أو محتوى مسيء أو تمييزي، أو معلومات مضللة أو كاذبة، أو أي محتوى ينتهك حقوق الملكية الفكرية للآخرين.",
+    liabilityTitle: "إخلاء المسؤولية",
+    liabilityDesc: "المنصة هي وسيط فقط بين البائع والمشتري. لا نتحمل أي مسؤولية عن جودة المنتجات أو صحة المعلومات المقدمة في الإعلانات. ننصح دائماً بالتحقق من المنتج قبل الشراء والالتقاء في أماكن عامة آمنة.",
+    terminationTitle: "إنهاء الحساب",
+    terminationDesc: "يحق لنا تعليق أو إنهاء حسابك وحذف إعلاناتك في حالة مخالفة هذه الشروط، أو تلقي شكاوى متعددة، أو أي سلوك يضر بالمنصة أو مستخدميها.",
+    changesTitle: "تعديل الشروط",
+    changesDesc: "نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سنقوم بإخطارك بالتغييرات الجوهرية عبر البريد الإلكتروني أو من خلال إشعار على المنصة.",
+    contactTitle: "تواصل معنا",
+    contactDesc: "لأي استفسارات حول شروط الاستخدام، يرجى التواصل معنا عبر البريد الإلكتروني: legal@soukcom.com",
   },
 };
 
@@ -1376,6 +1467,50 @@ export const en: Translations = {
     contactDesc: "We'd love to hear from you for any inquiries or suggestions.",
     contactEmail: "info@soukcom.com",
   },
+  privacy: {
+    title: "Privacy Policy",
+    subtitle: "How we protect your data and respect your privacy",
+    back: "Back to Home",
+    lastUpdated: "Last updated: February 2026",
+    intro: "At Open Market, we take your privacy seriously. This policy explains how we collect, use, and protect your personal information.",
+    dataCollectionTitle: "Data We Collect",
+    dataCollectionDesc: "We collect information you provide directly when creating an account, such as your name, email, phone number, and city. We also collect listing data you publish including images, descriptions, and prices.",
+    dataUsageTitle: "How We Use Your Data",
+    dataUsageDesc: "We use your data to provide and improve our services, communicate with you about your account and listings, send important notifications, and ensure platform security and fraud prevention.",
+    dataSharingTitle: "Data Sharing",
+    dataSharingDesc: "We do not sell your personal information to third parties. We may share your contact information (such as phone number) with other users only when you publish a listing, to facilitate buying and selling.",
+    dataProtectionTitle: "Data Protection",
+    dataProtectionDesc: "We use advanced encryption technologies and strict security measures to protect your data from unauthorized access, modification, disclosure, or destruction.",
+    cookiesTitle: "Cookies",
+    cookiesDesc: "We use cookies to improve your browsing experience and remember your preferences such as language and dark mode. You can control cookie settings from your browser.",
+    userRightsTitle: "Your Rights",
+    userRightsDesc: "You have the right to access, modify, or delete your personal data at any time through your account settings. You can also request a copy of your data or request complete account deletion.",
+    contactTitle: "Contact Us",
+    contactDesc: "If you have any questions about our privacy policy, please contact us at: privacy@soukcom.com",
+  },
+  terms: {
+    title: "Terms of Service",
+    subtitle: "Rules and conditions governing platform usage",
+    back: "Back to Home",
+    lastUpdated: "Last updated: February 2026",
+    intro: "By using the Open Market platform, you agree to comply with these terms and conditions. Please read them carefully before using the platform.",
+    acceptanceTitle: "Acceptance of Terms",
+    acceptanceDesc: "By using the platform or creating an account, you acknowledge that you have read, understood, and agreed to these terms. If you do not agree to any of these terms, please do not use the platform.",
+    accountTitle: "Account & Registration",
+    accountDesc: "You are responsible for maintaining the confidentiality of your account information and password. Information provided during registration must be accurate and truthful. We reserve the right to suspend or terminate your account if false information is provided.",
+    listingRulesTitle: "Listing Rules",
+    listingRulesDesc: "All published listings must be genuine and accurate. The advertiser bears full responsibility for the content of their listing. Listings must include real product photos, realistic pricing, and correct contact information.",
+    prohibitedTitle: "Prohibited Content",
+    prohibitedDesc: "It is forbidden to publish listings containing illegal, stolen, or counterfeit products, offensive or discriminatory content, misleading or false information, or any content that violates others' intellectual property rights.",
+    liabilityTitle: "Disclaimer",
+    liabilityDesc: "The platform is only an intermediary between buyer and seller. We bear no responsibility for product quality or accuracy of information in listings. We always recommend verifying products before purchase and meeting in safe public places.",
+    terminationTitle: "Account Termination",
+    terminationDesc: "We reserve the right to suspend or terminate your account and delete your listings in case of violation of these terms, receiving multiple complaints, or any behavior that harms the platform or its users.",
+    changesTitle: "Changes to Terms",
+    changesDesc: "We reserve the right to modify these terms at any time. We will notify you of material changes via email or through a notification on the platform.",
+    contactTitle: "Contact Us",
+    contactDesc: "For any inquiries about the terms of service, please contact us at: legal@soukcom.com",
+  },
 };
 
 export const tr: Translations = {
@@ -1819,6 +1954,50 @@ export const tr: Translations = {
     contactTitle: "Bize Ulaşın",
     contactDesc: "Her türlü soru veya öneri için bizimle iletişime geçmenizden memnuniyet duyarız.",
     contactEmail: "info@soukcom.com",
+  },
+  privacy: {
+    title: "Gizlilik Politikası",
+    subtitle: "Verilerinizi nasıl koruyor ve gizliliğinize nasıl saygı duyuyoruz",
+    back: "Ana Sayfaya Dön",
+    lastUpdated: "Son güncelleme: Şubat 2026",
+    intro: "Açık Pazar olarak gizliliğinizi ciddiye alıyoruz. Bu politika, kişisel bilgilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklamaktadır.",
+    dataCollectionTitle: "Topladığımız Veriler",
+    dataCollectionDesc: "Hesap oluştururken doğrudan sağladığınız bilgileri topluyoruz: ad, e-posta, telefon numarası ve şehir. Ayrıca yayınladığınız ilan verilerini de topluyoruz: görseller, açıklamalar ve fiyatlar.",
+    dataUsageTitle: "Verilerinizi Nasıl Kullanıyoruz",
+    dataUsageDesc: "Verilerinizi hizmetlerimizi sağlamak ve iyileştirmek, hesabınız ve ilanlarınız hakkında sizinle iletişim kurmak, önemli bildirimler göndermek ve platform güvenliğini sağlamak için kullanıyoruz.",
+    dataSharingTitle: "Veri Paylaşımı",
+    dataSharingDesc: "Kişisel bilgilerinizi üçüncü taraflara satmıyoruz. İletişim bilgilerinizi (telefon numarası gibi) yalnızca ilan yayınladığınızda alım satımı kolaylaştırmak için diğer kullanıcılarla paylaşabiliriz.",
+    dataProtectionTitle: "Veri Koruma",
+    dataProtectionDesc: "Verilerinizi yetkisiz erişim, değişiklik, ifşa veya imhadan korumak için gelişmiş şifreleme teknolojileri ve sıkı güvenlik önlemleri kullanıyoruz.",
+    cookiesTitle: "Çerezler",
+    cookiesDesc: "Göz atma deneyiminizi iyileştirmek ve dil ve karanlık mod gibi tercihlerinizi hatırlamak için çerezler kullanıyoruz. Çerez ayarlarını tarayıcınızdan kontrol edebilirsiniz.",
+    userRightsTitle: "Haklarınız",
+    userRightsDesc: "Hesap ayarlarınız aracılığıyla kişisel verilerinize erişme, değiştirme veya silme hakkınız vardır. Ayrıca verilerinizin bir kopyasını talep edebilir veya hesabınızın tamamen silinmesini isteyebilirsiniz.",
+    contactTitle: "Bize Ulaşın",
+    contactDesc: "Gizlilik politikamız hakkında herhangi bir sorunuz varsa, lütfen bizimle iletişime geçin: privacy@soukcom.com",
+  },
+  terms: {
+    title: "Kullanım Şartları",
+    subtitle: "Platform kullanımını düzenleyen kurallar ve koşullar",
+    back: "Ana Sayfaya Dön",
+    lastUpdated: "Son güncelleme: Şubat 2026",
+    intro: "Açık Pazar platformunu kullanarak bu şartlara ve koşullara uymayı kabul ediyorsunuz. Platformu kullanmadan önce lütfen bunları dikkatlice okuyun.",
+    acceptanceTitle: "Şartların Kabulü",
+    acceptanceDesc: "Platformu kullanarak veya hesap oluşturarak, bu şartları okuduğunuzu, anladığınızı ve kabul ettiğinizi onaylarsınız. Bu şartlardan herhangi birine katılmıyorsanız, lütfen platformu kullanmayın.",
+    accountTitle: "Hesap ve Kayıt",
+    accountDesc: "Hesap bilgilerinizin ve şifrenizin gizliliğini korumaktan siz sorumlusunuz. Kayıt sırasında sağlanan bilgiler doğru ve gerçek olmalıdır. Yanlış bilgi verilmesi durumunda hesabınızı askıya alma veya sonlandırma hakkımız saklıdır.",
+    listingRulesTitle: "İlan Kuralları",
+    listingRulesDesc: "Yayınlanan tüm ilanlar gerçek ve doğru olmalıdır. İlan veren, ilanının içeriğinden tamamen sorumludur. İlanlar gerçek ürün fotoğrafları, gerçekçi fiyatlandırma ve doğru iletişim bilgileri içermelidir.",
+    prohibitedTitle: "Yasaklı İçerik",
+    prohibitedDesc: "Yasadışı, çalıntı veya sahte ürünler, saldırgan veya ayrımcı içerik, yanıltıcı veya yanlış bilgiler veya başkalarının fikri mülkiyet haklarını ihlal eden herhangi bir içerik yayınlamak yasaktır.",
+    liabilityTitle: "Sorumluluk Reddi",
+    liabilityDesc: "Platform yalnızca alıcı ve satıcı arasında bir aracıdır. İlanlardaki ürün kalitesi veya bilgilerin doğruluğu konusunda hiçbir sorumluluk taşımıyoruz. Satın almadan önce ürünleri doğrulamanızı ve güvenli kamusal alanlarda buluşmanızı her zaman öneriyoruz.",
+    terminationTitle: "Hesap Sonlandırma",
+    terminationDesc: "Bu şartların ihlali, birden fazla şikayet alınması veya platforma veya kullanıcılarına zarar veren herhangi bir davranış durumunda hesabınızı askıya alma veya sonlandırma ve ilanlarınızı silme hakkımız saklıdır.",
+    changesTitle: "Şartlardaki Değişiklikler",
+    changesDesc: "Bu şartları istediğimiz zaman değiştirme hakkımız saklıdır. Önemli değişiklikler hakkında sizi e-posta veya platformdaki bir bildirim aracılığıyla bilgilendireceğiz.",
+    contactTitle: "Bize Ulaşın",
+    contactDesc: "Kullanım şartları hakkında herhangi bir sorunuz için lütfen bizimle iletişime geçin: legal@soukcom.com",
   },
 };
 
