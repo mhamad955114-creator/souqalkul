@@ -45,7 +45,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
@@ -73,6 +73,16 @@ interface Report {
   reporter_name?: string;
 }
 
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "قيد المراجعة", variant: "outline" },
   reviewed: { label: "تمت المراجعة", variant: "secondary" },
@@ -89,6 +99,12 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState<"reports" | "messages">("reports");
+
+  // Contact messages
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
 
   // General stats
   const [stats, setStats] = useState({ listings: 0, users: 0, reports: 0, views: 0 });
@@ -220,6 +236,30 @@ const AdminReports = () => {
   useEffect(() => {
     if (isAdmin) fetchReports();
   }, [isAdmin, statusFilter]);
+
+  // Fetch contact messages
+  const fetchContactMessages = async () => {
+    setMessagesLoading(true);
+    const { data, error } = await supabase
+      .from("contact_messages")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      setContactMessages(data as ContactMessage[]);
+    }
+    setMessagesLoading(false);
+  };
+
+  useEffect(() => {
+    if (isAdmin && activeTab === "messages") fetchContactMessages();
+  }, [isAdmin, activeTab]);
+
+  const markMessageAsRead = async (msg: ContactMessage) => {
+    await supabase.from("contact_messages").update({ is_read: true }).eq("id", msg.id);
+    setContactMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, is_read: true } : m));
+    if (selectedMessage?.id === msg.id) setSelectedMessage({ ...msg, is_read: true });
+  };
 
   const updateStatus = async (reportId: string, newStatus: string) => {
     // Find the report to get reporter_id
@@ -504,6 +544,33 @@ const AdminReports = () => {
           </Card>
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6">
+          <Button
+            variant={activeTab === "reports" ? "default" : "outline"}
+            onClick={() => setActiveTab("reports")}
+            className="gap-2"
+          >
+            <Flag className="h-4 w-4" />
+            البلاغات
+          </Button>
+          <Button
+            variant={activeTab === "messages" ? "default" : "outline"}
+            onClick={() => setActiveTab("messages")}
+            className="gap-2"
+          >
+            <Mail className="h-4 w-4" />
+            رسائل التواصل
+            {contactMessages.filter(m => !m.is_read).length > 0 && (
+              <Badge variant="destructive" className="text-xs px-1.5 py-0">
+                {contactMessages.filter(m => !m.is_read).length}
+              </Badge>
+            )}
+          </Button>
+        </div>
+
+        {activeTab === "reports" && (
+          <>
         {/* Report Status Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {Object.entries(statusConfig).map(([key, config]) => {
@@ -607,6 +674,70 @@ const AdminReports = () => {
             </div>
           </Card>
         )}
+          </>
+        )}
+
+        {activeTab === "messages" && (
+          <>
+            {messagesLoading ? (
+              <div className="flex justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : contactMessages.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Mail className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-lg font-medium text-foreground">لا توجد رسائل</p>
+                  <p className="text-muted-foreground">لم يتم استلام أي رسائل تواصل بعد</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right">الاسم</TableHead>
+                        <TableHead className="text-right">البريد</TableHead>
+                        <TableHead className="text-right">الموضوع</TableHead>
+                        <TableHead className="text-right">التاريخ</TableHead>
+                        <TableHead className="text-right">الحالة</TableHead>
+                        <TableHead className="text-right">إجراءات</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {contactMessages.map((msg) => (
+                        <TableRow key={msg.id} className={!msg.is_read ? "bg-primary/5" : ""}>
+                          <TableCell className="font-medium">{msg.name}</TableCell>
+                          <TableCell>{msg.email}</TableCell>
+                          <TableCell className="max-w-[200px] truncate">{msg.subject}</TableCell>
+                          <TableCell className="whitespace-nowrap">{formatDate(msg.created_at)}</TableCell>
+                          <TableCell>
+                            <Badge variant={msg.is_read ? "secondary" : "default"}>
+                              {msg.is_read ? "مقروءة" : "جديدة"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button size="sm" variant="ghost" onClick={() => { setSelectedMessage(msg); if (!msg.is_read) markMessageAsRead(msg); }}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              {!msg.is_read && (
+                                <Button size="sm" variant="ghost" onClick={() => markMessageAsRead(msg)}>
+                                  <CheckCircle className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </Card>
+            )}
+          </>
+        )}
       </main>
 
       <Footer />
@@ -701,6 +832,47 @@ const AdminReports = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Contact Message Detail Dialog */}
+      <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
+        <DialogContent className="sm:max-w-lg" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>تفاصيل الرسالة</DialogTitle>
+          </DialogHeader>
+          {selectedMessage && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground">الاسم</p>
+                <p className="font-medium">{selectedMessage.name}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">البريد الإلكتروني</p>
+                <p className="font-medium">{selectedMessage.email}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">الموضوع</p>
+                <p className="font-medium">{selectedMessage.subject}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">الرسالة</p>
+                <p className="text-foreground whitespace-pre-wrap bg-muted/50 rounded-lg p-3">{selectedMessage.message}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">التاريخ</p>
+                <p className="font-medium">{formatDate(selectedMessage.created_at)}</p>
+              </div>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => window.open(`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`, "_blank")}
+              >
+                <Mail className="h-4 w-4 ml-2" />
+                الرد عبر البريد
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
