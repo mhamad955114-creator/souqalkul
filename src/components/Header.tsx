@@ -1,4 +1,5 @@
 import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield } from "lucide-react";
+import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -81,6 +82,8 @@ const Header = ({ onListingAdded }: HeaderProps) => {
             {/* Actions */}
             <div className="flex items-center gap-3">
               <LanguageSwitcher />
+
+              {user && <NotificationsDropdown />}
 
               <Button variant="ghost" size="icon" className="hidden md:flex">
                 <Search className="h-5 w-5" />
