@@ -582,7 +582,7 @@ export interface Translations {
 }
 
 export const ar: Translations = {
-  appName: "السوق المفتوح",
+  appName: "سوق الكل",
   appLogo: "س",
   nav: {
     home: "الرئيسية",
@@ -1112,8 +1112,8 @@ export const ar: Translations = {
 };
 
 export const en: Translations = {
-  appName: "Open Market",
-  appLogo: "O",
+  appName: "Souq Alkul",
+  appLogo: "S",
   nav: {
     home: "Home",
     categories: "Categories",
@@ -1642,8 +1642,8 @@ export const en: Translations = {
 };
 
 export const tr: Translations = {
-  appName: "Açık Pazar",
-  appLogo: "A",
+  appName: "Souq Alkul",
+  appLogo: "S",
   nav: {
     home: "Ana Sayfa",
     categories: "Kategoriler",
