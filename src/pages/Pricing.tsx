@@ -1,4 +1,4 @@
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight } from "lucide-react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -7,10 +7,12 @@ import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
 import { formatPrice } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useListingSettings } from "@/hooks/useListingSettings";
 
 const Pricing = () => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
+  const { settings, loading: settingsLoading } = useListingSettings();
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
@@ -41,8 +43,8 @@ const Pricing = () => {
     },
     {
       name: t.pricing.featured,
-      price: 50000,
-      duration: t.pricing.monthly,
+      price: settings.featured_listing.price || 50000,
+      duration: `${settings.featured_listing.duration_days} يوم`,
       description: t.pricing.mostPopular,
       icon: Star,
       iconColor: "text-amber-500",
@@ -66,8 +68,8 @@ const Pricing = () => {
     },
     {
       name: t.pricing.professional,
-      price: 100000,
-      duration: t.pricing.monthly,
+      price: settings.professional_listing.price || 100000,
+      duration: `${settings.professional_listing.duration_days} يوم`,
       description: t.pricing.forProfessionals,
       icon: Crown,
       iconColor: "text-purple-500",
