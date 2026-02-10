@@ -2,14 +2,14 @@ import { Car, Home, Smartphone, Shirt, Sofa, Briefcase, Gamepad2, Wrench } from 
 import CategoryCard from "./CategoryCard";
 
 const categories = [
-  { icon: Car, title: "سيارات", count: 12500, color: "bg-primary" },
-  { icon: Home, title: "عقارات", count: 8300, color: "bg-accent" },
-  { icon: Smartphone, title: "إلكترونيات", count: 15200, color: "bg-blue-500" },
-  { icon: Shirt, title: "ملابس", count: 6800, color: "bg-pink-500" },
-  { icon: Sofa, title: "أثاث", count: 4200, color: "bg-amber-500" },
-  { icon: Briefcase, title: "وظائف", count: 3100, color: "bg-indigo-500" },
-  { icon: Gamepad2, title: "ألعاب", count: 2800, color: "bg-red-500" },
-  { icon: Wrench, title: "خدمات", count: 5600, color: "bg-emerald-500" },
+  { icon: Car, title: "سيارات", count: 12500, color: "bg-primary", categoryValue: "سيارات" },
+  { icon: Home, title: "عقارات", count: 8300, color: "bg-accent", categoryValue: "عقارات" },
+  { icon: Smartphone, title: "إلكترونيات", count: 15200, color: "bg-blue-500", categoryValue: "الكترونيات" },
+  { icon: Shirt, title: "ملابس", count: 6800, color: "bg-pink-500", categoryValue: "ملابس" },
+  { icon: Sofa, title: "أثاث", count: 4200, color: "bg-amber-500", categoryValue: "أثاث" },
+  { icon: Briefcase, title: "وظائف", count: 3100, color: "bg-indigo-500", categoryValue: "وظائف" },
+  { icon: Gamepad2, title: "ألعاب", count: 2800, color: "bg-red-500", categoryValue: "ألعاب" },
+  { icon: Wrench, title: "خدمات", count: 5600, color: "bg-emerald-500", categoryValue: "خدمات" },
 ];
 
 const CategoriesSection = () => {
