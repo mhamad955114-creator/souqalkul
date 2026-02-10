@@ -38,7 +38,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2 } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/constants";
 
@@ -71,12 +71,35 @@ const AdminReports = () => {
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // General stats
+  const [stats, setStats] = useState({ listings: 0, users: 0, reports: 0, views: 0 });
+
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
       toast.error("ليس لديك صلاحية الوصول لهذه الصفحة");
       navigate("/");
     }
   }, [roleLoading, isAdmin, navigate]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const fetchStats = async () => {
+      const [listingsRes, profilesRes, reportsRes, viewsRes] = await Promise.all([
+        supabase.from("listings").select("id", { count: "exact", head: true }).eq("status", "active"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("reports").select("id", { count: "exact", head: true }),
+        supabase.from("listings").select("views_count"),
+      ]);
+      const totalViews = viewsRes.data?.reduce((sum, l) => sum + (l.views_count || 0), 0) || 0;
+      setStats({
+        listings: listingsRes.count || 0,
+        users: profilesRes.count || 0,
+        reports: reportsRes.count || 0,
+        views: totalViews,
+      });
+    };
+    fetchStats();
+  }, [isAdmin]);
 
   const fetchReports = async () => {
     setLoading(true);
@@ -194,12 +217,60 @@ const AdminReports = () => {
         <div className="flex items-center gap-3 mb-8">
           <Shield className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold text-foreground">لوحة إدارة البلاغات</h1>
-            <p className="text-muted-foreground">مراجعة وإدارة بلاغات المستخدمين</p>
+            <h1 className="text-3xl font-bold text-foreground">لوحة التحكم</h1>
+            <p className="text-muted-foreground">إحصائيات عامة وإدارة البلاغات</p>
           </div>
         </div>
 
-        {/* Stats */}
+        {/* General Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{stats.listings}</p>
+                <p className="text-sm text-muted-foreground">إعلان نشط</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{stats.users}</p>
+                <p className="text-sm text-muted-foreground">مستخدم مسجّل</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+                <Flag className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{stats.reports}</p>
+                <p className="text-sm text-muted-foreground">بلاغ مقدّم</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{stats.views.toLocaleString("ar-SY")}</p>
+                <p className="text-sm text-muted-foreground">مشاهدة إجمالية</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Report Status Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {Object.entries(statusConfig).map(([key, config]) => {
             const count = reports.filter((r) => r.status === key).length;
