@@ -5,11 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, Plus, Settings } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EditListingModal from "@/components/EditListingModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,12 +40,15 @@ interface Listing {
 
 const MyAccount = () => {
   const { user, loading: authLoading } = useAuth();
+  const { t, dir } = useLanguage();
   const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [deletingListing, setDeletingListing] = useState<Listing | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -64,7 +68,7 @@ const MyAccount = () => {
         .order("created_at", { ascending: false });
 
       if (error) {
-        toast.error("فشل تحميل الإعلانات");
+        toast.error(t.myAccount.loadError);
         console.error(error);
       } else {
         setListings(data || []);
@@ -91,9 +95,9 @@ const MyAccount = () => {
         .eq("id", deletingListing.id);
 
       if (error) {
-        toast.error("فشل حذف الإعلان: " + error.message);
+        toast.error(t.myAccount.deleteError + ": " + error.message);
       } else {
-        toast.success("تم حذف الإعلان بنجاح");
+        toast.success(t.myAccount.deleteSuccess);
         setListings((prev) => prev.filter((l) => l.id !== deletingListing.id));
       }
     } finally {
@@ -115,26 +119,26 @@ const MyAccount = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={dir}>
       <Header onListingAdded={fetchListings} />
       
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">إعلاناتي</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t.myAccount.title}</h1>
             <p className="text-muted-foreground mt-1">
-              إدارة جميع إعلاناتك من مكان واحد
+              {t.myAccount.subtitle}
             </p>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => navigate("/settings")} variant="outline">
               <Settings className="h-4 w-4" />
-              الإعدادات
+              {t.myAccount.settingsBtn}
             </Button>
             <Button onClick={() => navigate("/")} variant="outline">
-              <ArrowRight className="h-4 w-4" />
-              العودة للرئيسية
+              <BackArrow className="h-4 w-4" />
+              {t.myAccount.backToHome}
             </Button>
           </div>
         </div>
@@ -151,13 +155,13 @@ const MyAccount = () => {
                 <Plus className="h-8 w-8 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                لا توجد إعلانات حتى الآن
+                {t.myAccount.noListings}
               </h3>
               <p className="text-muted-foreground mb-4">
-                ابدأ بإضافة إعلانك الأول الآن
+                {t.myAccount.noListingsDesc}
               </p>
               <Button onClick={() => navigate("/")}>
-                إضافة إعلان جديد
+                {t.myAccount.addNewListing}
               </Button>
             </CardContent>
           </Card>
@@ -189,7 +193,7 @@ const MyAccount = () => {
                         </div>
 
                         <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
-                          {listing.description || "لا يوجد وصف"}
+                          {listing.description || t.myAccount.noDescription}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -199,7 +203,7 @@ const MyAccount = () => {
                           </span>
                           <span className="flex items-center gap-1">
                             <Eye className="h-4 w-4" />
-                            {listing.views_count || 0} مشاهدة
+                            {listing.views_count || 0} {t.myAccount.views}
                           </span>
                           <Badge variant="outline">
                             {categoryLabels[listing.category] || listing.category}
@@ -224,7 +228,7 @@ const MyAccount = () => {
                             onClick={() => setEditingListing(listing)}
                           >
                             <Edit2 className="h-4 w-4" />
-                            تعديل
+                            {t.myAccount.editBtn}
                           </Button>
                           <Button
                             variant="destructive"
@@ -232,7 +236,7 @@ const MyAccount = () => {
                             onClick={() => setDeletingListing(listing)}
                           >
                             <Trash2 className="h-4 w-4" />
-                            حذف
+                            {t.myAccount.deleteBtn}
                           </Button>
                         </div>
                       </div>
@@ -264,13 +268,13 @@ const MyAccount = () => {
       <AlertDialog open={!!deletingListing} onOpenChange={() => setDeletingListing(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>هل أنت متأكد من حذف هذا الإعلان؟</AlertDialogTitle>
+            <AlertDialogTitle>{t.myAccount.deleteConfirm}</AlertDialogTitle>
             <AlertDialogDescription>
-              سيتم حذف الإعلان "{deletingListing?.title}" نهائياً ولا يمكن التراجع عن هذا الإجراء.
+              {t.myAccount.deleteConfirmDesc}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel>{t.myAccount.cancelBtn}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -279,10 +283,10 @@ const MyAccount = () => {
               {deleteLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  جاري الحذف...
+                  {t.myAccount.deleting}
                 </>
               ) : (
-                "حذف الإعلان"
+                t.myAccount.deleteListingBtn
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

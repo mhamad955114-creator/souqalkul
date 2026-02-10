@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatModal from "@/components/ChatModal";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,6 +14,7 @@ import { formatPrice } from "@/lib/constants";
 
 const Messages = () => {
   const { user, loading: authLoading } = useAuth();
+  const { t, dir } = useLanguage();
   const { conversations, loading } = useChat();
   const [selectedConversation, setSelectedConversation] = useState<{
     id: string;
@@ -46,19 +47,19 @@ const Messages = () => {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMins < 1) return "الآن";
-    if (diffMins < 60) return `منذ ${diffMins} د`;
-    if (diffHours < 24) return `منذ ${diffHours} س`;
-    if (diffDays < 7) return `منذ ${diffDays} ي`;
-    return date.toLocaleDateString("ar-SY");
+    if (diffMins < 1) return t.messagesPage.now;
+    if (diffMins < 60) return `${diffMins} ${t.messagesPage.minsAgo}`;
+    if (diffHours < 24) return `${diffHours} ${t.messagesPage.hoursAgo}`;
+    if (diffDays < 7) return `${diffDays} ${t.messagesPage.daysAgo}`;
+    return date.toLocaleDateString(dir === "rtl" ? "ar-SY" : "en-US");
   };
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={dir}>
       <Header />
 
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-foreground mb-6">الرسائل</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-6">{t.messagesPage.title}</h1>
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -68,9 +69,9 @@ const Messages = () => {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
               <MessageCircle className="h-16 w-16 text-muted-foreground mb-4" />
-              <h2 className="text-xl font-semibold text-foreground mb-2">لا توجد رسائل</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-2">{t.messagesPage.noMessages}</h2>
               <p className="text-muted-foreground text-center">
-                ابدأ محادثة من صفحة أي إعلان للتواصل مع البائع
+                {t.messagesPage.noMessagesDesc}
               </p>
             </CardContent>
           </Card>
@@ -81,8 +82,8 @@ const Messages = () => {
                 {conversations.map((conv) => (
                   <button
                     key={conv.id}
-                    onClick={() => handleOpenChat(conv.id, conv.listing?.title || "إعلان")}
-                    className="w-full p-4 flex gap-4 hover:bg-muted/50 transition-colors text-right"
+                    onClick={() => handleOpenChat(conv.id, conv.listing?.title || t.messagesPage.listing)}
+                    className={`w-full p-4 flex gap-4 hover:bg-muted/50 transition-colors ${dir === "rtl" ? "text-right" : "text-left"}`}
                   >
                     <Avatar className="h-14 w-14 flex-shrink-0">
                       <AvatarImage src={conv.other_user?.avatar_url || undefined} />
@@ -94,7 +95,7 @@ const Messages = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <span className="font-semibold text-foreground truncate">
-                          {conv.other_user?.full_name || "مستخدم"}
+                          {conv.other_user?.full_name || t.messagesPage.user}
                         </span>
                         <div className="flex items-center gap-2">
                           {conv.last_message && (
@@ -111,12 +112,12 @@ const Messages = () => {
                       </div>
 
                       <p className="text-sm text-primary truncate mb-1">
-                        {conv.listing?.title || "إعلان"} - {conv.listing ? formatPrice(conv.listing.price) : ""}
+                        {conv.listing?.title || t.messagesPage.listing} - {conv.listing ? formatPrice(conv.listing.price) : ""}
                       </p>
 
                       {conv.last_message && (
                         <p className="text-sm text-muted-foreground truncate">
-                          {conv.last_message.sender_id === user.id ? "أنت: " : ""}
+                          {conv.last_message.sender_id === user.id ? `${t.messagesPage.you}: ` : ""}
                           {conv.last_message.content}
                         </p>
                       )}
