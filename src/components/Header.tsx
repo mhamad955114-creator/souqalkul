@@ -5,8 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useAdminRole } from "@/hooks/useAdminRole";
+import { useLanguage } from "@/contexts/LanguageContext";
 import AuthModal from "./AuthModal";
 import AddListingModal from "./AddListingModal";
+import LanguageSwitcher from "./LanguageSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +30,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { user, signOut, loading } = useAuth();
   const { unreadCount } = useUnreadMessages();
   const { isAdmin } = useAdminRole();
+  const { t, dir } = useLanguage();
 
   const openAuthModal = (tab: "login" | "signup") => {
     setAuthModalTab(tab);
@@ -52,31 +55,33 @@ const Header = ({ onListingAdded }: HeaderProps) => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
               <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">س</span>
+                <span className="text-primary-foreground font-bold text-xl">{t.appLogo}</span>
               </div>
-              <span className="text-xl font-bold text-foreground">السوق المفتوح</span>
+              <span className="text-xl font-bold text-foreground">{t.appName}</span>
             </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-                الرئيسية
+              <a href="/" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+                {t.nav.home}
+              </a>
+              <a href="/listings" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+                {t.nav.categories}
               </a>
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-                التصنيفات
+                {t.nav.offers}
               </a>
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-                العروض
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-                تواصل معنا
+                {t.nav.contact}
               </a>
             </nav>
 
             {/* Actions */}
             <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+
               <Button variant="ghost" size="icon" className="hidden md:flex">
                 <Search className="h-5 w-5" />
               </Button>
@@ -103,21 +108,21 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => navigate("/my-account")} className="flex items-center gap-2">
                           <FileText className="h-4 w-4" />
-                          إعلاناتي
+                          {t.nav.myListings}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/my-orders")} className="flex items-center gap-2">
                           <ShoppingBag className="h-4 w-4" />
-                          طلباتي
+                          {t.nav.myOrders}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/favorites")} className="flex items-center gap-2">
                           <Heart className="h-4 w-4" />
-                          المفضلة
+                          {t.nav.favorites}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/messages")} className="flex items-center gap-2">
                           <MessageCircle className="h-4 w-4" />
-                          الرسائل
+                          {t.nav.messages}
                           {unreadCount > 0 && (
-                            <span className="mr-auto bg-destructive text-destructive-foreground text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
+                            <span className={`${dir === "rtl" ? "mr-auto" : "ml-auto"} bg-destructive text-destructive-foreground text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1`}>
                               {unreadCount > 99 ? "99+" : unreadCount}
                             </span>
                           )}
@@ -127,13 +132,13 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => navigate("/admin/reports")} className="flex items-center gap-2 text-primary">
                               <Shield className="h-4 w-4" />
-                              لوحة التحكم
+                              {t.nav.adminPanel}
                             </DropdownMenuItem>
                           </>
                         )}
                         <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive">
                           <LogOut className="h-4 w-4" />
-                          تسجيل الخروج
+                          {t.nav.signOut}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -152,7 +157,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
 
               <Button variant="default" className="hidden md:flex" onClick={handleAddListing}>
                 <Plus className="h-4 w-4" />
-                أضف إعلانك
+                {t.nav.addListing}
               </Button>
 
               <Button
@@ -170,17 +175,17 @@ const Header = ({ onListingAdded }: HeaderProps) => {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t border-border animate-fade-up">
               <nav className="flex flex-col gap-3">
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
-                  الرئيسية
+                <a href="/" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
+                  {t.nav.home}
+                </a>
+                <a href="/listings" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
+                  {t.nav.categories}
                 </a>
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
-                  التصنيفات
+                  {t.nav.offers}
                 </a>
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
-                  العروض
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2">
-                  تواصل معنا
+                  {t.nav.contact}
                 </a>
                 {user ? (
                   <>
@@ -189,19 +194,19 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     </div>
                     <Button variant="outline" onClick={() => navigate("/my-account")}>
                       <FileText className="h-4 w-4" />
-                      إعلاناتي
+                      {t.nav.myListings}
                     </Button>
                     <Button variant="outline" onClick={() => navigate("/my-orders")}>
                       <ShoppingBag className="h-4 w-4" />
-                      طلباتي
+                      {t.nav.myOrders}
                     </Button>
                     <Button variant="outline" onClick={() => navigate("/favorites")}>
                       <Heart className="h-4 w-4" />
-                      المفضلة
+                      {t.nav.favorites}
                     </Button>
                     <Button variant="outline" onClick={() => navigate("/messages")} className="relative">
                       <MessageCircle className="h-4 w-4" />
-                      الرسائل
+                      {t.nav.messages}
                       {unreadCount > 0 && (
                         <span className="bg-destructive text-destructive-foreground text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
                           {unreadCount > 99 ? "99+" : unreadCount}
@@ -211,23 +216,23 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     {isAdmin && (
                       <Button variant="outline" onClick={() => navigate("/admin/reports")} className="text-primary">
                         <Shield className="h-4 w-4" />
-                        لوحة التحكم
+                        {t.nav.adminPanel}
                       </Button>
                     )}
                     <Button variant="outline" onClick={handleSignOut}>
                       <LogOut className="h-4 w-4" />
-                      تسجيل الخروج
+                      {t.nav.signOut}
                     </Button>
                   </>
                 ) : (
                   <Button variant="outline" onClick={() => openAuthModal("login")}>
                     <User className="h-4 w-4" />
-                    تسجيل الدخول
+                    {t.nav.signIn}
                   </Button>
                 )}
                 <Button variant="default" className="mt-2" onClick={handleAddListing}>
                   <Plus className="h-4 w-4" />
-                  أضف إعلانك
+                  {t.nav.addListing}
                 </Button>
               </nav>
             </div>
