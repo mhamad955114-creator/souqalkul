@@ -1,4 +1,5 @@
 import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun } from "lucide-react";
+import logoImage from "@/assets/logo.png";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
 import { useState } from "react";
@@ -59,9 +60,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">{t.appLogo}</span>
-              </div>
+              <img src={logoImage} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
               <span className="text-xl font-bold text-foreground">{t.appName}</span>
             </div>
 

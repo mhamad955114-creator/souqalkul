@@ -1,5 +1,6 @@
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import logoImage from "@/assets/logo.png";
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -11,9 +12,7 @@ const Footer = () => {
           {/* About */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">{t.appLogo}</span>
-              </div>
+              <img src={logoImage} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
               <span className="text-xl font-bold">{t.appName}</span>
             </div>
             <p className="text-background/70 mb-6 leading-relaxed">
