@@ -45,7 +45,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings } from "lucide-react";
+import AdminSettingsTab from "@/components/AdminSettingsTab";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
@@ -99,7 +100,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -580,6 +581,14 @@ const AdminReports = () => {
               </Badge>
             )}
           </Button>
+          <Button
+            variant={activeTab === "settings" ? "default" : "outline"}
+            onClick={() => setActiveTab("settings")}
+            className="gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            إعدادات الإعلانات
+          </Button>
         </div>
 
         {activeTab === "reports" && (
@@ -759,6 +768,8 @@ const AdminReports = () => {
             )}
           </>
         )}
+
+        {activeTab === "settings" && <AdminSettingsTab />}
       </main>
 
       <Footer />
