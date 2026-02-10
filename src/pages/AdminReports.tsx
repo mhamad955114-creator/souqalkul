@@ -105,6 +105,7 @@ const AdminReports = () => {
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [deleteMessageTarget, setDeleteMessageTarget] = useState<ContactMessage | null>(null);
 
   // General stats
   const [stats, setStats] = useState({ listings: 0, users: 0, reports: 0, views: 0 });
@@ -259,6 +260,18 @@ const AdminReports = () => {
     await supabase.from("contact_messages").update({ is_read: true }).eq("id", msg.id);
     setContactMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, is_read: true } : m));
     if (selectedMessage?.id === msg.id) setSelectedMessage({ ...msg, is_read: true });
+  };
+
+  const deleteContactMessage = async (msg: ContactMessage) => {
+    const { error } = await supabase.from("contact_messages").delete().eq("id", msg.id);
+    if (error) {
+      toast.error("فشل حذف الرسالة");
+      return;
+    }
+    toast.success("تم حذف الرسالة");
+    setContactMessages((prev) => prev.filter((m) => m.id !== msg.id));
+    setDeleteMessageTarget(null);
+    setSelectedMessage(null);
   };
 
   const updateStatus = async (reportId: string, newStatus: string) => {
@@ -727,6 +740,14 @@ const AdminReports = () => {
                                   <CheckCircle className="h-4 w-4" />
                                 </Button>
                               )}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => setDeleteMessageTarget(msg)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -869,10 +890,39 @@ const AdminReports = () => {
                 <Mail className="h-4 w-4 ml-2" />
                 الرد عبر البريد
               </Button>
+              <Button
+                className="w-full"
+                variant="destructive"
+                onClick={() => { setDeleteMessageTarget(selectedMessage); setSelectedMessage(null); }}
+              >
+                <Trash2 className="h-4 w-4 ml-2" />
+                حذف الرسالة
+              </Button>
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Contact Message Confirmation */}
+      <AlertDialog open={!!deleteMessageTarget} onOpenChange={(open) => !open && setDeleteMessageTarget(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد حذف الرسالة</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف رسالة "{deleteMessageTarget?.subject}" من {deleteMessageTarget?.name}؟
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteMessageTarget && deleteContactMessage(deleteMessageTarget)}
+            >
+              حذف الرسالة
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
