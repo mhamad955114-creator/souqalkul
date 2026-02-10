@@ -7,9 +7,10 @@ interface CategoryCardProps {
   count: number;
   color: string;
   categoryValue?: string;
+  adLabel?: string;
 }
 
-const CategoryCard = ({ icon: Icon, title, count, color, categoryValue }: CategoryCardProps) => {
+const CategoryCard = ({ icon: Icon, title, count, color, categoryValue, adLabel = "إعلان" }: CategoryCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -28,7 +29,7 @@ const CategoryCard = ({ icon: Icon, title, count, color, categoryValue }: Catego
         <Icon className="h-7 w-7 text-primary-foreground" />
       </div>
       <h3 className="text-lg font-bold text-foreground mb-1">{title}</h3>
-      <p className="text-muted-foreground text-sm">{count} إعلان</p>
+      <p className="text-muted-foreground text-sm">{count} {adLabel}</p>
     </div>
   );
 };

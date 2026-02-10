@@ -2,6 +2,7 @@ import { Home, Grid3X3, Plus, Heart, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
 import AddListingModal from "./AddListingModal";
@@ -14,6 +15,7 @@ const BottomNavigation = ({ onListingAdded }: BottomNavigationProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [addListingModalOpen, setAddListingModalOpen] = useState(false);
 
@@ -34,37 +36,11 @@ const BottomNavigation = ({ onListingAdded }: BottomNavigationProps) => {
   };
 
   const navItems = [
-    {
-      icon: Home,
-      label: "الرئيسية",
-      path: "/",
-      onClick: () => navigate("/"),
-    },
-    {
-      icon: Grid3X3,
-      label: "التصنيفات",
-      path: "/listings",
-      onClick: () => navigate("/listings"),
-    },
-    {
-      icon: Plus,
-      label: "أضف إعلان",
-      path: null,
-      onClick: handleAddListing,
-      isSpecial: true,
-    },
-    {
-      icon: Heart,
-      label: "المفضلة",
-      path: "/favorites",
-      onClick: () => navigate("/favorites"),
-    },
-    {
-      icon: User,
-      label: "حسابي",
-      path: "/my-account",
-      onClick: handleMyAccount,
-    },
+    { icon: Home, label: t.nav.home, path: "/", onClick: () => navigate("/") },
+    { icon: Grid3X3, label: t.nav.categories, path: "/listings", onClick: () => navigate("/listings") },
+    { icon: Plus, label: t.nav.addAd, path: null, onClick: handleAddListing, isSpecial: true },
+    { icon: Heart, label: t.nav.favorites, path: "/favorites", onClick: () => navigate("/favorites") },
+    { icon: User, label: t.nav.myAccount, path: "/my-account", onClick: handleMyAccount },
   ];
 
   return (
