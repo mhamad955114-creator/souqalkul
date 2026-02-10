@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -73,6 +74,7 @@ const AdminReports = () => {
 
   // General stats
   const [stats, setStats] = useState({ listings: 0, users: 0, reports: 0, views: 0 });
+  const [dailyListings, setDailyListings] = useState<{ date: string; count: number }[]>([]);
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -97,6 +99,35 @@ const AdminReports = () => {
         reports: reportsRes.count || 0,
         views: totalViews,
       });
+
+      // Fetch daily listings for last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const { data: dailyData } = await supabase
+        .from("listings")
+        .select("created_at")
+        .gte("created_at", thirtyDaysAgo.toISOString());
+
+      if (dailyData) {
+        const countByDay: Record<string, number> = {};
+        // Initialize all 30 days
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const key = d.toISOString().split("T")[0];
+          countByDay[key] = 0;
+        }
+        dailyData.forEach((item) => {
+          const key = item.created_at.split("T")[0];
+          if (countByDay[key] !== undefined) countByDay[key]++;
+        });
+        setDailyListings(
+          Object.entries(countByDay).map(([date, count]) => ({
+            date: new Date(date).toLocaleDateString("ar-SY", { month: "short", day: "numeric" }),
+            count,
+          }))
+        );
+      }
     };
     fetchStats();
   }, [isAdmin]);
@@ -269,6 +300,36 @@ const AdminReports = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Daily Listings Chart */}
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">الإعلانات المضافة يومياً (آخر 30 يوم)</h2>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={dailyListings}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 11 }}
+                    interval={Math.floor(dailyListings.length / 8)}
+                  />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: "hsl(var(--card))",
+                      color: "hsl(var(--foreground))",
+                    }}
+                    labelStyle={{ fontWeight: "bold", marginBottom: 4 }}
+                  />
+                  <Bar dataKey="count" name="عدد الإعلانات" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Report Status Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
