@@ -1,6 +1,7 @@
 import { Heart, MapPin, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ListingCardProps {
   id?: string;
@@ -15,6 +16,7 @@ interface ListingCardProps {
 const ListingCard = ({ id, image, title, price, location, time, featured }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
+  const { t } = useLanguage();
   const isListingFavorite = id ? isFavorite(id) : false;
 
   const handleClick = () => {
@@ -28,7 +30,6 @@ const ListingCard = ({ id, image, title, price, location, time, featured }: List
       className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1"
       onClick={handleClick}
     >
-      {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={image}
@@ -38,7 +39,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured }: List
         {featured && (
           <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
             <span>⭐</span>
-            <span>إعلان مدفوع</span>
+            <span>{t.listings.featured}</span>
           </div>
         )}
         <button
@@ -58,7 +59,6 @@ const ListingCard = ({ id, image, title, price, location, time, featured }: List
         </button>
       </div>
 
-      {/* Content */}
       <div className="p-4">
         <h3 className="font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
           {title}

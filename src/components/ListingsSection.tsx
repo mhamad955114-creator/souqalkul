@@ -1,10 +1,11 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import ListingCard from "./ListingCard";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, formatTime } from "@/lib/constants";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Listing {
   id: string;
@@ -16,7 +17,6 @@ interface Listing {
   created_at: string;
 }
 
-// Static fallback data
 const fallbackListings = [
   {
     id: "1",
@@ -64,6 +64,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { t, dir } = useLanguage();
 
   const fetchListings = async () => {
     const { data, error } = await supabase
@@ -85,6 +86,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   }, [refreshTrigger]);
 
   const hasDbListings = listings.length > 0;
+  const ViewAllArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   return (
     <section className="py-16 bg-secondary/50">
@@ -92,15 +94,15 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
         <div className="flex items-center justify-between mb-12">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-              أحدث الإعلانات
+              {t.listings.latestListings}
             </h2>
             <p className="text-muted-foreground">
-              تصفح آخر الإعلانات المضافة في السوق
+              {t.listings.browseAds}
             </p>
           </div>
           <Button variant="outline" className="hidden md:flex" onClick={() => navigate("/listings")}>
-            عرض الكل
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t.listings.viewAll}
+            <ViewAllArrow className="h-4 w-4" />
           </Button>
         </div>
 
@@ -158,8 +160,8 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
 
         <div className="text-center mt-10 md:hidden">
           <Button variant="outline" onClick={() => navigate("/listings")}>
-            عرض الكل
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t.listings.viewAll}
+            <ViewAllArrow className="h-4 w-4" />
           </Button>
         </div>
       </div>
