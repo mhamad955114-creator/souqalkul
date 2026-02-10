@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { 
   Loader2, 
   ArrowRight, 
+  ArrowLeft,
   MapPin, 
   Clock, 
   Eye, 
@@ -30,6 +31,7 @@ import ShareButtons from "@/components/ShareButtons";
 import RatingSection from "@/components/RatingSection";
 import ReportModal from "@/components/ReportModal";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice, formatDate, categoryLabels } from "@/lib/constants";
 
 interface Listing {
@@ -60,6 +62,7 @@ const ListingDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
   const [listing, setListing] = useState<Listing | null>(null);
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,7 +78,6 @@ const ListingDetails = () => {
 
       setLoading(true);
       try {
-        // Fetch listing
         const { data: listingData, error: listingError } = await supabase
           .from("listings")
           .select("*")
@@ -83,26 +85,24 @@ const ListingDetails = () => {
           .maybeSingle();
 
         if (listingError) {
-          toast.error("فشل تحميل الإعلان");
+          toast.error(t.common.error);
           console.error(listingError);
           return;
         }
 
         if (!listingData) {
-          toast.error("الإعلان غير موجود");
+          toast.error(t.common.error);
           navigate("/");
           return;
         }
 
         setListing(listingData);
 
-        // Increment views count
         await supabase
           .from("listings")
           .update({ views_count: (listingData.views_count || 0) + 1 })
           .eq("id", id);
 
-        // Fetch seller profile
         const { data: profileData } = await supabase
           .from("profiles")
           .select("full_name, phone, city, avatar_url, created_at")
@@ -124,11 +124,11 @@ const ListingDetails = () => {
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0) return "اليوم";
-    if (diffDays === 1) return "أمس";
-    if (diffDays < 7) return `منذ ${diffDays} أيام`;
-    if (diffDays < 30) return `منذ ${Math.floor(diffDays / 7)} أسابيع`;
-    return `منذ ${Math.floor(diffDays / 30)} أشهر`;
+    if (diffDays === 0) return dir === "rtl" ? "اليوم" : dir === "ltr" ? "Today" : "Bugün";
+    if (diffDays === 1) return dir === "rtl" ? "أمس" : dir === "ltr" ? "Yesterday" : "Dün";
+    if (diffDays < 7) return `${diffDays} ${t.common.daysAgo}`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} ${t.common.weekAgo}`;
+    return formatDate(dateString);
   };
 
   const handleCall = () => {
@@ -136,24 +136,23 @@ const ListingDetails = () => {
     if (phoneNumber) {
       window.location.href = `tel:${phoneNumber}`;
     } else {
-      toast.error("رقم الهاتف غير متوفر");
+      toast.error(t.details.noPhone);
     }
   };
 
   const handleWhatsApp = () => {
     if (seller?.phone) {
       const phone = seller.phone.replace(/[^0-9]/g, "");
-      const message = encodeURIComponent(`مرحباً، أنا مهتم بإعلانك: ${listing?.title}`);
+      const message = encodeURIComponent(`${listing?.title}`);
       window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
     } else if (listing?.phone) {
       const phone = listing.phone.replace(/[^0-9]/g, "");
-      const message = encodeURIComponent(`مرحباً، أنا مهتم بإعلانك: ${listing?.title}`);
+      const message = encodeURIComponent(`${listing?.title}`);
       window.open(`https://wa.me/963${phone.slice(1)}?text=${message}`, "_blank");
     } else {
-      toast.error("رقم الهاتف غير متوفر");
+      toast.error(t.details.noPhone);
     }
   };
-
 
   const nextImage = () => {
     if (listing?.images && listing.images.length > 0) {
@@ -187,23 +186,23 @@ const ListingDetails = () => {
     ? listing.images 
     : ["/placeholder.svg"];
 
+  const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
+
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={dir}>
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Back Button */}
         <Button 
           variant="ghost" 
           onClick={() => navigate(-1)} 
           className="mb-4"
         >
-          <ArrowRight className="h-4 w-4" />
-          العودة
+          <BackArrow className="h-4 w-4" />
+          {t.details.back}
         </Button>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Image Gallery */}
             <Card className="overflow-hidden">
@@ -229,7 +228,6 @@ const ListingDetails = () => {
                       <ChevronLeft className="h-6 w-6" />
                     </button>
                     
-                    {/* Image Indicators */}
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                       {images.map((_, idx) => (
                         <button
@@ -246,7 +244,6 @@ const ListingDetails = () => {
                   </>
                 )}
 
-                {/* Action Buttons */}
                 <div className="absolute top-4 left-4 flex gap-2">
                   <button
                     onClick={() => setIsFavorite(!isFavorite)}
@@ -262,7 +259,6 @@ const ListingDetails = () => {
                 </div>
               </div>
 
-              {/* Thumbnails */}
               {images.length > 1 && (
                 <div className="p-4 flex gap-2 overflow-x-auto">
                   {images.map((img, idx) => (
@@ -277,7 +273,7 @@ const ListingDetails = () => {
                     >
                       <img
                         src={img}
-                        alt={`صورة ${idx + 1}`}
+                        alt={`${idx + 1}`}
                         className="w-full h-full object-cover"
                       />
                     </button>
@@ -313,7 +309,7 @@ const ListingDetails = () => {
                   </span>
                   <span className="flex items-center gap-1">
                     <Eye className="h-4 w-4" />
-                    {listing.views_count || 0} مشاهدة
+                    {listing.views_count || 0} {t.details.views}
                   </span>
                   {listing.phone && (
                     <span className="flex items-center gap-1">
@@ -327,10 +323,10 @@ const ListingDetails = () => {
 
                 <div>
                   <h2 className="text-lg font-semibold text-foreground mb-3">
-                    الوصف
+                    {t.details.description}
                   </h2>
                   <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                    {listing.description || "لا يوجد وصف"}
+                    {listing.description || t.details.noDescription}
                   </p>
                 </div>
               </CardContent>
@@ -346,11 +342,10 @@ const ListingDetails = () => {
 
           {/* Sidebar - Seller Info */}
           <div className="space-y-6">
-            {/* Seller Card */}
             <Card className="sticky top-24">
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4">
-                  معلومات البائع
+                  {t.details.sellerInfo}
                 </h2>
 
                 <div className="flex items-center gap-4 mb-6">
@@ -358,7 +353,7 @@ const ListingDetails = () => {
                     {seller?.avatar_url ? (
                       <img 
                         src={seller.avatar_url} 
-                        alt="صورة البائع"
+                        alt=""
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -367,7 +362,7 @@ const ListingDetails = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">
-                      {seller?.full_name || "مستخدم"}
+                      {seller?.full_name || t.details.member}
                     </h3>
                     {seller?.city && (
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
@@ -377,7 +372,7 @@ const ListingDetails = () => {
                     )}
                     {seller?.created_at && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        عضو منذ {formatDate(seller.created_at)}
+                        {t.details.memberSince} {formatDate(seller.created_at)}
                       </p>
                     )}
                   </div>
@@ -391,7 +386,7 @@ const ListingDetails = () => {
                     disabled={!seller?.phone && !listing?.phone}
                   >
                     <Phone className="h-5 w-5" />
-                    اتصال
+                    {t.details.call}
                   </Button>
                   
                   <Button 
@@ -402,10 +397,9 @@ const ListingDetails = () => {
                     disabled={!seller?.phone && !listing?.phone}
                   >
                     <MessageCircle className="h-5 w-5" />
-                    واتساب
+                    {t.details.whatsapp}
                   </Button>
 
-                  {/* Chat Button */}
                   {listing?.user_id !== user?.id && (
                     <Button 
                       onClick={() => {
@@ -420,11 +414,10 @@ const ListingDetails = () => {
                       size="lg"
                     >
                       <MessageSquare className="h-5 w-5" />
-                      دردشة مع البائع
+                      {t.details.chatWithSeller}
                     </Button>
                   )}
 
-                  {/* Report Button */}
                   {listing?.user_id !== user?.id && (
                     <Button
                       onClick={() => {
@@ -439,14 +432,14 @@ const ListingDetails = () => {
                       size="lg"
                     >
                       <Flag className="h-5 w-5" />
-                      إبلاغ عن الإعلان
+                      {t.details.reportListing}
                     </Button>
                   )}
                 </div>
 
                 {!seller?.phone && !listing?.phone && (
                   <p className="text-sm text-muted-foreground text-center mt-4">
-                    البائع لم يضف رقم هاتف
+                    {t.details.noPhone}
                   </p>
                 )}
               </CardContent>
@@ -456,13 +449,13 @@ const ListingDetails = () => {
             <Card>
               <CardContent className="p-6">
                 <h3 className="font-semibold text-foreground mb-3">
-                  نصائح أمان
+                  {t.details.safetyTips}
                 </h3>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• قابل البائع في مكان عام</li>
-                  <li>• تفحص المنتج قبل الدفع</li>
-                  <li>• لا ترسل أموالاً مقدماً</li>
-                  <li>• احذر من العروض المبالغ فيها</li>
+                  <li>• {t.details.tip1}</li>
+                  <li>• {t.details.tip2}</li>
+                  <li>• {t.details.tip3}</li>
+                  <li>• {t.details.tip4}</li>
                 </ul>
               </CardContent>
             </Card>
@@ -472,7 +465,6 @@ const ListingDetails = () => {
 
       <Footer />
 
-      {/* Chat Modal */}
       {listing && (
         <ChatModal
           open={chatModalOpen}
@@ -483,7 +475,6 @@ const ListingDetails = () => {
         />
       )}
 
-      {/* Report Modal */}
       {listing && user && (
         <ReportModal
           open={reportModalOpen}
@@ -493,7 +484,6 @@ const ListingDetails = () => {
         />
       )}
 
-      {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}

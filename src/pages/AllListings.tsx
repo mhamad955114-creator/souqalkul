@@ -32,6 +32,7 @@ import {
   formatTime,
   areasByCity 
 } from "@/lib/constants";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Listing {
   id: string;
@@ -53,6 +54,7 @@ const AllListings = () => {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { t, dir } = useLanguage();
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
@@ -66,10 +68,7 @@ const AllListings = () => {
   ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
-  // Get available areas for selected city
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
-  
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -84,33 +83,22 @@ const AllListings = () => {
       .select("*", { count: "exact" })
       .eq("status", "active");
 
-    // Apply search filter
     if (searchQuery) {
       query = query.ilike("title", `%${searchQuery}%`);
     }
-
-    // Apply category filter
     if (category && category !== "all") {
       query = query.eq("category", category);
     }
-
-    // Apply city filter
     if (city && city !== "all") {
       query = query.eq("city", city);
     }
-
-    // Apply area filter
     if (area && area !== "all") {
       query = query.eq("area", area);
     }
 
-    // Apply price range filter
     query = query.gte("price", priceRange[0]).lte("price", priceRange[1]);
-
-    // Always show featured (paid) listings first
     query = query.order("is_featured", { ascending: false });
 
-    // Apply sorting
     switch (sortBy) {
       case "oldest":
         query = query.order("created_at", { ascending: true });
@@ -125,7 +113,6 @@ const AllListings = () => {
         query = query.order("created_at", { ascending: false });
     }
 
-    // Apply pagination
     query = query.range(from, to);
 
     const { data, error, count } = await query;
@@ -141,12 +128,10 @@ const AllListings = () => {
     fetchListings();
   }, [searchQuery, category, city, area, sortBy, priceRange, currentPage, refreshTrigger]);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, category, city, area, sortBy, priceRange]);
 
-  // Reset area when city changes
   useEffect(() => {
     setArea("all");
   }, [city]);
@@ -200,27 +185,14 @@ const AllListings = () => {
       }
     } else {
       pages.push(1);
-      
-      if (currentPage > 3) {
-        pages.push("...");
-      }
-      
+      if (currentPage > 3) pages.push("...");
       const start = Math.max(2, currentPage - 1);
       const end = Math.min(totalPages - 1, currentPage + 1);
-      
       for (let i = start; i <= end; i++) {
-        if (!pages.includes(i)) {
-          pages.push(i);
-        }
+        if (!pages.includes(i)) pages.push(i);
       }
-      
-      if (currentPage < totalPages - 2) {
-        pages.push("...");
-      }
-      
-      if (!pages.includes(totalPages)) {
-        pages.push(totalPages);
-      }
+      if (currentPage < totalPages - 2) pages.push("...");
+      if (!pages.includes(totalPages)) pages.push(totalPages);
     }
     
     return pages;
@@ -235,17 +207,57 @@ const AllListings = () => {
     priceRange[0] > 0 ||
     priceRange[1] < 500000000;
 
+  // Translated sort options
+  const translatedSortOptions = [
+    { value: "newest", label: t.listings.newest },
+    { value: "oldest", label: t.listings.oldest },
+    { value: "price_asc", label: t.listings.priceAsc },
+    { value: "price_desc", label: t.listings.priceDesc },
+  ];
+
+  // Translated categories
+  const translatedCategoriesWithAll = [
+    { value: "all", label: t.listings.category === t.listings.category ? t.categories.allCategories : t.categories.allCategories },
+    { value: "سيارات", label: t.categories.cars },
+    { value: "عقارات", label: t.categories.realEstate },
+    { value: "الكترونيات", label: t.categories.electronics },
+    { value: "أثاث", label: t.categories.furniture },
+    { value: "ملابس", label: t.categories.clothing },
+    { value: "خدمات", label: t.categories.services },
+    { value: "وظائف", label: t.categories.jobs },
+    { value: "ألعاب", label: t.categories.games },
+    { value: "أخرى", label: t.categories.other },
+  ];
+
+  // Translated cities
+  const translatedCitiesWithAll = [
+    { value: "all", label: t.cities.allCities },
+    { value: "دمشق", label: t.cities.damascus },
+    { value: "حلب", label: t.cities.aleppo },
+    { value: "حمص", label: t.cities.homs },
+    { value: "حماة", label: t.cities.hama },
+    { value: "اللاذقية", label: t.cities.latakia },
+    { value: "طرطوس", label: t.cities.tartus },
+    { value: "دير الزور", label: t.cities.deirEzZor },
+    { value: "الرقة", label: t.cities.raqqa },
+    { value: "الحسكة", label: t.cities.hasaka },
+    { value: "درعا", label: t.cities.daraa },
+    { value: "السويداء", label: t.cities.sweida },
+    { value: "إدلب", label: t.cities.idlib },
+    { value: "القنيطرة", label: t.cities.quneitra },
+    { value: "ريف دمشق", label: t.cities.rifDimashq },
+  ];
+
   const FilterContent = () => (
     <div className="space-y-6">
-      {/* Category Filter */}
       <div className="space-y-2">
-        <Label>التصنيف</Label>
+        <Label>{t.listings.category}</Label>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
-            <SelectValue placeholder="اختر التصنيف" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {categoriesWithAll.map((cat) => (
+            {translatedCategoriesWithAll.map((cat) => (
               <SelectItem key={cat.value} value={cat.value}>
                 {cat.label}
               </SelectItem>
@@ -254,15 +266,14 @@ const AllListings = () => {
         </Select>
       </div>
 
-      {/* City Filter */}
       <div className="space-y-2">
-        <Label>المدينة</Label>
+        <Label>{t.listings.city}</Label>
         <Select value={city} onValueChange={setCity}>
           <SelectTrigger>
-            <SelectValue placeholder="اختر المدينة" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {citiesWithAll.map((c) => (
+            {translatedCitiesWithAll.map((c) => (
               <SelectItem key={c.value} value={c.value}>
                 {c.label}
               </SelectItem>
@@ -271,16 +282,15 @@ const AllListings = () => {
         </Select>
       </div>
 
-      {/* Area Filter */}
       {city !== "all" && availableAreas.length > 0 && (
         <div className="space-y-2">
-          <Label>المنطقة</Label>
+          <Label>{t.listings.area}</Label>
           <Select value={area} onValueChange={setArea}>
             <SelectTrigger>
-              <SelectValue placeholder="اختر المنطقة" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">جميع المناطق</SelectItem>
+              <SelectItem value="all">{t.listings.allAreas}</SelectItem>
               {availableAreas.map((a) => (
                 <SelectItem key={a} value={a}>
                   {a}
@@ -291,9 +301,8 @@ const AllListings = () => {
         </div>
       )}
 
-      {/* Price Range Filter */}
       <div className="space-y-4">
-        <Label>نطاق السعر</Label>
+        <Label>{t.listings.priceRange}</Label>
         <div className="px-2">
           <Slider
             value={priceRange}
@@ -309,15 +318,14 @@ const AllListings = () => {
         </div>
       </div>
 
-      {/* Sort Filter */}
       <div className="space-y-2">
-        <Label>ترتيب حسب</Label>
+        <Label>{t.listings.sortBy}</Label>
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger>
-            <SelectValue placeholder="اختر الترتيب" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {sortOptions.map((option) => (
+            {translatedSortOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>
@@ -326,56 +334,51 @@ const AllListings = () => {
         </Select>
       </div>
 
-      {/* Clear Filters */}
       {hasActiveFilters && (
         <Button
           variant="outline"
           onClick={clearFilters}
           className="w-full"
         >
-          <X className="h-4 w-4 ml-2" />
-          مسح الفلاتر
+          <X className="h-4 w-4" />
+          {t.listings.clearFilters}
         </Button>
       )}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0" dir="rtl">
+    <div className="min-h-screen bg-background pb-20 md:pb-0" dir={dir}>
       <Header onListingAdded={handleListingAdded} />
 
       <main className="container mx-auto px-4 py-8">
-        {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            جميع الإعلانات
+            {t.listings.allListings}
           </h1>
           <p className="text-muted-foreground">
-            تصفح {totalCount} إعلان متاح
+            {t.listings.browseAds} {totalCount} {t.listings.available}
           </p>
         </div>
 
-        {/* Search and Filter Bar */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
-          {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className={`absolute ${dir === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground`} />
             <Input
-              placeholder="ابحث في الإعلانات..."
+              placeholder={t.listings.search}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10"
+              className={dir === "rtl" ? "pr-10" : "pl-10"}
             />
           </div>
 
-          {/* Desktop Filters */}
           <div className="hidden lg:flex gap-4">
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="التصنيف" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {categoriesWithAll.map((cat) => (
+                {translatedCategoriesWithAll.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
                     {cat.label}
                   </SelectItem>
@@ -385,10 +388,10 @@ const AllListings = () => {
 
             <Select value={city} onValueChange={setCity}>
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="المدينة" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {citiesWithAll.map((c) => (
+                {translatedCitiesWithAll.map((c) => (
                   <SelectItem key={c.value} value={c.value}>
                     {c.label}
                   </SelectItem>
@@ -399,10 +402,10 @@ const AllListings = () => {
             {city !== "all" && availableAreas.length > 0 && (
               <Select value={area} onValueChange={setArea}>
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="المنطقة" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع المناطق</SelectItem>
+                  <SelectItem value="all">{t.listings.allAreas}</SelectItem>
                   {availableAreas.map((a) => (
                     <SelectItem key={a} value={a}>
                       {a}
@@ -414,10 +417,10 @@ const AllListings = () => {
 
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="الترتيب" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {sortOptions.map((option) => (
+                {translatedSortOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -432,22 +435,21 @@ const AllListings = () => {
             )}
           </div>
 
-          {/* Mobile Filter Button */}
           <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" className="lg:hidden">
-                <SlidersHorizontal className="h-4 w-4 ml-2" />
-                الفلاتر
+                <SlidersHorizontal className="h-4 w-4" />
+                {t.listings.filters}
                 {hasActiveFilters && (
-                  <span className="mr-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                  <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
                     !
                   </span>
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80">
+            <SheetContent side={dir === "rtl" ? "right" : "left"} className="w-80">
               <SheetHeader>
-                <SheetTitle>فلترة الإعلانات</SheetTitle>
+                <SheetTitle>{t.listings.filterListings}</SheetTitle>
               </SheetHeader>
               <div className="mt-6">
                 <FilterContent />
@@ -461,7 +463,7 @@ const AllListings = () => {
           <div className="flex flex-wrap gap-2 mb-6">
             {searchQuery && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                بحث: {searchQuery}
+                {searchQuery}
                 <button onClick={() => setSearchQuery("")}>
                   <X className="h-3 w-3" />
                 </button>
@@ -469,7 +471,7 @@ const AllListings = () => {
             )}
             {category !== "all" && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                {categoriesWithAll.find((c) => c.value === category)?.label}
+                {translatedCategoriesWithAll.find((c) => c.value === category)?.label}
                 <button onClick={() => setCategory("all")}>
                   <X className="h-3 w-3" />
                 </button>
@@ -477,7 +479,7 @@ const AllListings = () => {
             )}
             {city !== "all" && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                {citiesWithAll.find((c) => c.value === city)?.label}
+                {translatedCitiesWithAll.find((c) => c.value === city)?.label}
                 <button onClick={() => setCity("all")}>
                   <X className="h-3 w-3" />
                 </button>
@@ -493,7 +495,7 @@ const AllListings = () => {
             )}
             {(priceRange[0] > 0 || priceRange[1] < 500000000) && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                السعر: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+                {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
                 <button onClick={() => setPriceRange([0, 500000000])}>
                   <X className="h-3 w-3" />
                 </button>
@@ -510,13 +512,13 @@ const AllListings = () => {
         ) : listings.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold mb-2">لا توجد نتائج</h3>
+            <h3 className="text-xl font-semibold mb-2">{t.listings.noListings}</h3>
             <p className="text-muted-foreground mb-4">
-              لم نجد إعلانات تطابق معايير البحث
+              {t.listings.noListings}
             </p>
             {hasActiveFilters && (
               <Button variant="outline" onClick={clearFilters}>
-                مسح الفلاتر
+                {t.listings.clearFilters}
               </Button>
             )}
           </div>
@@ -545,7 +547,6 @@ const AllListings = () => {
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-12">
                 <Button
@@ -585,10 +586,9 @@ const AllListings = () => {
               </div>
             )}
 
-            {/* Pagination Info */}
             {totalPages > 1 && (
               <p className="text-center text-sm text-muted-foreground mt-4">
-                عرض {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} من {totalCount} إعلان
+                {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} / {totalCount} {t.listings.ad}
               </p>
             )}
           </>
