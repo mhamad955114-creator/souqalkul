@@ -5,11 +5,12 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cities } from "@/lib/constants";
+import { cities, areasByCity } from "@/lib/constants";
 
 const HeroSection = () => {
   const [searchValue, setSearchValue] = useState("");
   const [locationValue, setLocationValue] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const { loading: geoLoading, detectLocation } = useGeolocation();
@@ -18,48 +19,88 @@ const HeroSection = () => {
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredCities = locationValue.trim()
-    ? cities.filter((c) => c.includes(locationValue.trim()))
-    : cities;
+  // Build suggestions: if a city is selected, show its areas; otherwise show cities
+  const getSuggestions = (): { label: string; type: "city" | "area" }[] => {
+    const query = locationValue.trim();
+
+    if (selectedCity) {
+      // Show areas for the selected city
+      const areas = areasByCity[selectedCity] || [];
+      const areaAfterCity = query.startsWith(selectedCity)
+        ? query.slice(selectedCity.length).replace(/^[\s،,\-]+/, "").trim()
+        : "";
+      const filtered = areaAfterCity
+        ? areas.filter((a) => a.includes(areaAfterCity))
+        : areas;
+      return filtered.map((a) => ({ label: a, type: "area" as const }));
+    }
+
+    // Show cities
+    const filtered = query ? cities.filter((c) => c.includes(query)) : cities;
+    return filtered.map((c) => ({ label: c, type: "city" as const }));
+  };
+
+  const suggestions = getSuggestions();
 
   const handleDetectLocation = async () => {
     const result = await detectLocation();
     if (result) {
       setLocationValue(result.city);
-      setShowSuggestions(false);
+      setSelectedCity(result.city);
+      setShowSuggestions(true);
+      setHighlightedIndex(-1);
     }
   };
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (searchValue.trim()) params.set("q", searchValue.trim());
-    const matchedCity = cities.find((c) => locationValue.includes(c));
+    const matchedCity = selectedCity || cities.find((c) => locationValue.includes(c));
     if (matchedCity) params.set("city", matchedCity);
+    // Check if an area is included
+    if (selectedCity) {
+      const areas = areasByCity[selectedCity] || [];
+      const matchedArea = areas.find((a) => locationValue.includes(a));
+      if (matchedArea) params.set("area", matchedArea);
+    }
     setShowSuggestions(false);
     navigate(`/listings?${params.toString()}`);
   };
 
-  const handleSelectCity = (city: string) => {
-    setLocationValue(city);
-    setShowSuggestions(false);
-    setHighlightedIndex(-1);
+  const handleSelectSuggestion = (item: { label: string; type: "city" | "area" }) => {
+    if (item.type === "city") {
+      setLocationValue(item.label);
+      setSelectedCity(item.label);
+      // Keep suggestions open to show areas
+      setShowSuggestions(true);
+      setHighlightedIndex(-1);
+      // Focus back on input
+      setTimeout(() => locationInputRef.current?.focus(), 0);
+    } else {
+      setLocationValue(`${selectedCity} - ${item.label}`);
+      setShowSuggestions(false);
+      setHighlightedIndex(-1);
+    }
   };
 
   const handleLocationKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      if (highlightedIndex >= 0 && highlightedIndex < filteredCities.length) {
-        handleSelectCity(filteredCities[highlightedIndex]);
+      if (highlightedIndex >= 0 && highlightedIndex < suggestions.length) {
+        handleSelectSuggestion(suggestions[highlightedIndex]);
       } else {
         handleSearch();
       }
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
-      setHighlightedIndex((prev) => Math.min(prev + 1, filteredCities.length - 1));
+      setHighlightedIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setHighlightedIndex((prev) => Math.max(prev - 1, -1));
     } else if (e.key === "Escape") {
       setShowSuggestions(false);
+    } else if (e.key === "Backspace" && selectedCity && !locationValue.replace(selectedCity, "").trim()) {
+      // If user deletes back to empty after city, reset city selection
+      setSelectedCity("");
     }
   };
 
@@ -118,31 +159,39 @@ const HeroSection = () => {
                   placeholder={t.hero.locationPlaceholder}
                   value={locationValue}
                   onChange={(e) => {
-                    setLocationValue(e.target.value);
+                    const val = e.target.value;
+                    setLocationValue(val);
                     setShowSuggestions(true);
                     setHighlightedIndex(-1);
+                    // Reset city if user clears the input
+                    if (!val.trim()) setSelectedCity("");
                   }}
                   onFocus={() => setShowSuggestions(true)}
                   onKeyDown={handleLocationKeyDown}
                   className={`${dir === "rtl" ? "pr-12 pl-12" : "pl-12 pr-12"} h-12 bg-secondary border-0 text-foreground placeholder:text-muted-foreground`}
                   autoComplete="off"
                 />
-                {showSuggestions && filteredCities.length > 0 && (
+                {showSuggestions && suggestions.length > 0 && (
                   <div
                     ref={suggestionsRef}
                     className="absolute top-full mt-1 w-full bg-card border border-border rounded-xl shadow-lg z-50 max-h-52 overflow-y-auto"
                   >
-                    {filteredCities.map((city, index) => (
+                    {selectedCity && (
+                      <div className="px-4 py-1.5 text-xs font-semibold text-muted-foreground border-b border-border bg-secondary/50 rounded-t-xl">
+                        {selectedCity} — {t.listings.area}
+                      </div>
+                    )}
+                    {suggestions.map((item, index) => (
                       <button
-                        key={city}
+                        key={item.label}
                         type="button"
-                        onMouseDown={() => handleSelectCity(city)}
+                        onMouseDown={() => handleSelectSuggestion(item)}
                         className={`w-full text-start px-4 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors flex items-center gap-2 ${
                           index === highlightedIndex ? "bg-secondary" : ""
-                        } ${index === 0 ? "rounded-t-xl" : ""} ${index === filteredCities.length - 1 ? "rounded-b-xl" : ""}`}
+                        } ${!selectedCity && index === 0 ? "rounded-t-xl" : ""} ${index === suggestions.length - 1 ? "rounded-b-xl" : ""}`}
                       >
                         <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        {city}
+                        {item.label}
                       </button>
                     ))}
                   </div>
