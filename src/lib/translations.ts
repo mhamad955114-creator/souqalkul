@@ -461,6 +461,33 @@ export interface Translations {
     faqQ3: string;
     faqA3: string;
   };
+
+  // About Us
+  aboutUs: {
+    title: string;
+    subtitle: string;
+    back: string;
+    whoWeAre: string;
+    whoWeAreDesc: string;
+    ourMission: string;
+    ourMissionDesc: string;
+    ourVision: string;
+    ourVisionDesc: string;
+    whyChooseUs: string;
+    feature1Title: string;
+    feature1Desc: string;
+    feature2Title: string;
+    feature2Desc: string;
+    feature3Title: string;
+    feature3Desc: string;
+    feature4Title: string;
+    feature4Desc: string;
+    teamTitle: string;
+    teamDesc: string;
+    contactTitle: string;
+    contactDesc: string;
+    contactEmail: string;
+  };
 }
 
 export const ar: Translations = {
@@ -879,6 +906,31 @@ export const ar: Translations = {
     faqA2: "نعم، يمكنك إلغاء الاشتراك في أي وقت. سيستمر حسابك المدفوع حتى نهاية فترة الفوترة الحالية.",
     faqQ3: "ما الفرق بين الإعلان المجاني والمدفوع؟",
     faqA3: "الإعلانات المدفوعة تظهر دائماً في أعلى نتائج البحث، وتحصل على شارة ذهبية مميزة، مما يزيد من فرص مشاهدتها والتواصل معك.",
+  },
+  aboutUs: {
+    title: "من نحن",
+    subtitle: "تعرّف على قصتنا وفريقنا",
+    back: "العودة للرئيسية",
+    whoWeAre: "من نحن؟",
+    whoWeAreDesc: "نحن منصة إلكترونية رائدة للبيع والشراء، نهدف إلى ربط البائعين والمشترين في مكان واحد آمن وموثوق. تأسسنا بهدف تسهيل التجارة الإلكترونية وجعلها في متناول الجميع.",
+    ourMission: "مهمتنا",
+    ourMissionDesc: "توفير منصة سهلة وآمنة تمكّن الجميع من بيع وشراء المنتجات والخدمات بكل سهولة وشفافية، مع ضمان أفضل تجربة مستخدم ممكنة.",
+    ourVision: "رؤيتنا",
+    ourVisionDesc: "أن نكون المنصة الأولى والأكثر ثقة للتجارة الإلكترونية المحلية، ونساهم في بناء اقتصاد رقمي مزدهر يخدم المجتمع.",
+    whyChooseUs: "لماذا تختارنا؟",
+    feature1Title: "سهولة الاستخدام",
+    feature1Desc: "واجهة بسيطة وسلسة تتيح لك نشر إعلانك في دقائق معدودة.",
+    feature2Title: "أمان وموثوقية",
+    feature2Desc: "نظام تحقق متقدم وحماية لبياناتك الشخصية ومعاملاتك.",
+    feature3Title: "وصول واسع",
+    feature3Desc: "آلاف المستخدمين النشطين يومياً مما يضمن وصول إعلانك لأكبر عدد.",
+    feature4Title: "دعم فني متواصل",
+    feature4Desc: "فريق دعم متاح لمساعدتك في أي وقت والإجابة على استفساراتك.",
+    teamTitle: "فريقنا",
+    teamDesc: "فريق متخصص من المطورين والمصممين وخبراء التجارة الإلكترونية، يعملون بشغف لتقديم أفضل تجربة لمستخدمينا.",
+    contactTitle: "تواصل معنا",
+    contactDesc: "نسعد بتواصلكم معنا لأي استفسار أو اقتراح.",
+    contactEmail: "info@soukcom.com",
   },
 };
 
@@ -1299,6 +1351,31 @@ export const en: Translations = {
     faqQ3: "What's the difference between free and paid listings?",
     faqA3: "Paid listings always appear at the top of search results and get a gold badge, increasing visibility and contact opportunities.",
   },
+  aboutUs: {
+    title: "About Us",
+    subtitle: "Learn about our story and team",
+    back: "Back to Home",
+    whoWeAre: "Who We Are",
+    whoWeAreDesc: "We are a leading online marketplace for buying and selling, aiming to connect sellers and buyers in one safe and trusted place. We were founded to make e-commerce accessible to everyone.",
+    ourMission: "Our Mission",
+    ourMissionDesc: "To provide an easy and secure platform that enables everyone to buy and sell products and services with ease and transparency, while ensuring the best possible user experience.",
+    ourVision: "Our Vision",
+    ourVisionDesc: "To be the most trusted local e-commerce platform, contributing to building a thriving digital economy that serves the community.",
+    whyChooseUs: "Why Choose Us?",
+    feature1Title: "Easy to Use",
+    feature1Desc: "A simple and smooth interface that lets you post your ad in minutes.",
+    feature2Title: "Safe & Reliable",
+    feature2Desc: "Advanced verification system and protection for your personal data and transactions.",
+    feature3Title: "Wide Reach",
+    feature3Desc: "Thousands of active users daily ensuring your ad reaches the maximum audience.",
+    feature4Title: "Continuous Support",
+    feature4Desc: "A support team available to help you anytime and answer your questions.",
+    teamTitle: "Our Team",
+    teamDesc: "A specialized team of developers, designers, and e-commerce experts, passionately working to deliver the best experience for our users.",
+    contactTitle: "Contact Us",
+    contactDesc: "We'd love to hear from you for any inquiries or suggestions.",
+    contactEmail: "info@soukcom.com",
+  },
 };
 
 export const tr: Translations = {
@@ -1717,6 +1794,31 @@ export const tr: Translations = {
     faqA2: "Evet, istediğiniz zaman iptal edebilirsiniz. Ücretli hesabınız mevcut fatura döneminin sonuna kadar aktif kalacaktır.",
     faqQ3: "Ücretsiz ve ücretli ilan arasındaki fark nedir?",
     faqA3: "Ücretli ilanlar her zaman arama sonuçlarının başında görünür ve altın rozet alır, bu da görünürlüğü ve iletişim fırsatlarını artırır.",
+  },
+  aboutUs: {
+    title: "Hakkımızda",
+    subtitle: "Hikayemizi ve ekibimizi tanıyın",
+    back: "Ana Sayfaya Dön",
+    whoWeAre: "Biz Kimiz?",
+    whoWeAreDesc: "Alım satım için öncü bir çevrimiçi pazar yeriyiz. Satıcıları ve alıcıları güvenli ve güvenilir tek bir yerde buluşturmayı hedefliyoruz. E-ticareti herkes için erişilebilir kılmak amacıyla kurulduk.",
+    ourMission: "Misyonumuz",
+    ourMissionDesc: "Herkesin ürün ve hizmetleri kolaylık ve şeffaflıkla alıp satmasını sağlayan, en iyi kullanıcı deneyimini garanti eden kolay ve güvenli bir platform sunmak.",
+    ourVision: "Vizyonumuz",
+    ourVisionDesc: "En güvenilir yerel e-ticaret platformu olmak ve topluma hizmet eden gelişen bir dijital ekonomi inşa etmeye katkıda bulunmak.",
+    whyChooseUs: "Neden Bizi Seçmelisiniz?",
+    feature1Title: "Kullanım Kolaylığı",
+    feature1Desc: "İlanınızı dakikalar içinde yayınlamanızı sağlayan basit ve akıcı bir arayüz.",
+    feature2Title: "Güvenli ve Güvenilir",
+    feature2Desc: "Gelişmiş doğrulama sistemi ve kişisel verileriniz ile işlemleriniz için koruma.",
+    feature3Title: "Geniş Erişim",
+    feature3Desc: "Her gün binlerce aktif kullanıcı, ilanınızın en geniş kitleye ulaşmasını sağlar.",
+    feature4Title: "Sürekli Destek",
+    feature4Desc: "Her zaman size yardımcı olmak ve sorularınızı yanıtlamak için hazır bir destek ekibi.",
+    teamTitle: "Ekibimiz",
+    teamDesc: "Kullanıcılarımıza en iyi deneyimi sunmak için tutkuyla çalışan geliştiriciler, tasarımcılar ve e-ticaret uzmanlarından oluşan uzman bir ekip.",
+    contactTitle: "Bize Ulaşın",
+    contactDesc: "Her türlü soru veya öneri için bizimle iletişime geçmenizden memnuniyet duyarız.",
+    contactEmail: "info@soukcom.com",
   },
 };
 

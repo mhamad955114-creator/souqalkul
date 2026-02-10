@@ -44,6 +44,7 @@ const Footer = () => {
               <li><a href="#" className="text-background/70 hover:text-primary transition-colors">{t.nav.addListing}</a></li>
               <li><a href="/my-account" className="text-background/70 hover:text-primary transition-colors">{t.nav.myAccount}</a></li>
               <li><a href="/favorites" className="text-background/70 hover:text-primary transition-colors">{t.nav.favorites}</a></li>
+              <li><a href="/about" className="text-background/70 hover:text-primary transition-colors">{t.aboutUs.title}</a></li>
             </ul>
           </div>
 
