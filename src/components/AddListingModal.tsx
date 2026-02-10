@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin } from "lucide-react";
 import { cities, categories, areasByCity } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AddListingModalProps {
@@ -22,6 +23,7 @@ interface AddListingModalProps {
 
 const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) => {
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
@@ -47,14 +49,13 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
       if (response.error) {
         console.error('Moderation error:', response.error);
-        // If moderation fails, allow the image (fail-open)
-        return { approved: true, reason: 'محتوى مناسب' };
+        return { approved: true, reason: '' };
       }
 
       return response.data;
     } catch (error) {
       console.error('Error calling moderation:', error);
-      return { approved: true, reason: 'محتوى مناسب' };
+      return { approved: true, reason: '' };
     }
   };
 
@@ -77,7 +78,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           .upload(fileName, file);
 
         if (uploadError) {
-          toast.error("فشل رفع الصورة: " + uploadError.message);
+          toast.error(t.listingForm.uploadFailed + ": " + uploadError.message);
           continue;
         }
 
@@ -89,11 +90,10 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       }
 
       if (uploadedUrls.length > 0) {
-        toast.success(`تم رفع ${uploadedUrls.length} صورة، جاري فحص المحتوى...`);
+        toast.success(`${uploadedUrls.length} ${t.listingForm.uploadedChecking}`);
         setUploadingImages(false);
         setModeratingImages(true);
 
-        // Moderate each uploaded image
         const approvedUrls: string[] = [];
         let detectedCategory: string | null = null;
         
@@ -101,13 +101,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           const result = await moderateImage(url);
           if (result.approved) {
             approvedUrls.push(url);
-            // Use the first detected category
             if (!detectedCategory && result.suggestedCategory) {
               detectedCategory = result.suggestedCategory;
             }
           } else {
             rejected.push({ url, reason: result.reason });
-            // Delete rejected image from storage
             const path = url.split('/listings/')[1];
             if (path) {
               await supabase.storage.from('listings').remove([path]);
@@ -117,13 +115,12 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
         if (approvedUrls.length > 0) {
           setImages((prev) => [...prev, ...approvedUrls]);
-          toast.success(`تم قبول ${approvedUrls.length} صورة`);
+          toast.success(`${approvedUrls.length} ${t.listingForm.imagesApproved}`);
           
-          // Auto-suggest category if not already set
           if (detectedCategory && !formData.category) {
             setSuggestedCategory(detectedCategory);
             setFormData(prev => ({ ...prev, category: detectedCategory! }));
-            toast.success(`تم اكتشاف التصنيف تلقائياً: ${detectedCategory}`, {
+            toast.success(`${t.listingForm.categoryDetected}: ${detectedCategory}`, {
               icon: '✨'
             });
           }
@@ -131,7 +128,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
         if (rejected.length > 0) {
           setRejectedImages(rejected);
-          toast.error(`تم رفض ${rejected.length} صورة لمخالفتها القوانين`);
+          toast.error(`${rejected.length} ${t.listingForm.imagesRejected}`);
         }
       }
     } finally {
@@ -149,14 +146,13 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     if (!user) return;
 
     if (!formData.title || !formData.price || !formData.category || !formData.city || !formData.phone) {
-      toast.error("يرجى ملء جميع الحقول المطلوبة");
+      toast.error(t.listingForm.requiredFields);
       return;
     }
 
-    // Validate phone number format (Syrian format)
     const phoneRegex = /^09\d{8}$/;
     if (!phoneRegex.test(formData.phone)) {
-      toast.error("يرجى إدخال رقم هاتف صحيح (09xxxxxxxx)");
+      toast.error(t.listingForm.invalidPhone);
       return;
     }
 
@@ -177,9 +173,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       });
 
       if (error) {
-        toast.error("فشل إضافة الإعلان: " + error.message);
+        toast.error(t.listingForm.addError + ": " + error.message);
       } else {
-        toast.success("تم إضافة الإعلان بنجاح!");
+        toast.success(t.listingForm.addSuccess);
         resetForm();
         onSuccess();
         onClose();
@@ -207,10 +203,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
 
-  // Get available areas for selected city
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
 
-  // Handle city change - reset area when city changes
   const handleCityChange = (city: string) => {
     setFormData({ ...formData, city, area: "" });
   };
@@ -226,15 +220,15 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">إضافة إعلان جديد</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">{t.listingForm.addTitle}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="title">عنوان الإعلان *</Label>
+            <Label htmlFor="title">{t.listingForm.titleLabel} *</Label>
             <Input
               id="title"
-              placeholder="أدخل عنوان الإعلان"
+              placeholder={t.listingForm.titlePlaceholder}
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
@@ -242,10 +236,10 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">الوصف</Label>
+            <Label htmlFor="description">{t.listingForm.description}</Label>
             <Textarea
               id="description"
-              placeholder="أدخل وصف تفصيلي للإعلان"
+              placeholder={t.listingForm.descriptionPlaceholder}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
@@ -254,7 +248,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">السعر (ل.س) *</Label>
+              <Label htmlFor="price">{t.listingForm.price} *</Label>
               <Input
                 id="price"
                 type="number"
@@ -269,11 +263,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                التصنيف *
+                {t.listingForm.category} *
                 {suggestedCategory && (
                   <span className="inline-flex items-center gap-1 text-xs text-primary font-normal">
                     <Sparkles className="h-3 w-3" />
-                    تم الاكتشاف تلقائياً
+                    {t.listingForm.autoDetected}
                   </span>
                 )}
               </Label>
@@ -282,7 +276,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger className={suggestedCategory ? "ring-2 ring-primary/50" : ""}>
-                  <SelectValue placeholder="اختر التصنيف" />
+                  <SelectValue placeholder={t.listingForm.selectCategory} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
@@ -298,7 +292,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>المدينة *</Label>
+                <Label>{t.listingForm.city} *</Label>
                 <Button
                   type="button"
                   variant="ghost"
@@ -312,7 +306,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   ) : (
                     <MapPin className="h-3 w-3" />
                   )}
-                  موقعي الحالي
+                  {t.listingForm.myLocation}
                 </Button>
               </div>
               <Select
@@ -320,7 +314,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 onValueChange={handleCityChange}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="اختر المدينة" />
+                  <SelectValue placeholder={t.listingForm.selectCity} />
                 </SelectTrigger>
                 <SelectContent>
                   {cities.map((city) => (
@@ -333,14 +327,14 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
 
             <div className="space-y-2">
-              <Label>المنطقة</Label>
+              <Label>{t.listingForm.area}</Label>
               <Select
                 value={formData.area}
                 onValueChange={(value) => setFormData({ ...formData, area: value })}
                 disabled={!formData.city || availableAreas.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={formData.city ? "اختر المنطقة" : "اختر المدينة أولاً"} />
+                  <SelectValue placeholder={formData.city ? t.listingForm.selectArea : t.listingForm.selectCityFirst} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableAreas.map((area) => (
@@ -354,7 +348,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">رقم الهاتف *</Label>
+            <Label htmlFor="phone">{t.listingForm.phone} *</Label>
             <Input
               id="phone"
               type="tel"
@@ -363,13 +357,13 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
               dir="ltr"
-              className="text-left"
+              className={dir === "rtl" ? "text-left" : "text-left"}
             />
           </div>
 
           {/* Ad Type Section */}
           <div className="space-y-3">
-            <Label>نوع الإعلان *</Label>
+            <Label>{t.listingForm.adType} *</Label>
             <RadioGroup
               value={formData.is_featured ? "paid" : "free"}
               onValueChange={(value) => setFormData({ ...formData, is_featured: value === "paid" })}
@@ -382,8 +376,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
                 >
                   <Gift className="h-8 w-8 text-green-500" />
-                  <span className="font-semibold">إعلان مجاني</span>
-                  <span className="text-xs text-muted-foreground text-center">يظهر بعد الإعلانات المدفوعة</span>
+                  <span className="font-semibold">{t.listingForm.freeAd}</span>
+                  <span className="text-xs text-muted-foreground text-center">{t.listingForm.freeAdDesc}</span>
                 </label>
               </div>
               <div className="relative">
@@ -393,8 +387,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-amber-500 peer-data-[state=checked]:bg-amber-500/5 cursor-pointer transition-all"
                 >
                   <Star className="h-8 w-8 text-amber-500" />
-                  <span className="font-semibold">إعلان مدفوع</span>
-                  <span className="text-xs text-muted-foreground text-center">يظهر دائماً في المقدمة</span>
+                  <span className="font-semibold">{t.listingForm.paidAd}</span>
+                  <span className="text-xs text-muted-foreground text-center">{t.listingForm.paidAdDesc}</span>
                 </label>
               </div>
             </RadioGroup>
@@ -402,7 +396,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
           {/* Images Section */}
           <div className="space-y-2">
-            <Label>صور الإعلان</Label>
+            <Label>{t.listingForm.images}</Label>
             <div className="border-2 border-dashed border-border rounded-lg p-4">
               <input
                 type="file"
@@ -426,10 +420,10 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 )}
                 <span className="mt-2 text-sm text-muted-foreground">
                   {uploadingImages 
-                    ? "جاري الرفع..." 
+                    ? t.listingForm.uploading 
                     : moderatingImages 
-                      ? "جاري فحص الصور بالذكاء الاصطناعي..."
-                      : "اضغط لرفع الصور"}
+                      ? t.listingForm.moderating
+                      : t.listingForm.clickToUpload}
                 </span>
               </label>
 
@@ -439,7 +433,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                     <div key={index} className="relative group">
                       <img
                         src={url}
-                        alt={`صورة ${index + 1}`}
+                        alt={`${index + 1}`}
                         className="w-full h-20 object-cover rounded-lg ring-2 ring-green-500/50"
                       />
                       <div className="absolute top-1 right-1">
@@ -462,7 +456,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 <Alert variant="destructive" className="mt-4">
                   <ShieldX className="h-4 w-4" />
                   <AlertDescription>
-                    <div className="font-semibold mb-2">تم رفض الصور التالية:</div>
+                    <div className="font-semibold mb-2">{t.listingForm.rejectedImages}</div>
                     <ul className="list-disc list-inside space-y-1">
                       {rejectedImages.map((item, index) => (
                         <li key={index} className="text-sm">
@@ -481,14 +475,14 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  جاري الإضافة...
+                  {t.listingForm.publishing}
                 </>
               ) : (
-                "نشر الإعلان"
+                t.listingForm.publishAd
               )}
             </Button>
             <Button type="button" variant="outline" size="lg" onClick={onClose}>
-              إلغاء
+              {t.listingForm.cancel}
             </Button>
           </div>
         </form>
