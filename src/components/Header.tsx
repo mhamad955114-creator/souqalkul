@@ -1,9 +1,10 @@
-import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import AuthModal from "./AuthModal";
 import AddListingModal from "./AddListingModal";
 import {
@@ -26,6 +27,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const [addListingModalOpen, setAddListingModalOpen] = useState(false);
   const { user, signOut, loading } = useAuth();
   const { unreadCount } = useUnreadMessages();
+  const { isAdmin } = useAdminRole();
 
   const openAuthModal = (tab: "login" | "signup") => {
     setAuthModalTab(tab);
@@ -120,6 +122,15 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                             </span>
                           )}
                         </DropdownMenuItem>
+                        {isAdmin && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => navigate("/admin/reports")} className="flex items-center gap-2 text-primary">
+                              <Shield className="h-4 w-4" />
+                              لوحة التحكم
+                            </DropdownMenuItem>
+                          </>
+                        )}
                         <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive">
                           <LogOut className="h-4 w-4" />
                           تسجيل الخروج
@@ -197,6 +208,12 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                         </span>
                       )}
                     </Button>
+                    {isAdmin && (
+                      <Button variant="outline" onClick={() => navigate("/admin/reports")} className="text-primary">
+                        <Shield className="h-4 w-4" />
+                        لوحة التحكم
+                      </Button>
+                    )}
                     <Button variant="outline" onClick={handleSignOut}>
                       <LogOut className="h-4 w-4" />
                       تسجيل الخروج
