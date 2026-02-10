@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -34,6 +34,10 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
@@ -169,6 +173,50 @@ const Settings = () => {
       toast.error(t.settings.saveError);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword) {
+      toast.error(t.settings.currentPasswordRequired);
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error(t.settings.passwordTooShort);
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error(t.settings.passwordMismatch);
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      // Verify current password by re-signing in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user!.email!,
+        password: currentPassword,
+      });
+
+      if (signInError) {
+        toast.error(t.settings.currentPasswordRequired);
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) throw error;
+
+      toast.success(t.settings.passwordSuccess);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast.error(error.message || t.settings.passwordError);
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -359,6 +407,69 @@ const Settings = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Change Password Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lock className="h-5 w-5" />
+                  {t.settings.changePassword}
+                </CardTitle>
+                <CardDescription>
+                  {t.settings.changePasswordDesc}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">{t.settings.currentPassword}</Label>
+                  <Input
+                    id="currentPassword"
+                    type="password"
+                    placeholder={t.settings.currentPasswordPlaceholder}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">{t.settings.newPassword}</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    placeholder={t.settings.newPasswordPlaceholder}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">{t.settings.confirmPassword}</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder={t.settings.confirmPasswordPlaceholder}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={changingPassword}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {changingPassword ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {t.settings.updatingPassword}
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="h-4 w-4" />
+                      {t.settings.updatePassword}
+                    </>
+                  )}
+                </Button>
               </CardContent>
             </Card>
 
