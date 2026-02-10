@@ -289,9 +289,16 @@ const ListingDetails = () => {
                   <h1 className="text-2xl font-bold text-foreground">
                     {listing.title}
                   </h1>
-                  <Badge variant="outline" className="flex-shrink-0">
-                    {categoryLabels[listing.category] || listing.category}
-                  </Badge>
+                  <div className="flex gap-2 flex-shrink-0">
+                    {listing.status === "sold" && (
+                      <Badge variant="destructive" className="text-sm">
+                        {t.myAccount.soldBadge}
+                      </Badge>
+                    )}
+                    <Badge variant="outline">
+                      {categoryLabels[listing.category] || listing.category}
+                    </Badge>
+                  </div>
                 </div>
 
                 <div className="text-3xl font-bold text-primary mb-4">

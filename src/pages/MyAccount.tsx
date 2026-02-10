@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -103,6 +103,26 @@ const MyAccount = () => {
     } finally {
       setDeleteLoading(false);
       setDeletingListing(null);
+    }
+  };
+
+  const handleToggleSold = async (listing: Listing) => {
+    const newStatus = listing.status === "sold" ? "active" : "sold";
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: newStatus })
+        .eq("id", listing.id);
+
+      if (error) throw error;
+
+      toast.success(newStatus === "sold" ? t.myAccount.soldSuccess : t.myAccount.reactivateSuccess);
+      setListings((prev) =>
+        prev.map((l) => (l.id === listing.id ? { ...l, status: newStatus } : l))
+      );
+    } catch (error) {
+      console.error("Error toggling sold status:", error);
+      toast.error(t.myAccount.deleteError);
     }
   };
 
@@ -222,6 +242,23 @@ const MyAccount = () => {
                         </div>
 
                         <div className="flex gap-2">
+                          <Button
+                            variant={listing.status === "sold" ? "outline" : "secondary"}
+                            size="sm"
+                            onClick={() => handleToggleSold(listing)}
+                          >
+                            {listing.status === "sold" ? (
+                              <>
+                                <RotateCcw className="h-4 w-4" />
+                                {t.myAccount.markAsActive}
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="h-4 w-4" />
+                                {t.myAccount.markAsSold}
+                              </>
+                            )}
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"

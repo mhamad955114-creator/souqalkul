@@ -11,9 +11,10 @@ interface ListingCardProps {
   location: string;
   time: string;
   featured?: boolean;
+  status?: string;
 }
 
-const ListingCard = ({ id, image, title, price, location, time, featured }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, location, time, featured, status }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -34,9 +35,16 @@ const ListingCard = ({ id, image, title, price, location, time, featured }: List
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${status === "sold" ? "opacity-60" : ""}`}
         />
-        {featured && (
+        {status === "sold" && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-destructive text-destructive-foreground text-lg font-bold px-6 py-2 rounded-full shadow-lg rotate-[-15deg]">
+              {t.myAccount?.soldBadge || "مباع"}
+            </span>
+          </div>
+        )}
+        {featured && status !== "sold" && (
           <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
             <span>⭐</span>
             <span>{t.listings.featured}</span>

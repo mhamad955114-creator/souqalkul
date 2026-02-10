@@ -326,6 +326,11 @@ export interface Translations {
     deleteSuccess: string;
     deleteError: string;
     loadError: string;
+    markAsSold: string;
+    markAsActive: string;
+    soldSuccess: string;
+    reactivateSuccess: string;
+    soldBadge: string;
   };
 
   // Favorites
@@ -753,6 +758,11 @@ export const ar: Translations = {
     deleteSuccess: "تم حذف الإعلان بنجاح",
     deleteError: "فشل حذف الإعلان",
     loadError: "فشل تحميل الإعلانات",
+    markAsSold: "تم البيع",
+    markAsActive: "إعادة تفعيل",
+    soldSuccess: "تم تحديد الإعلان كمباع",
+    reactivateSuccess: "تم إعادة تفعيل الإعلان",
+    soldBadge: "مباع",
   },
   favoritesPage: {
     title: "المفضلة",
@@ -1167,6 +1177,11 @@ export const en: Translations = {
     deleteSuccess: "Listing deleted successfully",
     deleteError: "Failed to delete listing",
     loadError: "Failed to load listings",
+    markAsSold: "Mark as Sold",
+    markAsActive: "Reactivate",
+    soldSuccess: "Listing marked as sold",
+    reactivateSuccess: "Listing reactivated",
+    soldBadge: "Sold",
   },
   favoritesPage: {
     title: "Favorites",
@@ -1581,6 +1596,11 @@ export const tr: Translations = {
     deleteSuccess: "İlan başarıyla silindi",
     deleteError: "İlan silinemedi",
     loadError: "İlanlar yüklenemedi",
+    markAsSold: "Satıldı",
+    markAsActive: "Yeniden Etkinleştir",
+    soldSuccess: "İlan satıldı olarak işaretlendi",
+    reactivateSuccess: "İlan yeniden etkinleştirildi",
+    soldBadge: "Satıldı",
   },
   favoritesPage: {
     title: "Favoriler",
