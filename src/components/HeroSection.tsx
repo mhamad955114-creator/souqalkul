@@ -2,19 +2,35 @@ import { Search, MapPin, Loader2, Navigation } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cities } from "@/lib/constants";
 
 const HeroSection = () => {
+  const [searchValue, setSearchValue] = useState("");
   const [locationValue, setLocationValue] = useState("");
   const { loading: geoLoading, detectLocation } = useGeolocation();
   const { t, dir } = useLanguage();
+  const navigate = useNavigate();
 
   const handleDetectLocation = async () => {
     const result = await detectLocation();
     if (result) {
       setLocationValue(result.city);
     }
+  };
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchValue.trim()) params.set("q", searchValue.trim());
+    const matchedCity = cities.find((c) => locationValue.includes(c));
+    if (matchedCity) params.set("city", matchedCity);
+    navigate(`/listings?${params.toString()}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleSearch();
   };
 
   return (
@@ -42,6 +58,9 @@ const HeroSection = () => {
                 <Input
                   type="text"
                   placeholder={t.hero.searchPlaceholder}
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   className={`${dir === "rtl" ? "pr-12" : "pl-12"} h-12 bg-secondary border-0 text-foreground placeholder:text-muted-foreground`}
                 />
               </div>
@@ -52,6 +71,7 @@ const HeroSection = () => {
                   placeholder={t.hero.locationPlaceholder}
                   value={locationValue}
                   onChange={(e) => setLocationValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   className={`${dir === "rtl" ? "pr-12 pl-12" : "pl-12 pr-12"} h-12 bg-secondary border-0 text-foreground placeholder:text-muted-foreground`}
                 />
                 <button
@@ -68,7 +88,7 @@ const HeroSection = () => {
                   )}
                 </button>
               </div>
-              <Button variant="hero" size="lg">
+              <Button variant="hero" size="lg" onClick={handleSearch}>
                 <Search className="h-5 w-5" />
                 {t.hero.search}
               </Button>
