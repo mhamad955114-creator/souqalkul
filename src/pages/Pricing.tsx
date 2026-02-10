@@ -1,118 +1,118 @@
-import { Check, Star, Zap, Crown, ArrowLeft } from "lucide-react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
 import { formatPrice } from "@/lib/constants";
-
-const pricingPlans = [
-  {
-    name: "مجاني",
-    price: 0,
-    duration: "دائم",
-    description: "للمستخدمين الجدد",
-    icon: Zap,
-    iconColor: "text-green-500",
-    borderColor: "border-green-200",
-    bgColor: "bg-green-50",
-    features: [
-      "نشر إعلان واحد",
-      "مدة الإعلان 30 يوم",
-      "يظهر بعد الإعلانات المدفوعة",
-      "صورة واحدة للإعلان",
-      "دعم فني أساسي",
-    ],
-    notIncluded: [
-      "التثبيت في أعلى القائمة",
-      "الشارة الذهبية",
-      "إحصائيات المشاهدات",
-    ],
-    buttonText: "ابدأ مجاناً",
-    buttonVariant: "outline" as const,
-  },
-  {
-    name: "مميز",
-    price: 50000,
-    duration: "شهرياً",
-    description: "الأكثر شعبية",
-    icon: Star,
-    iconColor: "text-amber-500",
-    borderColor: "border-amber-300",
-    bgColor: "bg-amber-50",
-    popular: true,
-    features: [
-      "نشر 5 إعلانات",
-      "مدة الإعلان 60 يوم",
-      "التثبيت في أعلى القائمة",
-      "الشارة الذهبية المميزة",
-      "حتى 10 صور للإعلان",
-      "إحصائيات المشاهدات",
-      "دعم فني متقدم",
-    ],
-    notIncluded: [
-      "أولوية في نتائج البحث",
-    ],
-    buttonText: "اشترك الآن",
-    buttonVariant: "default" as const,
-  },
-  {
-    name: "احترافي",
-    price: 100000,
-    duration: "شهرياً",
-    description: "للمحترفين والشركات",
-    icon: Crown,
-    iconColor: "text-purple-500",
-    borderColor: "border-purple-300",
-    bgColor: "bg-purple-50",
-    features: [
-      "نشر غير محدود للإعلانات",
-      "مدة الإعلان 90 يوم",
-      "التثبيت في أعلى القائمة",
-      "الشارة الذهبية المميزة",
-      "حتى 20 صور للإعلان",
-      "إحصائيات مفصلة",
-      "أولوية في نتائج البحث",
-      "دعم فني على مدار الساعة",
-      "شارة تاجر موثوق",
-    ],
-    notIncluded: [],
-    buttonText: "اشترك الآن",
-    buttonVariant: "default" as const,
-  },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Pricing = () => {
   const navigate = useNavigate();
+  const { t, dir } = useLanguage();
+
+  const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
+
+  const pricingPlans = [
+    {
+      name: t.pricing.free,
+      price: 0,
+      duration: t.pricing.forever,
+      description: t.pricing.forNewUsers,
+      icon: Zap,
+      iconColor: "text-green-500",
+      borderColor: "border-green-200",
+      bgColor: "bg-green-50",
+      features: [
+        t.pricing.freeFeature1,
+        t.pricing.freeFeature2,
+        t.pricing.freeFeature3,
+        t.pricing.freeFeature4,
+        t.pricing.freeFeature5,
+      ],
+      notIncluded: [
+        t.pricing.freeNot1,
+        t.pricing.freeNot2,
+        t.pricing.freeNot3,
+      ],
+      buttonText: t.pricing.startFree,
+      buttonVariant: "outline" as const,
+    },
+    {
+      name: t.pricing.featured,
+      price: 50000,
+      duration: t.pricing.monthly,
+      description: t.pricing.mostPopular,
+      icon: Star,
+      iconColor: "text-amber-500",
+      borderColor: "border-amber-300",
+      bgColor: "bg-amber-50",
+      popular: true,
+      features: [
+        t.pricing.featuredFeature1,
+        t.pricing.featuredFeature2,
+        t.pricing.featuredFeature3,
+        t.pricing.featuredFeature4,
+        t.pricing.featuredFeature5,
+        t.pricing.featuredFeature6,
+        t.pricing.featuredFeature7,
+      ],
+      notIncluded: [
+        t.pricing.featuredNot1,
+      ],
+      buttonText: t.pricing.subscribeNow,
+      buttonVariant: "default" as const,
+    },
+    {
+      name: t.pricing.professional,
+      price: 100000,
+      duration: t.pricing.monthly,
+      description: t.pricing.forProfessionals,
+      icon: Crown,
+      iconColor: "text-purple-500",
+      borderColor: "border-purple-300",
+      bgColor: "bg-purple-50",
+      features: [
+        t.pricing.proFeature1,
+        t.pricing.proFeature2,
+        t.pricing.proFeature3,
+        t.pricing.proFeature4,
+        t.pricing.proFeature5,
+        t.pricing.proFeature6,
+        t.pricing.proFeature7,
+        t.pricing.proFeature8,
+        t.pricing.proFeature9,
+      ],
+      notIncluded: [],
+      buttonText: t.pricing.subscribeNow,
+      buttonVariant: "default" as const,
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col" dir="rtl">
+    <div className="min-h-screen bg-background flex flex-col" dir={dir}>
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8 pb-24 md:pb-8">
-        {/* Back Button */}
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
           className="mb-6 gap-2"
         >
-          <ArrowLeft className="h-4 w-4" />
-          رجوع
+          <BackArrow className="h-4 w-4" />
+          {t.pricing.back}
         </Button>
 
-        {/* Page Header */}
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            أسعار الإعلانات المدفوعة
+            {t.pricing.title}
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            اختر الخطة المناسبة لك واحصل على مميزات حصرية لإعلاناتك
+            {t.pricing.subtitle}
           </p>
         </div>
 
-        {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {pricingPlans.map((plan) => (
             <Card
@@ -123,7 +123,7 @@ const Pricing = () => {
             >
               {plan.popular && (
                 <div className="absolute top-0 left-0 right-0 bg-amber-500 text-white text-center text-sm py-1 font-medium">
-                  الأكثر شعبية
+                  {t.pricing.mostPopular}
                 </div>
               )}
               
@@ -135,10 +135,10 @@ const Pricing = () => {
                 <CardDescription>{plan.description}</CardDescription>
                 <div className="mt-4">
                   <span className="text-4xl font-bold">
-                    {plan.price === 0 ? "مجاني" : formatPrice(plan.price)}
+                    {plan.price === 0 ? t.pricing.freeText : formatPrice(plan.price)}
                   </span>
                   {plan.price > 0 && (
-                    <span className="text-muted-foreground text-sm mr-1">
+                    <span className="text-muted-foreground text-sm mx-1">
                       / {plan.duration}
                     </span>
                   )}
@@ -146,7 +146,6 @@ const Pricing = () => {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                {/* Features */}
                 <div className="space-y-3">
                   {plan.features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-3">
@@ -157,7 +156,6 @@ const Pricing = () => {
                     </div>
                   ))}
                   
-                  {/* Not Included */}
                   {plan.notIncluded.map((feature, index) => (
                     <div key={index} className="flex items-center gap-3 opacity-50">
                       <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
@@ -186,41 +184,34 @@ const Pricing = () => {
           ))}
         </div>
 
-        {/* FAQ Section */}
         <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8">الأسئلة الشائعة</h2>
+          <h2 className="text-2xl font-bold text-center mb-8">{t.pricing.faq}</h2>
           
           <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">كيف يتم الدفع؟</CardTitle>
+                <CardTitle className="text-lg">{t.pricing.faqQ1}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  يمكنك الدفع عبر التحويل البنكي أو الدفع الإلكتروني. بعد إتمام الدفع، سيتم تفعيل الباقة خلال 24 ساعة.
-                </p>
+                <p className="text-muted-foreground">{t.pricing.faqA1}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">هل يمكنني إلغاء الاشتراك؟</CardTitle>
+                <CardTitle className="text-lg">{t.pricing.faqQ2}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  نعم، يمكنك إلغاء الاشتراك في أي وقت. سيستمر حسابك المدفوع حتى نهاية فترة الفوترة الحالية.
-                </p>
+                <p className="text-muted-foreground">{t.pricing.faqA2}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">ما الفرق بين الإعلان المجاني والمدفوع؟</CardTitle>
+                <CardTitle className="text-lg">{t.pricing.faqQ3}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  الإعلانات المدفوعة تظهر دائماً في أعلى نتائج البحث، وتحصل على شارة ذهبية مميزة، مما يزيد من فرص مشاهدتها والتواصل معك.
-                </p>
+                <p className="text-muted-foreground">{t.pricing.faqA3}</p>
               </CardContent>
             </Card>
           </div>

@@ -398,6 +398,61 @@ export interface Translations {
     editSuccess: string;
     editError: string;
   };
+
+  // Pricing
+  pricing: {
+    title: string;
+    subtitle: string;
+    back: string;
+    free: string;
+    forever: string;
+    forNewUsers: string;
+    featured: string;
+    monthly: string;
+    mostPopular: string;
+    professional: string;
+    forProfessionals: string;
+    subscribeNow: string;
+    startFree: string;
+    freeText: string;
+    // Free plan features
+    freeFeature1: string;
+    freeFeature2: string;
+    freeFeature3: string;
+    freeFeature4: string;
+    freeFeature5: string;
+    // Free plan not included
+    freeNot1: string;
+    freeNot2: string;
+    freeNot3: string;
+    // Featured plan features
+    featuredFeature1: string;
+    featuredFeature2: string;
+    featuredFeature3: string;
+    featuredFeature4: string;
+    featuredFeature5: string;
+    featuredFeature6: string;
+    featuredFeature7: string;
+    featuredNot1: string;
+    // Pro plan features
+    proFeature1: string;
+    proFeature2: string;
+    proFeature3: string;
+    proFeature4: string;
+    proFeature5: string;
+    proFeature6: string;
+    proFeature7: string;
+    proFeature8: string;
+    proFeature9: string;
+    // FAQ
+    faq: string;
+    faqQ1: string;
+    faqA1: string;
+    faqQ2: string;
+    faqA2: string;
+    faqQ3: string;
+    faqA3: string;
+  };
 }
 
 export const ar: Translations = {
@@ -760,6 +815,54 @@ export const ar: Translations = {
     addError: "فشل إضافة الإعلان",
     editSuccess: "تم تحديث الإعلان بنجاح!",
     editError: "فشل تحديث الإعلان",
+  },
+  pricing: {
+    title: "أسعار الإعلانات المدفوعة",
+    subtitle: "اختر الخطة المناسبة لك واحصل على مميزات حصرية لإعلاناتك",
+    back: "رجوع",
+    free: "مجاني",
+    forever: "دائم",
+    forNewUsers: "للمستخدمين الجدد",
+    featured: "مميز",
+    monthly: "شهرياً",
+    mostPopular: "الأكثر شعبية",
+    professional: "احترافي",
+    forProfessionals: "للمحترفين والشركات",
+    subscribeNow: "اشترك الآن",
+    startFree: "ابدأ مجاناً",
+    freeText: "مجاني",
+    freeFeature1: "نشر إعلان واحد",
+    freeFeature2: "مدة الإعلان 30 يوم",
+    freeFeature3: "يظهر بعد الإعلانات المدفوعة",
+    freeFeature4: "صورة واحدة للإعلان",
+    freeFeature5: "دعم فني أساسي",
+    freeNot1: "التثبيت في أعلى القائمة",
+    freeNot2: "الشارة الذهبية",
+    freeNot3: "إحصائيات المشاهدات",
+    featuredFeature1: "نشر 5 إعلانات",
+    featuredFeature2: "مدة الإعلان 60 يوم",
+    featuredFeature3: "التثبيت في أعلى القائمة",
+    featuredFeature4: "الشارة الذهبية المميزة",
+    featuredFeature5: "حتى 10 صور للإعلان",
+    featuredFeature6: "إحصائيات المشاهدات",
+    featuredFeature7: "دعم فني متقدم",
+    featuredNot1: "أولوية في نتائج البحث",
+    proFeature1: "نشر غير محدود للإعلانات",
+    proFeature2: "مدة الإعلان 90 يوم",
+    proFeature3: "التثبيت في أعلى القائمة",
+    proFeature4: "الشارة الذهبية المميزة",
+    proFeature5: "حتى 20 صور للإعلان",
+    proFeature6: "إحصائيات مفصلة",
+    proFeature7: "أولوية في نتائج البحث",
+    proFeature8: "دعم فني على مدار الساعة",
+    proFeature9: "شارة تاجر موثوق",
+    faq: "الأسئلة الشائعة",
+    faqQ1: "كيف يتم الدفع؟",
+    faqA1: "يمكنك الدفع عبر التحويل البنكي أو الدفع الإلكتروني. بعد إتمام الدفع، سيتم تفعيل الباقة خلال 24 ساعة.",
+    faqQ2: "هل يمكنني إلغاء الاشتراك؟",
+    faqA2: "نعم، يمكنك إلغاء الاشتراك في أي وقت. سيستمر حسابك المدفوع حتى نهاية فترة الفوترة الحالية.",
+    faqQ3: "ما الفرق بين الإعلان المجاني والمدفوع؟",
+    faqA3: "الإعلانات المدفوعة تظهر دائماً في أعلى نتائج البحث، وتحصل على شارة ذهبية مميزة، مما يزيد من فرص مشاهدتها والتواصل معك.",
   },
 };
 
@@ -1124,6 +1227,54 @@ export const en: Translations = {
     editSuccess: "Listing updated successfully!",
     editError: "Failed to update listing",
   },
+  pricing: {
+    title: "Paid Listing Prices",
+    subtitle: "Choose the right plan and get exclusive features for your listings",
+    back: "Back",
+    free: "Free",
+    forever: "Forever",
+    forNewUsers: "For new users",
+    featured: "Featured",
+    monthly: "Monthly",
+    mostPopular: "Most Popular",
+    professional: "Professional",
+    forProfessionals: "For professionals & businesses",
+    subscribeNow: "Subscribe Now",
+    startFree: "Start Free",
+    freeText: "Free",
+    freeFeature1: "Post 1 listing",
+    freeFeature2: "Listing duration 30 days",
+    freeFeature3: "Appears after paid listings",
+    freeFeature4: "1 image per listing",
+    freeFeature5: "Basic support",
+    freeNot1: "Pin to top of list",
+    freeNot2: "Gold badge",
+    freeNot3: "View statistics",
+    featuredFeature1: "Post 5 listings",
+    featuredFeature2: "Listing duration 60 days",
+    featuredFeature3: "Pin to top of list",
+    featuredFeature4: "Gold featured badge",
+    featuredFeature5: "Up to 10 images per listing",
+    featuredFeature6: "View statistics",
+    featuredFeature7: "Advanced support",
+    featuredNot1: "Priority in search results",
+    proFeature1: "Unlimited listings",
+    proFeature2: "Listing duration 90 days",
+    proFeature3: "Pin to top of list",
+    proFeature4: "Gold featured badge",
+    proFeature5: "Up to 20 images per listing",
+    proFeature6: "Detailed statistics",
+    proFeature7: "Priority in search results",
+    proFeature8: "24/7 support",
+    proFeature9: "Trusted dealer badge",
+    faq: "Frequently Asked Questions",
+    faqQ1: "How do I pay?",
+    faqA1: "You can pay via bank transfer or electronic payment. After payment, your plan will be activated within 24 hours.",
+    faqQ2: "Can I cancel my subscription?",
+    faqA2: "Yes, you can cancel anytime. Your paid account will remain active until the end of the current billing period.",
+    faqQ3: "What's the difference between free and paid listings?",
+    faqA3: "Paid listings always appear at the top of search results and get a gold badge, increasing visibility and contact opportunities.",
+  },
 };
 
 export const tr: Translations = {
@@ -1486,6 +1637,54 @@ export const tr: Translations = {
     addError: "İlan eklenemedi",
     editSuccess: "İlan başarıyla güncellendi!",
     editError: "İlan güncellenemedi",
+  },
+  pricing: {
+    title: "Ücretli İlan Fiyatları",
+    subtitle: "Size uygun planı seçin ve ilanlarınız için özel özellikler kazanın",
+    back: "Geri",
+    free: "Ücretsiz",
+    forever: "Süresiz",
+    forNewUsers: "Yeni kullanıcılar için",
+    featured: "Öne Çıkan",
+    monthly: "Aylık",
+    mostPopular: "En Popüler",
+    professional: "Profesyonel",
+    forProfessionals: "Profesyoneller ve şirketler için",
+    subscribeNow: "Şimdi Abone Ol",
+    startFree: "Ücretsiz Başla",
+    freeText: "Ücretsiz",
+    freeFeature1: "1 ilan yayınla",
+    freeFeature2: "İlan süresi 30 gün",
+    freeFeature3: "Ücretli ilanlardan sonra görünür",
+    freeFeature4: "İlan başına 1 görsel",
+    freeFeature5: "Temel destek",
+    freeNot1: "Listenin başına sabitle",
+    freeNot2: "Altın rozet",
+    freeNot3: "Görüntüleme istatistikleri",
+    featuredFeature1: "5 ilan yayınla",
+    featuredFeature2: "İlan süresi 60 gün",
+    featuredFeature3: "Listenin başına sabitle",
+    featuredFeature4: "Altın öne çıkan rozeti",
+    featuredFeature5: "İlan başına 10 görsele kadar",
+    featuredFeature6: "Görüntüleme istatistikleri",
+    featuredFeature7: "Gelişmiş destek",
+    featuredNot1: "Arama sonuçlarında öncelik",
+    proFeature1: "Sınırsız ilan",
+    proFeature2: "İlan süresi 90 gün",
+    proFeature3: "Listenin başına sabitle",
+    proFeature4: "Altın öne çıkan rozeti",
+    proFeature5: "İlan başına 20 görsele kadar",
+    proFeature6: "Detaylı istatistikler",
+    proFeature7: "Arama sonuçlarında öncelik",
+    proFeature8: "7/24 destek",
+    proFeature9: "Güvenilir satıcı rozeti",
+    faq: "Sıkça Sorulan Sorular",
+    faqQ1: "Nasıl ödeme yapılır?",
+    faqA1: "Banka havalesi veya elektronik ödeme ile ödeme yapabilirsiniz. Ödeme sonrası planınız 24 saat içinde aktif edilecektir.",
+    faqQ2: "Aboneliğimi iptal edebilir miyim?",
+    faqA2: "Evet, istediğiniz zaman iptal edebilirsiniz. Ücretli hesabınız mevcut fatura döneminin sonuna kadar aktif kalacaktır.",
+    faqQ3: "Ücretsiz ve ücretli ilan arasındaki fark nedir?",
+    faqA3: "Ücretli ilanlar her zaman arama sonuçlarının başında görünür ve altın rozet alır, bu da görünürlüğü ve iletişim fırsatlarını artırır.",
   },
 };
 
