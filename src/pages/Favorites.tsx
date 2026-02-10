@@ -19,6 +19,7 @@ interface Listing {
   images: string[] | null;
   created_at: string;
   is_featured: boolean | null;
+  status: string | null;
 }
 
 const Favorites = () => {
@@ -39,7 +40,7 @@ const Favorites = () => {
       try {
         const { data, error } = await supabase
           .from("listings")
-          .select("id, title, price, city, images, created_at, is_featured")
+          .select("id, title, price, city, images, created_at, is_featured, status")
           .in("id", favorites);
 
         if (error) throw error;
@@ -122,6 +123,7 @@ const Favorites = () => {
                   location={listing.city}
                   time={formatTimeAgo(listing.created_at)}
                   featured={listing.is_featured || false}
+                  status={listing.status}
                 />
               ))}
             </div>

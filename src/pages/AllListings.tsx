@@ -44,6 +44,7 @@ interface Listing {
   images: string[];
   is_featured: boolean;
   created_at: string;
+  status: string | null;
 }
 
 const ITEMS_PER_PAGE = 12;
@@ -542,6 +543,7 @@ const AllListings = () => {
                     location={listing.city}
                     time={formatTime(listing.created_at)}
                     featured={listing.is_featured}
+                    status={listing.status}
                   />
                 </div>
               ))}
