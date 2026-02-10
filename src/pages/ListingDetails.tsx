@@ -18,7 +18,8 @@ import {
   Heart,
   ChevronLeft,
   ChevronRight,
-  MessageSquare
+  MessageSquare,
+  Flag
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -27,6 +28,7 @@ import ChatModal from "@/components/ChatModal";
 import AuthModal from "@/components/AuthModal";
 import ShareButtons from "@/components/ShareButtons";
 import RatingSection from "@/components/RatingSection";
+import ReportModal from "@/components/ReportModal";
 import { useAuth } from "@/hooks/useAuth";
 import { formatPrice, formatDate, categoryLabels } from "@/lib/constants";
 
@@ -65,6 +67,7 @@ const ListingDetails = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [chatModalOpen, setChatModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -420,6 +423,25 @@ const ListingDetails = () => {
                       دردشة مع البائع
                     </Button>
                   )}
+
+                  {/* Report Button */}
+                  {listing?.user_id !== user?.id && (
+                    <Button
+                      onClick={() => {
+                        if (user) {
+                          setReportModalOpen(true);
+                        } else {
+                          setAuthModalOpen(true);
+                        }
+                      }}
+                      variant="ghost"
+                      className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                      size="lg"
+                    >
+                      <Flag className="h-5 w-5" />
+                      إبلاغ عن الإعلان
+                    </Button>
+                  )}
                 </div>
 
                 {!seller?.phone && !listing?.phone && (
@@ -458,6 +480,16 @@ const ListingDetails = () => {
           listingId={listing.id}
           sellerId={listing.user_id}
           listingTitle={listing.title}
+        />
+      )}
+
+      {/* Report Modal */}
+      {listing && user && (
+        <ReportModal
+          open={reportModalOpen}
+          onOpenChange={setReportModalOpen}
+          listingId={listing.id}
+          userId={user.id}
         />
       )}
 
