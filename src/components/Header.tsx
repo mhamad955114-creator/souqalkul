@@ -1,4 +1,4 @@
-import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun } from "lucide-react";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import AuthModal from "./AuthModal";
 import AddListingModal from "./AddListingModal";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -32,6 +33,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { unreadCount } = useUnreadMessages();
   const { isAdmin } = useAdminRole();
   const { t, dir } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   const openAuthModal = (tab: "login" | "signup") => {
     setAuthModalTab(tab);
@@ -81,6 +83,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={toggleTheme} title={t.settings.theme}>
+                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+
               <LanguageSwitcher />
 
               {user && <NotificationsDropdown />}
