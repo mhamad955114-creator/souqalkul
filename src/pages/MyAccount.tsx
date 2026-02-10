@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -126,6 +126,23 @@ const MyAccount = () => {
     }
   };
 
+  const handleRenewListing = async (listing: Listing) => {
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: "active", created_at: new Date().toISOString() })
+        .eq("id", listing.id);
+
+      if (error) throw error;
+
+      toast.success("تم تجديد الإعلان بنجاح");
+      fetchListings();
+    } catch (error) {
+      console.error("Error renewing listing:", error);
+      toast.error("فشل تجديد الإعلان");
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -241,24 +258,35 @@ const MyAccount = () => {
                           </span>
                         </div>
 
-                        <div className="flex gap-2">
-                          <Button
-                            variant={listing.status === "sold" ? "outline" : "secondary"}
-                            size="sm"
-                            onClick={() => handleToggleSold(listing)}
-                          >
-                            {listing.status === "sold" ? (
-                              <>
-                                <RotateCcw className="h-4 w-4" />
-                                {t.myAccount.markAsActive}
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle className="h-4 w-4" />
-                                {t.myAccount.markAsSold}
-                              </>
-                            )}
-                          </Button>
+                        <div className="flex gap-2 flex-wrap">
+                          {listing.status === "expired" ? (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleRenewListing(listing)}
+                            >
+                              <RefreshCw className="h-4 w-4" />
+                              تجديد الإعلان
+                            </Button>
+                          ) : (
+                            <Button
+                              variant={listing.status === "sold" ? "outline" : "secondary"}
+                              size="sm"
+                              onClick={() => handleToggleSold(listing)}
+                            >
+                              {listing.status === "sold" ? (
+                                <>
+                                  <RotateCcw className="h-4 w-4" />
+                                  {t.myAccount.markAsActive}
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="h-4 w-4" />
+                                  {t.myAccount.markAsSold}
+                                </>
+                              )}
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"

@@ -35,7 +35,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
         <img
           src={image}
           alt={title}
-          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${status === "sold" ? "opacity-60" : ""}`}
+          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${status === "sold" || status === "expired" ? "opacity-60" : ""}`}
         />
         {status === "sold" && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -44,7 +44,14 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
             </span>
           </div>
         )}
-        {featured && status !== "sold" && (
+        {status === "expired" && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="bg-muted-foreground text-background text-lg font-bold px-6 py-2 rounded-full shadow-lg rotate-[-15deg]">
+              منتهي
+            </span>
+          </div>
+        )}
+        {featured && status !== "sold" && status !== "expired" && (
           <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
             <span>⭐</span>
             <span>{t.listings.featured}</span>
