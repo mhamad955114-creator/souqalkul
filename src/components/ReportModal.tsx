@@ -12,15 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-
-const reportReasons = [
-  "محتوى مخالف أو غير لائق",
-  "إعلان احتيالي أو مضلل",
-  "سعر غير حقيقي",
-  "صور مسروقة أو غير حقيقية",
-  "إعلان مكرر أو سبام",
-  "سبب آخر",
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ReportModalProps {
   open: boolean;
@@ -30,13 +22,23 @@ interface ReportModalProps {
 }
 
 const ReportModal = ({ open, onOpenChange, listingId, userId }: ReportModalProps) => {
+  const { t, dir } = useLanguage();
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const reportReasons = [
+    t.report.reasons.inappropriate,
+    t.report.reasons.fraud,
+    t.report.reasons.fakePrice,
+    t.report.reasons.stolenImages,
+    t.report.reasons.spam,
+    t.report.reasons.other,
+  ];
+
   const handleSubmit = async () => {
     if (!reason) {
-      toast.error("يرجى اختيار سبب الإبلاغ");
+      toast.error(t.report.selectReason);
       return;
     }
 
@@ -52,14 +54,14 @@ const ReportModal = ({ open, onOpenChange, listingId, userId }: ReportModalProps
 
     if (error) {
       if (error.code === "23505") {
-        toast.error("لقد أبلغت عن هذا الإعلان مسبقاً");
+        toast.error(t.report.alreadyReported);
       } else {
-        toast.error("حدث خطأ أثناء إرسال البلاغ");
+        toast.error(t.report.error);
       }
       return;
     }
 
-    toast.success("تم إرسال البلاغ بنجاح، شكراً لمساعدتنا في تحسين المنصة");
+    toast.success(t.report.success);
     setReason("");
     setDetails("");
     onOpenChange(false);
@@ -67,14 +69,14 @@ const ReportModal = ({ open, onOpenChange, listingId, userId }: ReportModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" dir="rtl">
+      <DialogContent className="sm:max-w-md" dir={dir}>
         <DialogHeader>
-          <DialogTitle>الإبلاغ عن إعلان مخالف</DialogTitle>
+          <DialogTitle>{t.report.title}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
           <div className="space-y-3">
-            <Label>سبب الإبلاغ</Label>
+            <Label>{t.report.reason}</Label>
             <RadioGroup value={reason} onValueChange={setReason}>
               {reportReasons.map((r) => (
                 <div key={r} className="flex items-center gap-2">
@@ -88,11 +90,11 @@ const ReportModal = ({ open, onOpenChange, listingId, userId }: ReportModalProps
           </div>
 
           <div className="space-y-2">
-            <Label>تفاصيل إضافية (اختياري)</Label>
+            <Label>{t.report.details}</Label>
             <Textarea
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              placeholder="أضف أي تفاصيل تساعدنا في مراجعة البلاغ..."
+              placeholder={t.report.details}
               maxLength={500}
               rows={3}
             />
@@ -100,7 +102,7 @@ const ReportModal = ({ open, onOpenChange, listingId, userId }: ReportModalProps
 
           <Button onClick={handleSubmit} disabled={loading || !reason} className="w-full">
             {loading && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
-            إرسال البلاغ
+            {t.report.submit}
           </Button>
         </div>
       </DialogContent>

@@ -236,12 +236,19 @@ export interface Translations {
     submit: string;
   };
 
-  // Messages
+  // Messages / Chat
   messages: {
     title: string;
     noMessages: string;
     typeMessage: string;
     send: string;
+    noConversations: string;
+    startFromListing: string;
+    startNow: string;
+    user: string;
+    listing: string;
+    you: string;
+    conversation: string;
   };
 
   // Settings
@@ -594,8 +601,15 @@ export const ar: Translations = {
   messages: {
     title: "الرسائل",
     noMessages: "لا توجد رسائل",
-    typeMessage: "اكتب رسالة...",
+    typeMessage: "اكتب رسالتك...",
     send: "إرسال",
+    noConversations: "لا توجد محادثات بعد",
+    startFromListing: "ابدأ محادثة من صفحة أي إعلان",
+    startNow: "ابدأ المحادثة الآن",
+    user: "مستخدم",
+    listing: "إعلان",
+    you: "أنت",
+    conversation: "محادثة",
   },
   settings: {
     title: "الإعدادات",
@@ -940,6 +954,13 @@ export const en: Translations = {
     noMessages: "No messages",
     typeMessage: "Type a message...",
     send: "Send",
+    noConversations: "No conversations yet",
+    startFromListing: "Start a conversation from any listing page",
+    startNow: "Start the conversation now",
+    user: "User",
+    listing: "Listing",
+    you: "You",
+    conversation: "Conversation",
   },
   settings: {
     title: "Settings",
@@ -1284,6 +1305,13 @@ export const tr: Translations = {
     noMessages: "Mesaj yok",
     typeMessage: "Bir mesaj yazın...",
     send: "Gönder",
+    noConversations: "Henüz sohbet yok",
+    startFromListing: "Herhangi bir ilan sayfasından sohbet başlatın",
+    startNow: "Sohbete şimdi başlayın",
+    user: "Kullanıcı",
+    listing: "İlan",
+    you: "Siz",
+    conversation: "Sohbet",
   },
   settings: {
     title: "Ayarlar",
