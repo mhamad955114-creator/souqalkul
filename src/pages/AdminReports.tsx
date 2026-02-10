@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -41,7 +41,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
-import { formatDate } from "@/lib/constants";
+import { formatDate, categoryLabels } from "@/lib/constants";
+
+const PIE_COLORS = [
+  "hsl(var(--primary))",
+  "hsl(var(--accent))",
+  "hsl(217, 91%, 60%)",
+  "hsl(330, 81%, 60%)",
+  "hsl(38, 92%, 50%)",
+  "hsl(263, 70%, 50%)",
+  "hsl(0, 72%, 51%)",
+  "hsl(160, 84%, 39%)",
+  "hsl(280, 65%, 60%)",
+];
 
 interface Report {
   id: string;
@@ -75,6 +87,7 @@ const AdminReports = () => {
   // General stats
   const [stats, setStats] = useState({ listings: 0, users: 0, reports: 0, views: 0 });
   const [dailyListings, setDailyListings] = useState<{ date: string; count: number }[]>([]);
+  const [categoryData, setCategoryData] = useState<{ name: string; value: number }[]>([]);
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -126,6 +139,24 @@ const AdminReports = () => {
             date: new Date(date).toLocaleDateString("ar-SY", { month: "short", day: "numeric" }),
             count,
           }))
+        );
+      }
+
+      // Fetch category distribution
+      const { data: catData } = await supabase
+        .from("listings")
+        .select("category")
+        .eq("status", "active");
+
+      if (catData) {
+        const catMap: Record<string, number> = {};
+        catData.forEach((item) => {
+          catMap[item.category] = (catMap[item.category] || 0) + 1;
+        });
+        setCategoryData(
+          Object.entries(catMap)
+            .map(([name, value]) => ({ name, value }))
+            .sort((a, b) => b.value - a.value)
         );
       }
     };
@@ -301,35 +332,70 @@ const AdminReports = () => {
           </Card>
         </div>
 
-        {/* Daily Listings Chart */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">الإعلانات المضافة يومياً (آخر 30 يوم)</h2>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dailyListings}>
-                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 11 }}
-                    interval={Math.floor(dailyListings.length / 8)}
-                  />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "8px",
-                      border: "1px solid hsl(var(--border))",
-                      backgroundColor: "hsl(var(--card))",
-                      color: "hsl(var(--foreground))",
-                    }}
-                    labelStyle={{ fontWeight: "bold", marginBottom: 4 }}
-                  />
-                  <Bar dataKey="count" name="عدد الإعلانات" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Charts Row */}
+        <div className="grid lg:grid-cols-2 gap-6 mb-8">
+          {/* Pie Chart */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-4">توزيع الإعلانات حسب التصنيف</h2>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData.map(d => ({ ...d, name: categoryLabels[d.name] || d.name }))}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={95}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {categoryData.map((_, index) => (
+                        <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "1px solid hsl(var(--border))",
+                        backgroundColor: "hsl(var(--card))",
+                        color: "hsl(var(--foreground))",
+                      }}
+                      formatter={(value: number) => [`${value} إعلان`, "العدد"]}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bar Chart */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-4">الإعلانات المضافة يومياً (آخر 30 يوم)</h2>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dailyListings}>
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={Math.floor(dailyListings.length / 6)} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "1px solid hsl(var(--border))",
+                        backgroundColor: "hsl(var(--card))",
+                        color: "hsl(var(--foreground))",
+                      }}
+                      labelStyle={{ fontWeight: "bold", marginBottom: 4 }}
+                    />
+                    <Bar dataKey="count" name="عدد الإعلانات" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Report Status Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
