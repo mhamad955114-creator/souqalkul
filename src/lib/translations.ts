@@ -303,6 +303,21 @@ export interface Translations {
     invalidImage: string;
     imageTooLarge: string;
     loadError: string;
+    changePassword: string;
+    changePasswordDesc: string;
+    currentPassword: string;
+    currentPasswordPlaceholder: string;
+    newPassword: string;
+    newPasswordPlaceholder: string;
+    confirmPassword: string;
+    confirmPasswordPlaceholder: string;
+    updatePassword: string;
+    updatingPassword: string;
+    passwordSuccess: string;
+    passwordError: string;
+    passwordMismatch: string;
+    passwordTooShort: string;
+    currentPasswordRequired: string;
   };
 
   // MyAccount
@@ -840,6 +855,21 @@ export const ar: Translations = {
     invalidImage: "يرجى اختيار ملف صورة صالح",
     imageTooLarge: "حجم الصورة يجب أن يكون أقل من 2 ميجابايت",
     loadError: "فشل تحميل بيانات الحساب",
+    changePassword: "تغيير كلمة المرور",
+    changePasswordDesc: "قم بتحديث كلمة المرور الخاصة بحسابك",
+    currentPassword: "كلمة المرور الحالية",
+    currentPasswordPlaceholder: "أدخل كلمة المرور الحالية",
+    newPassword: "كلمة المرور الجديدة",
+    newPasswordPlaceholder: "أدخل كلمة المرور الجديدة",
+    confirmPassword: "تأكيد كلمة المرور",
+    confirmPasswordPlaceholder: "أعد إدخال كلمة المرور الجديدة",
+    updatePassword: "تحديث كلمة المرور",
+    updatingPassword: "جاري التحديث...",
+    passwordSuccess: "تم تغيير كلمة المرور بنجاح",
+    passwordError: "فشل تغيير كلمة المرور",
+    passwordMismatch: "كلمتا المرور غير متطابقتين",
+    passwordTooShort: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+    currentPasswordRequired: "يرجى إدخال كلمة المرور الحالية",
   },
   myAccount: {
     title: "إعلاناتي",
@@ -1355,6 +1385,21 @@ export const en: Translations = {
     invalidImage: "Please select a valid image file",
     imageTooLarge: "Image size must be less than 2MB",
     loadError: "Failed to load account data",
+    changePassword: "Change Password",
+    changePasswordDesc: "Update your account password",
+    currentPassword: "Current Password",
+    currentPasswordPlaceholder: "Enter current password",
+    newPassword: "New Password",
+    newPasswordPlaceholder: "Enter new password",
+    confirmPassword: "Confirm Password",
+    confirmPasswordPlaceholder: "Re-enter new password",
+    updatePassword: "Update Password",
+    updatingPassword: "Updating...",
+    passwordSuccess: "Password changed successfully",
+    passwordError: "Failed to change password",
+    passwordMismatch: "Passwords do not match",
+    passwordTooShort: "Password must be at least 6 characters",
+    currentPasswordRequired: "Please enter your current password",
   },
   myAccount: {
     title: "My Listings",
@@ -1870,6 +1915,21 @@ export const tr: Translations = {
     invalidImage: "Lütfen geçerli bir resim dosyası seçin",
     imageTooLarge: "Resim boyutu 2MB'den küçük olmalıdır",
     loadError: "Hesap verileri yüklenemedi",
+    changePassword: "Şifre Değiştir",
+    changePasswordDesc: "Hesap şifrenizi güncelleyin",
+    currentPassword: "Mevcut Şifre",
+    currentPasswordPlaceholder: "Mevcut şifrenizi girin",
+    newPassword: "Yeni Şifre",
+    newPasswordPlaceholder: "Yeni şifrenizi girin",
+    confirmPassword: "Şifreyi Onayla",
+    confirmPasswordPlaceholder: "Yeni şifreyi tekrar girin",
+    updatePassword: "Şifreyi Güncelle",
+    updatingPassword: "Güncelleniyor...",
+    passwordSuccess: "Şifre başarıyla değiştirildi",
+    passwordError: "Şifre değiştirilemedi",
+    passwordMismatch: "Şifreler eşleşmiyor",
+    passwordTooShort: "Şifre en az 6 karakter olmalıdır",
+    currentPasswordRequired: "Lütfen mevcut şifrenizi girin",
   },
   myAccount: {
     title: "İlanlarım",
