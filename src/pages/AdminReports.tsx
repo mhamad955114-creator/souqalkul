@@ -222,6 +222,9 @@ const AdminReports = () => {
   }, [isAdmin, statusFilter]);
 
   const updateStatus = async (reportId: string, newStatus: string) => {
+    // Find the report to get reporter_id
+    const report = reports.find((r) => r.id === reportId);
+
     const { error } = await supabase
       .from("reports")
       .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -232,7 +235,19 @@ const AdminReports = () => {
       return;
     }
 
-    toast.success("تم تحديث حالة البلاغ");
+    // Send notification to the reporter
+    if (report) {
+      const statusLabel = statusConfig[newStatus]?.label || newStatus;
+      await supabase.from("notifications").insert({
+        user_id: report.reporter_id,
+        title: "تحديث حالة البلاغ",
+        message: `تم تغيير حالة بلاغك على "${report.listing_title || "إعلان"}" إلى: ${statusLabel}`,
+        type: "report_update",
+        related_id: report.listing_id,
+      });
+    }
+
+    toast.success("تم تحديث حالة البلاغ وإرسال إشعار للمستخدم");
     setReports((prev) =>
       prev.map((r) => (r.id === reportId ? { ...r, status: newStatus } : r))
     );
