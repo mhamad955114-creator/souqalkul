@@ -250,6 +250,84 @@ export interface Translations {
     language: string;
     theme: string;
     notifications: string;
+    editProfile: string;
+    backToListings: string;
+    profilePicture: string;
+    profilePictureDesc: string;
+    clickToChange: string;
+    maxSize: string;
+    personalInfo: string;
+    basicInfo: string;
+    email: string;
+    emailCantChange: string;
+    fullName: string;
+    fullNamePlaceholder: string;
+    contactInfo: string;
+    contactInfoDesc: string;
+    phone: string;
+    phonePlaceholder: string;
+    phoneHint: string;
+    phoneError: string;
+    location: string;
+    locationDesc: string;
+    city: string;
+    selectCity: string;
+    saveChanges: string;
+    saving: string;
+    saveSuccess: string;
+    saveError: string;
+    uploadSuccess: string;
+    uploadError: string;
+    invalidImage: string;
+    imageTooLarge: string;
+    loadError: string;
+  };
+
+  // MyAccount
+  myAccount: {
+    title: string;
+    subtitle: string;
+    settingsBtn: string;
+    backToHome: string;
+    noListings: string;
+    noListingsDesc: string;
+    addNewListing: string;
+    noDescription: string;
+    views: string;
+    editBtn: string;
+    deleteBtn: string;
+    deleteConfirm: string;
+    deleteConfirmDesc: string;
+    cancelBtn: string;
+    deleteListingBtn: string;
+    deleting: string;
+    deleteSuccess: string;
+    deleteError: string;
+    loadError: string;
+  };
+
+  // Favorites
+  favoritesPage: {
+    title: string;
+    savedAds: string;
+    pleaseSignIn: string;
+    mustSignIn: string;
+    noFavorites: string;
+    startAdding: string;
+  };
+
+  // Messages Page
+  messagesPage: {
+    title: string;
+    noMessages: string;
+    noMessagesDesc: string;
+    listing: string;
+    user: string;
+    you: string;
+    now: string;
+    minsAgo: string;
+    hoursAgo: string;
+    daysAgo: string;
   };
 }
 
@@ -474,6 +552,78 @@ export const ar: Translations = {
     language: "اللغة",
     theme: "المظهر",
     notifications: "الإشعارات",
+    editProfile: "تعديل معلومات الملف الشخصي",
+    backToListings: "العودة لإعلاناتي",
+    profilePicture: "الصورة الشخصية",
+    profilePictureDesc: "صورتك التي ستظهر للآخرين",
+    clickToChange: "انقر على أيقونة الكاميرا لتغيير الصورة",
+    maxSize: "الحد الأقصى: 2 ميجابايت",
+    personalInfo: "المعلومات الشخصية",
+    basicInfo: "معلوماتك الأساسية",
+    email: "البريد الإلكتروني",
+    emailCantChange: "لا يمكن تغيير البريد الإلكتروني",
+    fullName: "الاسم الكامل",
+    fullNamePlaceholder: "أدخل اسمك الكامل",
+    contactInfo: "معلومات التواصل",
+    contactInfoDesc: "كيف يمكن للآخرين التواصل معك",
+    phone: "رقم الهاتف",
+    phonePlaceholder: "09xxxxxxxx",
+    phoneHint: "رقم الهاتف السوري (يبدأ بـ 09)",
+    phoneError: "رقم الهاتف يجب أن يبدأ بـ 09 ويتكون من 10 أرقام",
+    location: "الموقع",
+    locationDesc: "موقعك الافتراضي للإعلانات",
+    city: "المدينة",
+    selectCity: "اختر المدينة",
+    saveChanges: "حفظ التغييرات",
+    saving: "جاري الحفظ...",
+    saveSuccess: "تم حفظ الإعدادات بنجاح",
+    saveError: "فشل حفظ الإعدادات",
+    uploadSuccess: "تم رفع الصورة بنجاح",
+    uploadError: "فشل رفع الصورة",
+    invalidImage: "يرجى اختيار ملف صورة صالح",
+    imageTooLarge: "حجم الصورة يجب أن يكون أقل من 2 ميجابايت",
+    loadError: "فشل تحميل بيانات الحساب",
+  },
+  myAccount: {
+    title: "إعلاناتي",
+    subtitle: "إدارة جميع إعلاناتك من مكان واحد",
+    settingsBtn: "الإعدادات",
+    backToHome: "العودة للرئيسية",
+    noListings: "لا توجد إعلانات حتى الآن",
+    noListingsDesc: "ابدأ بإضافة إعلانك الأول الآن",
+    addNewListing: "إضافة إعلان جديد",
+    noDescription: "لا يوجد وصف",
+    views: "مشاهدة",
+    editBtn: "تعديل",
+    deleteBtn: "حذف",
+    deleteConfirm: "هل أنت متأكد من حذف هذا الإعلان؟",
+    deleteConfirmDesc: "سيتم حذف الإعلان نهائياً ولا يمكن التراجع عن هذا الإجراء.",
+    cancelBtn: "إلغاء",
+    deleteListingBtn: "حذف الإعلان",
+    deleting: "جاري الحذف...",
+    deleteSuccess: "تم حذف الإعلان بنجاح",
+    deleteError: "فشل حذف الإعلان",
+    loadError: "فشل تحميل الإعلانات",
+  },
+  favoritesPage: {
+    title: "المفضلة",
+    savedAds: "الإعلانات المحفوظة",
+    pleaseSignIn: "يرجى تسجيل الدخول",
+    mustSignIn: "يجب عليك تسجيل الدخول لعرض الإعلانات المفضلة",
+    noFavorites: "لا توجد إعلانات مفضلة",
+    startAdding: "ابدأ بإضافة الإعلانات المهمة إلى قائمة المفضلة",
+  },
+  messagesPage: {
+    title: "الرسائل",
+    noMessages: "لا توجد رسائل",
+    noMessagesDesc: "ابدأ محادثة من صفحة أي إعلان للتواصل مع البائع",
+    listing: "إعلان",
+    user: "مستخدم",
+    you: "أنت",
+    now: "الآن",
+    minsAgo: "د",
+    hoursAgo: "س",
+    daysAgo: "ي",
   },
 };
 
@@ -698,6 +848,78 @@ export const en: Translations = {
     language: "Language",
     theme: "Theme",
     notifications: "Notifications",
+    editProfile: "Edit profile information",
+    backToListings: "Back to my listings",
+    profilePicture: "Profile Picture",
+    profilePictureDesc: "Your photo visible to others",
+    clickToChange: "Click the camera icon to change photo",
+    maxSize: "Max size: 2MB",
+    personalInfo: "Personal Information",
+    basicInfo: "Your basic info",
+    email: "Email",
+    emailCantChange: "Email cannot be changed",
+    fullName: "Full Name",
+    fullNamePlaceholder: "Enter your full name",
+    contactInfo: "Contact Information",
+    contactInfoDesc: "How others can reach you",
+    phone: "Phone Number",
+    phonePlaceholder: "09xxxxxxxx",
+    phoneHint: "Syrian phone number (starts with 09)",
+    phoneError: "Phone number must start with 09 and be 10 digits",
+    location: "Location",
+    locationDesc: "Your default location for listings",
+    city: "City",
+    selectCity: "Select city",
+    saveChanges: "Save Changes",
+    saving: "Saving...",
+    saveSuccess: "Settings saved successfully",
+    saveError: "Failed to save settings",
+    uploadSuccess: "Photo uploaded successfully",
+    uploadError: "Failed to upload photo",
+    invalidImage: "Please select a valid image file",
+    imageTooLarge: "Image size must be less than 2MB",
+    loadError: "Failed to load account data",
+  },
+  myAccount: {
+    title: "My Listings",
+    subtitle: "Manage all your listings in one place",
+    settingsBtn: "Settings",
+    backToHome: "Back to Home",
+    noListings: "No listings yet",
+    noListingsDesc: "Start by adding your first listing now",
+    addNewListing: "Add New Listing",
+    noDescription: "No description",
+    views: "views",
+    editBtn: "Edit",
+    deleteBtn: "Delete",
+    deleteConfirm: "Are you sure you want to delete this listing?",
+    deleteConfirmDesc: "This listing will be permanently deleted and cannot be undone.",
+    cancelBtn: "Cancel",
+    deleteListingBtn: "Delete Listing",
+    deleting: "Deleting...",
+    deleteSuccess: "Listing deleted successfully",
+    deleteError: "Failed to delete listing",
+    loadError: "Failed to load listings",
+  },
+  favoritesPage: {
+    title: "Favorites",
+    savedAds: "Saved ads",
+    pleaseSignIn: "Please sign in",
+    mustSignIn: "You must sign in to view your favorite listings",
+    noFavorites: "No favorite listings",
+    startAdding: "Start adding important listings to your favorites",
+  },
+  messagesPage: {
+    title: "Messages",
+    noMessages: "No messages",
+    noMessagesDesc: "Start a conversation from any listing page to contact the seller",
+    listing: "Listing",
+    user: "User",
+    you: "You",
+    now: "Now",
+    minsAgo: "m",
+    hoursAgo: "h",
+    daysAgo: "d",
   },
 };
 
@@ -922,6 +1144,78 @@ export const tr: Translations = {
     language: "Dil",
     theme: "Tema",
     notifications: "Bildirimler",
+    editProfile: "Profil bilgilerini düzenle",
+    backToListings: "İlanlarıma dön",
+    profilePicture: "Profil Fotoğrafı",
+    profilePictureDesc: "Başkalarının göreceği fotoğrafınız",
+    clickToChange: "Fotoğrafı değiştirmek için kamera simgesine tıklayın",
+    maxSize: "Maks boyut: 2MB",
+    personalInfo: "Kişisel Bilgiler",
+    basicInfo: "Temel bilgileriniz",
+    email: "E-posta",
+    emailCantChange: "E-posta değiştirilemez",
+    fullName: "Ad Soyad",
+    fullNamePlaceholder: "Adınızı ve soyadınızı girin",
+    contactInfo: "İletişim Bilgileri",
+    contactInfoDesc: "Başkalarının size nasıl ulaşacağı",
+    phone: "Telefon Numarası",
+    phonePlaceholder: "09xxxxxxxx",
+    phoneHint: "Suriye telefon numarası (09 ile başlar)",
+    phoneError: "Telefon numarası 09 ile başlamalı ve 10 hane olmalıdır",
+    location: "Konum",
+    locationDesc: "İlanlar için varsayılan konumunuz",
+    city: "Şehir",
+    selectCity: "Şehir seçin",
+    saveChanges: "Değişiklikleri Kaydet",
+    saving: "Kaydediliyor...",
+    saveSuccess: "Ayarlar başarıyla kaydedildi",
+    saveError: "Ayarlar kaydedilemedi",
+    uploadSuccess: "Fotoğraf başarıyla yüklendi",
+    uploadError: "Fotoğraf yüklenemedi",
+    invalidImage: "Lütfen geçerli bir resim dosyası seçin",
+    imageTooLarge: "Resim boyutu 2MB'den küçük olmalıdır",
+    loadError: "Hesap verileri yüklenemedi",
+  },
+  myAccount: {
+    title: "İlanlarım",
+    subtitle: "Tüm ilanlarınızı tek yerden yönetin",
+    settingsBtn: "Ayarlar",
+    backToHome: "Ana Sayfaya Dön",
+    noListings: "Henüz ilan yok",
+    noListingsDesc: "İlk ilanınızı şimdi ekleyerek başlayın",
+    addNewListing: "Yeni İlan Ekle",
+    noDescription: "Açıklama yok",
+    views: "görüntüleme",
+    editBtn: "Düzenle",
+    deleteBtn: "Sil",
+    deleteConfirm: "Bu ilanı silmek istediğinizden emin misiniz?",
+    deleteConfirmDesc: "Bu ilan kalıcı olarak silinecek ve geri alınamaz.",
+    cancelBtn: "İptal",
+    deleteListingBtn: "İlanı Sil",
+    deleting: "Siliniyor...",
+    deleteSuccess: "İlan başarıyla silindi",
+    deleteError: "İlan silinemedi",
+    loadError: "İlanlar yüklenemedi",
+  },
+  favoritesPage: {
+    title: "Favoriler",
+    savedAds: "Kayıtlı ilanlar",
+    pleaseSignIn: "Lütfen giriş yapın",
+    mustSignIn: "Favori ilanlarınızı görmek için giriş yapmalısınız",
+    noFavorites: "Favori ilan yok",
+    startAdding: "Önemli ilanları favorilerinize eklemeye başlayın",
+  },
+  messagesPage: {
+    title: "Mesajlar",
+    noMessages: "Mesaj yok",
+    noMessagesDesc: "Satıcıyla iletişim kurmak için herhangi bir ilan sayfasından sohbet başlatın",
+    listing: "İlan",
+    user: "Kullanıcı",
+    you: "Siz",
+    now: "Şimdi",
+    minsAgo: "dk",
+    hoursAgo: "sa",
+    daysAgo: "g",
   },
 };
 

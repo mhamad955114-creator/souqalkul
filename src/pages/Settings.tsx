@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,11 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, ArrowRight, User, Camera, Phone, MapPin, Save } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { cities, areasByCity } from "@/lib/constants";
+import { cities } from "@/lib/constants";
 
 interface Profile {
   id: string;
@@ -25,11 +26,14 @@ interface Profile {
 
 const Settings = () => {
   const { user, loading: authLoading } = useAuth();
+  const { t, dir } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  
+
+  const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -55,7 +59,7 @@ const Settings = () => {
 
       if (error && error.code !== "PGRST116") {
         console.error("Error fetching profile:", error);
-        toast.error("فشل تحميل بيانات الحساب");
+        toast.error(t.settings.loadError);
       } else if (data) {
         setProfile(data);
         setFullName(data.full_name || "");
@@ -79,12 +83,12 @@ const Settings = () => {
     if (!file || !user) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("يرجى اختيار ملف صورة صالح");
+      toast.error(t.settings.invalidImage);
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("حجم الصورة يجب أن يكون أقل من 2 ميجابايت");
+      toast.error(t.settings.imageTooLarge);
       return;
     }
 
@@ -106,10 +110,10 @@ const Settings = () => {
         .getPublicUrl(fileName);
 
       setAvatarUrl(publicUrl);
-      toast.success("تم رفع الصورة بنجاح");
+      toast.success(t.settings.uploadSuccess);
     } catch (error) {
       console.error("Error uploading avatar:", error);
-      toast.error("فشل رفع الصورة");
+      toast.error(t.settings.uploadError);
     } finally {
       setUploading(false);
     }
@@ -125,7 +129,7 @@ const Settings = () => {
     if (!user) return;
 
     if (phone && !validatePhone(phone)) {
-      toast.error("رقم الهاتف يجب أن يبدأ بـ 09 ويتكون من 10 أرقام");
+      toast.error(t.settings.phoneError);
       return;
     }
 
@@ -155,11 +159,11 @@ const Settings = () => {
         if (error) throw error;
       }
 
-      toast.success("تم حفظ الإعدادات بنجاح");
+      toast.success(t.settings.saveSuccess);
       fetchProfile();
     } catch (error) {
       console.error("Error saving profile:", error);
-      toast.error("فشل حفظ الإعدادات");
+      toast.error(t.settings.saveError);
     } finally {
       setSaving(false);
     }
@@ -188,21 +192,21 @@ const Settings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={dir}>
       <Header />
       
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">إعدادات الحساب</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t.settings.title}</h1>
             <p className="text-muted-foreground mt-1">
-              تعديل معلومات الملف الشخصي
+              {t.settings.editProfile}
             </p>
           </div>
           <Button onClick={() => navigate("/my-account")} variant="outline">
-            <ArrowRight className="h-4 w-4" />
-            العودة لإعلاناتي
+            <BackArrow className="h-4 w-4" />
+            {t.settings.backToListings}
           </Button>
         </div>
 
@@ -217,17 +221,17 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
-                  الصورة الشخصية
+                  {t.settings.profilePicture}
                 </CardTitle>
                 <CardDescription>
-                  صورتك التي ستظهر للآخرين
+                  {t.settings.profilePictureDesc}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-6">
                   <div className="relative">
                     <Avatar className="h-24 w-24">
-                      <AvatarImage src={avatarUrl} alt={fullName || "المستخدم"} />
+                      <AvatarImage src={avatarUrl} alt={fullName || "User"} />
                       <AvatarFallback className="text-2xl bg-primary/10 text-primary">
                         {getInitials(fullName)}
                       </AvatarFallback>
@@ -252,8 +256,8 @@ const Settings = () => {
                     />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    <p>انقر على أيقونة الكاميرا لتغيير الصورة</p>
-                    <p>الحد الأقصى: 2 ميجابايت</p>
+                    <p>{t.settings.clickToChange}</p>
+                    <p>{t.settings.maxSize}</p>
                   </div>
                 </div>
               </CardContent>
@@ -262,14 +266,14 @@ const Settings = () => {
             {/* Personal Info Section */}
             <Card>
               <CardHeader>
-                <CardTitle>المعلومات الشخصية</CardTitle>
+                <CardTitle>{t.settings.personalInfo}</CardTitle>
                 <CardDescription>
-                  معلوماتك الأساسية
+                  {t.settings.basicInfo}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">البريد الإلكتروني</Label>
+                  <Label htmlFor="email">{t.settings.email}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -278,16 +282,16 @@ const Settings = () => {
                     className="bg-muted"
                   />
                   <p className="text-xs text-muted-foreground">
-                    لا يمكن تغيير البريد الإلكتروني
+                    {t.settings.emailCantChange}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">الاسم الكامل</Label>
+                  <Label htmlFor="fullName">{t.settings.fullName}</Label>
                   <Input
                     id="fullName"
                     type="text"
-                    placeholder="أدخل اسمك الكامل"
+                    placeholder={t.settings.fullNamePlaceholder}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                   />
@@ -300,26 +304,26 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Phone className="h-5 w-5" />
-                  معلومات التواصل
+                  {t.settings.contactInfo}
                 </CardTitle>
                 <CardDescription>
-                  كيف يمكن للآخرين التواصل معك
+                  {t.settings.contactInfoDesc}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">رقم الهاتف</Label>
+                  <Label htmlFor="phone">{t.settings.phone}</Label>
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="09xxxxxxxx"
+                    placeholder={t.settings.phonePlaceholder}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     dir="ltr"
-                    className="text-right"
+                    className={dir === "rtl" ? "text-right" : "text-left"}
                   />
                   <p className="text-xs text-muted-foreground">
-                    رقم الهاتف السوري (يبدأ بـ 09)
+                    {t.settings.phoneHint}
                   </p>
                 </div>
               </CardContent>
@@ -330,18 +334,18 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
-                  الموقع
+                  {t.settings.location}
                 </CardTitle>
                 <CardDescription>
-                  موقعك الافتراضي للإعلانات
+                  {t.settings.locationDesc}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="city">المدينة</Label>
+                  <Label htmlFor="city">{t.settings.city}</Label>
                   <Select value={city} onValueChange={setCity}>
                     <SelectTrigger>
-                      <SelectValue placeholder="اختر المدينة" />
+                      <SelectValue placeholder={t.settings.selectCity} />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((c) => (
@@ -361,12 +365,12 @@ const Settings = () => {
                 {saving ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    جاري الحفظ...
+                    {t.settings.saving}
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    حفظ التغييرات
+                    {t.settings.saveChanges}
                   </>
                 )}
               </Button>

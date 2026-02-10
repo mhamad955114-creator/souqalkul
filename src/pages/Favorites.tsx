@@ -3,6 +3,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -23,6 +24,7 @@ interface Listing {
 const Favorites = () => {
   const { user, loading: authLoading } = useAuth();
   const { favorites, loading: favoritesLoading } = useFavoritesContext();
+  const { t, dir } = useLanguage();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -65,7 +67,7 @@ const Favorites = () => {
   const isLoading = authLoading || favoritesLoading || loading;
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={dir}>
       <Header />
 
       <main className="pt-20 pb-24 md:pb-8">
@@ -76,9 +78,9 @@ const Favorites = () => {
               <Heart className="h-6 w-6 text-destructive" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">المفضلة</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t.favoritesPage.title}</h1>
               <p className="text-muted-foreground">
-                الإعلانات المحفوظة ({listings.length})
+                {t.favoritesPage.savedAds} ({listings.length})
               </p>
             </div>
           </div>
@@ -88,10 +90,10 @@ const Favorites = () => {
             <div className="text-center py-16">
               <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-foreground mb-2">
-                يرجى تسجيل الدخول
+                {t.favoritesPage.pleaseSignIn}
               </h2>
               <p className="text-muted-foreground">
-                يجب عليك تسجيل الدخول لعرض الإعلانات المفضلة
+                {t.favoritesPage.mustSignIn}
               </p>
             </div>
           ) : isLoading ? (
@@ -102,10 +104,10 @@ const Favorites = () => {
             <div className="text-center py-16">
               <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-foreground mb-2">
-                لا توجد إعلانات مفضلة
+                {t.favoritesPage.noFavorites}
               </h2>
               <p className="text-muted-foreground">
-                ابدأ بإضافة الإعلانات المهمة إلى قائمة المفضلة
+                {t.favoritesPage.startAdding}
               </p>
             </div>
           ) : (
