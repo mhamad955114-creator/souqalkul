@@ -132,6 +132,18 @@ export interface Translations {
     fullName: string;
     welcomeBack: string;
     createAccount: string;
+    email: string;
+    password: string;
+    enterFullName: string;
+    enterPassword: string;
+    processing: string;
+    noAccount: string;
+    hasAccount: string;
+    loginSuccess: string;
+    loginError: string;
+    signupSuccess: string;
+    signupError: string;
+    fullNameRequired: string;
   };
 
   // Report
@@ -505,6 +517,18 @@ export const ar: Translations = {
     fullName: "الاسم الكامل",
     welcomeBack: "مرحباً بك",
     createAccount: "إنشاء حساب جديد",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    enterFullName: "أدخل اسمك الكامل",
+    enterPassword: "أدخل كلمة المرور",
+    processing: "جاري المعالجة...",
+    noAccount: "ليس لديك حساب؟ إنشاء حساب جديد",
+    hasAccount: "لديك حساب بالفعل؟ تسجيل الدخول",
+    loginSuccess: "تم تسجيل الدخول بنجاح!",
+    loginError: "فشل تسجيل الدخول: ",
+    signupSuccess: "تم إنشاء الحساب بنجاح!",
+    signupError: "فشل إنشاء الحساب: ",
+    fullNameRequired: "يرجى إدخال الاسم الكامل",
   },
   report: {
     title: "الإبلاغ عن إعلان مخالف",
@@ -856,6 +880,18 @@ export const en: Translations = {
     fullName: "Full Name",
     welcomeBack: "Welcome Back",
     createAccount: "Create New Account",
+    email: "Email",
+    password: "Password",
+    enterFullName: "Enter your full name",
+    enterPassword: "Enter your password",
+    processing: "Processing...",
+    noAccount: "Don't have an account? Sign Up",
+    hasAccount: "Already have an account? Sign In",
+    loginSuccess: "Signed in successfully!",
+    loginError: "Sign in failed: ",
+    signupSuccess: "Account created successfully!",
+    signupError: "Account creation failed: ",
+    fullNameRequired: "Please enter your full name",
   },
   report: {
     title: "Report Listing",
@@ -1207,6 +1243,18 @@ export const tr: Translations = {
     fullName: "Ad Soyad",
     welcomeBack: "Tekrar Hoşgeldiniz",
     createAccount: "Yeni Hesap Oluştur",
+    email: "E-posta",
+    password: "Şifre",
+    enterFullName: "Adınızı ve soyadınızı girin",
+    enterPassword: "Şifrenizi girin",
+    processing: "İşleniyor...",
+    noAccount: "Hesabınız yok mu? Kayıt Olun",
+    hasAccount: "Zaten hesabınız var mı? Giriş Yapın",
+    loginSuccess: "Başarıyla giriş yapıldı!",
+    loginError: "Giriş başarısız: ",
+    signupSuccess: "Hesap başarıyla oluşturuldu!",
+    signupError: "Hesap oluşturma başarısız: ",
+    fullNameRequired: "Lütfen adınızı ve soyadınızı girin",
   },
   report: {
     title: "İlanı Şikayet Et",

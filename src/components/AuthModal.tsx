@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Loader2, Mail, Lock, User } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
+  const { t, dir } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,23 +31,23 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          toast.error("فشل تسجيل الدخول: " + error.message);
+          toast.error(t.auth.loginError + error.message);
         } else {
-          toast.success("تم تسجيل الدخول بنجاح!");
+          toast.success(t.auth.loginSuccess);
           onClose();
           resetForm();
         }
       } else {
         if (!fullName.trim()) {
-          toast.error("يرجى إدخال الاسم الكامل");
+          toast.error(t.auth.fullNameRequired);
           setLoading(false);
           return;
         }
         const { error } = await signUp(email, password, fullName);
         if (error) {
-          toast.error("فشل إنشاء الحساب: " + error.message);
+          toast.error(t.auth.signupError + error.message);
         } else {
-          toast.success("تم إنشاء الحساب بنجاح!");
+          toast.success(t.auth.signupSuccess);
           onClose();
           resetForm();
         }
@@ -61,28 +63,31 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
     setFullName("");
   };
 
+  const iconSide = dir === "rtl" ? "right-3" : "left-3";
+  const inputPadding = dir === "rtl" ? "pr-10" : "pl-10";
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            {isLogin ? "تسجيل الدخول" : "إنشاء حساب جديد"}
+            {isLogin ? t.auth.login : t.auth.createAccount}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           {!isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="fullName">الاسم الكامل</Label>
+              <Label htmlFor="fullName">{t.auth.fullName}</Label>
               <div className="relative">
-                <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <User className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
                 <Input
                   id="fullName"
                   type="text"
-                  placeholder="أدخل اسمك الكامل"
+                  placeholder={t.auth.enterFullName}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="pr-10"
+                  className={inputPadding}
                   required={!isLogin}
                 />
               </div>
@@ -90,32 +95,32 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email">البريد الإلكتروني</Label>
+            <Label htmlFor="email">{t.auth.email}</Label>
             <div className="relative">
-              <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Mail className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
               <Input
                 id="email"
                 type="email"
                 placeholder="example@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pr-10"
+                className={inputPadding}
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">كلمة المرور</Label>
+            <Label htmlFor="password">{t.auth.password}</Label>
             <div className="relative">
-              <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Lock className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
               <Input
                 id="password"
                 type="password"
-                placeholder="أدخل كلمة المرور"
+                placeholder={t.auth.enterPassword}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pr-10"
+                className={inputPadding}
                 required
                 minLength={6}
               />
@@ -126,12 +131,12 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                جاري المعالجة...
+                {t.auth.processing}
               </>
             ) : isLogin ? (
-              "تسجيل الدخول"
+              t.auth.login
             ) : (
-              "إنشاء حساب"
+              t.auth.signup
             )}
           </Button>
         </form>
@@ -142,7 +147,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
             onClick={() => setIsLogin(!isLogin)}
             className="text-primary hover:underline text-sm"
           >
-            {isLogin ? "ليس لديك حساب؟ إنشاء حساب جديد" : "لديك حساب بالفعل؟ تسجيل الدخول"}
+            {isLogin ? t.auth.noAccount : t.auth.hasAccount}
           </button>
         </div>
       </DialogContent>
