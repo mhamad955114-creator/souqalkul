@@ -7,6 +7,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -39,7 +45,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
@@ -261,6 +267,68 @@ const AdminReports = () => {
     fetchReports();
   };
 
+  const downloadCSV = (filename: string, headers: string[], rows: string[][]) => {
+    const bom = "\uFEFF";
+    const csv = bom + [headers.join(","), ...rows.map(r => r.map(c => `"${(c || "").replace(/"/g, '""')}"`).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`تم تصدير ${filename}`);
+  };
+
+  const exportReports = () => {
+    downloadCSV(
+      "reports.csv",
+      ["الإعلان", "المُبلّغ", "السبب", "التفاصيل", "الحالة", "التاريخ"],
+      reports.map(r => [
+        r.listing_title || "",
+        r.reporter_name || "",
+        r.reason,
+        r.details || "",
+        statusConfig[r.status]?.label || r.status,
+        formatDate(r.created_at),
+      ])
+    );
+  };
+
+  const exportListings = async () => {
+    const { data } = await supabase.from("listings").select("title, category, city, area, price, status, views_count, created_at");
+    if (!data || data.length === 0) { toast.error("لا توجد بيانات"); return; }
+    downloadCSV(
+      "listings.csv",
+      ["العنوان", "التصنيف", "المدينة", "المنطقة", "السعر", "الحالة", "المشاهدات", "التاريخ"],
+      data.map(l => [
+        l.title,
+        categoryLabels[l.category] || l.category,
+        l.city,
+        l.area || "",
+        String(l.price),
+        l.status || "",
+        String(l.views_count || 0),
+        formatDate(l.created_at),
+      ])
+    );
+  };
+
+  const exportUsers = async () => {
+    const { data } = await supabase.from("profiles").select("full_name, phone, city, created_at");
+    if (!data || data.length === 0) { toast.error("لا توجد بيانات"); return; }
+    downloadCSV(
+      "users.csv",
+      ["الاسم", "الهاتف", "المدينة", "تاريخ التسجيل"],
+      data.map(u => [
+        u.full_name || "",
+        u.phone || "",
+        u.city || "",
+        formatDate(u.created_at),
+      ])
+    );
+  };
+
   if (roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -276,12 +344,36 @@ const AdminReports = () => {
       <Header />
 
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-3 mb-8">
-          <Shield className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">لوحة التحكم</h1>
-            <p className="text-muted-foreground">إحصائيات عامة وإدارة البلاغات</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <Shield className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">لوحة التحكم</h1>
+              <p className="text-muted-foreground">إحصائيات عامة وإدارة البلاغات</p>
+            </div>
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Download className="h-4 w-4 ml-2" />
+                تصدير CSV
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportReports}>
+                <Flag className="h-4 w-4 ml-2" />
+                تصدير البلاغات
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportListings}>
+                <FileText className="h-4 w-4 ml-2" />
+                تصدير الإعلانات
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportUsers}>
+                <Users className="h-4 w-4 ml-2" />
+                تصدير المستخدمين
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* General Stats */}
