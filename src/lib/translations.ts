@@ -535,6 +535,35 @@ export interface Translations {
     contactTitle: string;
     contactDesc: string;
   };
+
+  // Contact Form
+  contactForm: {
+    title: string;
+    subtitle: string;
+    back: string;
+    name: string;
+    namePlaceholder: string;
+    email: string;
+    emailPlaceholder: string;
+    subject: string;
+    subjectPlaceholder: string;
+    message: string;
+    messagePlaceholder: string;
+    send: string;
+    sending: string;
+    success: string;
+    error: string;
+    nameRequired: string;
+    emailRequired: string;
+    emailInvalid: string;
+    subjectRequired: string;
+    messageRequired: string;
+    infoTitle: string;
+    infoDesc: string;
+    emailLabel: string;
+    phoneLabel: string;
+    addressLabel: string;
+  };
 }
 
 export const ar: Translations = {
@@ -1022,6 +1051,33 @@ export const ar: Translations = {
     changesDesc: "نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سنقوم بإخطارك بالتغييرات الجوهرية عبر البريد الإلكتروني أو من خلال إشعار على المنصة.",
     contactTitle: "تواصل معنا",
     contactDesc: "لأي استفسارات حول شروط الاستخدام، يرجى التواصل معنا عبر البريد الإلكتروني: legal@soukcom.com",
+  },
+  contactForm: {
+    title: "تواصل معنا",
+    subtitle: "نحن هنا لمساعدتك! أرسل لنا رسالتك وسنرد عليك في أقرب وقت",
+    back: "العودة",
+    name: "الاسم الكامل",
+    namePlaceholder: "أدخل اسمك الكامل",
+    email: "البريد الإلكتروني",
+    emailPlaceholder: "أدخل بريدك الإلكتروني",
+    subject: "الموضوع",
+    subjectPlaceholder: "موضوع الرسالة",
+    message: "الرسالة",
+    messagePlaceholder: "اكتب رسالتك هنا...",
+    send: "إرسال الرسالة",
+    sending: "جاري الإرسال...",
+    success: "تم إرسال رسالتك بنجاح! سنرد عليك قريباً",
+    error: "حدث خطأ أثناء إرسال الرسالة. حاول مرة أخرى",
+    nameRequired: "الاسم مطلوب",
+    emailRequired: "البريد الإلكتروني مطلوب",
+    emailInvalid: "البريد الإلكتروني غير صالح",
+    subjectRequired: "الموضوع مطلوب",
+    messageRequired: "الرسالة مطلوبة",
+    infoTitle: "معلومات التواصل",
+    infoDesc: "يمكنك أيضاً التواصل معنا عبر الوسائل التالية",
+    emailLabel: "البريد الإلكتروني",
+    phoneLabel: "الهاتف",
+    addressLabel: "العنوان",
   },
 };
 
@@ -1511,6 +1567,33 @@ export const en: Translations = {
     contactTitle: "Contact Us",
     contactDesc: "For any inquiries about the terms of service, please contact us at: legal@soukcom.com",
   },
+  contactForm: {
+    title: "Contact Us",
+    subtitle: "We're here to help! Send us your message and we'll get back to you soon",
+    back: "Back",
+    name: "Full Name",
+    namePlaceholder: "Enter your full name",
+    email: "Email",
+    emailPlaceholder: "Enter your email address",
+    subject: "Subject",
+    subjectPlaceholder: "Message subject",
+    message: "Message",
+    messagePlaceholder: "Write your message here...",
+    send: "Send Message",
+    sending: "Sending...",
+    success: "Your message has been sent successfully! We'll respond soon",
+    error: "An error occurred while sending the message. Please try again",
+    nameRequired: "Name is required",
+    emailRequired: "Email is required",
+    emailInvalid: "Invalid email address",
+    subjectRequired: "Subject is required",
+    messageRequired: "Message is required",
+    infoTitle: "Contact Information",
+    infoDesc: "You can also reach us through the following channels",
+    emailLabel: "Email",
+    phoneLabel: "Phone",
+    addressLabel: "Address",
+  },
 };
 
 export const tr: Translations = {
@@ -1998,6 +2081,33 @@ export const tr: Translations = {
     changesDesc: "Bu şartları istediğimiz zaman değiştirme hakkımız saklıdır. Önemli değişiklikler hakkında sizi e-posta veya platformdaki bir bildirim aracılığıyla bilgilendireceğiz.",
     contactTitle: "Bize Ulaşın",
     contactDesc: "Kullanım şartları hakkında herhangi bir sorunuz için lütfen bizimle iletişime geçin: legal@soukcom.com",
+  },
+  contactForm: {
+    title: "Bize Ulaşın",
+    subtitle: "Size yardımcı olmak için buradayız! Mesajınızı gönderin, en kısa sürede size geri dönelim",
+    back: "Geri",
+    name: "Ad Soyad",
+    namePlaceholder: "Adınızı ve soyadınızı girin",
+    email: "E-posta",
+    emailPlaceholder: "E-posta adresinizi girin",
+    subject: "Konu",
+    subjectPlaceholder: "Mesaj konusu",
+    message: "Mesaj",
+    messagePlaceholder: "Mesajınızı buraya yazın...",
+    send: "Mesaj Gönder",
+    sending: "Gönderiliyor...",
+    success: "Mesajınız başarıyla gönderildi! En kısa sürede yanıt vereceğiz",
+    error: "Mesaj gönderilirken bir hata oluştu. Lütfen tekrar deneyin",
+    nameRequired: "Ad gereklidir",
+    emailRequired: "E-posta gereklidir",
+    emailInvalid: "Geçersiz e-posta adresi",
+    subjectRequired: "Konu gereklidir",
+    messageRequired: "Mesaj gereklidir",
+    infoTitle: "İletişim Bilgileri",
+    infoDesc: "Aşağıdaki kanallardan da bize ulaşabilirsiniz",
+    emailLabel: "E-posta",
+    phoneLabel: "Telefon",
+    addressLabel: "Adres",
   },
 };
 
