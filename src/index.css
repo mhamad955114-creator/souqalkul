@@ -200,4 +200,44 @@
       width: 100%;
     }
   }
+
+  @keyframes particle-float {
+    0% {
+      transform: translateY(0) translateX(0);
+    }
+    100% {
+      transform: translateY(-30px) translateX(15px);
+    }
+  }
+
+  @keyframes particle-fade {
+    0% {
+      opacity: 0.2;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes ring-expand {
+    0% {
+      transform: scale(0.5);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes logo-pulse {
+    0%, 100% {
+      transform: scale(1);
+      filter: drop-shadow(0 0 0 hsl(var(--primary) / 0));
+    }
+    50% {
+      transform: scale(1.06);
+      filter: drop-shadow(0 0 20px hsl(var(--primary) / 0.3));
+    }
+  }
 }
