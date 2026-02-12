@@ -45,8 +45,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, Wallet } from "lucide-react";
 import AdminSettingsTab from "@/components/AdminSettingsTab";
+import AdminWalletTab from "@/components/AdminWalletTab";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
@@ -100,7 +101,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "wallet">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -589,6 +590,14 @@ const AdminReports = () => {
             <Settings className="h-4 w-4" />
             إعدادات الإعلانات
           </Button>
+          <Button
+            variant={activeTab === "wallet" ? "default" : "outline"}
+            onClick={() => setActiveTab("wallet")}
+            className="gap-2"
+          >
+            <Wallet className="h-4 w-4" />
+            المحفظة
+          </Button>
         </div>
 
         {activeTab === "reports" && (
@@ -770,6 +779,7 @@ const AdminReports = () => {
         )}
 
         {activeTab === "settings" && <AdminSettingsTab />}
+        {activeTab === "wallet" && <AdminWalletTab />}
       </main>
 
       <Footer />
