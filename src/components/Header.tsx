@@ -168,6 +168,24 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 {t.nav.addListing}
               </Button>
 
+              {/* Mobile Account Button */}
+              {!loading && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                  onClick={() => {
+                    if (user) {
+                      navigate("/my-account");
+                    } else {
+                      openAuthModal("login");
+                    }
+                  }}
+                >
+                  <User className="h-5 w-5" />
+                </Button>
+              )}
+
               <Button
                 variant="ghost"
                 size="icon"
