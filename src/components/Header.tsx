@@ -1,4 +1,4 @@
-import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Wallet } from "lucide-react";
 import logoImage from "@/assets/logo.png";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
@@ -122,6 +122,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                           <ShoppingBag className="h-4 w-4" />
                           {t.nav.myOrders}
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/wallet")} className="flex items-center gap-2">
+                          <Wallet className="h-4 w-4" />
+                          محفظتي
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/favorites")} className="flex items-center gap-2">
                           <Heart className="h-4 w-4" />
                           {t.nav.favorites}
@@ -221,6 +225,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     <Button variant="outline" onClick={() => navigate("/my-account")}>
                       <FileText className="h-4 w-4" />
                       {t.nav.myListings}
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate("/wallet")}>
+                      <Wallet className="h-4 w-4" />
+                      محفظتي
                     </Button>
                     <Button variant="outline" onClick={() => navigate("/my-orders")}>
                       <ShoppingBag className="h-4 w-4" />
