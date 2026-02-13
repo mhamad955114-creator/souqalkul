@@ -9,11 +9,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin } from "lucide-react";
-import { cities, categories, areasByCity } from "@/lib/constants";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet } from "lucide-react";
+import { cities, categories, areasByCity, formatPrice } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useWallet } from "@/hooks/useWallet";
+import { useListingSettings } from "@/hooks/useListingSettings";
+import { useNavigate } from "react-router-dom";
 
 interface AddListingModalProps {
   isOpen: boolean;
@@ -24,6 +27,9 @@ interface AddListingModalProps {
 const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
+  const { wallet, payFromWallet } = useWallet();
+  const { settings } = useListingSettings();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
@@ -159,6 +165,24 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setLoading(true);
 
     try {
+      // If featured, pay from wallet first
+      if (formData.is_featured) {
+        const featuredPrice = settings.featured_listing.price || 50000;
+        try {
+          await payFromWallet(featuredPrice, "promotion", "ترويج إعلان مميز");
+        } catch (err: any) {
+          if (err.message?.includes("Insufficient balance")) {
+            toast.error("رصيد المحفظة غير كافٍ! يرجى شحن المحفظة أولاً", {
+              action: { label: "شحن المحفظة", onClick: () => { onClose(); navigate("/wallet"); } },
+            });
+          } else {
+            toast.error("فشل في الدفع: " + (err.message || "خطأ غير معروف"));
+          }
+          setLoading(false);
+          return;
+        }
+      }
+
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
@@ -392,6 +416,29 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 </label>
               </div>
             </RadioGroup>
+
+            {/* Wallet balance info when featured is selected */}
+            {formData.is_featured && (
+              <Alert className="mt-3">
+                <Wallet className="h-4 w-4" />
+                <AlertDescription className="flex items-center justify-between">
+                  <div>
+                    <span className="font-medium">سعر الترويج: </span>
+                    <span>{formatPrice(settings.featured_listing.price || 50000)}</span>
+                    <span className="mx-2">|</span>
+                    <span className="font-medium">رصيدك: </span>
+                    <span className={wallet && wallet.balance >= (settings.featured_listing.price || 50000) ? "text-green-600" : "text-red-600"}>
+                      {formatPrice(wallet?.balance || 0)}
+                    </span>
+                  </div>
+                  {wallet && wallet.balance < (settings.featured_listing.price || 50000) && (
+                    <Button type="button" variant="link" size="sm" className="text-primary p-0" onClick={() => { onClose(); navigate("/wallet"); }}>
+                      شحن المحفظة
+                    </Button>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           {/* Images Section */}

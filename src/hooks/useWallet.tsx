@@ -120,6 +120,27 @@ export function useWallet() {
     throw new Error("Transfer requires receiver user ID");
   };
 
+  const payFromWallet = async (
+    amount: number,
+    type: string,
+    description: string,
+    relatedListingId?: string
+  ): Promise<number> => {
+    if (!user) throw new Error("Not authenticated");
+
+    const { data, error } = await supabase.rpc("process_wallet_payment", {
+      _user_id: user.id,
+      _amount: amount,
+      _type: type,
+      _description: description,
+      _related_listing_id: relatedListingId || null,
+    });
+
+    if (error) throw error;
+    await fetchWallet();
+    return data as number;
+  };
+
   return {
     wallet,
     transactions,
@@ -127,6 +148,7 @@ export function useWallet() {
     loading,
     submitTopUp,
     transferBalance,
+    payFromWallet,
     refetch: fetchWallet,
   };
 }

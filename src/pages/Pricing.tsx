@@ -1,6 +1,8 @@
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -8,11 +10,19 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { formatPrice } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useListingSettings } from "@/hooks/useListingSettings";
+import { useWallet } from "@/hooks/useWallet";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Pricing = () => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
   const { settings, loading: settingsLoading } = useListingSettings();
+  const { user } = useAuth();
+  const { wallet, payFromWallet } = useWallet();
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [purchasing, setPurchasing] = useState(false);
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
@@ -177,7 +187,15 @@ const Pricing = () => {
                       ? "bg-amber-500 hover:bg-amber-600 text-white"
                       : ""
                   }`}
-                  onClick={() => navigate("/")}
+                  onClick={() => {
+                    if (plan.price === 0) {
+                      navigate("/");
+                    } else if (!user) {
+                      toast.error("يرجى تسجيل الدخول أولاً");
+                    } else {
+                      setSelectedPlan(plan);
+                    }
+                  }}
                 >
                   {plan.buttonText}
                 </Button>
@@ -218,6 +236,80 @@ const Pricing = () => {
             </Card>
           </div>
         </div>
+
+        {/* Purchase Confirmation Dialog */}
+        <Dialog open={!!selectedPlan} onOpenChange={(open) => !open && setSelectedPlan(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>تأكيد شراء الباقة</DialogTitle>
+              <DialogDescription>
+                هل تريد شراء باقة {selectedPlan?.name}؟
+              </DialogDescription>
+            </DialogHeader>
+            {selectedPlan && (
+              <div className="space-y-4 py-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">سعر الباقة:</span>
+                  <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">رصيد المحفظة:</span>
+                  <span className={`font-bold text-lg ${(wallet?.balance || 0) >= selectedPlan.price ? "text-green-600" : "text-red-600"}`}>
+                    {formatPrice(wallet?.balance || 0)}
+                  </span>
+                </div>
+                {(wallet?.balance || 0) < selectedPlan.price && (
+                  <div className="bg-red-50 dark:bg-red-950/30 text-red-600 p-3 rounded-lg text-sm text-center">
+                    رصيدك غير كافٍ.{" "}
+                    <Button variant="link" className="p-0 h-auto text-red-600 underline" onClick={() => { setSelectedPlan(null); navigate("/wallet"); }}>
+                      شحن المحفظة
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setSelectedPlan(null)}>إلغاء</Button>
+              <Button
+                disabled={purchasing || !wallet || (wallet.balance || 0) < (selectedPlan?.price || 0)}
+                onClick={async () => {
+                  if (!selectedPlan || !user) return;
+                  setPurchasing(true);
+                  try {
+                    await payFromWallet(selectedPlan.price, "package", `شراء باقة ${selectedPlan.name}`);
+                    // Create subscription
+                    const durationDays = selectedPlan.name === t.pricing.featured
+                      ? settings.featured_listing.duration_days
+                      : settings.professional_listing.duration_days;
+                    const planType = selectedPlan.name === t.pricing.featured ? "featured" : "professional";
+                    const expiresAt = new Date();
+                    expiresAt.setDate(expiresAt.getDate() + durationDays);
+
+                    await supabase.from("user_subscriptions").insert({
+                      user_id: user.id,
+                      plan_type: planType,
+                      expires_at: expiresAt.toISOString(),
+                    } as any);
+
+                    toast.success(`تم شراء باقة ${selectedPlan.name} بنجاح! 🎉`);
+                    setSelectedPlan(null);
+                  } catch (err: any) {
+                    if (err.message?.includes("Insufficient balance")) {
+                      toast.error("رصيد المحفظة غير كافٍ!");
+                    } else {
+                      toast.error("فشل في الشراء: " + (err.message || "خطأ"));
+                    }
+                  } finally {
+                    setPurchasing(false);
+                  }
+                }}
+              >
+                {purchasing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Wallet className="h-4 w-4 ml-2" />}
+                تأكيد الشراء
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
 
       <Footer />
