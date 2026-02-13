@@ -429,6 +429,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          plan_type: string
+          starts_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          plan_type: string
+          starts_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          plan_type?: string
+          starts_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_transactions: {
         Row: {
           amount: number
@@ -524,6 +554,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      process_wallet_payment: {
+        Args: {
+          _amount: number
+          _description: string
+          _related_listing_id?: string
+          _type: string
+          _user_id: string
+        }
+        Returns: number
       }
     }
     Enums: {
