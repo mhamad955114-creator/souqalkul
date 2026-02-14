@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Save, Gift, Star, Crown } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
@@ -33,6 +33,14 @@ const planConfig = [
     bgColor: "bg-purple-500/10",
     hasPrice: true,
   },
+  {
+    key: "dating_listing",
+    label: "إعلان التعارف",
+    icon: Heart,
+    iconColor: "text-rose-500",
+    bgColor: "bg-rose-500/10",
+    hasPrice: true,
+  },
 ];
 
 const AdminSettingsTab = () => {
@@ -46,6 +54,7 @@ const AdminSettingsTab = () => {
         free_listing: { ...settings.free_listing },
         featured_listing: { ...settings.featured_listing },
         professional_listing: { ...settings.professional_listing },
+        dating_listing: { ...settings.dating_listing },
       });
     }
   }, [loading, settings]);
@@ -77,7 +86,7 @@ const AdminSettingsTab = () => {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {planConfig.map((plan) => {
         const values = editValues[plan.key];
         if (!values) return null;
