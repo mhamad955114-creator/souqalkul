@@ -56,8 +56,9 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
         {category === "تعارف" && (!image || image.includes("unsplash")) ? (
           <DatingPlaceholder gender={detectGender(title)} />
         ) : !image || image.includes("placeholder") || image.includes("unsplash") ? (
-          <div className="w-full h-full flex items-center justify-center bg-muted/30">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-2">
             <img src={appLogo} alt="سوق الكل" className="w-20 h-20 object-contain opacity-60" />
+            <span className="text-xs text-muted-foreground">لا توجد صورة لهذا الإعلان</span>
           </div>
         ) : (
           <img

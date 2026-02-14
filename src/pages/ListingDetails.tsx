@@ -213,8 +213,9 @@ const ListingDetails = () => {
             <Card className="overflow-hidden">
               <div className="relative aspect-video">
                 {showAppLogo ? (
-                  <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-3">
                     <img src={appLogo} alt="سوق الكل" className="w-32 h-32 object-contain opacity-60" />
+                    <span className="text-sm text-muted-foreground">لا توجد صورة لهذا الإعلان</span>
                   </div>
                 ) : /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(images[currentImageIndex]) ? (
                   <video
