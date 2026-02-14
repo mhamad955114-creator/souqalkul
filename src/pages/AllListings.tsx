@@ -38,6 +38,7 @@ import { usePresence } from "@/hooks/usePresence";
 interface Listing {
   id: string;
   title: string;
+  description: string | null;
   price: number;
   city: string;
   area: string | null;
@@ -592,6 +593,7 @@ const AllListings = () => {
                     category={listing.category}
                     userId={listing.user_id}
                     isOwnerOnline={isOnline(listing.user_id)}
+                    description={listing.description}
                   />
                 </div>
               ))}

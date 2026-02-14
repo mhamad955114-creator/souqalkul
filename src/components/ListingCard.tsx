@@ -1,4 +1,4 @@
-import { Heart, MapPin, Clock, Hash, User, MessageSquare } from "lucide-react";
+import { Heart, MapPin, Clock, Hash, User, MessageSquare, HeartHandshake, CalendarDays } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -16,6 +16,7 @@ interface ListingCardProps {
   category?: string;
   userId?: string;
   isOwnerOnline?: boolean;
+  description?: string | null;
 }
 
 const detectGender = (title: string): "female" | "male" => {
@@ -37,7 +38,7 @@ const DatingPlaceholder = ({ gender }: { gender: "female" | "male" }) => (
   </div>
 );
 
-const ListingCard = ({ id, image, title, price, location, time, featured, status, category, userId, isOwnerOnline }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, location, time, featured, status, category, userId, isOwnerOnline, description }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -128,6 +129,27 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
           </div>
         )}
         <div className="text-xl font-bold text-primary mb-3">{price}</div>
+        {category === "تعارف" && description && (() => {
+          const maritalMatch = description.match(/^الحالة الاجتماعية: (.+)/m);
+          const ageMatch = description.match(/^العمر: (\d+)/m);
+          if (!maritalMatch && !ageMatch) return null;
+          return (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {maritalMatch && (
+                <span className="inline-flex items-center gap-1 text-xs bg-muted/60 rounded-full px-2.5 py-1 text-foreground">
+                  <HeartHandshake className="h-3 w-3 text-primary" />
+                  {maritalMatch[1]}
+                </span>
+              )}
+              {ageMatch && (
+                <span className="inline-flex items-center gap-1 text-xs bg-muted/60 rounded-full px-2.5 py-1 text-foreground">
+                  <CalendarDays className="h-3 w-3 text-primary" />
+                  {ageMatch[1]} سنة
+                </span>
+              )}
+            </div>
+          );
+        })()}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />

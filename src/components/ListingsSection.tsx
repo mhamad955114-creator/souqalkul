@@ -10,6 +10,7 @@ import { usePresence } from "@/hooks/usePresence";
 interface Listing {
   id: string;
   title: string;
+  description: string | null;
   price: number;
   city: string;
   images: string[];
@@ -145,6 +146,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       category={listing.category}
                       userId={listing.user_id}
                       isOwnerOnline={isOnline(listing.user_id)}
+                      description={listing.description}
                     />
                   </div>
                 ))
