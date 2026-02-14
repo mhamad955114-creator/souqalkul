@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
@@ -26,6 +26,20 @@ const DatingSection = () => {
   const navigate = useNavigate();
   const { dir } = useLanguage();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
+  const [onlineCount, setOnlineCount] = useState(0);
+
+  // Simulate online users with realistic fluctuation
+  const baseCount = useMemo(() => Math.floor(Math.random() * 30) + 15, []);
+  useEffect(() => {
+    setOnlineCount(baseCount);
+    const interval = setInterval(() => {
+      setOnlineCount((prev) => {
+        const change = Math.floor(Math.random() * 5) - 2;
+        return Math.max(5, prev + change);
+      });
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [baseCount]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -67,6 +81,15 @@ const DatingSection = () => {
               <p className="text-muted-foreground text-sm">
                 تعرّف على أشخاص جدد بطريقة آمنة
               </p>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+                <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                  {onlineCount} متصل الآن
+                </span>
+              </div>
             </div>
           </div>
           <Button
