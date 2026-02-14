@@ -22,7 +22,9 @@ import {
   ChevronRight,
   MessageSquare,
   Flag,
-  Hash
+  Hash,
+  CalendarDays,
+  HeartHandshake
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -354,12 +356,47 @@ const ListingDetails = () => {
 
                 <Separator className="my-6" />
 
+                {/* Dating info: marital status & age */}
+                {listing.category === "تعارف" && (() => {
+                  const desc = listing.description || "";
+                  const maritalMatch = desc.match(/^الحالة الاجتماعية: (.+)/m);
+                  const ageMatch = desc.match(/^العمر: (\d+)/m);
+                  if (!maritalMatch && !ageMatch) return null;
+                  return (
+                    <div className="flex flex-wrap gap-3 mb-6">
+                      {maritalMatch && (
+                        <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-4 py-2.5">
+                          <HeartHandshake className="h-5 w-5 text-primary" />
+                          <div>
+                            <span className="text-xs text-muted-foreground block">الحالة الاجتماعية</span>
+                            <span className="font-semibold text-foreground">{maritalMatch[1]}</span>
+                          </div>
+                        </div>
+                      )}
+                      {ageMatch && (
+                        <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-4 py-2.5">
+                          <CalendarDays className="h-5 w-5 text-primary" />
+                          <div>
+                            <span className="text-xs text-muted-foreground block">العمر</span>
+                            <span className="font-semibold text-foreground">{ageMatch[1]} سنة</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <div>
                   <h2 className="text-lg font-semibold text-foreground mb-3">
                     {t.details.description}
                   </h2>
                   <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                    {listing.description || t.details.noDescription}
+                    {listing.category === "تعارف" && listing.description
+                      ? listing.description
+                          .replace(/^الحالة الاجتماعية: .+\n?/m, "")
+                          .replace(/^العمر: \d+\n?/m, "")
+                          .trim() || t.details.noDescription
+                      : listing.description || t.details.noDescription}
                   </p>
                 </div>
               </CardContent>
