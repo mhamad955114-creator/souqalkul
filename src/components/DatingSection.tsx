@@ -100,8 +100,8 @@ const DatingSection = () => {
               return (
                 <div
                   key={listing.id}
-                  className="group relative bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1 animate-fade-up"
-                  style={{ animationDelay: `${index * 0.08}s` }}
+                  className="group relative bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-2 opacity-0 animate-dating-pop animate-dating-glow"
+                  style={{ animationDelay: `${index * 0.12}s`, animationFillMode: "forwards" }}
                   onClick={() => navigate(`/listing/${listing.id}`)}
                 >
                   {/* Gradient top accent */}
@@ -109,12 +109,12 @@ const DatingSection = () => {
                   
                   <div className="p-5 text-center">
                     {/* Avatar */}
-                    <div className={`w-18 h-18 mx-auto mb-4 rounded-full flex items-center justify-center shadow-md ${
+                    <div className={`mx-auto mb-4 rounded-full flex items-center justify-center shadow-md group-hover:animate-float ${
                       gender === "female" 
                         ? "bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/40 dark:to-rose-900/40" 
                         : "bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40"
                     }`} style={{ width: 72, height: 72 }}>
-                      <User className={`w-9 h-9 ${gender === "female" ? "text-pink-500" : "text-blue-500"}`} />
+                      <User className={`w-9 h-9 transition-transform duration-300 group-hover:scale-110 ${gender === "female" ? "text-pink-500" : "text-blue-500"}`} />
                     </div>
                     
                     <span className="text-2xl mb-2 block">{gender === "female" ? "👩" : "👨"}</span>

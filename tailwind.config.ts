@@ -75,10 +75,27 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "dating-pop": {
+          "0%": { opacity: "0", transform: "scale(0.6) translateY(30px) rotate(-3deg)" },
+          "50%": { opacity: "1", transform: "scale(1.05) translateY(-5px) rotate(1deg)" },
+          "70%": { transform: "scale(0.97) translateY(2px) rotate(0deg)" },
+          "100%": { opacity: "1", transform: "scale(1) translateY(0) rotate(0deg)" },
+        },
+        "dating-glow": {
+          "0%, 100%": { boxShadow: "0 0 15px 0 rgba(236,72,153,0.15)" },
+          "50%": { boxShadow: "0 0 25px 5px rgba(236,72,153,0.25)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "dating-pop": "dating-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+        "dating-glow": "dating-glow 3s ease-in-out infinite",
+        "float": "float 3s ease-in-out infinite",
       },
     },
   },
