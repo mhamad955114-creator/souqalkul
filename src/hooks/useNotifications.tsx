@@ -88,10 +88,16 @@ export const useNotifications = () => {
             playNotificationSound();
           }
           // Show toast for new messages
-          if (newNotif.type === "new_message") {
+          if (newNotif.type === "new_message" && newNotif.related_id) {
             toast.info(newNotif.title, {
               description: newNotif.message,
-              duration: 5000,
+              duration: 6000,
+              action: {
+                label: "فتح المحادثة",
+                onClick: () => {
+                  window.location.href = `/listing/${newNotif.related_id}`;
+                },
+              },
             });
           }
         }
