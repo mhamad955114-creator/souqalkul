@@ -44,6 +44,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     area: "",
     phone: "",
     is_featured: false,
+    maritalStatus: "",
   });
   const [images, setImages] = useState<string[]>([]);
 
@@ -257,7 +258,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
-        description: formData.description.trim(),
+        description: isDatingCategory && formData.maritalStatus
+          ? `الحالة الاجتماعية: ${formData.maritalStatus}\n${formData.description.trim()}`
+          : formData.description.trim(),
         price: parseFloat(formData.price),
         category: formData.category,
         city: formData.city,
@@ -290,6 +293,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       area: "",
       phone: "",
       is_featured: false,
+      maritalStatus: "",
     });
     setImages([]);
     setRejectedImages([]);
@@ -340,6 +344,31 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               rows={4}
             />
           </div>
+
+          {/* Marital Status - only for dating category */}
+          {isDatingCategory && (
+            <div className="space-y-2">
+              <Label>الحالة الاجتماعية *</Label>
+              <Select
+                value={formData.maritalStatus}
+                onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر الحالة الاجتماعية" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="أعزب">أعزب</SelectItem>
+                  <SelectItem value="عزباء">عزباء</SelectItem>
+                  <SelectItem value="متزوج">متزوج</SelectItem>
+                  <SelectItem value="متزوجة">متزوجة</SelectItem>
+                  <SelectItem value="مطلق">مطلق</SelectItem>
+                  <SelectItem value="مطلقة">مطلقة</SelectItem>
+                  <SelectItem value="أرمل">أرمل</SelectItem>
+                  <SelectItem value="أرملة">أرملة</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
