@@ -1,4 +1,4 @@
-import { Heart, MapPin, Clock } from "lucide-react";
+import { Heart, MapPin, Clock, Hash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -75,9 +75,17 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
       </div>
 
       <div className="p-4">
-        <h3 className="font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-          {title}
-        </h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-bold text-foreground line-clamp-2 group-hover:text-primary transition-colors flex-1">
+            {title}
+          </h3>
+        </div>
+        {id && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+            <Hash className="h-3 w-3" />
+            <span dir="ltr">{id.split("-")[0].toUpperCase()}</span>
+          </div>
+        )}
         <div className="text-xl font-bold text-primary mb-3">{price}</div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1">

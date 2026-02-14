@@ -20,7 +20,8 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageSquare,
-  Flag
+  Flag,
+  Hash
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -308,6 +309,10 @@ const ListingDetails = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
+                  <span className="flex items-center gap-1 font-mono">
+                    <Hash className="h-4 w-4" />
+                    {listing.id.split("-")[0].toUpperCase()}
+                  </span>
                   <span className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
                     {listing.city}{listing.area && ` - ${listing.area}`}
