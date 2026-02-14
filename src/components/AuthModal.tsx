@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Loader2, Mail, Lock, User } from "lucide-react";
+import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AuthModalProps {
@@ -14,13 +14,19 @@ interface AuthModalProps {
   defaultTab?: "login" | "signup";
 }
 
+type AuthMode = "login" | "signup" | "forgot";
+type AuthMethod = "email" | "phone";
+
 const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) => {
-  const [isLogin, setIsLogin] = useState(defaultTab === "login");
+  const [mode, setMode] = useState<AuthMode>(defaultTab);
+  const [method, setMethod] = useState<AuthMethod>("email");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword } = useAuth();
   const { t, dir } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,28 +34,66 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await signIn(email, password);
+      if (mode === "forgot") {
+        if (!email.trim()) {
+          toast.error("يرجى إدخال البريد الإلكتروني");
+          return;
+        }
+        const { error } = await resetPassword(email);
         if (error) {
-          toast.error(t.auth.loginError + error.message);
+          toast.error("خطأ في إرسال رابط الاسترداد: " + error.message);
         } else {
-          toast.success(t.auth.loginSuccess);
-          onClose();
-          resetForm();
+          toast.success("تم إرسال رابط استرداد كلمة المرور إلى بريدك الإلكتروني");
+          setMode("login");
+        }
+        return;
+      }
+
+      if (mode === "login") {
+        if (method === "email") {
+          const { error } = await signIn(email, password);
+          if (error) {
+            toast.error(t.auth.loginError + error.message);
+          } else {
+            toast.success(t.auth.loginSuccess);
+            onClose();
+            resetForm();
+          }
+        } else {
+          const formattedPhone = formatPhone(phone);
+          const { error } = await signInWithPhone(formattedPhone, password);
+          if (error) {
+            toast.error(t.auth.loginError + error.message);
+          } else {
+            toast.success(t.auth.loginSuccess);
+            onClose();
+            resetForm();
+          }
         }
       } else {
         if (!fullName.trim()) {
           toast.error(t.auth.fullNameRequired);
-          setLoading(false);
           return;
         }
-        const { error } = await signUp(email, password, fullName);
-        if (error) {
-          toast.error(t.auth.signupError + error.message);
+        if (method === "email") {
+          const { error } = await signUp(email, password, fullName);
+          if (error) {
+            toast.error(t.auth.signupError + error.message);
+          } else {
+            toast.success(t.auth.signupSuccess);
+            onClose();
+            resetForm();
+          }
         } else {
-          toast.success(t.auth.signupSuccess);
-          onClose();
-          resetForm();
+          const formattedPhone = formatPhone(phone);
+          const { error } = await signUpWithPhone(formattedPhone, password, fullName);
+          if (error) {
+            toast.error(t.auth.signupError + error.message);
+          } else {
+            toast.success("تم إنشاء الحساب بنجاح!");
+            onClose();
+            resetForm();
+          }
         }
       }
     } finally {
@@ -57,99 +101,236 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
     }
   };
 
+  const formatPhone = (value: string): string => {
+    let cleaned = value.replace(/[^0-9+]/g, "");
+    if (cleaned.startsWith("09")) {
+      cleaned = "+963" + cleaned.slice(1);
+    } else if (cleaned.startsWith("9") && !cleaned.startsWith("+")) {
+      cleaned = "+963" + cleaned;
+    }
+    if (!cleaned.startsWith("+")) {
+      cleaned = "+" + cleaned;
+    }
+    return cleaned;
+  };
+
   const resetForm = () => {
     setEmail("");
     setPassword("");
     setFullName("");
+    setPhone("");
+    setShowPassword(false);
   };
 
   const iconSide = dir === "rtl" ? "right-3" : "left-3";
   const inputPadding = dir === "rtl" ? "pr-10" : "pl-10";
+  const eyeSide = dir === "rtl" ? "left-3" : "right-3";
+
+  const getTitle = () => {
+    if (mode === "forgot") return "استرداد كلمة المرور";
+    if (mode === "login") return t.auth.login;
+    return t.auth.createAccount;
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            {isLogin ? t.auth.login : t.auth.createAccount}
+            {getTitle()}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {!isLogin && (
+        {/* Forgot Password Mode */}
+        {mode === "forgot" ? (
+          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <p className="text-sm text-muted-foreground text-center">
+              أدخل بريدك الإلكتروني وسنرسل لك رابط لإعادة تعيين كلمة المرور
+            </p>
             <div className="space-y-2">
-              <Label htmlFor="fullName">{t.auth.fullName}</Label>
+              <Label htmlFor="resetEmail">{t.auth.email}</Label>
               <div className="relative">
-                <User className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
+                <Mail className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
                 <Input
-                  id="fullName"
-                  type="text"
-                  placeholder={t.auth.enterFullName}
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  id="resetEmail"
+                  type="email"
+                  placeholder="example@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className={inputPadding}
-                  required={!isLogin}
+                  required
                 />
               </div>
             </div>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="email">{t.auth.email}</Label>
-            <div className="relative">
-              <Mail className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
-              <Input
-                id="email"
-                type="email"
-                placeholder="example@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={inputPadding}
-                required
-              />
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  جاري الإرسال...
+                </>
+              ) : (
+                "إرسال رابط الاسترداد"
+              )}
+            </Button>
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                className="text-primary hover:underline text-sm flex items-center gap-1 mx-auto"
+              >
+                <ArrowRight className="h-3 w-3" />
+                العودة لتسجيل الدخول
+              </button>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">{t.auth.password}</Label>
-            <div className="relative">
-              <Lock className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
-              <Input
-                id="password"
-                type="password"
-                placeholder={t.auth.enterPassword}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={inputPadding}
-                required
-                minLength={6}
-              />
+          </form>
+        ) : (
+          <>
+            {/* Method Toggle */}
+            <div className="flex rounded-lg border border-border overflow-hidden mt-2">
+              <button
+                type="button"
+                onClick={() => setMethod("email")}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                  method === "email"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                <Mail className="h-4 w-4" />
+                البريد الإلكتروني
+              </button>
+              <button
+                type="button"
+                onClick={() => setMethod("phone")}
+                className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                  method === "phone"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                <Phone className="h-4 w-4" />
+                رقم الهاتف
+              </button>
             </div>
-          </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {t.auth.processing}
-              </>
-            ) : isLogin ? (
-              t.auth.login
-            ) : (
-              t.auth.signup
-            )}
-          </Button>
-        </form>
+            <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+              {mode === "signup" && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">{t.auth.fullName}</Label>
+                  <div className="relative">
+                    <User className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder={t.auth.enterFullName}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className={inputPadding}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
 
-        <div className="text-center mt-4">
-          <button
-            type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-primary hover:underline text-sm"
-          >
-            {isLogin ? t.auth.noAccount : t.auth.hasAccount}
-          </button>
-        </div>
+              {method === "email" ? (
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t.auth.email}</Label>
+                  <div className="relative">
+                    <Mail className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="example@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={inputPadding}
+                      required
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="phone">رقم الهاتف</Label>
+                  <div className="relative">
+                    <Phone className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="09XXXXXXXX"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className={inputPadding}
+                      dir="ltr"
+                      required
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    أدخل رقم هاتفك السوري (مثال: 0912345678)
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="password">{t.auth.password}</Label>
+                <div className="relative">
+                  <Lock className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder={t.auth.enterPassword}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`${inputPadding} ${dir === "rtl" ? "pl-10" : "pr-10"}`}
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={`absolute ${eyeSide} top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors`}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {mode === "login" && method === "email" && (
+                <div className="text-end">
+                  <button
+                    type="button"
+                    onClick={() => setMode("forgot")}
+                    className="text-primary hover:underline text-xs"
+                  >
+                    نسيت كلمة المرور؟
+                  </button>
+                </div>
+              )}
+
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t.auth.processing}
+                  </>
+                ) : mode === "login" ? (
+                  t.auth.login
+                ) : (
+                  t.auth.signup
+                )}
+              </Button>
+            </form>
+
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => setMode(mode === "login" ? "signup" : "login")}
+                className="text-primary hover:underline text-sm"
+              >
+                {mode === "login" ? t.auth.noAccount : t.auth.hasAccount}
+              </button>
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
