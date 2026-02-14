@@ -1,4 +1,4 @@
-import { Heart, MapPin, Clock, Hash } from "lucide-react";
+import { Heart, MapPin, Clock, Hash, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,9 +12,29 @@ interface ListingCardProps {
   time: string;
   featured?: boolean;
   status?: string;
+  category?: string;
 }
 
-const ListingCard = ({ id, image, title, price, location, time, featured, status }: ListingCardProps) => {
+const detectGender = (title: string): "female" | "male" => {
+  const femaleKeywords = ["فتاة", "بنت", "أنثى", "امرأة", "سيدة", "آنسة", "عروس", "زوجة", "أخت", "فتاه"];
+  const isFemale = femaleKeywords.some((kw) => title.includes(kw));
+  return isFemale ? "female" : "male";
+};
+
+const DatingPlaceholder = ({ gender }: { gender: "female" | "male" }) => (
+  <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-muted/50 to-muted">
+    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${gender === "female" ? "bg-pink-100 text-pink-400" : "bg-blue-100 text-blue-400"}`}>
+        <User className="w-10 h-10" />
+      </div>
+      <span className={`text-xs font-medium ${gender === "female" ? "text-pink-400" : "text-blue-400"}`}>
+        {gender === "female" ? "👩" : "👨"}
+      </span>
+    </div>
+  </div>
+);
+
+const ListingCard = ({ id, image, title, price, location, time, featured, status, category }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -32,11 +52,15 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
       onClick={handleClick}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
-          src={image}
-          alt={title}
-          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${status === "sold" || status === "expired" ? "opacity-60" : ""}`}
-        />
+        {category === "تعارف" && (!image || image.includes("unsplash")) ? (
+          <DatingPlaceholder gender={detectGender(title)} />
+        ) : (
+          <img
+            src={image}
+            alt={title}
+            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${status === "sold" || status === "expired" ? "opacity-60" : ""}`}
+          />
+        )}
         {status === "sold" && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="bg-destructive text-destructive-foreground text-lg font-bold px-6 py-2 rounded-full shadow-lg rotate-[-15deg]">

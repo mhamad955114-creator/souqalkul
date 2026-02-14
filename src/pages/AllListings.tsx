@@ -548,6 +548,7 @@ const AllListings = () => {
                     time={formatTime(listing.created_at)}
                     featured={listing.is_featured}
                     status={listing.status}
+                    category={listing.category}
                   />
                 </div>
               ))}
