@@ -14,6 +14,7 @@ import { ar } from "date-fns/locale";
 interface Listing {
   id: string;
   title: string;
+  description: string | null;
   price: number;
   city: string;
   images: string[] | null;
@@ -41,7 +42,7 @@ const Favorites = () => {
       try {
         const { data, error } = await supabase
           .from("listings")
-          .select("id, title, price, city, images, created_at, is_featured, status, category")
+          .select("id, title, description, price, city, images, created_at, is_featured, status, category")
           .in("id", favorites);
 
         if (error) throw error;
@@ -126,6 +127,7 @@ const Favorites = () => {
                   featured={listing.is_featured || false}
                   status={listing.status}
                   category={listing.category}
+                  description={listing.description}
                 />
               ))}
             </div>
