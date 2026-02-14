@@ -50,20 +50,30 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     area: "",
     phone: "",
     status: "",
+    maritalStatus: "",
   });
   const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (listing) {
+      // Extract marital status from description if present
+      let description = listing.description || "";
+      let maritalStatus = "";
+      const maritalMatch = description.match(/^الحالة الاجتماعية: (.+)\n/);
+      if (maritalMatch) {
+        maritalStatus = maritalMatch[1];
+        description = description.replace(/^الحالة الاجتماعية: .+\n/, "");
+      }
       setFormData({
         title: listing.title,
-        description: listing.description || "",
+        description,
         price: listing.price.toString(),
         category: listing.category,
         city: listing.city,
         area: listing.area || "",
         phone: listing.phone || "",
         status: listing.status || "active",
+        maritalStatus,
       });
       setImages(listing.images || []);
       setRejectedImages([]);
@@ -170,6 +180,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const isDatingCategory = formData.category === "تعارف";
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
 
   const handleCityChange = (city: string) => {
@@ -199,7 +210,9 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         .from("listings")
         .update({
           title: formData.title,
-          description: formData.description || null,
+          description: isDatingCategory && formData.maritalStatus
+            ? `الحالة الاجتماعية: ${formData.maritalStatus}\n${formData.description || ""}`
+            : formData.description || null,
           price: parseFloat(formData.price),
           category: formData.category,
           city: formData.city,
@@ -250,6 +263,31 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
               rows={4}
             />
           </div>
+
+          {/* Marital Status - only for dating category */}
+          {isDatingCategory && (
+            <div className="space-y-2">
+              <Label>الحالة الاجتماعية</Label>
+              <Select
+                value={formData.maritalStatus}
+                onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر الحالة الاجتماعية" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="أعزب">أعزب</SelectItem>
+                  <SelectItem value="عزباء">عزباء</SelectItem>
+                  <SelectItem value="متزوج">متزوج</SelectItem>
+                  <SelectItem value="متزوجة">متزوجة</SelectItem>
+                  <SelectItem value="مطلق">مطلق</SelectItem>
+                  <SelectItem value="مطلقة">مطلقة</SelectItem>
+                  <SelectItem value="أرمل">أرمل</SelectItem>
+                  <SelectItem value="أرملة">أرملة</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
