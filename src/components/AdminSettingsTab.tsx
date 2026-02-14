@@ -3,10 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Save, Gift, Star, Crown, Heart } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
+import { supabase } from "@/integrations/supabase/client";
 
 const planConfig = [
   {
@@ -47,6 +50,25 @@ const AdminSettingsTab = () => {
   const { settings, loading, updateSetting } = useListingSettings();
   const [editValues, setEditValues] = useState<Record<string, ListingPlan>>({});
   const [saving, setSaving] = useState<string | null>(null);
+  const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState("الموقع تحت الصيانة حالياً، سنعود قريباً!");
+  const [savingMaintenance, setSavingMaintenance] = useState(false);
+
+  useEffect(() => {
+    const fetchMaintenance = async () => {
+      const { data } = await supabase
+        .from("listing_settings")
+        .select("setting_value")
+        .eq("setting_key", "maintenance_mode")
+        .maybeSingle();
+      if (data) {
+        const val = data.setting_value as any;
+        setMaintenanceEnabled(val.enabled ?? false);
+        setMaintenanceMessage(val.message ?? "");
+      }
+    };
+    fetchMaintenance();
+  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -77,6 +99,20 @@ const AdminSettingsTab = () => {
     }));
   };
 
+  const handleSaveMaintenance = async () => {
+    setSavingMaintenance(true);
+    const { error } = await supabase
+      .from("listing_settings")
+      .update({ setting_value: { enabled: maintenanceEnabled, message: maintenanceMessage } as any })
+      .eq("setting_key", "maintenance_mode");
+    if (!error) {
+      toast.success("تم حفظ إعدادات الصيانة");
+    } else {
+      toast.error("فشل حفظ إعدادات الصيانة");
+    }
+    setSavingMaintenance(false);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
@@ -86,7 +122,50 @@ const AdminSettingsTab = () => {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-6">
+      {/* Maintenance Mode Card */}
+      <Card className="border-destructive/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+              <Construction className="h-5 w-5 text-destructive" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">وضع الصيانة</h3>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label>تفعيل وضع الصيانة</Label>
+            <Switch checked={maintenanceEnabled} onCheckedChange={setMaintenanceEnabled} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>رسالة الصيانة</Label>
+            <Textarea
+              value={maintenanceMessage}
+              onChange={(e) => setMaintenanceMessage(e.target.value)}
+              placeholder="الموقع تحت الصيانة..."
+              rows={2}
+            />
+          </div>
+
+          <Button
+            className="w-full gap-2"
+            variant={maintenanceEnabled ? "destructive" : "default"}
+            onClick={handleSaveMaintenance}
+            disabled={savingMaintenance}
+          >
+            {savingMaintenance ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ إعدادات الصيانة
+          </Button>
+
+          {maintenanceEnabled && (
+            <p className="text-xs text-destructive font-medium">⚠️ وضع الصيانة مفعّل - الموقع غير متاح للزوار حالياً</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Plans Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {planConfig.map((plan) => {
         const values = editValues[plan.key];
         if (!values) return null;
@@ -170,6 +249,7 @@ const AdminSettingsTab = () => {
           </Card>
         );
       })}
+      </div>
     </div>
   );
 };
