@@ -51,18 +51,24 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     phone: "",
     status: "",
     maritalStatus: "",
+    age: "",
   });
   const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (listing) {
-      // Extract marital status from description if present
       let description = listing.description || "";
       let maritalStatus = "";
-      const maritalMatch = description.match(/^الحالة الاجتماعية: (.+)\n/);
+      let age = "";
+      const maritalMatch = description.match(/^الحالة الاجتماعية: (.+)\n?/);
       if (maritalMatch) {
         maritalStatus = maritalMatch[1];
-        description = description.replace(/^الحالة الاجتماعية: .+\n/, "");
+        description = description.replace(/^الحالة الاجتماعية: .+\n?/, "");
+      }
+      const ageMatch = description.match(/^العمر: (\d+)\n?/);
+      if (ageMatch) {
+        age = ageMatch[1];
+        description = description.replace(/^العمر: \d+\n?/, "");
       }
       setFormData({
         title: listing.title,
@@ -74,6 +80,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         phone: listing.phone || "",
         status: listing.status || "active",
         maritalStatus,
+        age,
       });
       setImages(listing.images || []);
       setRejectedImages([]);
@@ -210,8 +217,12 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         .from("listings")
         .update({
           title: formData.title,
-          description: isDatingCategory && formData.maritalStatus
-            ? `الحالة الاجتماعية: ${formData.maritalStatus}\n${formData.description || ""}`
+          description: isDatingCategory
+            ? [
+                formData.maritalStatus ? `الحالة الاجتماعية: ${formData.maritalStatus}` : "",
+                formData.age ? `العمر: ${formData.age}` : "",
+                formData.description || "",
+              ].filter(Boolean).join("\n")
             : formData.description || null,
           price: parseFloat(formData.price),
           category: formData.category,
@@ -286,6 +297,22 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                   <SelectItem value="أرملة">أرملة</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {/* Age - only for dating category */}
+          {isDatingCategory && (
+            <div className="space-y-2">
+              <Label htmlFor="edit-age">العمر</Label>
+              <Input
+                id="edit-age"
+                type="number"
+                placeholder="مثال: 25"
+                value={formData.age}
+                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                min="18"
+                max="99"
+              />
             </div>
           )}
 
