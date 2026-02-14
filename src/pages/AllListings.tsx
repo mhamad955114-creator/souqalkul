@@ -96,6 +96,9 @@ const AllListings = () => {
     }
     if (category && category !== "all") {
       query = query.eq("category", category);
+    } else {
+      // Hide dating listings from "all" view
+      query = query.neq("category", "تعارف");
     }
     if (city && city !== "all") {
       query = query.eq("city", city);

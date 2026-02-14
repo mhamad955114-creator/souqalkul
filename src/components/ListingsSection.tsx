@@ -73,6 +73,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
       .from("listings")
       .select("*")
       .eq("status", "active")
+      .neq("category", "تعارف")
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(8);
