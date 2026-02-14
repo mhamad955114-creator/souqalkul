@@ -2,10 +2,15 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// Force reload when new service worker activates
+let updateReady = false;
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
+    if (!updateReady) {
+      updateReady = true;
+      // Dispatch custom event so React can show UI
+      window.dispatchEvent(new Event('sw-update-ready'));
+    }
   });
 }
 
