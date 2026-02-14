@@ -179,17 +179,12 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 size="icon"
                 className="md:hidden"
                 onClick={() => {
-                  const url = window.location.origin;
-                  const shareData = {
-                    title: 'سوق الكل',
-                    text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء\n' + url,
-                    url: url,
-                  };
+                  const url = 'https://swkalkillcom.lovable.app';
                   if (typeof navigator.share === 'function') {
-                    navigator.share(shareData).catch(() => {
-                      navigator.clipboard.writeText(url).then(() => {
-                        toast.success('تم نسخ رابط التطبيق');
-                      });
+                    navigator.share({
+                      title: 'سوق الكل',
+                      text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء',
+                      url: url,
                     });
                   } else {
                     navigator.clipboard.writeText(url).then(() => {
