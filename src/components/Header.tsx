@@ -1,4 +1,5 @@
 import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Wallet, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import logoImage from "@/assets/logo.png";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
@@ -184,10 +185,9 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     url: window.location.origin,
                   };
                   if (navigator.share) {
-                    try { await navigator.share(shareData); } catch {}
+                    try { await navigator.share(shareData); } catch (e) { console.log(e); }
                   } else {
                     await navigator.clipboard.writeText(window.location.origin);
-                    const { toast } = await import("sonner");
                     toast.success('تم نسخ رابط التطبيق');
                   }
                 }}
