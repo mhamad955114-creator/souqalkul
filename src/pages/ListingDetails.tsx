@@ -318,7 +318,7 @@ const ListingDetails = () => {
                     <Eye className="h-4 w-4" />
                     {listing.views_count || 0} {t.details.views}
                   </span>
-                  {listing.phone && (
+                  {listing.phone && listing.category !== "تعارف" && (
                     <span className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
                       {listing.phone}
@@ -386,26 +386,31 @@ const ListingDetails = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <Button 
-                    onClick={handleCall}
-                    className="w-full" 
-                    size="lg"
-                    disabled={!seller?.phone && !listing?.phone}
-                  >
-                    <Phone className="h-5 w-5" />
-                    {t.details.call}
-                  </Button>
-                  
-                  <Button 
-                    onClick={handleWhatsApp}
-                    variant="outline" 
-                    className="w-full bg-[#25D366] hover:bg-[#25D366]/90 text-white border-[#25D366] hover:text-white" 
-                    size="lg"
-                    disabled={!seller?.phone && !listing?.phone}
-                  >
-                    <MessageCircle className="h-5 w-5" />
-                    {t.details.whatsapp}
-                  </Button>
+                  {/* Hide call/whatsapp for dating category */}
+                  {listing?.category !== "تعارف" && (
+                    <>
+                      <Button 
+                        onClick={handleCall}
+                        className="w-full" 
+                        size="lg"
+                        disabled={!seller?.phone && !listing?.phone}
+                      >
+                        <Phone className="h-5 w-5" />
+                        {t.details.call}
+                      </Button>
+                      
+                      <Button 
+                        onClick={handleWhatsApp}
+                        variant="outline" 
+                        className="w-full bg-[#25D366] hover:bg-[#25D366]/90 text-white border-[#25D366] hover:text-white" 
+                        size="lg"
+                        disabled={!seller?.phone && !listing?.phone}
+                      >
+                        <MessageCircle className="h-5 w-5" />
+                        {t.details.whatsapp}
+                      </Button>
+                    </>
+                  )}
 
                   {listing?.user_id !== user?.id && (
                     <Button 
@@ -416,13 +421,19 @@ const ListingDetails = () => {
                           setAuthModalOpen(true);
                         }
                       }}
-                      variant="outline" 
+                      variant={listing?.category === "تعارف" ? "default" : "outline"}
                       className="w-full" 
                       size="lg"
                     >
                       <MessageSquare className="h-5 w-5" />
                       {t.details.chatWithSeller}
                     </Button>
+                  )}
+
+                  {listing?.category === "تعارف" && listing?.user_id !== user?.id && (
+                    <p className="text-sm text-muted-foreground text-center">
+                      التواصل في إعلانات التعارف يتم فقط عبر الدردشة الداخلية
+                    </p>
                   )}
 
                   {listing?.user_id !== user?.id && (
@@ -444,7 +455,7 @@ const ListingDetails = () => {
                   )}
                 </div>
 
-                {!seller?.phone && !listing?.phone && (
+                {listing?.category !== "تعارف" && !seller?.phone && !listing?.phone && (
                   <p className="text-sm text-muted-foreground text-center mt-4">
                     {t.details.noPhone}
                   </p>
