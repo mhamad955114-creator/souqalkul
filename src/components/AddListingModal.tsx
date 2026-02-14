@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet, Heart } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet, Heart, Video } from "lucide-react";
 import { cities, categories, areasByCity, formatPrice } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -65,19 +65,29 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const isVideoFile = (file: File) => file.type.startsWith("video/");
+  const isVideoUrl = (url: string) => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
+
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return;
 
     setUploadingImages(true);
     setRejectedImages([]);
     setSuggestedCategory(null);
     const uploadedUrls: string[] = [];
+    const uploadedVideoUrls: string[] = [];
     const rejected: { url: string; reason: string }[] = [];
 
     try {
       for (const file of Array.from(e.target.files)) {
         const fileExt = file.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        // Video size limit: 50MB
+        if (isVideoFile(file) && file.size > 50 * 1024 * 1024) {
+          toast.error("حجم الفيديو يجب أن لا يتجاوز 50 ميجابايت");
+          continue;
+        }
 
         const { error: uploadError } = await supabase.storage
           .from("listings")
@@ -92,7 +102,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           .from("listings")
           .getPublicUrl(fileName);
 
-        uploadedUrls.push(publicUrl);
+        if (isVideoFile(file)) {
+          uploadedVideoUrls.push(publicUrl);
+        } else {
+          uploadedUrls.push(publicUrl);
+        }
+      }
+
+      // Add videos directly (no moderation for videos)
+      if (uploadedVideoUrls.length > 0) {
+        setImages((prev) => [...prev, ...uploadedVideoUrls]);
+        toast.success(`تم رفع ${uploadedVideoUrls.length} فيديو بنجاح`);
       }
 
       if (uploadedUrls.length > 0) {
@@ -482,15 +502,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             )}
           </div>
 
-          {/* Images Section */}
           <div className="space-y-2">
-            <Label>{t.listingForm.images}</Label>
+            <Label className="flex items-center gap-2">
+              {t.listingForm.images}
+              <span className="text-xs text-muted-foreground">(صور وفيديو)</span>
+            </Label>
             <div className="border-2 border-dashed border-border rounded-lg p-4">
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/mp4,video/webm,video/mov"
                 multiple
-                onChange={handleImageUpload}
+                onChange={handleMediaUpload}
                 className="hidden"
                 id="image-upload"
                 disabled={uploadingImages || moderatingImages}
@@ -511,21 +533,32 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                     ? t.listingForm.uploading 
                     : moderatingImages 
                       ? t.listingForm.moderating
-                      : t.listingForm.clickToUpload}
+                      : "اضغط لرفع صور أو فيديو"}
                 </span>
+                <span className="text-xs text-muted-foreground mt-1">حجم الفيديو: 50 ميجابايت كحد أقصى</span>
               </label>
 
               {images.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-4">
                   {images.map((url, index) => (
                     <div key={index} className="relative group">
-                      <img
-                        src={url}
-                        alt={`${index + 1}`}
-                        className="w-full h-20 object-cover rounded-lg ring-2 ring-green-500/50"
-                      />
+                      {isVideoUrl(url) ? (
+                        <div className="w-full h-20 rounded-lg bg-muted flex items-center justify-center ring-2 ring-primary/50">
+                          <Video className="h-6 w-6 text-primary" />
+                        </div>
+                      ) : (
+                        <img
+                          src={url}
+                          alt={`${index + 1}`}
+                          className="w-full h-20 object-cover rounded-lg ring-2 ring-green-500/50"
+                        />
+                      )}
                       <div className="absolute top-1 right-1">
-                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                        {isVideoUrl(url) ? (
+                          <Video className="h-4 w-4 text-primary" />
+                        ) : (
+                          <ShieldCheck className="h-4 w-4 text-green-500" />
+                        )}
                       </div>
                       <button
                         type="button"

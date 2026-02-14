@@ -210,11 +210,19 @@ const ListingDetails = () => {
             {/* Image Gallery */}
             <Card className="overflow-hidden">
               <div className="relative aspect-video">
-                <img
-                  src={images[currentImageIndex]}
-                  alt={listing.title}
-                  className="w-full h-full object-cover"
-                />
+                {/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(images[currentImageIndex]) ? (
+                  <video
+                    src={images[currentImageIndex]}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={images[currentImageIndex]}
+                    alt={listing.title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
                 
                 {images.length > 1 && (
                   <>
@@ -275,10 +283,14 @@ const ListingDetails = () => {
                       }`}
                     >
                       <img
-                        src={img}
+                        src={/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(img) ? "" : img}
                         alt={`${idx + 1}`}
                         className="w-full h-full object-cover"
+                        style={/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(img) ? { display: "none" } : {}}
                       />
+                      {/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(img) && (
+                        <div className="w-full h-full bg-muted flex items-center justify-center text-primary text-xs font-bold">▶</div>
+                      )}
                     </button>
                   ))}
                 </div>
