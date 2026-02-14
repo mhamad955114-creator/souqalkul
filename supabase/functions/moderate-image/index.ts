@@ -1,9 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 // Available categories in the app (Arabic)
@@ -16,6 +17,7 @@ const VALID_CATEGORIES = [
   "خدمات",
   "وظائف",
   "ألعاب",
+  "تعارف",
   "أخرى"
 ];
 
@@ -26,6 +28,30 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { imageUrl } = await req.json();
 
     if (!imageUrl) {
@@ -66,6 +92,7 @@ Available categories (use EXACTLY one of these in Arabic):
 - خدمات (services - not for physical products)
 - وظائف (jobs - not for physical products)
 - ألعاب (games, toys, gaming consoles, sports equipment)
+- تعارف (dating, personal ads)
 - أخرى (other - only if nothing else fits)
 
 Respond ONLY with a JSON object in this exact format:
@@ -119,16 +146,13 @@ Be strict about policy violations but don't reject legitimate marketplace photos
         
         // Validate the suggested category
         if (result.suggestedCategory && !VALID_CATEGORIES.includes(result.suggestedCategory)) {
-          // Try to find a close match or default to "أخرى"
           result.suggestedCategory = "أخرى";
         }
       } else {
-        // If no JSON found, assume approved with "أخرى" category
         result = { approved: true, reason: 'محتوى مناسب', suggestedCategory: 'أخرى' };
       }
     } catch (parseError) {
       console.error('Parse error:', parseError);
-      // Default to approved if parsing fails
       result = { approved: true, reason: 'محتوى مناسب', suggestedCategory: 'أخرى' };
     }
 
