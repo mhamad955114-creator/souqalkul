@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Search, SlidersHorizontal, X, Loader2 } from "lucide-react";
+import { Search, SlidersHorizontal, X, Loader2, Heart } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -61,6 +61,16 @@ const AllListings = () => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const currentPageRef = useRef(1);
   const { t, dir } = useLanguage();
+  const [onlineCount, setOnlineCount] = useState(0);
+  const baseCount = useMemo(() => Math.floor(Math.random() * 30) + 15, []);
+
+  useEffect(() => {
+    setOnlineCount(baseCount);
+    const interval = setInterval(() => {
+      setOnlineCount((prev) => Math.max(5, prev + Math.floor(Math.random() * 5) - 2));
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [baseCount]);
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
@@ -359,9 +369,35 @@ const AllListings = () => {
       <Header onListingAdded={handleListingAdded} />
 
       <main className="container mx-auto px-4 py-8">
+        {/* Dating sticky banner */}
+        {category === "تعارف" && (
+          <div className="sticky top-16 z-30 -mx-4 px-4 py-3 mb-6 bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-purple-500/10 dark:from-pink-500/20 dark:via-rose-500/20 dark:to-purple-500/20 backdrop-blur-sm border-b border-pink-200/50 dark:border-pink-800/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-md">
+                  <Heart className="h-5 w-5 text-white fill-white" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-foreground text-lg">تعارف</h2>
+                  <p className="text-xs text-muted-foreground">تعرّف على أشخاص جدد بطريقة آمنة</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+                <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                  {onlineCount} متصل الآن
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {t.listings.allListings}
+            {category === "تعارف" ? "إعلانات التعارف" : t.listings.allListings}
           </h1>
           <p className="text-muted-foreground">
             {t.listings.browseAds} {totalCount} {t.listings.available}
