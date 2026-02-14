@@ -83,7 +83,9 @@ export const useNotifications = () => {
           const newNotif = payload.new as Notification;
           setNotifications((prev) => [newNotif, ...prev].slice(0, 20));
           setUnreadCount((prev) => prev + 1);
-          playNotificationSound();
+          if (localStorage.getItem("notification_sound") !== "off") {
+            playNotificationSound();
+          }
         }
       )
       .subscribe();
