@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock, Bell } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -493,6 +493,34 @@ const Settings = () => {
                   <Switch
                     checked={theme === "dark"}
                     onCheckedChange={toggleTheme}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Notification Sound Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  صوت الإشعارات
+                </CardTitle>
+                <CardDescription>
+                  تفعيل أو إيقاف صوت التنبيه عند وصول إشعار جديد
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Bell className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-foreground">تشغيل صوت الإشعارات</span>
+                  </div>
+                  <Switch
+                    checked={localStorage.getItem("notification_sound") !== "off"}
+                    onCheckedChange={(checked) => {
+                      localStorage.setItem("notification_sound", checked ? "on" : "off");
+                      toast.success(checked ? "تم تفعيل صوت الإشعارات" : "تم إيقاف صوت الإشعارات");
+                    }}
                   />
                 </div>
               </CardContent>
