@@ -1,4 +1,4 @@
-import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Wallet } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Wallet, Share2 } from "lucide-react";
 import logoImage from "@/assets/logo.png";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
@@ -172,23 +172,28 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 {t.nav.addListing}
               </Button>
 
-              {/* Mobile Account Button */}
-              {!loading && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden"
-                  onClick={() => {
-                    if (user) {
-                      navigate("/my-account");
-                    } else {
-                      openAuthModal("login");
-                    }
-                  }}
-                >
-                  <User className="h-5 w-5" />
-                </Button>
-              )}
+              {/* Mobile Share App Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={async () => {
+                  const shareData = {
+                    title: 'سوق الكل',
+                    text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء',
+                    url: window.location.origin,
+                  };
+                  if (navigator.share) {
+                    try { await navigator.share(shareData); } catch {}
+                  } else {
+                    await navigator.clipboard.writeText(window.location.origin);
+                    const { toast } = await import("sonner");
+                    toast.success('تم نسخ رابط التطبيق');
+                  }
+                }}
+              >
+                <Share2 className="h-5 w-5" />
+              </Button>
 
               <Button
                 variant="ghost"
