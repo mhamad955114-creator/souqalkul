@@ -178,17 +178,23 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 variant="ghost"
                 size="icon"
                 className="md:hidden"
-                onClick={async () => {
+                onClick={() => {
+                  const url = window.location.origin;
                   const shareData = {
                     title: 'سوق الكل',
-                    text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء',
-                    url: window.location.origin,
+                    text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء\n' + url,
+                    url: url,
                   };
-                  if (navigator.share) {
-                    try { await navigator.share(shareData); } catch (e) { console.log(e); }
+                  if (typeof navigator.share === 'function') {
+                    navigator.share(shareData).catch(() => {
+                      navigator.clipboard.writeText(url).then(() => {
+                        toast.success('تم نسخ رابط التطبيق');
+                      });
+                    });
                   } else {
-                    await navigator.clipboard.writeText(window.location.origin);
-                    toast.success('تم نسخ رابط التطبيق');
+                    navigator.clipboard.writeText(url).then(() => {
+                      toast.success('تم نسخ رابط التطبيق');
+                    });
                   }
                 }}
               >
