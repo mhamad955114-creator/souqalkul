@@ -3,7 +3,6 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ListingsSection from "@/components/ListingsSection";
-import DatingSection from "@/components/DatingSection";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,7 +22,6 @@ const Index = () => {
         <HeroSection />
         <CategoriesSection />
         <ListingsSection refreshTrigger={refreshTrigger} />
-        <DatingSection />
       </main>
       <Footer />
       <BottomNavigation onListingAdded={handleListingAdded} />
