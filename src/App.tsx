@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,7 +8,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import SplashScreen from "@/components/SplashScreen";
 import UpdateNotification from "@/components/UpdateNotification";
 import Index from "./pages/Index";
 import MyAccount from "./pages/MyAccount";
@@ -31,9 +30,6 @@ import Wallet from "./pages/Wallet";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [showSplash, setShowSplash] = useState(true);
-  const handleSplashFinish = useCallback(() => setShowSplash(false), []);
-
   return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -43,7 +39,7 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+            
             <UpdateNotification />
             <BrowserRouter>
               <Routes>
