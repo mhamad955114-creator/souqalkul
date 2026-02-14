@@ -42,9 +42,9 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
   );
 
   useEffect(() => {
-    const showTimer = setTimeout(() => setShowContent(true), 100);
-    const fadeTimer = setTimeout(() => setFadeOut(true), 2200);
-    const removeTimer = setTimeout(() => onFinish(), 2800);
+    const showTimer = setTimeout(() => setShowContent(true), 50);
+    const fadeTimer = setTimeout(() => setFadeOut(true), 1200);
+    const removeTimer = setTimeout(() => onFinish(), 1600);
     return () => {
       clearTimeout(showTimer);
       clearTimeout(fadeTimer);
