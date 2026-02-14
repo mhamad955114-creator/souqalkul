@@ -65,6 +65,24 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
   };
 
+  const moderateVideo = async (videoUrl: string): Promise<{ approved: boolean; reason: string }> => {
+    try {
+      const response = await supabase.functions.invoke('moderate-video', {
+        body: { videoUrl }
+      });
+
+      if (response.error) {
+        console.error('Video moderation error:', response.error);
+        return { approved: true, reason: '' };
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Error calling video moderation:', error);
+      return { approved: true, reason: '' };
+    }
+  };
+
   const isVideoFile = (file: File) => file.type.startsWith("video/");
   const isVideoUrl = (url: string) => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
 
@@ -109,10 +127,29 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         }
       }
 
-      // Add videos directly (no moderation for videos)
+      // Moderate videos with AI
       if (uploadedVideoUrls.length > 0) {
-        setImages((prev) => [...prev, ...uploadedVideoUrls]);
-        toast.success(`تم رفع ${uploadedVideoUrls.length} فيديو بنجاح`);
+        toast.success(`تم رفع ${uploadedVideoUrls.length} فيديو، جاري فحص المحتوى...`);
+        setModeratingImages(true);
+
+        for (const url of uploadedVideoUrls) {
+          const result = await moderateVideo(url);
+          if (result.approved) {
+            setImages((prev) => [...prev, url]);
+            toast.success("تم قبول الفيديو ✅");
+          } else {
+            rejected.push({ url, reason: result.reason || "محتوى الفيديو مخالف" });
+            const path = url.split('/listings/')[1];
+            if (path) {
+              await supabase.storage.from('listings').remove([path]);
+            }
+          }
+        }
+
+        if (rejected.length > 0) {
+          setRejectedImages(prev => [...prev, ...rejected]);
+          toast.error(`تم رفض ${rejected.length} فيديو لمخالفة المحتوى`);
+        }
       }
 
       if (uploadedUrls.length > 0) {
