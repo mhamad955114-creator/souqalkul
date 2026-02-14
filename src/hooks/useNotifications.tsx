@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
@@ -17,6 +17,34 @@ export const useNotifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const playNotificationSound = useCallback(() => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioContextRef.current;
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+      oscillator.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(880, ctx.currentTime + 0.2);
+      
+      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.4);
+    } catch (e) {
+      // Audio not supported or blocked
+    }
+  }, []);
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
@@ -55,6 +83,7 @@ export const useNotifications = () => {
           const newNotif = payload.new as Notification;
           setNotifications((prev) => [newNotif, ...prev].slice(0, 20));
           setUnreadCount((prev) => prev + 1);
+          playNotificationSound();
         }
       )
       .subscribe();
