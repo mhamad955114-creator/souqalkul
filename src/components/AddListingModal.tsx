@@ -179,9 +179,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       const needsPayment = isDatingCategory || formData.is_featured;
       if (needsPayment) {
         const paymentAmount = isDatingCategory && !formData.is_featured 
-          ? (settings.featured_listing.price || 50000) 
+          ? (settings.dating_listing.price || 25000) 
           : (settings.featured_listing.price || 50000);
-        const paymentDesc = isDatingCategory ? "رسوم نشر إعلان تعارف" : "ترويج إعلان مميز";
+        const paymentDesc = isDatingCategory && !formData.is_featured ? "رسوم نشر إعلان تعارف" : "ترويج إعلان مميز";
         try {
           await payFromWallet(paymentAmount, isDatingCategory ? "dating" : "promotion", paymentDesc);
         } catch (err: any) {
@@ -409,14 +409,14 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               <AlertDescription>
                 <div className="font-medium text-rose-700 dark:text-rose-300">إعلانات التعارف مدفوعة</div>
                 <div className="text-sm text-rose-600 dark:text-rose-400 mt-1">
-                  سيتم خصم {formatPrice(settings.featured_listing.price || 50000)} من رصيد محفظتك. التواصل يتم فقط عبر الدردشة الداخلية للتطبيق.
+                  سيتم خصم {formatPrice(settings.dating_listing.price || 25000)} من رصيد محفظتك. التواصل يتم فقط عبر الدردشة الداخلية للتطبيق.
                 </div>
                 <div className="text-sm mt-1">
                   <span className="font-medium">رصيدك: </span>
-                  <span className={wallet && wallet.balance >= (settings.featured_listing.price || 50000) ? "text-green-600" : "text-red-600"}>
+                  <span className={wallet && wallet.balance >= (settings.dating_listing.price || 25000) ? "text-green-600" : "text-red-600"}>
                     {formatPrice(wallet?.balance || 0)}
                   </span>
-                  {wallet && wallet.balance < (settings.featured_listing.price || 50000) && (
+                  {wallet && wallet.balance < (settings.dating_listing.price || 25000) && (
                     <Button type="button" variant="link" size="sm" className="text-primary p-0 mr-2" onClick={() => { onClose(); navigate("/wallet"); }}>
                       شحن المحفظة
                     </Button>
