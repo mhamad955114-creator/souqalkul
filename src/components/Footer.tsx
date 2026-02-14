@@ -54,17 +54,18 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={async () => {
-                    const shareData = {
-                      title: 'سوق الكل',
-                      text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء',
-                      url: window.location.origin,
-                    };
-                    if (navigator.share) {
-                      try { await navigator.share(shareData); } catch {}
+                  onClick={() => {
+                    const url = 'https://swkalkillcom.lovable.app';
+                    if (typeof navigator.share === 'function') {
+                      navigator.share({
+                        title: 'سوق الكل',
+                        text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء',
+                        url: url,
+                      });
                     } else {
-                      await navigator.clipboard.writeText(window.location.origin);
-                      toast.success('تم نسخ رابط التطبيق');
+                      navigator.clipboard.writeText(url).then(() => {
+                        toast.success('تم نسخ رابط التطبيق');
+                      });
                     }
                   }}
                   className="text-background/70 hover:text-primary transition-colors flex items-center gap-1"
