@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Car, Home, Smartphone, Shirt, Sofa, Briefcase, Gamepad2, Wrench } from "lucide-react";
+import { Car, Home, Smartphone, Shirt, Sofa, Briefcase, Gamepad2, Wrench, Heart, PawPrint, Factory, Tractor } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import CategoryCard from "./CategoryCard";
@@ -17,6 +17,10 @@ const CategoriesSection = () => {
     { icon: Briefcase, title: t.categories.jobs, color: "bg-indigo-500", categoryValue: "وظائف" },
     { icon: Gamepad2, title: t.categories.games, color: "bg-red-500", categoryValue: "ألعاب" },
     { icon: Wrench, title: t.categories.services, color: "bg-emerald-500", categoryValue: "خدمات" },
+    { icon: Heart, title: t.categories.dating, color: "bg-rose-500", categoryValue: "تعارف" },
+    { icon: PawPrint, title: t.categories.pets, color: "bg-orange-500", categoryValue: "حيوانات أليفة" },
+    { icon: Factory, title: t.categories.industrial, color: "bg-slate-500", categoryValue: "معدات صناعية" },
+    { icon: Tractor, title: t.categories.agricultural, color: "bg-green-600", categoryValue: "معدات زراعية" },
   ];
 
   useEffect(() => {
