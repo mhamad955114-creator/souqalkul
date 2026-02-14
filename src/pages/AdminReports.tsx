@@ -45,9 +45,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, Wallet } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, Wallet, BadgeCheck } from "lucide-react";
 import AdminSettingsTab from "@/components/AdminSettingsTab";
 import AdminWalletTab from "@/components/AdminWalletTab";
+import AdminVerificationTab from "@/components/AdminVerificationTab";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
@@ -101,7 +102,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "wallet">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "wallet" | "verification">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -598,6 +599,14 @@ const AdminReports = () => {
             <Wallet className="h-4 w-4" />
             المحفظة
           </Button>
+          <Button
+            variant={activeTab === "verification" ? "default" : "outline"}
+            onClick={() => setActiveTab("verification")}
+            className="gap-2"
+          >
+            <BadgeCheck className="h-4 w-4" />
+            توثيق الحسابات
+          </Button>
         </div>
 
         {activeTab === "reports" && (
@@ -780,6 +789,7 @@ const AdminReports = () => {
 
         {activeTab === "settings" && <AdminSettingsTab />}
         {activeTab === "wallet" && <AdminWalletTab />}
+        {activeTab === "verification" && <AdminVerificationTab />}
       </main>
 
       <Footer />
