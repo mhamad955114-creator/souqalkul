@@ -1,16 +1,11 @@
-import { Home, Grid3X3, Plus, Heart, Download } from "lucide-react";
+import { Home, ClipboardList, Plus, Heart, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AuthModal from "./AuthModal";
 import AddListingModal from "./AddListingModal";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
 
 interface BottomNavigationProps {
   onListingAdded?: () => void;
@@ -23,25 +18,6 @@ const BottomNavigation = ({ onListingAdded }: BottomNavigationProps) => {
   const { t } = useLanguage();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [addListingModalOpen, setAddListingModalOpen] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
-
-  const handleInstall = async () => {
-    if (deferredPrompt) {
-      await deferredPrompt.prompt();
-      setDeferredPrompt(null);
-    } else {
-      navigate("/install");
-    }
-  };
 
   const handleAddListing = () => {
     if (user) {
@@ -51,12 +27,20 @@ const BottomNavigation = ({ onListingAdded }: BottomNavigationProps) => {
     }
   };
 
+  const handleAccount = () => {
+    if (user) {
+      navigate("/my-account");
+    } else {
+      setAuthModalOpen(true);
+    }
+  };
+
   const navItems = [
     { icon: Home, label: t.nav.home, path: "/", onClick: () => navigate("/") },
-    { icon: Grid3X3, label: t.nav.categories, path: "/listings", onClick: () => navigate("/listings") },
+    { icon: ClipboardList, label: "إعلاناتي", path: "/my-account", onClick: handleAccount },
     { icon: Plus, label: t.nav.addAd, path: null, onClick: handleAddListing, isSpecial: true },
     { icon: Heart, label: t.nav.favorites, path: "/favorites", onClick: () => navigate("/favorites") },
-    { icon: Download, label: "تثبيت", path: "/install", onClick: handleInstall },
+    { icon: User, label: t.nav.myAccount, path: "/my-account", onClick: handleAccount },
   ];
 
   return (
