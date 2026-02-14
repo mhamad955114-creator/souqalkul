@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useAuth } from "./useAuth";
 
 export interface Notification {
@@ -85,6 +86,13 @@ export const useNotifications = () => {
           setUnreadCount((prev) => prev + 1);
           if (localStorage.getItem("notification_sound") !== "off") {
             playNotificationSound();
+          }
+          // Show toast for new messages
+          if (newNotif.type === "new_message") {
+            toast.info(newNotif.title, {
+              description: newNotif.message,
+              duration: 5000,
+            });
           }
         }
       )
