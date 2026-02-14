@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import appLogo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -185,9 +186,10 @@ const ListingDetails = () => {
     return null;
   }
 
-  const images = listing.images && listing.images.length > 0 
-    ? listing.images 
-    : ["/placeholder.svg"];
+  const hasRealImages = listing.images && listing.images.length > 0 && 
+    !listing.images.every(img => img.includes("placeholder") || img.includes("unsplash"));
+  const images = hasRealImages ? listing.images! : [];
+  const showAppLogo = images.length === 0;
 
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
@@ -210,7 +212,11 @@ const ListingDetails = () => {
             {/* Image Gallery */}
             <Card className="overflow-hidden">
               <div className="relative aspect-video">
-                {/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(images[currentImageIndex]) ? (
+                {showAppLogo ? (
+                  <div className="w-full h-full flex items-center justify-center bg-muted/30">
+                    <img src={appLogo} alt="سوق الكل" className="w-32 h-32 object-contain opacity-60" />
+                  </div>
+                ) : /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(images[currentImageIndex]) ? (
                   <video
                     src={images[currentImageIndex]}
                     controls
