@@ -12,8 +12,28 @@ serve(async (req) => {
   }
 
   try {
+    // Verify the request comes from an authorized source (cron job or admin)
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Verify the token matches the service role key or anon key (used by cron)
+    const token = authHeader.replace('Bearer ', '');
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    if (token !== supabaseKey && token !== anonKey) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // 1. Fetch duration settings
