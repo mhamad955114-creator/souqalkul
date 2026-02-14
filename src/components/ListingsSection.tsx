@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, formatTime } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
-
+import { usePresence } from "@/hooks/usePresence";
 interface Listing {
   id: string;
   title: string;
@@ -17,6 +17,7 @@ interface Listing {
   created_at: string;
   status: string | null;
   category: string;
+  user_id: string;
 }
 
 const fallbackListings = [
@@ -67,6 +68,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
+  const { isOnline } = usePresence();
 
   const fetchListings = async () => {
     const { data, error } = await supabase
@@ -141,6 +143,8 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       featured={listing.is_featured}
                       status={listing.status}
                       category={listing.category}
+                      userId={listing.user_id}
+                      isOwnerOnline={isOnline(listing.user_id)}
                     />
                   </div>
                 ))

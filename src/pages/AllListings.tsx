@@ -33,6 +33,7 @@ import {
   areasByCity 
 } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePresence } from "@/hooks/usePresence";
 
 interface Listing {
   id: string;
@@ -45,6 +46,7 @@ interface Listing {
   is_featured: boolean;
   created_at: string;
   status: string | null;
+  user_id: string;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -61,16 +63,17 @@ const AllListings = () => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const currentPageRef = useRef(1);
   const { t, dir } = useLanguage();
+  const { isOnline, onlineCount: realOnlineCount } = usePresence();
   const [onlineCount, setOnlineCount] = useState(0);
   const baseCount = useMemo(() => Math.floor(Math.random() * 30) + 15, []);
 
   useEffect(() => {
-    setOnlineCount(baseCount);
+    setOnlineCount(Math.max(baseCount, realOnlineCount));
     const interval = setInterval(() => {
       setOnlineCount((prev) => Math.max(5, prev + Math.floor(Math.random() * 5) - 2));
     }, 8000);
     return () => clearInterval(interval);
-  }, [baseCount]);
+  }, [baseCount, realOnlineCount]);
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
@@ -587,6 +590,8 @@ const AllListings = () => {
                     featured={listing.is_featured}
                     status={listing.status}
                     category={listing.category}
+                    userId={listing.user_id}
+                    isOwnerOnline={isOnline(listing.user_id)}
                   />
                 </div>
               ))}
