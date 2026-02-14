@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, Share2 } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -171,26 +171,7 @@ const MyAccount = () => {
               {t.myAccount.subtitle}
             </p>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant="outline"
-              onClick={async () => {
-                const shareData = {
-                  title: 'سوق الكل',
-                  text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء',
-                  url: window.location.origin,
-                };
-                if (navigator.share) {
-                  try { await navigator.share(shareData); } catch {}
-                } else {
-                  await navigator.clipboard.writeText(window.location.origin);
-                  toast.success('تم نسخ رابط التطبيق');
-                }
-              }}
-            >
-              <Share2 className="h-4 w-4" />
-              مشاركة التطبيق
-            </Button>
+          <div className="flex gap-2">
             <Button onClick={() => navigate("/settings")} variant="outline">
               <Settings className="h-4 w-4" />
               {t.myAccount.settingsBtn}
