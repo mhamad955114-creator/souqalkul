@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
-import { Heart, ArrowLeft, ArrowRight, MessageSquare, MapPin, User } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, MessageSquare, MapPin, User, HeartHandshake, CalendarDays } from "lucide-react";
 import { formatTime } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
@@ -10,6 +10,7 @@ import { useFavoritesContext } from "@/contexts/FavoritesContext";
 interface DatingListing {
   id: string;
   title: string;
+  description: string | null;
   city: string;
   created_at: string;
   category: string;
@@ -45,7 +46,7 @@ const DatingSection = () => {
     const fetch = async () => {
       const { data } = await supabase
         .from("listings")
-        .select("id, title, city, created_at, category")
+        .select("id, title, description, city, created_at, category")
         .eq("status", "active")
         .eq("category", "تعارف")
         .order("created_at", { ascending: false })
@@ -119,6 +120,9 @@ const DatingSection = () => {
             {listings.map((listing, index) => {
               const gender = detectGender(listing.title);
               const isLiked = isFavorite(listing.id);
+              const desc = listing.description || "";
+              const maritalMatch = desc.match(/^الحالة الاجتماعية: (.+)/m);
+              const ageMatch = desc.match(/^العمر: (\d+)/m);
 
               return (
                 <div
@@ -146,6 +150,24 @@ const DatingSection = () => {
                     <h3 className="font-bold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors text-sm">
                       {listing.title}
                     </h3>
+
+                    {/* Marital Status & Age */}
+                    {(maritalMatch || ageMatch) && (
+                      <div className="flex flex-wrap items-center justify-center gap-1.5 mb-3">
+                        {maritalMatch && (
+                          <span className="inline-flex items-center gap-1 text-[10px] bg-muted/60 rounded-full px-2 py-0.5 text-foreground">
+                            <HeartHandshake className="h-2.5 w-2.5 text-primary" />
+                            {maritalMatch[1]}
+                          </span>
+                        )}
+                        {ageMatch && (
+                          <span className="inline-flex items-center gap-1 text-[10px] bg-muted/60 rounded-full px-2 py-0.5 text-foreground">
+                            <CalendarDays className="h-2.5 w-2.5 text-primary" />
+                            {ageMatch[1]} سنة
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {/* Location & Time */}
                     <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mb-4">
