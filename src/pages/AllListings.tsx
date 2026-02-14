@@ -218,7 +218,7 @@ const AllListings = () => {
 
   // Translated categories
   const translatedCategoriesWithAll = [
-    { value: "all", label: t.listings.category === t.listings.category ? t.categories.allCategories : t.categories.allCategories },
+    { value: "all", label: t.categories.allCategories },
     { value: "سيارات", label: t.categories.cars },
     { value: "عقارات", label: t.categories.realEstate },
     { value: "الكترونيات", label: t.categories.electronics },
@@ -227,6 +227,10 @@ const AllListings = () => {
     { value: "خدمات", label: t.categories.services },
     { value: "وظائف", label: t.categories.jobs },
     { value: "ألعاب", label: t.categories.games },
+    { value: "تعارف", label: t.categories.dating },
+    { value: "حيوانات أليفة", label: t.categories.pets },
+    { value: "معدات صناعية", label: t.categories.industrial },
+    { value: "معدات زراعية", label: t.categories.agricultural },
     { value: "أخرى", label: t.categories.other },
   ];
 

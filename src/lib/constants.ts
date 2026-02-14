@@ -220,6 +220,10 @@ export const categories = [
   { value: "خدمات", label: "خدمات" },
   { value: "وظائف", label: "وظائف" },
   { value: "ألعاب", label: "ألعاب" },
+  { value: "تعارف", label: "تعارف" },
+  { value: "حيوانات أليفة", label: "حيوانات أليفة" },
+  { value: "معدات صناعية", label: "معدات صناعية" },
+  { value: "معدات زراعية", label: "معدات زراعية" },
   { value: "أخرى", label: "أخرى" },
 ];
 
