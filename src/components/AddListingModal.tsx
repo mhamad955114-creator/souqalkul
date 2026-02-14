@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet, Heart } from "lucide-react";
 import { cities, categories, areasByCity, formatPrice } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -147,29 +147,43 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const isDatingCategory = formData.category === "تعارف";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    if (!formData.title || !formData.price || !formData.category || !formData.city || !formData.phone) {
-      toast.error(t.listingForm.requiredFields);
-      return;
-    }
+    // For dating category, phone is not required
+    if (isDatingCategory) {
+      if (!formData.title || !formData.price || !formData.category || !formData.city) {
+        toast.error(t.listingForm.requiredFields);
+        return;
+      }
+    } else {
+      if (!formData.title || !formData.price || !formData.category || !formData.city || !formData.phone) {
+        toast.error(t.listingForm.requiredFields);
+        return;
+      }
 
-    const phoneRegex = /^09\d{8}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      toast.error(t.listingForm.invalidPhone);
-      return;
+      const phoneRegex = /^09\d{8}$/;
+      if (!phoneRegex.test(formData.phone)) {
+        toast.error(t.listingForm.invalidPhone);
+        return;
+      }
     }
 
     setLoading(true);
 
     try {
-      // If featured, pay from wallet first
-      if (formData.is_featured) {
-        const featuredPrice = settings.featured_listing.price || 50000;
+      // Dating category is always paid, or if featured is selected
+      const needsPayment = isDatingCategory || formData.is_featured;
+      if (needsPayment) {
+        const paymentAmount = isDatingCategory && !formData.is_featured 
+          ? (settings.featured_listing.price || 50000) 
+          : (settings.featured_listing.price || 50000);
+        const paymentDesc = isDatingCategory ? "رسوم نشر إعلان تعارف" : "ترويج إعلان مميز";
         try {
-          await payFromWallet(featuredPrice, "promotion", "ترويج إعلان مميز");
+          await payFromWallet(paymentAmount, isDatingCategory ? "dating" : "promotion", paymentDesc);
         } catch (err: any) {
           if (err.message?.includes("Insufficient balance")) {
             toast.error("رصيد المحفظة غير كافٍ! يرجى شحن المحفظة أولاً", {
@@ -191,7 +205,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         category: formData.category,
         city: formData.city,
         area: formData.area || null,
-        phone: formData.phone,
+        phone: isDatingCategory ? null : formData.phone,
         images: images,
         is_featured: formData.is_featured,
       });
@@ -371,19 +385,46 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">{t.listingForm.phone} *</Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="09xxxxxxxx"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              required
-              dir="ltr"
-              className={dir === "rtl" ? "text-left" : "text-left"}
-            />
-          </div>
+          {/* Phone - hidden for dating category */}
+          {!isDatingCategory && (
+            <div className="space-y-2">
+              <Label htmlFor="phone">{t.listingForm.phone} *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="09xxxxxxxx"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                required
+                dir="ltr"
+                className={dir === "rtl" ? "text-left" : "text-left"}
+              />
+            </div>
+          )}
+
+          {/* Dating category notice */}
+          {isDatingCategory && (
+            <Alert className="border-rose-200 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30">
+              <Heart className="h-4 w-4 text-rose-500" />
+              <AlertDescription>
+                <div className="font-medium text-rose-700 dark:text-rose-300">إعلانات التعارف مدفوعة</div>
+                <div className="text-sm text-rose-600 dark:text-rose-400 mt-1">
+                  سيتم خصم {formatPrice(settings.featured_listing.price || 50000)} من رصيد محفظتك. التواصل يتم فقط عبر الدردشة الداخلية للتطبيق.
+                </div>
+                <div className="text-sm mt-1">
+                  <span className="font-medium">رصيدك: </span>
+                  <span className={wallet && wallet.balance >= (settings.featured_listing.price || 50000) ? "text-green-600" : "text-red-600"}>
+                    {formatPrice(wallet?.balance || 0)}
+                  </span>
+                  {wallet && wallet.balance < (settings.featured_listing.price || 50000) && (
+                    <Button type="button" variant="link" size="sm" className="text-primary p-0 mr-2" onClick={() => { onClose(); navigate("/wallet"); }}>
+                      شحن المحفظة
+                    </Button>
+                  )}
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Ad Type Section */}
           <div className="space-y-3">
