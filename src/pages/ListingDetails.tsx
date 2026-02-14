@@ -30,6 +30,7 @@ import AuthModal from "@/components/AuthModal";
 import ShareButtons from "@/components/ShareButtons";
 import RatingSection from "@/components/RatingSection";
 import ReportModal from "@/components/ReportModal";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice, formatDate, categoryLabels } from "@/lib/constants";
@@ -56,6 +57,7 @@ interface SellerProfile {
   city: string | null;
   avatar_url: string | null;
   created_at: string;
+  is_verified: boolean;
 }
 
 const ListingDetails = () => {
@@ -105,7 +107,7 @@ const ListingDetails = () => {
 
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("full_name, phone, city, avatar_url, created_at")
+          .select("full_name, phone, city, avatar_url, created_at, is_verified")
           .eq("user_id", listingData.user_id)
           .maybeSingle();
 
@@ -368,8 +370,9 @@ const ListingDetails = () => {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground">
+                    <h3 className="font-semibold text-foreground flex items-center gap-1">
                       {seller?.full_name || t.details.member}
+                      {seller?.is_verified && <VerifiedBadge size="sm" />}
                     </h3>
                     {seller?.city && (
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
