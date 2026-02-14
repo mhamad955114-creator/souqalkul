@@ -87,6 +87,9 @@ const AllListings = () => {
     Number(searchParams.get("maxPrice")) || 500000000,
   ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [maritalFilter, setMaritalFilter] = useState("all");
+  const [minAge, setMinAge] = useState("");
+  const [maxAge, setMaxAge] = useState("");
   
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
 
@@ -208,6 +211,9 @@ const AllListings = () => {
     setArea("all");
     setSortBy("newest");
     setPriceRange([0, 500000000]);
+    setMaritalFilter("all");
+    setMinAge("");
+    setMaxAge("");
     setSearchParams({});
   };
 
@@ -222,7 +228,10 @@ const AllListings = () => {
     area !== "all" ||
     sortBy !== "newest" ||
     priceRange[0] > 0 ||
-    priceRange[1] < 500000000;
+    priceRange[1] < 500000000 ||
+    maritalFilter !== "all" ||
+    minAge !== "" ||
+    maxAge !== "";
 
   // Translated sort options
   const translatedSortOptions = [
@@ -355,6 +364,55 @@ const AllListings = () => {
         </Select>
       </div>
 
+      {/* Dating-specific filters */}
+      {category === "تعارف" && (
+        <>
+          <div className="space-y-2">
+            <Label>الحالة الاجتماعية</Label>
+            <Select value={maritalFilter} onValueChange={setMaritalFilter}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="أعزب">أعزب</SelectItem>
+                <SelectItem value="عزباء">عزباء</SelectItem>
+                <SelectItem value="متزوج">متزوج</SelectItem>
+                <SelectItem value="متزوجة">متزوجة</SelectItem>
+                <SelectItem value="مطلق">مطلق</SelectItem>
+                <SelectItem value="مطلقة">مطلقة</SelectItem>
+                <SelectItem value="أرمل">أرمل</SelectItem>
+                <SelectItem value="أرملة">أرملة</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>العمر</Label>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                placeholder="من"
+                value={minAge}
+                onChange={(e) => setMinAge(e.target.value)}
+                min="18"
+                max="99"
+                className="flex-1"
+              />
+              <Input
+                type="number"
+                placeholder="إلى"
+                value={maxAge}
+                onChange={(e) => setMaxAge(e.target.value)}
+                min="18"
+                max="99"
+                className="flex-1"
+              />
+            </div>
+          </div>
+        </>
+      )}
+
       {hasActiveFilters && (
         <Button
           variant="outline"
@@ -462,6 +520,49 @@ const AllListings = () => {
               </Select>
             )}
 
+            {/* Dating filters on desktop */}
+            {category === "تعارف" && (
+              <>
+                <Select value={maritalFilter} onValueChange={setMaritalFilter}>
+                  <SelectTrigger className="w-44">
+                    <SelectValue placeholder="الحالة الاجتماعية" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">كل الحالات</SelectItem>
+                    <SelectItem value="أعزب">أعزب</SelectItem>
+                    <SelectItem value="عزباء">عزباء</SelectItem>
+                    <SelectItem value="متزوج">متزوج</SelectItem>
+                    <SelectItem value="متزوجة">متزوجة</SelectItem>
+                    <SelectItem value="مطلق">مطلق</SelectItem>
+                    <SelectItem value="مطلقة">مطلقة</SelectItem>
+                    <SelectItem value="أرمل">أرمل</SelectItem>
+                    <SelectItem value="أرملة">أرملة</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    placeholder="العمر من"
+                    value={minAge}
+                    onChange={(e) => setMinAge(e.target.value)}
+                    min="18"
+                    max="99"
+                    className="w-24"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <Input
+                    type="number"
+                    placeholder="إلى"
+                    value={maxAge}
+                    onChange={(e) => setMaxAge(e.target.value)}
+                    min="18"
+                    max="99"
+                    className="w-24"
+                  />
+                </div>
+              </>
+            )}
+
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-48">
                 <SelectValue />
@@ -548,6 +649,22 @@ const AllListings = () => {
                 </button>
               </span>
             )}
+            {maritalFilter !== "all" && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
+                الحالة: {maritalFilter}
+                <button onClick={() => setMaritalFilter("all")}>
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
+            {(minAge || maxAge) && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
+                العمر: {minAge || "٠"} - {maxAge || "∞"}
+                <button onClick={() => { setMinAge(""); setMaxAge(""); }}>
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
           </div>
         )}
 
@@ -556,7 +673,27 @@ const AllListings = () => {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : listings.length === 0 ? (
+        ) : (() => {
+          // Client-side filtering for dating fields
+          const filteredListings = category === "تعارف" 
+            ? listings.filter(listing => {
+                const desc = listing.description || "";
+                if (maritalFilter !== "all") {
+                  const match = desc.match(/^الحالة الاجتماعية: (.+)/m);
+                  if (!match || match[1] !== maritalFilter) return false;
+                }
+                if (minAge || maxAge) {
+                  const ageMatch = desc.match(/^العمر: (\d+)/m);
+                  if (!ageMatch) return false;
+                  const age = parseInt(ageMatch[1]);
+                  if (minAge && age < parseInt(minAge)) return false;
+                  if (maxAge && age > parseInt(maxAge)) return false;
+                }
+                return true;
+              })
+            : listings;
+          
+          return filteredListings.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold mb-2">{t.listings.noListings}</h3>
@@ -572,7 +709,7 @@ const AllListings = () => {
         ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-              {listings.map((listing, index) => (
+              {filteredListings.map((listing, index) => (
                 <div
                   key={listing.id}
                   className="animate-fade-up"
@@ -612,7 +749,8 @@ const AllListings = () => {
               </p>
             )}
           </>
-        )}
+        );
+        })()}
       </main>
 
       <Footer />
