@@ -90,6 +90,7 @@ const AllListings = () => {
   const [maritalFilter, setMaritalFilter] = useState("all");
   const [minAge, setMinAge] = useState("");
   const [maxAge, setMaxAge] = useState("");
+  const [genderFilter, setGenderFilter] = useState("all");
   
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
 
@@ -214,6 +215,7 @@ const AllListings = () => {
     setMaritalFilter("all");
     setMinAge("");
     setMaxAge("");
+    setGenderFilter("all");
     setSearchParams({});
   };
 
@@ -231,7 +233,8 @@ const AllListings = () => {
     priceRange[1] < 500000000 ||
     maritalFilter !== "all" ||
     minAge !== "" ||
-    maxAge !== "";
+    maxAge !== "" ||
+    genderFilter !== "all";
 
   // Translated sort options
   const translatedSortOptions = [
@@ -367,6 +370,20 @@ const AllListings = () => {
       {/* Dating-specific filters */}
       {category === "تعارف" && (
         <>
+          <div className="space-y-2">
+            <Label>الجنس</Label>
+            <Select value={genderFilter} onValueChange={setGenderFilter}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="male">ذكر</SelectItem>
+                <SelectItem value="female">أنثى</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label>الحالة الاجتماعية</Label>
             <Select value={maritalFilter} onValueChange={setMaritalFilter}>
@@ -523,6 +540,16 @@ const AllListings = () => {
             {/* Dating filters on desktop */}
             {category === "تعارف" && (
               <>
+                <Select value={genderFilter} onValueChange={setGenderFilter}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="الجنس" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">كل الجنس</SelectItem>
+                    <SelectItem value="male">ذكر</SelectItem>
+                    <SelectItem value="female">أنثى</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Select value={maritalFilter} onValueChange={setMaritalFilter}>
                   <SelectTrigger className="w-44">
                     <SelectValue placeholder="الحالة الاجتماعية" />
@@ -665,6 +692,14 @@ const AllListings = () => {
                 </button>
               </span>
             )}
+            {genderFilter !== "all" && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
+                الجنس: {genderFilter === "male" ? "ذكر" : "أنثى"}
+                <button onClick={() => setGenderFilter("all")}>
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )}
           </div>
         )}
 
@@ -675,9 +710,22 @@ const AllListings = () => {
           </div>
         ) : (() => {
           // Client-side filtering for dating fields
+          const detectGender = (title: string) => {
+            const femaleKeywords = ["أبحث عن زوج", "فتاة", "امرأة", "بنت", "آنسة", "سيدة", "أرملة", "مطلقة", "عزباء"];
+            const maleKeywords = ["أبحث عن زوجة", "شاب", "رجل", "ولد", "أرمل", "مطلق", "أعزب"];
+            const lowerTitle = title.toLowerCase();
+            if (femaleKeywords.some(k => lowerTitle.includes(k))) return "female";
+            if (maleKeywords.some(k => lowerTitle.includes(k))) return "male";
+            return "unknown";
+          };
+
           const filteredListings = category === "تعارف" 
             ? listings.filter(listing => {
                 const desc = listing.description || "";
+                if (genderFilter !== "all") {
+                  const gender = detectGender(listing.title);
+                  if (gender !== genderFilter) return false;
+                }
                 if (maritalFilter !== "all") {
                   const match = desc.match(/^الحالة الاجتماعية: (.+)/m);
                   if (!match || match[1] !== maritalFilter) return false;
