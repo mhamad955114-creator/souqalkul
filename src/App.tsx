@@ -10,6 +10,8 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import SplashScreen from "@/components/SplashScreen";
 import UpdateNotification from "@/components/UpdateNotification";
+import MaintenancePage from "@/components/MaintenancePage";
+import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import Index from "./pages/Index";
 import MyAccount from "./pages/MyAccount";
 import ListingDetails from "./pages/ListingDetails";
@@ -30,21 +32,19 @@ import Wallet from "./pages/Wallet";
 
 const queryClient = new QueryClient();
 
-const App = () => {
+const AppContent = () => {
   const [showSplash, setShowSplash] = useState(true);
   const handleSplashFinish = useCallback(() => setShowSplash(false), []);
+  const { maintenance, loading } = useMaintenanceMode();
+
+  if (!loading && maintenance.enabled) {
+    return <MaintenancePage message={maintenance.message} />;
+  }
 
   return (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-    <LanguageProvider>
-      <AuthProvider>
-        <FavoritesProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
-            <UpdateNotification />
+    <>
+      {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+      <UpdateNotification />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -67,12 +67,27 @@ const App = () => {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
-          </TooltipProvider>
-        </FavoritesProvider>
-      </AuthProvider>
-    </LanguageProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <FavoritesProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <AppContent />
+              </TooltipProvider>
+            </FavoritesProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
