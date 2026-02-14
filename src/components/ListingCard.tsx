@@ -2,6 +2,7 @@ import { Heart, MapPin, Clock, Hash, User, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import appLogo from "@/assets/logo.png";
 
 interface ListingCardProps {
   id?: string;
@@ -54,6 +55,10 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
       <div className="relative aspect-[4/3] overflow-hidden">
         {category === "تعارف" && (!image || image.includes("unsplash")) ? (
           <DatingPlaceholder gender={detectGender(title)} />
+        ) : !image || image.includes("placeholder") || image.includes("unsplash") ? (
+          <div className="w-full h-full flex items-center justify-center bg-muted/30">
+            <img src={appLogo} alt="سوق الكل" className="w-20 h-20 object-contain opacity-60" />
+          </div>
         ) : (
           <img
             src={image}
