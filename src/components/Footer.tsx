@@ -1,4 +1,5 @@
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logoImage from "@/assets/logo.png";
 
@@ -50,6 +51,27 @@ const Footer = () => {
                   <Download className="h-4 w-4" />
                   تثبيت التطبيق
                 </a>
+              </li>
+              <li>
+                <button
+                  onClick={async () => {
+                    const shareData = {
+                      title: 'سوق الكل',
+                      text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء',
+                      url: window.location.origin,
+                    };
+                    if (navigator.share) {
+                      try { await navigator.share(shareData); } catch {}
+                    } else {
+                      await navigator.clipboard.writeText(window.location.origin);
+                      toast.success('تم نسخ رابط التطبيق');
+                    }
+                  }}
+                  className="text-background/70 hover:text-primary transition-colors flex items-center gap-1"
+                >
+                  <Share2 className="h-4 w-4" />
+                  مشاركة التطبيق
+                </button>
               </li>
             </ul>
           </div>
