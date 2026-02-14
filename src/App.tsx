@@ -9,6 +9,7 @@ import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import SplashScreen from "@/components/SplashScreen";
+import UpdateNotification from "@/components/UpdateNotification";
 import Index from "./pages/Index";
 import MyAccount from "./pages/MyAccount";
 import ListingDetails from "./pages/ListingDetails";
@@ -43,6 +44,7 @@ const App = () => {
             <Toaster />
             <Sonner />
             {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+            <UpdateNotification />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
