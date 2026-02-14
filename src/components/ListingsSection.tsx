@@ -16,6 +16,7 @@ interface Listing {
   is_featured: boolean;
   created_at: string;
   status: string | null;
+  category: string;
 }
 
 const fallbackListings = [
@@ -138,6 +139,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       time={formatTime(listing.created_at)}
                       featured={listing.is_featured}
                       status={listing.status}
+                      category={listing.category}
                     />
                   </div>
                 ))
