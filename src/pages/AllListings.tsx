@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Search, SlidersHorizontal, X, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, SlidersHorizontal, X, Loader2 } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -47,14 +47,19 @@ interface Listing {
   status: string | null;
 }
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 20;
 
 const AllListings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const currentPageRef = useRef(1);
   const { t, dir } = useLanguage();
 
   // Filter states
@@ -70,13 +75,15 @@ const AllListings = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
-  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  const fetchListings = async () => {
-    setLoading(true);
+  const fetchListings = useCallback(async (page: number, append = false) => {
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
 
-    const from = (currentPage - 1) * ITEMS_PER_PAGE;
+    const from = (page - 1) * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
 
     let query = supabase
@@ -119,23 +126,47 @@ const AllListings = () => {
     const { data, error, count } = await query;
 
     if (!error && data) {
-      setListings(data);
+      if (append) {
+        setListings(prev => [...prev, ...data]);
+      } else {
+        setListings(data);
+      }
       setTotalCount(count || 0);
+      setHasMore(from + data.length < (count || 0));
     }
     setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchListings();
-  }, [searchQuery, category, city, area, sortBy, priceRange, currentPage, refreshTrigger]);
-
-  useEffect(() => {
-    setCurrentPage(1);
+    setLoadingMore(false);
   }, [searchQuery, category, city, area, sortBy, priceRange]);
+
+  useEffect(() => {
+    currentPageRef.current = 1;
+    fetchListings(1, false);
+  }, [fetchListings, refreshTrigger]);
 
   useEffect(() => {
     setArea("all");
   }, [city]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
+          currentPageRef.current += 1;
+          fetchListings(currentPageRef.current, true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current);
+    }
+
+    return () => observerRef.current?.disconnect();
+  }, [hasMore, loading, loadingMore, fetchListings]);
 
   const updateSearchParams = () => {
     const params = new URLSearchParams();
@@ -146,13 +177,12 @@ const AllListings = () => {
     if (sortBy !== "newest") params.set("sort", sortBy);
     if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
     if (priceRange[1] < 500000000) params.set("maxPrice", priceRange[1].toString());
-    if (currentPage > 1) params.set("page", currentPage.toString());
     setSearchParams(params);
   };
 
   useEffect(() => {
     updateSearchParams();
-  }, [searchQuery, category, city, area, sortBy, priceRange, currentPage]);
+  }, [searchQuery, category, city, area, sortBy, priceRange]);
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -161,42 +191,11 @@ const AllListings = () => {
     setArea("all");
     setSortBy("newest");
     setPriceRange([0, 500000000]);
-    setCurrentPage(1);
     setSearchParams({});
   };
 
   const handleListingAdded = () => {
     setRefreshTrigger((prev) => prev + 1);
-  };
-
-  const goToPage = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const maxVisiblePages = 5;
-    
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-      if (currentPage > 3) pages.push("...");
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-      for (let i = start; i <= end; i++) {
-        if (!pages.includes(i)) pages.push(i);
-      }
-      if (currentPage < totalPages - 2) pages.push("...");
-      if (!pages.includes(totalPages)) pages.push(totalPages);
-    }
-    
-    return pages;
   };
 
   const hasActiveFilters =
@@ -554,48 +553,16 @@ const AllListings = () => {
               ))}
             </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-12">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+            {/* Infinite scroll trigger */}
+            <div ref={loadMoreRef} className="py-8 flex justify-center">
+              {loadingMore && (
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              )}
+            </div>
 
-                {getPageNumbers().map((page, index) =>
-                  page === "..." ? (
-                    <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
-                      ...
-                    </span>
-                  ) : (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="icon"
-                      onClick={() => goToPage(page as number)}
-                    >
-                      {page}
-                    </Button>
-                  )
-                )}
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-
-            {totalPages > 1 && (
-              <p className="text-center text-sm text-muted-foreground mt-4">
-                {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} / {totalCount} {t.listings.ad}
+            {totalCount > 0 && (
+              <p className="text-center text-sm text-muted-foreground">
+                {listings.length} / {totalCount} {t.listings.ad}
               </p>
             )}
           </>
