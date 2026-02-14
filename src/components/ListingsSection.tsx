@@ -109,7 +109,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="bg-card rounded-2xl overflow-hidden shadow-card animate-pulse">
                 <div className="aspect-[4/3] bg-muted" />
@@ -122,7 +122,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {hasDbListings
               ? listings.map((listing, index) => (
                   <div
