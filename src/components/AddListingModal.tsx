@@ -45,6 +45,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     phone: "",
     is_featured: false,
     maritalStatus: "",
+    age: "",
   });
   const [images, setImages] = useState<string[]>([]);
 
@@ -258,8 +259,12 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
-        description: isDatingCategory && formData.maritalStatus
-          ? `الحالة الاجتماعية: ${formData.maritalStatus}\n${formData.description.trim()}`
+        description: isDatingCategory
+          ? [
+              formData.maritalStatus ? `الحالة الاجتماعية: ${formData.maritalStatus}` : "",
+              formData.age ? `العمر: ${formData.age}` : "",
+              formData.description.trim(),
+            ].filter(Boolean).join("\n")
           : formData.description.trim(),
         price: parseFloat(formData.price),
         category: formData.category,
@@ -294,6 +299,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       phone: "",
       is_featured: false,
       maritalStatus: "",
+      age: "",
     });
     setImages([]);
     setRejectedImages([]);
@@ -367,6 +373,22 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   <SelectItem value="أرملة">أرملة</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {/* Age - only for dating category */}
+          {isDatingCategory && (
+            <div className="space-y-2">
+              <Label htmlFor="age">العمر *</Label>
+              <Input
+                id="age"
+                type="number"
+                placeholder="مثال: 25"
+                value={formData.age}
+                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                min="18"
+                max="99"
+              />
             </div>
           )}
 
