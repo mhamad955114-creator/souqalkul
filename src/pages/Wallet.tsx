@@ -32,6 +32,8 @@ import {
   Clock,
   XCircle,
   Copy,
+  ImagePlus,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice, formatDate } from "@/lib/constants";
@@ -64,6 +66,8 @@ const WalletPage = () => {
   const [topUpTxNumber, setTopUpTxNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [shamcashAccount, setShamcashAccount] = useState("0999999999");
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchShamcash = async () => {
@@ -104,15 +108,47 @@ const WalletPage = () => {
     }
     setSubmitting(true);
     try {
-      await submitTopUp(amount, topUpTxNumber.trim());
+      let receiptUrl: string | undefined;
+
+      // Upload receipt if provided
+      if (receiptFile && user) {
+        const ext = receiptFile.name.split(".").pop();
+        const filePath = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("receipts")
+          .upload(filePath, receiptFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from("receipts")
+          .getPublicUrl(filePath);
+        receiptUrl = urlData.publicUrl;
+      }
+
+      await submitTopUp(amount, topUpTxNumber.trim(), receiptUrl);
       toast.success("تم إرسال طلب الشحن بنجاح، سيتم مراجعته قريباً");
       setTopUpOpen(false);
       setTopUpAmount("");
       setTopUpTxNumber("");
+      setReceiptFile(null);
+      setReceiptPreview(null);
     } catch {
       toast.error("حدث خطأ أثناء إرسال الطلب");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
+        return;
+      }
+      setReceiptFile(file);
+      const reader = new FileReader();
+      reader.onload = () => setReceiptPreview(reader.result as string);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -307,6 +343,39 @@ const WalletPage = () => {
                 value={topUpTxNumber}
                 onChange={(e) => setTopUpTxNumber(e.target.value)}
               />
+            </div>
+
+            {/* Receipt Upload */}
+            <div className="space-y-2">
+              <Label>صورة الإيصال (اختياري)</Label>
+              {receiptPreview ? (
+                <div className="relative">
+                  <img
+                    src={receiptPreview}
+                    alt="إيصال"
+                    className="w-full max-h-48 object-contain rounded-lg border"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 left-2 h-7 w-7"
+                    onClick={() => { setReceiptFile(null); setReceiptPreview(null); }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                  <ImagePlus className="h-6 w-6 text-muted-foreground mb-1" />
+                  <span className="text-sm text-muted-foreground">اضغط لرفع صورة الإيصال</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleReceiptChange}
+                  />
+                </label>
+              )}
             </div>
           </div>
 
