@@ -85,6 +85,41 @@ const AdminWalletTab = () => {
 
   useEffect(() => {
     fetchRequests();
+
+    // Realtime subscription for new top-up requests
+    const channel = supabase
+      .channel('admin-topup-requests')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'top_up_requests',
+        },
+        (payload) => {
+          toast.info("طلب شحن جديد!", {
+            description: `مبلغ: ${(payload.new as any).amount} - رقم العملية: ${(payload.new as any).transaction_number}`,
+            duration: 10000,
+          });
+          fetchRequests();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'top_up_requests',
+        },
+        () => {
+          fetchRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleApprove = async (request: TopUpRequest) => {
