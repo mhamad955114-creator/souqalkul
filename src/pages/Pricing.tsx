@@ -276,20 +276,19 @@ const Pricing = () => {
                   if (!selectedPlan || !user) return;
                   setPurchasing(true);
                   try {
-                    await payFromWallet(selectedPlan.price, "package", `شراء باقة ${selectedPlan.name}`);
-                    // Create subscription
                     const durationDays = selectedPlan.name === t.pricing.featured
                       ? settings.featured_listing.duration_days
                       : settings.professional_listing.duration_days;
                     const planType = selectedPlan.name === t.pricing.featured ? "featured" : "professional";
-                    const expiresAt = new Date();
-                    expiresAt.setDate(expiresAt.getDate() + durationDays);
 
-                    await supabase.from("user_subscriptions").insert({
-                      user_id: user.id,
-                      plan_type: planType,
-                      expires_at: expiresAt.toISOString(),
-                    } as any);
+                    const { error: rpcError } = await supabase.rpc("purchase_subscription", {
+                      _user_id: user.id,
+                      _plan_type: planType,
+                      _price: selectedPlan.price,
+                      _duration_days: durationDays,
+                    });
+
+                    if (rpcError) throw rpcError;
 
                     toast.success(`تم شراء باقة ${selectedPlan.name} بنجاح! 🎉`);
                     setSelectedPlan(null);

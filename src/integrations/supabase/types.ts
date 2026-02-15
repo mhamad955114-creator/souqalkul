@@ -551,6 +551,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_topup: {
+        Args: { _admin_note?: string; _request_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -567,6 +571,15 @@ export type Database = {
           _user_id: string
         }
         Returns: number
+      }
+      purchase_subscription: {
+        Args: {
+          _duration_days: number
+          _plan_type: string
+          _price: number
+          _user_id: string
+        }
+        Returns: string
       }
     }
     Enums: {
