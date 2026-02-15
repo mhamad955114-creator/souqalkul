@@ -73,7 +73,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
         {status === "sold" && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="bg-destructive text-destructive-foreground text-lg font-bold px-6 py-2 rounded-full shadow-lg rotate-[-15deg]">
-              {t.myAccount?.soldBadge || "مباع"}
+              {category === "تعارف" ? "تم الزواج 💍" : (t.myAccount?.soldBadge || "مباع")}
             </span>
           </div>
         )}
@@ -82,6 +82,11 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
             <span className="bg-muted-foreground text-background text-lg font-bold px-6 py-2 rounded-full shadow-lg rotate-[-15deg]">
               منتهي
             </span>
+          </div>
+        )}
+        {category === "تعارف" && status !== "sold" && status !== "expired" && (
+          <div className="absolute bottom-3 right-3 bg-green-500/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
+            نشط ✅
           </div>
         )}
         {featured && status !== "sold" && status !== "expired" && (

@@ -303,7 +303,7 @@ const MyAccount = () => {
                               ) : (
                                 <>
                                   <CheckCircle className="h-4 w-4" />
-                                  {t.myAccount.markAsSold}
+                                  {listing.category === "تعارف" ? "تم الزواج / الخطوبة" : t.myAccount.markAsSold}
                                 </>
                               )}
                             </Button>

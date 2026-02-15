@@ -316,7 +316,12 @@ const ListingDetails = () => {
                   <div className="flex gap-2 flex-shrink-0">
                     {listing.status === "sold" && (
                       <Badge variant="destructive" className="text-sm">
-                        {t.myAccount.soldBadge}
+                        {listing.category === "تعارف" ? "تم الزواج 💍" : t.myAccount.soldBadge}
+                      </Badge>
+                    )}
+                    {listing.category === "تعارف" && listing.status !== "sold" && listing.status !== "expired" && (
+                      <Badge className="text-sm bg-green-500 hover:bg-green-600 text-white border-0">
+                        نشط ✅
                       </Badge>
                     )}
                     <Badge variant="outline">
