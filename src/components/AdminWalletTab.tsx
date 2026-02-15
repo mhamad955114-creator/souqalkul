@@ -97,6 +97,23 @@ const AdminWalletTab = () => {
           table: 'top_up_requests',
         },
         (payload) => {
+          // Play alert sound
+          try {
+            const audioCtx = new AudioContext();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            oscillator.frequency.setValueAtTime(1100, audioCtx.currentTime + 0.15);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.5);
+          } catch {}
+
           toast.info("طلب شحن جديد!", {
             description: `مبلغ: ${(payload.new as any).amount} - رقم العملية: ${(payload.new as any).transaction_number}`,
             duration: 10000,
