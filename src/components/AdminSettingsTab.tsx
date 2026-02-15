@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Banknote } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
@@ -53,21 +53,29 @@ const AdminSettingsTab = () => {
   const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("الموقع تحت الصيانة حالياً، سنعود قريباً!");
   const [savingMaintenance, setSavingMaintenance] = useState(false);
+  const [shamcashAccount, setShamcashAccount] = useState("0999999999");
+  const [savingShamcash, setSavingShamcash] = useState(false);
 
   useEffect(() => {
-    const fetchMaintenance = async () => {
+    const fetchExtraSettings = async () => {
       const { data } = await supabase
         .from("listing_settings")
-        .select("setting_value")
-        .eq("setting_key", "maintenance_mode")
-        .maybeSingle();
+        .select("setting_key, setting_value")
+        .in("setting_key", ["maintenance_mode", "shamcash_account"]);
       if (data) {
-        const val = data.setting_value as any;
-        setMaintenanceEnabled(val.enabled ?? false);
-        setMaintenanceMessage(val.message ?? "");
+        data.forEach((row: any) => {
+          if (row.setting_key === "maintenance_mode") {
+            const val = row.setting_value as any;
+            setMaintenanceEnabled(val.enabled ?? false);
+            setMaintenanceMessage(val.message ?? "");
+          }
+          if (row.setting_key === "shamcash_account") {
+            setShamcashAccount(String(row.setting_value).replace(/"/g, "") || "0999999999");
+          }
+        });
       }
     };
-    fetchMaintenance();
+    fetchExtraSettings();
   }, []);
 
   useEffect(() => {
@@ -113,6 +121,20 @@ const AdminSettingsTab = () => {
     setSavingMaintenance(false);
   };
 
+  const handleSaveShamcash = async () => {
+    setSavingShamcash(true);
+    const { error } = await supabase
+      .from("listing_settings")
+      .update({ setting_value: shamcashAccount as any })
+      .eq("setting_key", "shamcash_account");
+    if (!error) {
+      toast.success("تم حفظ رقم شام كاش");
+    } else {
+      toast.error("فشل حفظ رقم شام كاش");
+    }
+    setSavingShamcash(false);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
@@ -123,6 +145,38 @@ const AdminSettingsTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* ShamCash Account Card */}
+      <Card className="border-primary/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Banknote className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">رقم حساب شام كاش</h3>
+          </div>
+
+          <div className="space-y-2">
+            <Label>رقم الحساب الذي يظهر للمستخدمين عند شحن المحفظة</Label>
+            <Input
+              value={shamcashAccount}
+              onChange={(e) => setShamcashAccount(e.target.value)}
+              placeholder="0999999999"
+              dir="ltr"
+              className="text-left font-mono"
+            />
+          </div>
+
+          <Button
+            className="w-full gap-2"
+            onClick={handleSaveShamcash}
+            disabled={savingShamcash}
+          >
+            {savingShamcash ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ رقم شام كاش
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Maintenance Mode Card */}
       <Card className="border-destructive/30">
         <CardContent className="p-6 space-y-4">
