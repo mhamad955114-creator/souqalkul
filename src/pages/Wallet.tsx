@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
@@ -35,8 +35,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice, formatDate } from "@/lib/constants";
-
-const SHAMCASH_ACCOUNT = "0999999999"; // Replace with actual ShamCash account number
+import { supabase } from "@/integrations/supabase/client";
 
 const transactionTypeLabels: Record<string, { label: string; color: string; icon: typeof ArrowUpCircle }> = {
   top_up: { label: "شحن رصيد", color: "text-green-500", icon: ArrowUpCircle },
@@ -64,6 +63,21 @@ const WalletPage = () => {
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpTxNumber, setTopUpTxNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [shamcashAccount, setShamcashAccount] = useState("0999999999");
+
+  useEffect(() => {
+    const fetchShamcash = async () => {
+      const { data } = await supabase
+        .from("listing_settings")
+        .select("setting_value")
+        .eq("setting_key", "shamcash_account")
+        .maybeSingle();
+      if (data) {
+        setShamcashAccount(String(data.setting_value).replace(/"/g, "") || "0999999999");
+      }
+    };
+    fetchShamcash();
+  }, []);
 
   if (authLoading || loading) {
     return (
@@ -103,7 +117,7 @@ const WalletPage = () => {
   };
 
   const copyAccount = () => {
-    navigator.clipboard.writeText(SHAMCASH_ACCOUNT);
+    navigator.clipboard.writeText(shamcashAccount);
     toast.success("تم نسخ رقم الحساب");
   };
 
@@ -263,7 +277,7 @@ const WalletPage = () => {
                   <li>حوّل المبلغ المطلوب إلى الرقم التالي:</li>
                 </ol>
                 <div className="flex items-center gap-2 bg-background rounded-lg p-3 border">
-                  <span className="font-mono font-bold text-lg flex-1">{SHAMCASH_ACCOUNT}</span>
+                  <span className="font-mono font-bold text-lg flex-1">{shamcashAccount}</span>
                   <Button variant="ghost" size="icon" onClick={copyAccount}>
                     <Copy className="h-4 w-4" />
                   </Button>
