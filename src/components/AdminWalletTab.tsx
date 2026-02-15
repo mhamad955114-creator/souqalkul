@@ -92,57 +92,12 @@ const AdminWalletTab = () => {
     setProcessing(true);
 
     try {
-      // 1. Update request status
-      const { error: updateError } = await supabase
-        .from("top_up_requests")
-        .update({
-          status: "approved",
-          admin_note: adminNote || null,
-          reviewed_by: user.id,
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq("id", request.id);
-
-      if (updateError) throw updateError;
-
-      // 2. Get current wallet balance
-      const { data: wallet } = await supabase
-        .from("wallets")
-        .select("*")
-        .eq("user_id", request.user_id)
-        .single();
-
-      const currentBalance = wallet?.balance ?? 0;
-      const newBalance = currentBalance + request.amount;
-
-      // 3. Update wallet balance
-      if (wallet) {
-        await supabase
-          .from("wallets")
-          .update({ balance: newBalance })
-          .eq("user_id", request.user_id);
-      } else {
-        await supabase
-          .from("wallets")
-          .insert({ user_id: request.user_id, balance: request.amount });
-      }
-
-      // 4. Create transaction record
-      await supabase.from("wallet_transactions").insert({
-        user_id: request.user_id,
-        type: "top_up",
-        amount: request.amount,
-        balance_after: newBalance,
-        description: `شحن رصيد عبر شام كاش - رقم العملية: ${request.transaction_number}`,
+      const { error: rpcError } = await supabase.rpc("admin_approve_topup", {
+        _request_id: request.id,
+        _admin_note: adminNote || null,
       });
 
-      // 5. Send notification
-      await supabase.from("notifications").insert({
-        user_id: request.user_id,
-        title: "تم شحن محفظتك",
-        message: `تم إضافة ${formatPrice(request.amount)} إلى محفظتك بنجاح`,
-        type: "wallet",
-      });
+      if (rpcError) throw rpcError;
 
       toast.success("تم قبول الطلب وإضافة الرصيد بنجاح");
       setSelectedRequest(null);
