@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle, XCircle, Clock, Loader2, Eye } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Loader2, Eye, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice, formatDate } from "@/lib/constants";
 
@@ -35,6 +35,7 @@ interface TopUpRequest {
   reviewed_by: string | null;
   created_at: string;
   reviewed_at: string | null;
+  receipt_url: string | null;
   user_email?: string;
 }
 
@@ -339,6 +340,23 @@ const AdminWalletTab = () => {
                   <p>{formatDate(selectedRequest.created_at)}</p>
                 </div>
               </div>
+
+              {/* Receipt Image */}
+              {selectedRequest.receipt_url && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium flex items-center gap-1">
+                    <ImageIcon className="h-4 w-4" />
+                    صورة الإيصال
+                  </p>
+                  <a href={selectedRequest.receipt_url} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={selectedRequest.receipt_url}
+                      alt="إيصال التحويل"
+                      className="w-full max-h-64 object-contain rounded-lg border cursor-pointer hover:opacity-80 transition-opacity"
+                    />
+                  </a>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">ملاحظة (اختياري)</label>

@@ -89,7 +89,7 @@ export function useWallet() {
     fetchWallet();
   }, [fetchWallet]);
 
-  const submitTopUp = async (amount: number, transactionNumber: string) => {
+  const submitTopUp = async (amount: number, transactionNumber: string, receiptUrl?: string) => {
     if (!user) throw new Error("Not authenticated");
     
     const { error } = await supabase
@@ -98,6 +98,7 @@ export function useWallet() {
         user_id: user.id,
         amount,
         transaction_number: transactionNumber,
+        receipt_url: receiptUrl || null,
       });
 
     if (error) throw error;
