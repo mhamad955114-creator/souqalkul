@@ -111,18 +111,25 @@ const ListingDetails = () => {
 
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("full_name, phone, city, avatar_url, created_at, is_verified")
+          .select("full_name, city, avatar_url, created_at, is_verified")
           .eq("user_id", listingData.user_id)
           .maybeSingle();
 
-        setSeller(profileData);
+        // Fetch phone securely - only available to authenticated users
+        let sellerPhone: string | null = null;
+        if (user) {
+          const { data: phoneData } = await supabase.rpc("get_user_phone", { _target_user_id: listingData.user_id });
+          sellerPhone = phoneData as string | null;
+        }
+
+        setSeller(profileData ? { ...profileData, phone: sellerPhone } : null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchListing();
-  }, [id, navigate]);
+  }, [id, navigate, user]);
 
   const getTimeSince = (dateString: string) => {
     const date = new Date(dateString);
