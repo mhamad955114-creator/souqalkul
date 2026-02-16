@@ -25,10 +25,14 @@ const ContactUs = () => {
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = t.contactForm.nameRequired;
+    else if (form.name.trim().length > 100) errs.name = t.contactForm.nameRequired;
     if (!form.email.trim()) errs.email = t.contactForm.emailRequired;
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = t.contactForm.emailInvalid;
+    else if (form.email.trim().length > 255) errs.email = t.contactForm.emailInvalid;
     if (!form.subject.trim()) errs.subject = t.contactForm.subjectRequired;
+    else if (form.subject.trim().length > 200) errs.subject = t.contactForm.subjectRequired;
     if (!form.message.trim()) errs.message = t.contactForm.messageRequired;
+    else if (form.message.trim().length > 2000) errs.message = t.contactForm.messageRequired;
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
