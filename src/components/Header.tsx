@@ -10,7 +10,6 @@ import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import AuthModal from "./AuthModal";
 import AddListingModal from "./AddListingModal";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {
@@ -28,8 +27,6 @@ interface HeaderProps {
 const Header = ({ onListingAdded }: HeaderProps) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<"login" | "signup">("login");
   const [addListingModalOpen, setAddListingModalOpen] = useState(false);
   const { user, signOut, loading } = useAuth();
   const { unreadCount } = useUnreadMessages();
@@ -37,16 +34,11 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { t, dir } = useLanguage();
   const { theme, toggleTheme } = useTheme();
 
-  const openAuthModal = (tab: "login" | "signup") => {
-    setAuthModalTab(tab);
-    setAuthModalOpen(true);
-  };
-
   const handleAddListing = () => {
     if (user) {
       setAddListingModalOpen(true);
     } else {
-      openAuthModal("login");
+      navigate("/auth");
     }
   };
 
@@ -160,7 +152,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                       variant="ghost"
                       size="icon"
                       className="hidden md:flex"
-                      onClick={() => openAuthModal("login")}
+                      onClick={() => navigate("/auth")}
                     >
                       <User className="h-5 w-5" />
                     </Button>
@@ -265,7 +257,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     </Button>
                   </>
                 ) : (
-                  <Button variant="outline" onClick={() => openAuthModal("login")}>
+                  <Button variant="outline" onClick={() => navigate("/auth")}>
                     <User className="h-4 w-4" />
                     {t.nav.signIn}
                   </Button>
@@ -279,12 +271,6 @@ const Header = ({ onListingAdded }: HeaderProps) => {
           )}
         </div>
       </header>
-
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        defaultTab={authModalTab}
-      />
 
       <AddListingModal
         isOpen={addListingModalOpen}
