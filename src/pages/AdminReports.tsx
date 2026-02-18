@@ -386,12 +386,21 @@ const AdminReports = () => {
   };
 
   const exportUsers = async () => {
-    const { data } = await supabase.from("profiles").select("full_name, phone, city, created_at");
+    const { data } = await supabase.from("profiles").select("full_name, city, created_at, user_id");
     if (!data || data.length === 0) { toast.error("لا توجد بيانات"); return; }
+    
+    // Fetch phone numbers securely via RPC for each user
+    const enrichedData = await Promise.all(
+      data.map(async (u) => {
+        const { data: phone } = await supabase.rpc("get_user_phone", { _target_user_id: u.user_id });
+        return { ...u, phone: phone || "" };
+      })
+    );
+    
     downloadCSV(
       "users.csv",
       ["الاسم", "الهاتف", "المدينة", "تاريخ التسجيل"],
-      data.map(u => [
+      enrichedData.map(u => [
         u.full_name || "",
         u.phone || "",
         u.city || "",
