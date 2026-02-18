@@ -29,6 +29,7 @@ import Terms from "./pages/Terms";
 import ContactUs from "./pages/ContactUs";
 import Install from "./pages/Install";
 import Wallet from "./pages/Wallet";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const AppContent = () => {
                 <Route path="/contact" element={<ContactUs />} />
                 <Route path="/install" element={<Install />} />
                 <Route path="/wallet" element={<Wallet />} />
+                <Route path="/auth" element={<Auth />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
