@@ -11,11 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock, Bell } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock, Bell, BellRing } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { cities } from "@/lib/constants";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 interface Profile {
   id: string;
@@ -228,6 +229,60 @@ const Settings = () => {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const PushNotificationCard = () => {
+    const { isSubscribed, isSupported, permission, loading: pushLoading, subscribe, unsubscribe } = usePushNotifications();
+
+    if (!isSupported) return null;
+
+    const handleToggle = async (checked: boolean) => {
+      if (checked) {
+        const success = await subscribe();
+        if (success) {
+          toast.success("تم تفعيل الإشعارات الفورية");
+        } else if (permission === "denied") {
+          toast.error("يرجى السماح بالإشعارات من إعدادات المتصفح");
+        } else {
+          toast.error("فشل في تفعيل الإشعارات");
+        }
+      } else {
+        await unsubscribe();
+        toast.success("تم إيقاف الإشعارات الفورية");
+      }
+    };
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BellRing className="h-5 w-5" />
+            الإشعارات الفورية (Push)
+          </CardTitle>
+          <CardDescription>
+            تلقّي إشعارات حتى عندما يكون التطبيق مغلقاً
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <BellRing className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-foreground">تفعيل الإشعارات الفورية</span>
+            </div>
+            <Switch
+              checked={isSubscribed}
+              onCheckedChange={handleToggle}
+              disabled={pushLoading}
+            />
+          </div>
+          {permission === "denied" && (
+            <p className="text-xs text-destructive mt-2">
+              تم حظر الإشعارات من المتصفح. يرجى تغيير الإعداد من إعدادات المتصفح.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    );
   };
 
   if (authLoading) {
@@ -525,6 +580,9 @@ const Settings = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Push Notifications Section */}
+            <PushNotificationCard />
 
             {/* Save Button */}
             <div className="flex justify-end">
