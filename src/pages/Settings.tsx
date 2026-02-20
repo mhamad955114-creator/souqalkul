@@ -17,6 +17,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { cities } from "@/lib/constants";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
+import { MessageSquare, RefreshCw, Tag, ShieldAlert } from "lucide-react";
+import { useAdminRole } from "@/hooks/useAdminRole";
 
 interface Profile {
   id: string;
@@ -229,6 +232,55 @@ const Settings = () => {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const NotificationPreferencesCard = () => {
+    const { preferences, loading: prefsLoading, saving: prefsSaving, updatePreference } = useNotificationPreferences();
+    const { isAdmin } = useAdminRole();
+
+    if (prefsLoading) return null;
+
+    const items: { key: "messages" | "updates" | "offers" | "admin_alerts"; label: string; desc: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
+      { key: "messages", label: "الرسائل", desc: "إشعارات الرسائل الجديدة في المحادثات", icon: <MessageSquare className="h-4 w-4 text-muted-foreground" /> },
+      { key: "updates", label: "التحديثات", desc: "إشعارات تحديثات الإعلانات وحالة البيع", icon: <RefreshCw className="h-4 w-4 text-muted-foreground" /> },
+      { key: "offers", label: "العروض", desc: "إشعارات العروض والباقات والمحفظة", icon: <Tag className="h-4 w-4 text-muted-foreground" /> },
+      { key: "admin_alerts", label: "تنبيهات الإدارة", desc: "إشعارات البلاغات ورسائل التواصل الجديدة", icon: <ShieldAlert className="h-4 w-4 text-muted-foreground" />, adminOnly: true },
+    ];
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            تفضيلات الإشعارات
+          </CardTitle>
+          <CardDescription>
+            اختر أنواع الإشعارات التي تريد تلقيها
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {items.map((item) => {
+            if (item.adminOnly && !isAdmin) return null;
+            return (
+              <div key={item.key} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {item.icon}
+                  <div>
+                    <span className="text-sm font-medium text-foreground">{item.label}</span>
+                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={preferences[item.key]}
+                  onCheckedChange={(checked) => updatePreference(item.key, checked)}
+                  disabled={prefsSaving}
+                />
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+    );
   };
 
   const PushNotificationCard = () => {
@@ -583,6 +635,9 @@ const Settings = () => {
 
             {/* Push Notifications Section */}
             <PushNotificationCard />
+
+            {/* Notification Preferences Section */}
+            <NotificationPreferencesCard />
 
             {/* Save Button */}
             <div className="flex justify-end">

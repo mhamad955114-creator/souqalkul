@@ -224,6 +224,39 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          admin_alerts: boolean
+          created_at: string
+          id: string
+          messages: boolean
+          offers: boolean
+          updated_at: string
+          updates: boolean
+          user_id: string
+        }
+        Insert: {
+          admin_alerts?: boolean
+          created_at?: string
+          id?: string
+          messages?: boolean
+          offers?: boolean
+          updated_at?: string
+          updates?: boolean
+          user_id: string
+        }
+        Update: {
+          admin_alerts?: boolean
+          created_at?: string
+          id?: string
+          messages?: boolean
+          offers?: boolean
+          updated_at?: string
+          updates?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
