@@ -45,7 +45,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, Wallet, BadgeCheck } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, Wallet, BadgeCheck, Bell } from "lucide-react";
 import AdminSettingsTab from "@/components/AdminSettingsTab";
 import AdminWalletTab from "@/components/AdminWalletTab";
 import AdminVerificationTab from "@/components/AdminVerificationTab";
@@ -111,7 +111,7 @@ const AdminReports = () => {
   const [deleteMessageTarget, setDeleteMessageTarget] = useState<ContactMessage | null>(null);
 
   // General stats
-  const [stats, setStats] = useState({ listings: 0, users: 0, reports: 0, views: 0 });
+  const [stats, setStats] = useState({ listings: 0, users: 0, reports: 0, views: 0, pushSubscribers: 0 });
   const [dailyListings, setDailyListings] = useState<{ date: string; count: number }[]>([]);
   const [categoryData, setCategoryData] = useState<{ name: string; value: number }[]>([]);
 
@@ -125,18 +125,21 @@ const AdminReports = () => {
   useEffect(() => {
     if (!isAdmin) return;
     const fetchStats = async () => {
-      const [listingsRes, profilesRes, reportsRes, viewsRes] = await Promise.all([
+      const [listingsRes, profilesRes, reportsRes, viewsRes, pushRes] = await Promise.all([
         supabase.from("listings").select("id", { count: "exact", head: true }).eq("status", "active"),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("reports").select("id", { count: "exact", head: true }),
         supabase.from("listings").select("views_count"),
+        supabase.from("push_subscriptions").select("user_id"),
       ]);
       const totalViews = viewsRes.data?.reduce((sum, l) => sum + (l.views_count || 0), 0) || 0;
+      const uniquePushUsers = new Set(pushRes.data?.map(s => s.user_id) || []).size;
       setStats({
         listings: listingsRes.count || 0,
         users: profilesRes.count || 0,
         reports: reportsRes.count || 0,
         views: totalViews,
+        pushSubscribers: uniquePushUsers,
       });
 
       // Fetch daily listings for last 30 days
@@ -457,7 +460,7 @@ const AdminReports = () => {
         </div>
 
         {/* General Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -499,6 +502,17 @@ const AdminReports = () => {
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.views.toLocaleString("ar-SY")}</p>
                 <p className="text-sm text-muted-foreground">مشاهدة إجمالية</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <Bell className="h-5 w-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{stats.pushSubscribers}</p>
+                <p className="text-sm text-muted-foreground">مشترك Push</p>
               </div>
             </CardContent>
           </Card>
