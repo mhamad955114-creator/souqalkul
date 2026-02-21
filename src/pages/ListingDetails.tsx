@@ -24,7 +24,8 @@ import {
   Flag,
   Hash,
   CalendarDays,
-  HeartHandshake
+  HeartHandshake,
+  Lock
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -77,6 +78,7 @@ const ListingDetails = () => {
   const [chatModalOpen, setChatModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -123,6 +125,22 @@ const ListingDetails = () => {
         }
 
         setSeller(profileData ? { ...profileData, phone: sellerPhone } : null);
+
+        // Check if user has active subscription (for dating chat lock)
+        if (user && listingData.category === "تعارف") {
+          const { data: subData } = await supabase
+            .from("user_subscriptions")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("status", "active")
+            .gte("expires_at", new Date().toISOString())
+            .limit(1);
+          
+          // Also check if user is the listing owner
+          setHasActiveSubscription(
+            (subData && subData.length > 0) || listingData.user_id === user.id
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -489,24 +507,41 @@ const ListingDetails = () => {
                   )}
 
                   {listing?.user_id !== user?.id && (
-                    <Button 
-                      onClick={() => {
-                        if (user) {
-                          setChatModalOpen(true);
-                        } else {
-                          setAuthModalOpen(true);
-                        }
-                      }}
-                      variant={listing?.category === "تعارف" ? "default" : "outline"}
-                      className="w-full" 
-                      size="lg"
-                    >
-                      <MessageSquare className="h-5 w-5" />
-                      {t.details.chatWithSeller}
-                    </Button>
+                    listing?.category === "تعارف" && !hasActiveSubscription ? (
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={() => navigate("/pricing")}
+                          variant="default"
+                          className="w-full" 
+                          size="lg"
+                        >
+                          <Lock className="h-5 w-5" />
+                          الدردشة مقفلة - اشترك الآن
+                        </Button>
+                        <p className="text-sm text-muted-foreground text-center">
+                          يجب الاشتراك في باقة مدفوعة للتواصل في إعلانات التعارف
+                        </p>
+                      </div>
+                    ) : (
+                      <Button 
+                        onClick={() => {
+                          if (user) {
+                            setChatModalOpen(true);
+                          } else {
+                            setAuthModalOpen(true);
+                          }
+                        }}
+                        variant={listing?.category === "تعارف" ? "default" : "outline"}
+                        className="w-full" 
+                        size="lg"
+                      >
+                        <MessageSquare className="h-5 w-5" />
+                        {t.details.chatWithSeller}
+                      </Button>
+                    )
                   )}
 
-                  {listing?.category === "تعارف" && listing?.user_id !== user?.id && (
+                  {listing?.category === "تعارف" && listing?.user_id !== user?.id && hasActiveSubscription && (
                     <p className="text-sm text-muted-foreground text-center">
                       التواصل في إعلانات التعارف يتم فقط عبر الدردشة الداخلية
                     </p>
