@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Smartphone, Check, Share2, Wifi, WifiOff, Zap, Shield, Bell } from "lucide-react";
+import { Download, Smartphone, Check, Share2, Wifi, WifiOff, Zap, Shield, Bell, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import logo from "@/assets/logo.png";
+
+const APP_URL = "https://swqalkil-io.lovable.app";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -189,6 +192,34 @@ const Install = () => {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        {/* QR Code Section */}
+        <section className="py-8 px-4">
+          <div className="max-w-md mx-auto text-center space-y-4">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <QrCode className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-bold text-foreground">امسح للتحميل</h2>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              امسح رمز QR بكاميرا هاتفك لفتح التطبيق مباشرة
+            </p>
+            <div className="inline-block bg-white p-4 rounded-2xl shadow-lg border border-border">
+              <QRCodeSVG
+                value={APP_URL}
+                size={200}
+                level="H"
+                includeMargin
+                imageSettings={{
+                  src: logo,
+                  height: 40,
+                  width: 40,
+                  excavate: true,
+                }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">swqalkil-io.lovable.app</p>
           </div>
         </section>
 
