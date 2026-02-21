@@ -152,7 +152,7 @@ const RatingSection = ({ sellerId, listingId, sellerName }: RatingSectionProps) 
     };
 
     return (
-      <div className="flex gap-0.5" dir="ltr">
+      <div className="flex gap-1" dir="ltr">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
@@ -161,7 +161,7 @@ const RatingSection = ({ sellerId, listingId, sellerName }: RatingSectionProps) 
             onClick={() => onRate?.(star)}
             onMouseEnter={() => onHover?.(star)}
             onMouseLeave={() => onHover?.(0)}
-            className={interactive ? "cursor-pointer transition-transform hover:scale-110" : "cursor-default"}
+            className={`${interactive ? "cursor-pointer transition-transform hover:scale-110 active:scale-125" : "cursor-default"} p-1`}
           >
             <Star
               className={`${sizeClasses[size]} ${
