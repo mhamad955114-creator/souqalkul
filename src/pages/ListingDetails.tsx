@@ -510,7 +510,7 @@ const ListingDetails = () => {
                     listing?.category === "تعارف" && !hasActiveSubscription ? (
                       <div className="space-y-2">
                         <Button 
-                          onClick={() => navigate("/pricing")}
+                          onClick={() => navigate("/wallet")}
                           variant="default"
                           className="w-full" 
                           size="lg"
