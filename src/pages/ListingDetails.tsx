@@ -445,7 +445,7 @@ const ListingDetails = () => {
             <Card className="sticky top-24">
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4">
-                  {t.details.sellerInfo}
+                  {listing?.category === "تعارف" ? "صاحب الإعلان" : t.details.sellerInfo}
                 </h2>
 
                 <div className="flex items-center gap-4 mb-6">
