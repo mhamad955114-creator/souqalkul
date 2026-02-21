@@ -536,7 +536,7 @@ const ListingDetails = () => {
                         size="lg"
                       >
                         <MessageSquare className="h-5 w-5" />
-                        {t.details.chatWithSeller}
+                        {listing?.category === "تعارف" ? "دردشة مع صاحب الإعلان" : t.details.chatWithSeller}
                       </Button>
                     )
                   )}
