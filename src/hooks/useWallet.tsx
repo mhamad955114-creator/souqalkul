@@ -45,42 +45,40 @@ export function useWallet() {
     if (!user) return;
     setLoading(true);
 
-    // Get or create wallet
-    let { data, error } = await supabase
-      .from("wallets")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    // Run all queries in parallel
+    const [walletRes, txnsRes, reqsRes] = await Promise.all([
+      supabase
+        .from("wallets")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("wallet_transactions")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("top_up_requests")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+    ]);
 
-    if (!data && !error) {
+    // Create wallet if not exists
+    let walletData = walletRes.data;
+    if (!walletData && !walletRes.error) {
       const { data: newWallet } = await supabase
         .from("wallets")
         .insert({ user_id: user.id, balance: 0 })
         .select()
         .single();
-      data = newWallet;
+      walletData = newWallet;
     }
 
-    if (data) setWallet(data as Wallet);
-
-    // Fetch transactions
-    const { data: txns } = await supabase
-      .from("wallet_transactions")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(50);
-
-    if (txns) setTransactions(txns as WalletTransaction[]);
-
-    // Fetch top-up requests
-    const { data: reqs } = await supabase
-      .from("top_up_requests")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (reqs) setTopUpRequests(reqs as TopUpRequest[]);
+    if (walletData) setWallet(walletData as Wallet);
+    if (txnsRes.data) setTransactions(txnsRes.data as WalletTransaction[]);
+    if (reqsRes.data) setTopUpRequests(reqsRes.data as TopUpRequest[]);
 
     setLoading(false);
   }, [user]);
