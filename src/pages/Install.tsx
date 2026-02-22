@@ -205,7 +205,7 @@ const Install = () => {
             <p className="text-sm text-muted-foreground">
               امسح رمز QR بكاميرا هاتفك لفتح التطبيق مباشرة
             </p>
-            <div className="inline-block bg-white p-4 rounded-2xl shadow-lg border border-border">
+            <div className="qr-code-container inline-block bg-white p-4 rounded-2xl shadow-lg border border-border">
               <QRCodeSVG
                 value={APP_URL}
                 size={200}
@@ -219,7 +219,53 @@ const Install = () => {
                 }}
               />
             </div>
-            <p className="text-xs text-muted-foreground">swqalkil-io.lovable.app</p>
+            <p className="text-xs text-muted-foreground mb-3">swqalkil-io.lovable.app</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={async () => {
+                const svgElement = document.querySelector('.qr-code-container svg') as SVGElement;
+                if (!svgElement) return;
+                const canvas = document.createElement('canvas');
+                const padding = 32;
+                canvas.width = 264 + padding;
+                canvas.height = 264 + padding + 40;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+                const img = new Image();
+                img.onload = async () => {
+                  ctx.drawImage(img, padding / 2, padding / 2);
+                  ctx.fillStyle = '#333333';
+                  ctx.font = 'bold 14px Arial';
+                  ctx.textAlign = 'center';
+                  ctx.fillText('سوق الكل - حمّل التطبيق', canvas.width / 2, canvas.height - 12);
+                  URL.revokeObjectURL(url);
+                  canvas.toBlob(async (blob) => {
+                    if (!blob) return;
+                    const file = new File([blob], 'souq-alkol-qr.png', { type: 'image/png' });
+                    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                      await navigator.share({ title: 'سوق الكل', text: 'حمّل تطبيق سوق الكل', files: [file] });
+                    } else {
+                      const a = document.createElement('a');
+                      a.href = URL.createObjectURL(blob);
+                      a.download = 'souq-alkol-qr.png';
+                      a.click();
+                      URL.revokeObjectURL(a.href);
+                    }
+                  }, 'image/png');
+                };
+                img.src = url;
+              }}
+            >
+              <Share2 className="h-4 w-4" />
+              مشاركة رمز QR
+            </Button>
           </div>
         </section>
 
