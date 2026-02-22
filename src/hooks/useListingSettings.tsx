@@ -24,6 +24,7 @@ const defaultSettings: ListingSettings = {
 
 export const useListingSettings = () => {
   const [settings, setSettings] = useState<ListingSettings>(defaultSettings);
+  const [rawSettings, setRawSettings] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = async () => {
@@ -34,13 +35,16 @@ export const useListingSettings = () => {
 
     if (!error && data) {
       const s = { ...defaultSettings };
+      const raw: Record<string, any> = {};
       data.forEach((row: any) => {
+        raw[row.setting_key] = row.setting_value;
         const key = row.setting_key as keyof ListingSettings;
         if (s[key]) {
           s[key] = row.setting_value as ListingPlan;
         }
       });
       setSettings(s);
+      setRawSettings(raw);
     }
     setLoading(false);
   };
@@ -61,5 +65,5 @@ export const useListingSettings = () => {
     return !error;
   };
 
-  return { settings, loading, updateSetting, refetch: fetchSettings };
+  return { settings, rawSettings, loading, updateSetting, refetch: fetchSettings };
 };
