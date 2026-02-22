@@ -62,7 +62,7 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 const WalletPage = () => {
   const { user, loading: authLoading } = useAuth();
   const { wallet, transactions, topUpRequests, loading, submitTopUp, refetch } = useWallet();
-  const { settings, loading: settingsLoading } = useListingSettings();
+  const { settings, rawSettings, loading: settingsLoading } = useListingSettings();
   const { dir } = useLanguage();
   const navigate = useNavigate();
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
@@ -71,12 +71,15 @@ const WalletPage = () => {
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpTxNumber, setTopUpTxNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [shamcashAccount, setShamcashAccount] = useState("0999999999");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [purchasing, setPurchasing] = useState(false);
   const [activeSubscription, setActiveSubscription] = useState<any>(null);
+
+  const shamcashAccount = rawSettings.shamcash_account
+    ? String(rawSettings.shamcash_account).replace(/"/g, "")
+    : "0999999999";
 
   useEffect(() => {
     if (!user) return;
@@ -94,20 +97,6 @@ const WalletPage = () => {
     };
     fetchSubscription();
   }, [user, purchasing]);
-
-  useEffect(() => {
-    const fetchShamcash = async () => {
-      const { data } = await supabase
-        .from("listing_settings")
-        .select("setting_value")
-        .eq("setting_key", "shamcash_account")
-        .maybeSingle();
-      if (data) {
-        setShamcashAccount(String(data.setting_value).replace(/"/g, "") || "0999999999");
-      }
-    };
-    fetchShamcash();
-  }, []);
 
   if (authLoading || loading) {
     return (
