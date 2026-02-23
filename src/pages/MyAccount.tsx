@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -40,6 +41,29 @@ interface Listing {
   created_at: string;
 }
 
+interface Profile {
+  full_name: string | null;
+  phone: string | null;
+  city: string | null;
+  avatar_url: string | null;
+  is_verified: boolean;
+  created_at: string;
+}
+
+interface Subscription {
+  id: string;
+  plan_type: string;
+  status: string;
+  starts_at: string;
+  expires_at: string;
+  created_at: string;
+}
+
+const planLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+  professional: { label: "باقة احترافية", icon: <Crown className="h-5 w-5" />, color: "from-purple-600 to-indigo-600" },
+  featured: { label: "باقة مميزة", icon: <Star className="h-5 w-5" />, color: "from-amber-500 to-orange-500" },
+};
+
 const MyAccount = () => {
   const { user, loading: authLoading } = useAuth();
   const { t, dir } = useLanguage();
@@ -50,6 +74,8 @@ const MyAccount = () => {
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [deletingListing, setDeletingListing] = useState<Listing | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
@@ -84,8 +110,30 @@ const MyAccount = () => {
   useEffect(() => {
     if (user) {
       fetchListings();
+
+      // Fetch profile
+      supabase
+        .from("profiles")
+        .select("full_name, phone, city, avatar_url, is_verified, created_at")
+        .eq("user_id", user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setProfile(data);
+        });
+
+      // Fetch subscriptions
+      supabase
+        .from("user_subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .then(({ data }) => {
+          if (data) setSubscriptions(data);
+        });
     }
   }, [user]);
+
+  // ... keep existing code (handleDelete, handleToggleSold, handleRenewListing, loading/auth checks)
 
   const handleDelete = async () => {
     if (!deletingListing) return;
@@ -146,6 +194,21 @@ const MyAccount = () => {
     }
   };
 
+  const formatFullDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("ar-SA", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getDaysRemaining = (expiresAt: string) => {
+    const now = new Date();
+    const exp = new Date(expiresAt);
+    const diff = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diff;
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -157,6 +220,13 @@ const MyAccount = () => {
   if (!user) {
     return null;
   }
+
+  const activeSubscriptions = subscriptions.filter(
+    (s) => s.status === "active" && new Date(s.expires_at) > new Date()
+  );
+  const expiredSubscriptions = subscriptions.filter(
+    (s) => s.status !== "active" || new Date(s.expires_at) <= new Date()
+  );
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
@@ -183,7 +253,150 @@ const MyAccount = () => {
           </div>
         </div>
 
+        {/* Personal Info Section */}
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+              <User className="h-5 w-5 text-primary" />
+              المعلومات الشخصية
+            </h2>
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Avatar */}
+              <div className="flex-shrink-0">
+                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-primary/20">
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="h-10 w-10 text-muted-foreground" />
+                  )}
+                </div>
+              </div>
+              {/* Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                <div className="flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">الاسم:</span>
+                  <span className="font-medium text-foreground">{profile?.full_name || "غير محدد"}</span>
+                  {profile?.is_verified && (
+                    <Badge className="text-xs bg-green-500/10 text-green-600 border-green-500/20">موثّق ✓</Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">البريد:</span>
+                  <span className="font-medium text-foreground" dir="ltr">{user.email || "غير محدد"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">الهاتف:</span>
+                  <span className="font-medium text-foreground" dir="ltr">{profile?.phone || "غير محدد"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPinIcon className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">المدينة:</span>
+                  <span className="font-medium text-foreground">{profile?.city || "غير محدد"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">تاريخ التسجيل:</span>
+                  <span className="font-medium text-foreground">{profile ? formatFullDate(profile.created_at) : "—"}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Subscriptions Section */}
+        {subscriptions.length > 0 && (
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <Crown className="h-5 w-5 text-primary" />
+                الاشتراكات
+              </h2>
+
+              {/* Active Subscriptions */}
+              {activeSubscriptions.length > 0 && (
+                <div className="space-y-3 mb-4">
+                  <h3 className="text-sm font-semibold text-muted-foreground">الاشتراكات النشطة</h3>
+                  {activeSubscriptions.map((sub) => {
+                    const plan = planLabels[sub.plan_type] || { label: sub.plan_type, icon: <Star className="h-5 w-5" />, color: "from-muted to-muted" };
+                    const daysLeft = getDaysRemaining(sub.expires_at);
+                    return (
+                      <div key={sub.id} className="border border-border rounded-xl p-4 bg-card">
+                        <div className="flex items-center justify-between flex-wrap gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${plan.color} text-white flex items-center justify-center`}>
+                              {plan.icon}
+                            </div>
+                            <div>
+                              <span className="font-bold text-foreground">{plan.label}</span>
+                              <Badge className="mr-2 bg-green-500/10 text-green-600 border-green-500/20 text-xs">نشط</Badge>
+                            </div>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            متبقي <span className={`font-bold ${daysLeft <= 3 ? "text-destructive" : "text-primary"}`}>{daysLeft}</span> يوم
+                          </div>
+                        </div>
+                        <Separator className="my-3" />
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                          <div>
+                            <span className="text-muted-foreground block text-xs">تاريخ الاشتراك</span>
+                            <span className="font-medium text-foreground">{formatFullDate(sub.starts_at)}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-xs">تاريخ الانتهاء</span>
+                            <span className="font-medium text-foreground">{formatFullDate(sub.expires_at)}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-xs">نوع الباقة</span>
+                            <span className="font-medium text-foreground">{plan.label}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Expired Subscriptions */}
+              {expiredSubscriptions.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-muted-foreground">الاشتراكات المنتهية</h3>
+                  {expiredSubscriptions.map((sub) => {
+                    const plan = planLabels[sub.plan_type] || { label: sub.plan_type, icon: <Star className="h-5 w-5" />, color: "from-muted to-muted" };
+                    return (
+                      <div key={sub.id} className="border border-border rounded-xl p-4 bg-muted/30 opacity-70">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-muted text-muted-foreground flex items-center justify-center">
+                            {plan.icon}
+                          </div>
+                          <div>
+                            <span className="font-medium text-foreground">{plan.label}</span>
+                            <Badge variant="outline" className="mr-2 text-xs">منتهي</Badge>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+                          <div>
+                            <span className="text-muted-foreground block text-xs">تاريخ الاشتراك</span>
+                            <span className="text-foreground">{formatFullDate(sub.starts_at)}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-xs">تاريخ الانتهاء</span>
+                            <span className="text-foreground">{formatFullDate(sub.expires_at)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Listings */}
+        <h2 className="text-xl font-bold text-foreground mb-4">إعلاناتي</h2>
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
