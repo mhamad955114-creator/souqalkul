@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logo from "@/assets/logo.png";
@@ -52,12 +53,12 @@ const Auth = () => {
       if (mode === "login") {
         if (method === "email") {
           const { error } = await signIn(email, password);
-          if (error) toast.error(t.auth.loginError + error.message);
+          if (error) toast.error(t.auth.loginError + translateAuthError(error.message));
           else { toast.success(t.auth.loginSuccess); navigate("/"); }
         } else {
           const formattedPhone = formatPhone(phone);
           const { error } = await signInWithPhone(formattedPhone, password);
-          if (error) toast.error(t.auth.loginError + error.message);
+          if (error) toast.error(t.auth.loginError + translateAuthError(error.message));
           else { toast.success(t.auth.loginSuccess); navigate("/"); }
         }
       } else {
@@ -67,12 +68,12 @@ const Auth = () => {
         }
         if (method === "email") {
           const { error } = await signUp(email, password, fullName);
-          if (error) toast.error(t.auth.signupError + error.message);
+          if (error) toast.error(translateAuthError(error.message));
           else { toast.success(t.auth.signupSuccess); }
         } else {
           const formattedPhone = formatPhone(phone);
           const { error } = await signUpWithPhone(formattedPhone, password, fullName);
-          if (error) toast.error(t.auth.signupError + error.message);
+          if (error) toast.error(translateAuthError(error.message));
           else { toast.success("تم إنشاء الحساب بنجاح!"); }
         }
       }
