@@ -19,6 +19,7 @@ interface Listing {
   status: string | null;
   category: string;
   user_id: string;
+  _isPro?: boolean;
 }
 
 const fallbackListings = [
@@ -82,7 +83,17 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
       .limit(8);
 
     if (!error && data) {
-      setListings(data);
+      // Fetch professional subscriptions for listing owners
+      const userIds = [...new Set(data.map((l) => l.user_id))];
+      const { data: subs } = await supabase
+        .from("user_subscriptions")
+        .select("user_id")
+        .in("user_id", userIds)
+        .eq("plan_type", "professional")
+        .eq("status", "active")
+        .gte("expires_at", new Date().toISOString());
+      const proUserIds = new Set((subs || []).map((s) => s.user_id));
+      setListings(data.map((l) => ({ ...l, _isPro: proUserIds.has(l.user_id) })));
     }
     setLoading(false);
   };
@@ -142,6 +153,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       location={listing.city}
                       time={formatTime(listing.created_at)}
                       featured={listing.is_featured}
+                      professional={listing._isPro}
                       status={listing.status}
                       category={listing.category}
                       userId={listing.user_id}

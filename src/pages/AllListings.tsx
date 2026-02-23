@@ -48,6 +48,7 @@ interface Listing {
   created_at: string;
   status: string | null;
   user_id: string;
+  _isPro?: boolean;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -147,10 +148,22 @@ const AllListings = () => {
     const { data, error, count } = await query;
 
     if (!error && data) {
+      // Fetch professional subscriptions for listing owners
+      const userIds = [...new Set(data.map((l) => l.user_id))];
+      const { data: subs } = await supabase
+        .from("user_subscriptions")
+        .select("user_id")
+        .in("user_id", userIds)
+        .eq("plan_type", "professional")
+        .eq("status", "active")
+        .gte("expires_at", new Date().toISOString());
+      const proUserIds = new Set((subs || []).map((s) => s.user_id));
+      const enriched = data.map((l) => ({ ...l, _isPro: proUserIds.has(l.user_id) }));
+
       if (append) {
-        setListings(prev => [...prev, ...data]);
+        setListings(prev => [...prev, ...enriched]);
       } else {
-        setListings(data);
+        setListings(enriched);
       }
       setTotalCount(count || 0);
       setHasMore(from + data.length < (count || 0));
@@ -774,6 +787,7 @@ const AllListings = () => {
                     location={listing.city}
                     time={formatTime(listing.created_at)}
                     featured={listing.is_featured}
+                    professional={listing._isPro}
                     status={listing.status}
                     category={listing.category}
                     userId={listing.user_id}
