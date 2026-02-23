@@ -12,6 +12,7 @@ interface ListingCardProps {
   location: string;
   time: string;
   featured?: boolean;
+  professional?: boolean;
   status?: string;
   category?: string;
   userId?: string;
@@ -38,7 +39,7 @@ const DatingPlaceholder = ({ gender }: { gender: "female" | "male" }) => (
   </div>
 );
 
-const ListingCard = ({ id, image, title, price, location, time, featured, status, category, userId, isOwnerOnline, description }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, location, time, featured, professional, status, category, userId, isOwnerOnline, description }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -89,7 +90,13 @@ const ListingCard = ({ id, image, title, price, location, time, featured, status
             نشط ✅
           </div>
         )}
-        {featured && status !== "sold" && status !== "expired" && (
+        {professional && status !== "sold" && status !== "expired" && (
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+            <span>👑</span>
+            <span>احترافي</span>
+          </div>
+        )}
+        {featured && !professional && status !== "sold" && status !== "expired" && (
           <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
             <span>⭐</span>
             <span>{t.listings.featured}</span>
