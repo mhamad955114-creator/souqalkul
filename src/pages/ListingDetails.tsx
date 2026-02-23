@@ -50,6 +50,7 @@ interface Listing {
   area: string | null;
   phone: string | null;
   images: string[] | null;
+  is_featured: boolean | null;
   status: string | null;
   views_count: number | null;
   created_at: string;
@@ -79,6 +80,7 @@ const ListingDetails = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [isOwnerPro, setIsOwnerPro] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -125,6 +127,17 @@ const ListingDetails = () => {
         }
 
         setSeller(profileData ? { ...profileData, phone: sellerPhone } : null);
+
+        // Check if listing owner has professional subscription
+        const { data: proSub } = await supabase
+          .from("user_subscriptions")
+          .select("id")
+          .eq("user_id", listingData.user_id)
+          .eq("plan_type", "professional")
+          .eq("status", "active")
+          .gte("expires_at", new Date().toISOString())
+          .limit(1);
+        setIsOwnerPro(!!(proSub && proSub.length > 0));
 
         // Check if user has active subscription (for dating chat lock)
         if (user && listingData.category === "تعارف") {
@@ -347,6 +360,16 @@ const ListingDetails = () => {
                     {listing.category === "تعارف" && listing.status !== "sold" && listing.status !== "expired" && (
                       <Badge className="text-sm bg-green-500 hover:bg-green-600 text-white border-0">
                         نشط ✅
+                      </Badge>
+                    )}
+                    {isOwnerPro && (
+                      <Badge className="text-sm bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
+                        👑 احترافي
+                      </Badge>
+                    )}
+                    {listing.is_featured && !isOwnerPro && (
+                      <Badge className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                        ⭐ {t.listings.featured}
                       </Badge>
                     )}
                     <Badge variant="outline">
