@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -63,7 +64,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
           const formattedPhone = formatPhone(phone);
           const { error } = await signInWithPhone(formattedPhone, password);
           if (error) {
-            toast.error(t.auth.loginError + error.message);
+            toast.error(t.auth.loginError + translateAuthError(error.message));
           } else {
             toast.success(t.auth.loginSuccess);
             onClose();
@@ -78,7 +79,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
         if (method === "email") {
           const { error } = await signUp(email, password, fullName);
           if (error) {
-            toast.error(t.auth.signupError + error.message);
+            toast.error(translateAuthError(error.message));
           } else {
             toast.success(t.auth.signupSuccess);
             onClose();
@@ -88,7 +89,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
           const formattedPhone = formatPhone(phone);
           const { error } = await signUpWithPhone(formattedPhone, password, fullName);
           if (error) {
-            toast.error(t.auth.signupError + error.message);
+            toast.error(translateAuthError(error.message));
           } else {
             toast.success("تم إنشاء الحساب بنجاح!");
             onClose();
