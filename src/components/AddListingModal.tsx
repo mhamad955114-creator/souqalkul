@@ -595,12 +595,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                     <RadioGroupItem value="featured" id="featured-type" className="peer sr-only" />
                     <label
                       htmlFor="featured-type"
-                      className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-amber-500 peer-data-[state=checked]:bg-amber-500/5 cursor-pointer transition-all"
+                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-amber-500 peer-data-[state=checked]:bg-amber-500/5 cursor-pointer transition-all"
                     >
                       <Star className="h-6 w-6 text-amber-500" />
                       <span className="font-semibold text-sm">مميز ⭐</span>
-                      <span className="text-xs text-muted-foreground text-center">يظهر في المقدمة</span>
-                      <span className="text-xs font-bold text-amber-600">
+                      <ul className="text-[11px] text-muted-foreground text-right space-y-1 w-full mt-1">
+                        <li>• يظهر دائماً في المقدمة</li>
+                        <li>• شارة ذهبية مميزة</li>
+                        <li>• حتى {settings.featured_listing.max_images || 10} صور</li>
+                        <li>• مدة {settings.featured_listing.duration_days || 30} يوم</li>
+                      </ul>
+                      <span className="text-xs font-bold text-amber-600 mt-1">
                         {formatPrice(settings.featured_listing.price || 50000)}
                       </span>
                     </label>
@@ -609,12 +614,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                     <RadioGroupItem value="professional" id="professional-type" className="peer sr-only" />
                     <label
                       htmlFor="professional-type"
-                      className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/5 cursor-pointer transition-all"
+                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/5 cursor-pointer transition-all"
                     >
                       <Sparkles className="h-6 w-6 text-purple-500" />
                       <span className="font-semibold text-sm">احترافي 👑</span>
-                      <span className="text-xs text-muted-foreground text-center">مميزات إضافية</span>
-                      <span className="text-xs font-bold text-purple-600">
+                      <ul className="text-[11px] text-muted-foreground text-right space-y-1 w-full mt-1">
+                        <li>• كل مميزات الباقة المميزة</li>
+                        <li>• شارة احترافية بنفسجية</li>
+                        <li>• حتى {settings.professional_listing.max_images || 20} صورة</li>
+                        <li>• مدة {settings.professional_listing.duration_days || 60} يوم</li>
+                      </ul>
+                      <span className="text-xs font-bold text-purple-600 mt-1">
                         {formatPrice(settings.professional_listing.price || 20000)}
                       </span>
                     </label>
