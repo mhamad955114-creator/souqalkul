@@ -360,8 +360,8 @@ const MyAccount = () => {
 
       if (!response.ok) throw new Error("Failed to delete");
 
-      await supabase.auth.signOut();
-      toast.success("تم حذف حسابك بنجاح");
+      await supabase.auth.signOut({ scope: "global" });
+      toast.success("تم حذف حسابك بنجاح وتسجيل الخروج من جميع الأجهزة");
       navigate("/");
     } catch (error) {
       console.error(error);

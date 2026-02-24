@@ -47,6 +47,9 @@ Deno.serve(async (req) => {
     await adminClient.from("profiles").delete().eq("user_id", user.id);
     await adminClient.from("wallets").delete().eq("user_id", user.id);
 
+    // Sign out from all devices before deleting
+    await adminClient.auth.admin.signOut(user.id, "global");
+
     // Delete the auth user
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id);
     if (deleteError) {
