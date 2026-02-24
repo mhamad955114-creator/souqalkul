@@ -631,6 +631,51 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   </div>
                 </RadioGroup>
 
+                {/* Comparison table */}
+                <div className="rounded-xl border border-border overflow-hidden text-xs mt-3">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="p-2 text-right font-medium text-muted-foreground">الميزة</th>
+                        <th className="p-2 text-center font-medium text-amber-600">مميز ⭐</th>
+                        <th className="p-2 text-center font-medium text-purple-600">احترافي 👑</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      <tr>
+                        <td className="p-2 text-right text-muted-foreground">الظهور في المقدمة</td>
+                        <td className="p-2 text-center text-green-600">✓</td>
+                        <td className="p-2 text-center text-green-600">✓</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2 text-right text-muted-foreground">شارة مميزة</td>
+                        <td className="p-2 text-center text-green-600">✓ ذهبية</td>
+                        <td className="p-2 text-center text-green-600">✓ بنفسجية</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2 text-right text-muted-foreground">عدد الصور</td>
+                        <td className="p-2 text-center">{settings.featured_listing.max_images || 10}</td>
+                        <td className="p-2 text-center font-medium">{settings.professional_listing.max_images || 20}</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2 text-right text-muted-foreground">مدة الإعلان</td>
+                        <td className="p-2 text-center">{settings.featured_listing.duration_days || 30} يوم</td>
+                        <td className="p-2 text-center font-medium">{settings.professional_listing.duration_days || 60} يوم</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2 text-right text-muted-foreground">عدد الإعلانات</td>
+                        <td className="p-2 text-center">{settings.featured_listing.max_active_listings || 10}</td>
+                        <td className="p-2 text-center font-medium">{settings.professional_listing.max_active_listings || 20}</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2 text-right text-muted-foreground">أولوية في البحث</td>
+                        <td className="p-2 text-center text-destructive">✗</td>
+                        <td className="p-2 text-center text-green-600">✓</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
                 {/* Wallet balance info */}
                 <Alert className="mt-2">
                   <Wallet className="h-4 w-4" />
