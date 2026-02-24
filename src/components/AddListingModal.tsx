@@ -44,6 +44,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     area: "",
     phone: "",
     is_featured: false,
+    paidType: "" as "" | "featured" | "professional",
     maritalStatus: "",
     age: "",
   });
@@ -234,15 +235,29 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setLoading(true);
 
     try {
-      // Dating category is always paid, or if featured is selected
+      // Dating category is always paid, or if featured/professional is selected
       const needsPayment = isDatingCategory || formData.is_featured;
       if (needsPayment) {
-        const paymentAmount = isDatingCategory && !formData.is_featured 
-          ? (settings.dating_listing.price || 25000) 
-          : (settings.featured_listing.price || 50000);
-        const paymentDesc = isDatingCategory && !formData.is_featured ? "رسوم نشر إعلان تعارف" : "ترويج إعلان مميز";
+        let paymentAmount: number;
+        let paymentDesc: string;
+        let paymentType: string;
+
+        if (isDatingCategory && !formData.is_featured) {
+          paymentAmount = settings.dating_listing.price || 25000;
+          paymentDesc = "رسوم نشر إعلان تعارف";
+          paymentType = "dating";
+        } else if (formData.paidType === "professional") {
+          paymentAmount = settings.professional_listing.price || 20000;
+          paymentDesc = "ترويج إعلان احترافي";
+          paymentType = "promotion";
+        } else {
+          paymentAmount = settings.featured_listing.price || 50000;
+          paymentDesc = "ترويج إعلان مميز";
+          paymentType = "promotion";
+        }
+
         try {
-          await payFromWallet(paymentAmount, isDatingCategory ? "dating" : "promotion", paymentDesc);
+          await payFromWallet(paymentAmount, paymentType, paymentDesc);
         } catch (err: any) {
           if (err.message?.includes("Insufficient balance")) {
             toast.error("رصيد المحفظة غير كافٍ! يرجى شحن المحفظة أولاً", {
@@ -298,6 +313,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       area: "",
       phone: "",
       is_featured: false,
+      paidType: "",
       maritalStatus: "",
       age: "",
     });
@@ -539,7 +555,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             <Label>{t.listingForm.adType} *</Label>
             <RadioGroup
               value={formData.is_featured ? "paid" : "free"}
-              onValueChange={(value) => setFormData({ ...formData, is_featured: value === "paid" })}
+              onValueChange={(value) => setFormData({ ...formData, is_featured: value === "paid", paidType: value === "paid" ? "featured" : "" })}
               className="grid grid-cols-2 gap-4"
             >
               <div className="relative">
@@ -566,27 +582,82 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               </div>
             </RadioGroup>
 
-            {/* Wallet balance info when featured is selected */}
+            {/* Sub-selection for paid type: Featured vs Professional */}
             {formData.is_featured && (
-              <Alert className="mt-3">
-                <Wallet className="h-4 w-4" />
-                <AlertDescription className="flex items-center justify-between">
-                  <div>
-                    <span className="font-medium">سعر الترويج: </span>
-                    <span>{formatPrice(settings.featured_listing.price || 50000)}</span>
-                    <span className="mx-2">|</span>
-                    <span className="font-medium">رصيدك: </span>
-                    <span className={wallet && wallet.balance >= (settings.featured_listing.price || 50000) ? "text-green-600" : "text-red-600"}>
-                      {formatPrice(wallet?.balance || 0)}
-                    </span>
+              <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+                <Label className="text-sm text-muted-foreground">اختر نوع الباقة:</Label>
+                <RadioGroup
+                  value={formData.paidType}
+                  onValueChange={(value) => setFormData({ ...formData, paidType: value as "featured" | "professional" })}
+                  className="grid grid-cols-2 gap-3"
+                >
+                  <div className="relative">
+                    <RadioGroupItem value="featured" id="featured-type" className="peer sr-only" />
+                    <label
+                      htmlFor="featured-type"
+                      className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-amber-500 peer-data-[state=checked]:bg-amber-500/5 cursor-pointer transition-all"
+                    >
+                      <Star className="h-6 w-6 text-amber-500" />
+                      <span className="font-semibold text-sm">مميز ⭐</span>
+                      <span className="text-xs text-muted-foreground text-center">يظهر في المقدمة</span>
+                      <span className="text-xs font-bold text-amber-600">
+                        {formatPrice(settings.featured_listing.price || 50000)}
+                      </span>
+                    </label>
                   </div>
-                  {wallet && wallet.balance < (settings.featured_listing.price || 50000) && (
-                    <Button type="button" variant="link" size="sm" className="text-primary p-0" onClick={() => { onClose(); navigate("/wallet"); }}>
-                      شحن المحفظة
-                    </Button>
-                  )}
-                </AlertDescription>
-              </Alert>
+                  <div className="relative">
+                    <RadioGroupItem value="professional" id="professional-type" className="peer sr-only" />
+                    <label
+                      htmlFor="professional-type"
+                      className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/5 cursor-pointer transition-all"
+                    >
+                      <Sparkles className="h-6 w-6 text-purple-500" />
+                      <span className="font-semibold text-sm">احترافي 👑</span>
+                      <span className="text-xs text-muted-foreground text-center">مميزات إضافية</span>
+                      <span className="text-xs font-bold text-purple-600">
+                        {formatPrice(settings.professional_listing.price || 20000)}
+                      </span>
+                    </label>
+                  </div>
+                </RadioGroup>
+
+                {/* Wallet balance info */}
+                <Alert className="mt-2">
+                  <Wallet className="h-4 w-4" />
+                  <AlertDescription className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium">سعر الباقة: </span>
+                      <span>
+                        {formatPrice(
+                          formData.paidType === "professional"
+                            ? (settings.professional_listing.price || 20000)
+                            : (settings.featured_listing.price || 50000)
+                        )}
+                      </span>
+                      <span className="mx-2">|</span>
+                      <span className="font-medium">رصيدك: </span>
+                      <span className={
+                        wallet && wallet.balance >= (
+                          formData.paidType === "professional"
+                            ? (settings.professional_listing.price || 20000)
+                            : (settings.featured_listing.price || 50000)
+                        ) ? "text-green-600" : "text-destructive"
+                      }>
+                        {formatPrice(wallet?.balance || 0)}
+                      </span>
+                    </div>
+                    {wallet && wallet.balance < (
+                      formData.paidType === "professional"
+                        ? (settings.professional_listing.price || 20000)
+                        : (settings.featured_listing.price || 50000)
+                    ) && (
+                      <Button type="button" variant="link" size="sm" className="text-primary p-0" onClick={() => { onClose(); navigate("/wallet"); }}>
+                        شحن المحفظة
+                      </Button>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              </div>
             )}
           </div>
 
