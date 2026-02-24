@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -88,6 +88,9 @@ const MyAccount = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   useEffect(() => {
@@ -334,6 +337,39 @@ const MyAccount = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "حذف حسابي") {
+      toast.error("يرجى كتابة 'حذف حسابي' للتأكيد");
+      return;
+    }
+    setDeletingAccount(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("No session");
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to delete");
+
+      await supabase.auth.signOut();
+      toast.success("تم حذف حسابك بنجاح");
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      toast.error("فشل حذف الحساب");
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
 
   if (authLoading) {
     return (
@@ -525,6 +561,50 @@ const MyAccount = () => {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">يمكنك تغيير كلمة المرور الخاصة بحسابك من هنا</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Delete Account Section */}
+        <Card className="mb-8 border-destructive/30">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold text-destructive flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-5 w-5" />
+              حذف الحساب
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              سيؤدي حذف حسابك إلى إزالة جميع بياناتك بشكل نهائي ولا يمكن التراجع عن هذا الإجراء.
+            </p>
+            {!showDeleteConfirm ? (
+              <Button variant="destructive" onClick={() => setShowDeleteConfirm(true)}>
+                <Trash2 className="h-4 w-4" />
+                حذف حسابي
+              </Button>
+            ) : (
+              <div className="space-y-3 max-w-md border border-destructive/20 rounded-lg p-4 bg-destructive/5">
+                <p className="text-sm font-medium text-foreground">
+                  اكتب <span className="font-bold text-destructive">"حذف حسابي"</span> للتأكيد:
+                </p>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="حذف حسابي"
+                  className="border-destructive/30"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteAccount}
+                    disabled={deletingAccount || deleteConfirmText !== "حذف حسابي"}
+                  >
+                    {deletingAccount ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    تأكيد الحذف
+                  </Button>
+                  <Button variant="outline" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}>
+                    إلغاء
+                  </Button>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
