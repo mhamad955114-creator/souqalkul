@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -83,6 +83,11 @@ const MyAccount = () => {
   const [editCity, setEditCity] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   useEffect(() => {
@@ -287,6 +292,49 @@ const MyAccount = () => {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!user?.email) {
+      toast.error("لا يمكن تغيير كلمة المرور بدون بريد إلكتروني");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("كلمة المرور الجديدة غير متطابقة");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      // Verify current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+      if (signInError) {
+        toast.error("كلمة المرور الحالية غير صحيحة");
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+
+      toast.success("تم تغيير كلمة المرور بنجاح");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowPasswordForm(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("فشل تغيير كلمة المرور");
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -432,6 +480,52 @@ const MyAccount = () => {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Password Change Section */}
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <Lock className="h-5 w-5 text-primary" />
+                تغيير كلمة المرور
+              </h2>
+              {!showPasswordForm && (
+                <Button variant="outline" size="sm" onClick={() => setShowPasswordForm(true)}>
+                  <Edit2 className="h-4 w-4" />
+                  تغيير
+                </Button>
+              )}
+            </div>
+            {showPasswordForm ? (
+              <div className="space-y-4 max-w-md">
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">كلمة المرور الحالية</label>
+                  <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="أدخل كلمة المرور الحالية" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">كلمة المرور الجديدة</label>
+                  <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="أدخل كلمة المرور الجديدة (6 أحرف على الأقل)" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">تأكيد كلمة المرور الجديدة</label>
+                  <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="أعد إدخال كلمة المرور الجديدة" />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleChangePassword} disabled={changingPassword}>
+                    {changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    حفظ كلمة المرور
+                  </Button>
+                  <Button variant="outline" onClick={() => { setShowPasswordForm(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}>
+                    <X className="h-4 w-4" />
+                    إلغاء
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">يمكنك تغيير كلمة المرور الخاصة بحسابك من هنا</p>
+            )}
           </CardContent>
         </Card>
 
