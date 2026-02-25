@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import appLogo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   MapPin, 
   Clock, 
+  RotateCcw,
   Eye, 
   Phone, 
   MessageCircle,
@@ -32,6 +33,7 @@ import AuthModal from "@/components/AuthModal";
 import ShareButtons from "@/components/ShareButtons";
 import RatingSection from "@/components/RatingSection";
 import ReportModal from "@/components/ReportModal";
+import Product360Viewer from "@/components/Product360Viewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -76,6 +78,7 @@ const ListingDetails = () => {
   const [chatModalOpen, setChatModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [show360, setShow360] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [isOwnerPro, setIsOwnerPro] = useState(false);
 
@@ -285,6 +288,15 @@ const ListingDetails = () => {
                 )}
 
                 <div className="absolute top-4 left-4 flex gap-2">
+                  {images.length >= 3 && (
+                    <button
+                      onClick={() => setShow360(true)}
+                      className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-card transition-colors"
+                      title="عرض 360°"
+                    >
+                      <RotateCcw className="h-5 w-5" />
+                    </button>
+                  )}
                   <button
                     onClick={() => setIsFavorite(!isFavorite)}
                     className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-card transition-colors"
@@ -556,6 +568,13 @@ const ListingDetails = () => {
         onClose={() => setAuthModalOpen(false)}
         defaultTab="login"
       />
+
+      {show360 && images.length >= 3 && (
+        <Product360Viewer
+          images={images}
+          onClose={() => setShow360(false)}
+        />
+      )}
     </div>
   );
 };
