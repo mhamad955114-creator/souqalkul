@@ -221,6 +221,15 @@ export const subcategoriesByCategory: Record<string, string[]> = {
     "قبعات",
     "أخرى",
   ],
+  "مكياج": [
+    "أحمر شفاه",
+    "كريمات",
+    "عطور",
+    "أدوات تجميل",
+    "مناكير",
+    "أساسات",
+    "أخرى",
+  ],
 };
 
 // Categories
