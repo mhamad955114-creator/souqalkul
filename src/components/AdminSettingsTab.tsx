@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Banknote } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Banknote, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
@@ -34,6 +34,14 @@ const planConfig = [
     icon: Crown,
     iconColor: "text-purple-500",
     bgColor: "bg-purple-500/10",
+    hasPrice: true,
+  },
+  {
+    key: "business_listing",
+    label: "باقة رجال الأعمال",
+    icon: Briefcase,
+    iconColor: "text-blue-500",
+    bgColor: "bg-blue-500/10",
     hasPrice: true,
   },
 ];
@@ -76,7 +84,7 @@ const AdminSettingsTab = () => {
         free_listing: { ...settings.free_listing },
         featured_listing: { ...settings.featured_listing },
         professional_listing: { ...settings.professional_listing },
-        
+        business_listing: { ...settings.business_listing },
       });
     }
   }, [loading, settings]);
