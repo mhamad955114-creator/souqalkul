@@ -51,6 +51,7 @@ export interface Translations {
     games: string;
     services: string;
     dating: string;
+    accessories: string;
     pets: string;
     industrial: string;
     agricultural: string;
@@ -629,6 +630,7 @@ export const ar: Translations = {
     games: "ألعاب",
     services: "خدمات",
     dating: "تعارف",
+    accessories: "اكسسوارات",
     pets: "حيوانات أليفة",
     industrial: "معدات صناعية",
     agricultural: "معدات زراعية",
@@ -1163,6 +1165,7 @@ export const en: Translations = {
     games: "Games",
     services: "Services",
     dating: "Dating",
+    accessories: "Accessories",
     pets: "Pets",
     industrial: "Industrial Equipment",
     agricultural: "Agricultural Equipment",
@@ -1697,6 +1700,7 @@ export const tr: Translations = {
     games: "Oyunlar",
     services: "Hizmetler",
     dating: "Tanışma",
+    accessories: "Aksesuarlar",
     pets: "Evcil Hayvanlar",
     industrial: "Endüstriyel Ekipman",
     agricultural: "Tarım Ekipmanı",
