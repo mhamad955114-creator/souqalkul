@@ -187,7 +187,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const isDatingCategory = formData.category === "تعارف";
+  
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
 
   const handleCityChange = (city: string) => {
@@ -217,13 +217,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         .from("listings")
         .update({
           title: formData.title,
-          description: isDatingCategory
-            ? [
-                formData.maritalStatus ? `الحالة الاجتماعية: ${formData.maritalStatus}` : "",
-                formData.age ? `العمر: ${formData.age}` : "",
-                formData.description || "",
-              ].filter(Boolean).join("\n")
-            : formData.description || null,
+          description: formData.description || null,
           price: parseFloat(formData.price),
           category: formData.category,
           city: formData.city,
@@ -275,46 +269,6 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
             />
           </div>
 
-          {/* Marital Status - only for dating category */}
-          {isDatingCategory && (
-            <div className="space-y-2">
-              <Label>الحالة الاجتماعية</Label>
-              <Select
-                value={formData.maritalStatus}
-                onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر الحالة الاجتماعية" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="أعزب">أعزب</SelectItem>
-                  <SelectItem value="عزباء">عزباء</SelectItem>
-                  <SelectItem value="متزوج">متزوج</SelectItem>
-                  <SelectItem value="متزوجة">متزوجة</SelectItem>
-                  <SelectItem value="مطلق">مطلق</SelectItem>
-                  <SelectItem value="مطلقة">مطلقة</SelectItem>
-                  <SelectItem value="أرمل">أرمل</SelectItem>
-                  <SelectItem value="أرملة">أرملة</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* Age - only for dating category */}
-          {isDatingCategory && (
-            <div className="space-y-2">
-              <Label htmlFor="edit-age">العمر</Label>
-              <Input
-                id="edit-age"
-                type="number"
-                placeholder="مثال: 25"
-                value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                min="18"
-                max="99"
-              />
-            </div>
-          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

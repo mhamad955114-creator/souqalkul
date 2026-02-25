@@ -819,7 +819,7 @@ const MyAccount = () => {
                               ) : (
                                 <>
                                   <CheckCircle className="h-4 w-4" />
-                                  {listing.category === "تعارف" ? "تم الزواج / الخطوبة" : t.myAccount.markAsSold}
+                                  {t.myAccount.markAsSold}
                                 </>
                               )}
                             </Button>

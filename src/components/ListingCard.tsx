@@ -1,4 +1,4 @@
-import { Heart, MapPin, Clock, Hash, User, MessageSquare, HeartHandshake, CalendarDays } from "lucide-react";
+import { Heart, MapPin, Clock, Hash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,25 +20,6 @@ interface ListingCardProps {
   description?: string | null;
 }
 
-const detectGender = (title: string): "female" | "male" => {
-  const femaleKeywords = ["فتاة", "بنت", "أنثى", "امرأة", "سيدة", "آنسة", "عروس", "زوجة", "أخت", "فتاه"];
-  const isFemale = femaleKeywords.some((kw) => title.includes(kw));
-  return isFemale ? "female" : "male";
-};
-
-const DatingPlaceholder = ({ gender }: { gender: "female" | "male" }) => (
-  <div className="w-full h-full flex items-center justify-center bg-gradient-to-b from-muted/50 to-muted">
-    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${gender === "female" ? "bg-pink-100 text-pink-400" : "bg-blue-100 text-blue-400"}`}>
-        <User className="w-10 h-10" />
-      </div>
-      <span className={`text-xs font-medium ${gender === "female" ? "text-pink-400" : "text-blue-400"}`}>
-        {gender === "female" ? "👩" : "👨"}
-      </span>
-    </div>
-  </div>
-);
-
 const ListingCard = ({ id, image, title, price, location, time, featured, professional, status, category, userId, isOwnerOnline, description }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
@@ -57,9 +38,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
       onClick={handleClick}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        {category === "تعارف" && (!image || image.includes("unsplash")) ? (
-          <DatingPlaceholder gender={detectGender(title)} />
-        ) : !image || image.includes("placeholder") || image.includes("unsplash") ? (
+        {!image || image.includes("placeholder") || image.includes("unsplash") ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-2">
             <img src={appLogo} alt="سوق الكل" className="w-20 h-20 object-contain opacity-60" />
             <span className="text-xs text-muted-foreground">لا توجد صورة لهذا الإعلان</span>
@@ -74,7 +53,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
         {status === "sold" && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="bg-destructive text-destructive-foreground text-lg font-bold px-6 py-2 rounded-full shadow-lg rotate-[-15deg]">
-              {category === "تعارف" ? "تم الزواج 💍" : (t.myAccount?.soldBadge || "مباع")}
+              {t.myAccount?.soldBadge || "مباع"}
             </span>
           </div>
         )}
@@ -83,11 +62,6 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
             <span className="bg-muted-foreground text-background text-lg font-bold px-6 py-2 rounded-full shadow-lg rotate-[-15deg]">
               منتهي
             </span>
-          </div>
-        )}
-        {category === "تعارف" && status !== "sold" && status !== "expired" && (
-          <div className="absolute bottom-3 right-3 bg-green-500/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
-            نشط ✅
           </div>
         )}
         {professional && status !== "sold" && status !== "expired" && (
@@ -141,27 +115,6 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
           </div>
         )}
         <div className="text-xl font-bold text-primary mb-3">{price}</div>
-        {category === "تعارف" && description && (() => {
-          const maritalMatch = description.match(/^الحالة الاجتماعية: (.+)/m);
-          const ageMatch = description.match(/^العمر: (\d+)/m);
-          if (!maritalMatch && !ageMatch) return null;
-          return (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {maritalMatch && (
-                <span className="inline-flex items-center gap-1 text-xs bg-muted/60 rounded-full px-2.5 py-1 text-foreground">
-                  <HeartHandshake className="h-3 w-3 text-primary" />
-                  {maritalMatch[1]}
-                </span>
-              )}
-              {ageMatch && (
-                <span className="inline-flex items-center gap-1 text-xs bg-muted/60 rounded-full px-2.5 py-1 text-foreground">
-                  <CalendarDays className="h-3 w-3 text-primary" />
-                  {ageMatch[1]} سنة
-                </span>
-              )}
-            </div>
-          );
-        })()}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />
@@ -172,18 +125,6 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
             <span>{time}</span>
           </div>
         </div>
-        {category === "تعارف" && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (id) navigate(`/listing/${id}`);
-            }}
-            className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            <MessageSquare className="h-4 w-4" />
-            دردشة
-          </button>
-        )}
       </div>
     </div>
   );
