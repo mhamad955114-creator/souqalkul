@@ -271,6 +271,7 @@ const AllListings = () => {
     { value: "حيوانات أليفة", label: t.categories.pets },
     { value: "معدات صناعية", label: t.categories.industrial },
     { value: "معدات زراعية", label: t.categories.agricultural },
+    { value: "مواد بناء", label: t.categories.buildingMaterials },
     { value: "أخرى", label: t.categories.other },
   ];
 
