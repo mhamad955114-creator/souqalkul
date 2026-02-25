@@ -23,7 +23,8 @@ import {
   ChevronRight,
   MessageSquare,
   Flag,
-  Hash
+  Hash,
+  ZoomIn
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -291,6 +292,15 @@ const ListingDetails = () => {
                 )}
 
                 <div className="absolute top-4 left-4 flex gap-2">
+                  {!showAppLogo && !(/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(images[currentImageIndex])) && (
+                    <button
+                      onClick={() => setShowZoomViewer(true)}
+                      className="w-10 h-10 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-card transition-colors"
+                      title="تكبير الصورة"
+                    >
+                      <ZoomIn className="h-5 w-5" />
+                    </button>
+                  )}
                   {images.length >= 3 && (
                     <button
                       onClick={() => setShow360(true)}
