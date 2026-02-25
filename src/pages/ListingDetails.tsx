@@ -34,6 +34,7 @@ import ShareButtons from "@/components/ShareButtons";
 import RatingSection from "@/components/RatingSection";
 import ReportModal from "@/components/ReportModal";
 import Product360Viewer from "@/components/Product360Viewer";
+import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -79,6 +80,7 @@ const ListingDetails = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [show360, setShow360] = useState(false);
+  const [showZoomViewer, setShowZoomViewer] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [isOwnerPro, setIsOwnerPro] = useState(false);
 
@@ -252,7 +254,8 @@ const ListingDetails = () => {
                   <img
                     src={images[currentImageIndex]}
                     alt={listing.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover cursor-zoom-in"
+                    onClick={() => setShowZoomViewer(true)}
                   />
                 )}
                 
@@ -573,6 +576,14 @@ const ListingDetails = () => {
         <Product360Viewer
           images={images}
           onClose={() => setShow360(false)}
+        />
+      )}
+
+      {showZoomViewer && images.length > 0 && (
+        <ImageZoomViewer
+          images={images.filter(img => !/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(img))}
+          initialIndex={currentImageIndex}
+          onClose={() => setShowZoomViewer(false)}
         />
       )}
     </div>
