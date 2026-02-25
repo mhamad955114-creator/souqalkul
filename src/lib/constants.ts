@@ -248,6 +248,7 @@ export const categories = [
   { value: "حيوانات أليفة", label: "حيوانات أليفة" },
   { value: "معدات صناعية", label: "معدات صناعية" },
   { value: "معدات زراعية", label: "معدات زراعية" },
+  { value: "مواد بناء", label: "مواد بناء" },
   { value: "أخرى", label: "أخرى" },
 ];
 
@@ -268,6 +269,7 @@ export const categoryLabels: Record<string, string> = {
   وظائف: "وظائف",
   ألعاب: "ألعاب",
   أخرى: "أخرى",
+  "مواد بناء": "مواد بناء",
   // Legacy English values
   cars: "سيارات",
   real_estate: "عقارات",
