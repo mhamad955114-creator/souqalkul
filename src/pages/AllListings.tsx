@@ -263,6 +263,7 @@ const AllListings = () => {
     { value: "أثاث", label: t.categories.furniture },
     { value: "ملابس", label: t.categories.clothing },
     { value: "اكسسوارات", label: t.categories.accessories },
+    { value: "مكياج", label: t.categories.makeup },
     { value: "خدمات", label: t.categories.services },
     { value: "وظائف", label: t.categories.jobs },
     { value: "ألعاب", label: t.categories.games },
