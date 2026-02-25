@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Wallet } from "lucide-react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Wallet, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -95,6 +95,30 @@ const Pricing = () => {
         t.pricing.proFeature7,
         t.pricing.proFeature8,
         t.pricing.proFeature9,
+      ],
+      notIncluded: [],
+      buttonText: t.pricing.subscribeNow,
+      buttonVariant: "default" as const,
+    },
+    {
+      name: "رجال الأعمال",
+      price: settings.business_listing.price || 200000,
+      duration: `${settings.business_listing.duration_days} يوم`,
+      description: "للشركات والمؤسسات",
+      icon: Briefcase,
+      iconColor: "text-blue-500",
+      borderColor: "border-blue-300",
+      bgColor: "bg-blue-50",
+      features: [
+        `رفع حتى ${settings.business_listing.max_images} صورة`,
+        `مدة ظهور ${settings.business_listing.duration_days} يوم`,
+        "إعلانات غير محدودة",
+        "أولوية قصوى في نتائج البحث",
+        "شارة رجال أعمال مميزة 💼",
+        "دعم فني مخصص",
+        "ظهور في القسم المميز",
+        "إحصائيات متقدمة",
+        "جميع مزايا الباقة الاحترافية",
       ],
       notIncluded: [],
       buttonText: t.pricing.subscribeNow,
@@ -276,10 +300,18 @@ const Pricing = () => {
                   if (!selectedPlan || !user) return;
                   setPurchasing(true);
                   try {
-                    const durationDays = selectedPlan.name === t.pricing.featured
-                      ? settings.featured_listing.duration_days
-                      : settings.professional_listing.duration_days;
-                    const planType = selectedPlan.name === t.pricing.featured ? "featured" : "professional";
+                    let durationDays: number;
+                    let planType: string;
+                    if (selectedPlan.name === t.pricing.featured) {
+                      durationDays = settings.featured_listing.duration_days;
+                      planType = "featured";
+                    } else if (selectedPlan.name === "رجال الأعمال") {
+                      durationDays = settings.business_listing.duration_days;
+                      planType = "business";
+                    } else {
+                      durationDays = settings.professional_listing.duration_days;
+                      planType = "professional";
+                    }
 
                     const { error: rpcError } = await supabase.rpc("purchase_subscription", {
                       _user_id: user.id,

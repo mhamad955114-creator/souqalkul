@@ -50,6 +50,7 @@ interface Listing {
   status: string | null;
   user_id: string;
   _isPro?: boolean;
+  _isBusiness?: boolean;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -146,17 +147,18 @@ const AllListings = () => {
     const { data, error, count } = await query;
 
     if (!error && data) {
-      // Fetch professional subscriptions for listing owners
+      // Fetch professional and business subscriptions for listing owners
       const userIds = [...new Set(data.map((l) => l.user_id))];
       const { data: subs } = await supabase
         .from("user_subscriptions")
-        .select("user_id")
+        .select("user_id, plan_type")
         .in("user_id", userIds)
-        .eq("plan_type", "professional")
+        .in("plan_type", ["professional", "business"])
         .eq("status", "active")
         .gte("expires_at", new Date().toISOString());
-      const proUserIds = new Set((subs || []).map((s) => s.user_id));
-      const enriched = data.map((l) => ({ ...l, _isPro: proUserIds.has(l.user_id) }));
+      const proUserIds = new Set((subs || []).filter((s) => s.plan_type === "professional").map((s) => s.user_id));
+      const bizUserIds = new Set((subs || []).filter((s) => s.plan_type === "business").map((s) => s.user_id));
+      const enriched = data.map((l) => ({ ...l, _isPro: proUserIds.has(l.user_id), _isBusiness: bizUserIds.has(l.user_id) }));
 
       if (append) {
         setListings(prev => [...prev, ...enriched]);
@@ -626,6 +628,7 @@ const AllListings = () => {
                     time={formatTime(listing.created_at)}
                     featured={listing.is_featured}
                     professional={listing._isPro}
+                    business={listing._isBusiness}
                     status={listing.status}
                     category={listing.category}
                     userId={listing.user_id}

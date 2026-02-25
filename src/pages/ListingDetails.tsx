@@ -84,6 +84,7 @@ const ListingDetails = () => {
   const [showZoomViewer, setShowZoomViewer] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [isOwnerPro, setIsOwnerPro] = useState(false);
+  const [isOwnerBusiness, setIsOwnerBusiness] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -132,15 +133,15 @@ const ListingDetails = () => {
         setSeller(profileData ? { ...profileData, phone: sellerPhone } : null);
 
         // Check if listing owner has professional subscription
-        const { data: proSub } = await supabase
+        const { data: ownerSubs } = await supabase
           .from("user_subscriptions")
-          .select("id")
+          .select("id, plan_type")
           .eq("user_id", listingData.user_id)
-          .eq("plan_type", "professional")
+          .in("plan_type", ["professional", "business"])
           .eq("status", "active")
-          .gte("expires_at", new Date().toISOString())
-          .limit(1);
-        setIsOwnerPro(!!(proSub && proSub.length > 0));
+          .gte("expires_at", new Date().toISOString());
+        setIsOwnerPro(!!(ownerSubs && ownerSubs.some((s) => s.plan_type === "professional")));
+        setIsOwnerBusiness(!!(ownerSubs && ownerSubs.some((s) => s.plan_type === "business")));
 
       } finally {
         setLoading(false);
@@ -364,12 +365,17 @@ const ListingDetails = () => {
                         {t.myAccount.soldBadge}
                       </Badge>
                     )}
-                    {isOwnerPro && (
+                    {isOwnerBusiness && (
+                      <Badge className="text-sm bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0">
+                        💼 رجال أعمال
+                      </Badge>
+                    )}
+                    {isOwnerPro && !isOwnerBusiness && (
                       <Badge className="text-sm bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
                         👑 احترافي
                       </Badge>
                     )}
-                    {listing.is_featured && !isOwnerPro && (
+                    {listing.is_featured && !isOwnerPro && !isOwnerBusiness && (
                       <Badge className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
                         ⭐ {t.listings.featured}
                       </Badge>

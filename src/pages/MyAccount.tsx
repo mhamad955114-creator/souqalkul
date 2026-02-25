@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock, AlertTriangle } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock, AlertTriangle, Briefcase } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -63,6 +63,7 @@ interface Subscription {
 const planLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   professional: { label: "باقة احترافية", icon: <Crown className="h-5 w-5" />, color: "from-purple-600 to-indigo-600" },
   featured: { label: "باقة مميزة", icon: <Star className="h-5 w-5" />, color: "from-amber-500 to-orange-500" },
+  business: { label: "باقة رجال الأعمال", icon: <Briefcase className="h-5 w-5" />, color: "from-blue-600 to-cyan-600" },
 };
 
 const MyAccount = () => {
