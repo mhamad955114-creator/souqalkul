@@ -210,6 +210,19 @@ export const areasByCity: Record<string, string[]> = {
   ],
 };
 
+// Subcategories by category
+export const subcategoriesByCategory: Record<string, string[]> = {
+  "اكسسوارات": [
+    "ساعات",
+    "نظارات",
+    "مجوهرات",
+    "حقائب",
+    "أحزمة",
+    "قبعات",
+    "أخرى",
+  ],
+};
+
 // Categories
 export const categories = [
   { value: "سيارات", label: "سيارات" },

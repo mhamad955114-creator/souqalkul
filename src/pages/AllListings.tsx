@@ -30,7 +30,8 @@ import {
   sortOptions, 
   formatPrice, 
   formatTime,
-  areasByCity 
+  areasByCity,
+  subcategoriesByCategory,
 } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
@@ -82,12 +83,15 @@ const AllListings = () => {
   const [category, setCategory] = useState(searchParams.get("category") || "all");
   const [city, setCity] = useState(searchParams.get("city") || "all");
   const [area, setArea] = useState(searchParams.get("area") || "all");
+  const [subcategory, setSubcategory] = useState("all");
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "newest");
   const [priceRange, setPriceRange] = useState<[number, number]>([
     Number(searchParams.get("minPrice")) || 0,
     Number(searchParams.get("maxPrice")) || 500000000,
   ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const availableSubcategories = category && category !== "all" ? subcategoriesByCategory[category] || [] : [];
   
   
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
@@ -173,7 +177,12 @@ const AllListings = () => {
 
   useEffect(() => {
     setArea("all");
+    setSubcategory("all");
   }, [city]);
+
+  useEffect(() => {
+    setSubcategory("all");
+  }, [category]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -217,6 +226,7 @@ const AllListings = () => {
     setCategory("all");
     setCity("all");
     setArea("all");
+    setSubcategory("all");
     setSortBy("newest");
     setPriceRange([0, 500000000]);
     setSearchParams({});
@@ -231,6 +241,7 @@ const AllListings = () => {
     category !== "all" ||
     city !== "all" ||
     area !== "all" ||
+    subcategory !== "all" ||
     sortBy !== "newest" ||
     priceRange[0] > 0 ||
     priceRange[1] < 500000000;
@@ -251,6 +262,7 @@ const AllListings = () => {
     { value: "الكترونيات", label: t.categories.electronics },
     { value: "أثاث", label: t.categories.furniture },
     { value: "ملابس", label: t.categories.clothing },
+    { value: "اكسسوارات", label: t.categories.accessories },
     { value: "خدمات", label: t.categories.services },
     { value: "وظائف", label: t.categories.jobs },
     { value: "ألعاب", label: t.categories.games },
@@ -539,13 +551,44 @@ const AllListings = () => {
           </div>
         )}
 
+        {/* Subcategory Chips */}
+        {availableSubcategories.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button
+              onClick={() => setSubcategory("all")}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                subcategory === "all"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              }`}
+            >
+              الكل
+            </button>
+            {availableSubcategories.map((sub) => (
+              <button
+                key={sub}
+                onClick={() => setSubcategory(sub)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  subcategory === sub
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+              >
+                {sub}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Listings Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (() => {
-          const filteredListings = listings;
+          const filteredListings = subcategory !== "all"
+            ? listings.filter((l) => l.title.includes(subcategory) || (l.description && l.description.includes(subcategory)))
+            : listings;
           
           return filteredListings.length === 0 ? (
           <div className="text-center py-20">
