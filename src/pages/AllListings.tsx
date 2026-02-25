@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Search, SlidersHorizontal, X, Loader2, Heart } from "lucide-react";
+import { Search, SlidersHorizontal, X, Loader2 } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -88,10 +88,7 @@ const AllListings = () => {
     Number(searchParams.get("maxPrice")) || 500000000,
   ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [maritalFilter, setMaritalFilter] = useState("all");
-  const [minAge, setMinAge] = useState("");
-  const [maxAge, setMaxAge] = useState("");
-  const [genderFilter, setGenderFilter] = useState("all");
+  
   
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
 
@@ -115,9 +112,6 @@ const AllListings = () => {
     }
     if (category && category !== "all") {
       query = query.eq("category", category);
-    } else {
-      // Hide dating listings from "all" view
-      query = query.neq("category", "تعارف");
     }
     if (city && city !== "all") {
       query = query.eq("city", city);
@@ -225,10 +219,6 @@ const AllListings = () => {
     setArea("all");
     setSortBy("newest");
     setPriceRange([0, 500000000]);
-    setMaritalFilter("all");
-    setMinAge("");
-    setMaxAge("");
-    setGenderFilter("all");
     setSearchParams({});
   };
 
@@ -243,11 +233,7 @@ const AllListings = () => {
     area !== "all" ||
     sortBy !== "newest" ||
     priceRange[0] > 0 ||
-    priceRange[1] < 500000000 ||
-    maritalFilter !== "all" ||
-    minAge !== "" ||
-    maxAge !== "" ||
-    genderFilter !== "all";
+    priceRange[1] < 500000000;
 
   // Translated sort options
   const translatedSortOptions = [
@@ -268,7 +254,7 @@ const AllListings = () => {
     { value: "خدمات", label: t.categories.services },
     { value: "وظائف", label: t.categories.jobs },
     { value: "ألعاب", label: t.categories.games },
-    { value: "تعارف", label: t.categories.dating },
+    
     { value: "حيوانات أليفة", label: t.categories.pets },
     { value: "معدات صناعية", label: t.categories.industrial },
     { value: "معدات زراعية", label: t.categories.agricultural },
@@ -380,68 +366,6 @@ const AllListings = () => {
         </Select>
       </div>
 
-      {/* Dating-specific filters */}
-      {category === "تعارف" && (
-        <>
-          <div className="space-y-2">
-            <Label>الجنس</Label>
-            <Select value={genderFilter} onValueChange={setGenderFilter}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">الكل</SelectItem>
-                <SelectItem value="male">ذكر</SelectItem>
-                <SelectItem value="female">أنثى</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>الحالة الاجتماعية</Label>
-            <Select value={maritalFilter} onValueChange={setMaritalFilter}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">الكل</SelectItem>
-                <SelectItem value="أعزب">أعزب</SelectItem>
-                <SelectItem value="عزباء">عزباء</SelectItem>
-                <SelectItem value="متزوج">متزوج</SelectItem>
-                <SelectItem value="متزوجة">متزوجة</SelectItem>
-                <SelectItem value="مطلق">مطلق</SelectItem>
-                <SelectItem value="مطلقة">مطلقة</SelectItem>
-                <SelectItem value="أرمل">أرمل</SelectItem>
-                <SelectItem value="أرملة">أرملة</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>العمر</Label>
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                placeholder="من"
-                value={minAge}
-                onChange={(e) => setMinAge(e.target.value)}
-                min="18"
-                max="99"
-                className="flex-1"
-              />
-              <Input
-                type="number"
-                placeholder="إلى"
-                value={maxAge}
-                onChange={(e) => setMaxAge(e.target.value)}
-                min="18"
-                max="99"
-                className="flex-1"
-              />
-            </div>
-          </div>
-        </>
-      )}
 
       {hasActiveFilters && (
         <Button
@@ -461,35 +385,10 @@ const AllListings = () => {
       <Header onListingAdded={handleListingAdded} />
 
       <main className="container mx-auto px-4 py-8">
-        {/* Dating sticky banner */}
-        {category === "تعارف" && (
-          <div className="sticky top-16 z-30 -mx-4 px-4 py-3 mb-6 bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-purple-500/10 dark:from-pink-500/20 dark:via-rose-500/20 dark:to-purple-500/20 backdrop-blur-sm border-b border-pink-200/50 dark:border-pink-800/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-md">
-                  <Heart className="h-5 w-5 text-white fill-white" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-foreground text-lg">تعارف</h2>
-                  <p className="text-xs text-muted-foreground">تعرّف على أشخاص جدد بطريقة آمنة</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                </span>
-                <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                  {onlineCount} متصل الآن
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {category === "تعارف" ? "إعلانات التعارف" : t.listings.allListings}
+            {t.listings.allListings}
           </h1>
           <p className="text-muted-foreground">
             {t.listings.browseAds} {totalCount} {t.listings.available}
@@ -550,58 +449,6 @@ const AllListings = () => {
               </Select>
             )}
 
-            {/* Dating filters on desktop */}
-            {category === "تعارف" && (
-              <>
-                <Select value={genderFilter} onValueChange={setGenderFilter}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="الجنس" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">كل الجنس</SelectItem>
-                    <SelectItem value="male">ذكر</SelectItem>
-                    <SelectItem value="female">أنثى</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={maritalFilter} onValueChange={setMaritalFilter}>
-                  <SelectTrigger className="w-44">
-                    <SelectValue placeholder="الحالة الاجتماعية" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">كل الحالات</SelectItem>
-                    <SelectItem value="أعزب">أعزب</SelectItem>
-                    <SelectItem value="عزباء">عزباء</SelectItem>
-                    <SelectItem value="متزوج">متزوج</SelectItem>
-                    <SelectItem value="متزوجة">متزوجة</SelectItem>
-                    <SelectItem value="مطلق">مطلق</SelectItem>
-                    <SelectItem value="مطلقة">مطلقة</SelectItem>
-                    <SelectItem value="أرمل">أرمل</SelectItem>
-                    <SelectItem value="أرملة">أرملة</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="flex items-center gap-1">
-                  <Input
-                    type="number"
-                    placeholder="العمر من"
-                    value={minAge}
-                    onChange={(e) => setMinAge(e.target.value)}
-                    min="18"
-                    max="99"
-                    className="w-24"
-                  />
-                  <span className="text-muted-foreground">-</span>
-                  <Input
-                    type="number"
-                    placeholder="إلى"
-                    value={maxAge}
-                    onChange={(e) => setMaxAge(e.target.value)}
-                    min="18"
-                    max="99"
-                    className="w-24"
-                  />
-                </div>
-              </>
-            )}
 
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-48">
@@ -689,30 +536,6 @@ const AllListings = () => {
                 </button>
               </span>
             )}
-            {maritalFilter !== "all" && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                الحالة: {maritalFilter}
-                <button onClick={() => setMaritalFilter("all")}>
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-            {(minAge || maxAge) && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                العمر: {minAge || "٠"} - {maxAge || "∞"}
-                <button onClick={() => { setMinAge(""); setMaxAge(""); }}>
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
-            {genderFilter !== "all" && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                الجنس: {genderFilter === "male" ? "ذكر" : "أنثى"}
-                <button onClick={() => setGenderFilter("all")}>
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            )}
           </div>
         )}
 
@@ -722,37 +545,7 @@ const AllListings = () => {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : (() => {
-          // Client-side filtering for dating fields
-          const detectGender = (title: string) => {
-            const femaleKeywords = ["أبحث عن زوج", "فتاة", "امرأة", "بنت", "آنسة", "سيدة", "أرملة", "مطلقة", "عزباء"];
-            const maleKeywords = ["أبحث عن زوجة", "شاب", "رجل", "ولد", "أرمل", "مطلق", "أعزب"];
-            const lowerTitle = title.toLowerCase();
-            if (femaleKeywords.some(k => lowerTitle.includes(k))) return "female";
-            if (maleKeywords.some(k => lowerTitle.includes(k))) return "male";
-            return "unknown";
-          };
-
-          const filteredListings = category === "تعارف" 
-            ? listings.filter(listing => {
-                const desc = listing.description || "";
-                if (genderFilter !== "all") {
-                  const gender = detectGender(listing.title);
-                  if (gender !== genderFilter) return false;
-                }
-                if (maritalFilter !== "all") {
-                  const match = desc.match(/^الحالة الاجتماعية: (.+)/m);
-                  if (!match || match[1] !== maritalFilter) return false;
-                }
-                if (minAge || maxAge) {
-                  const ageMatch = desc.match(/^العمر: (\d+)/m);
-                  if (!ageMatch) return false;
-                  const age = parseInt(ageMatch[1]);
-                  if (minAge && age < parseInt(minAge)) return false;
-                  if (maxAge && age > parseInt(maxAge)) return false;
-                }
-                return true;
-              })
-            : listings;
+          const filteredListings = listings;
           
           return filteredListings.length === 0 ? (
           <div className="text-center py-20">

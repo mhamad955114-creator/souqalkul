@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet, Heart, Video } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet, Video } from "lucide-react";
 import { cities, categories, areasByCity, formatPrice } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -45,8 +45,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     phone: "",
     is_featured: false,
     paidType: "" as "" | "featured" | "professional",
-    maritalStatus: "",
-    age: "",
   });
   const [images, setImages] = useState<string[]>([]);
 
@@ -207,46 +205,33 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const isDatingCategory = formData.category === "تعارف";
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    // For dating category, phone is not required
-    if (isDatingCategory) {
-      if (!formData.title || !formData.price || !formData.category || !formData.city) {
-        toast.error(t.listingForm.requiredFields);
-        return;
-      }
-    } else {
-      if (!formData.title || !formData.price || !formData.category || !formData.city || !formData.phone) {
-        toast.error(t.listingForm.requiredFields);
-        return;
-      }
+    if (!formData.title || !formData.price || !formData.category || !formData.city || !formData.phone) {
+      toast.error(t.listingForm.requiredFields);
+      return;
+    }
 
-      const phoneRegex = /^09\d{8}$/;
-      if (!phoneRegex.test(formData.phone)) {
-        toast.error(t.listingForm.invalidPhone);
-        return;
-      }
+    const phoneRegex = /^09\d{8}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error(t.listingForm.invalidPhone);
+      return;
     }
 
     setLoading(true);
 
     try {
-      // Dating category is always paid, or if featured/professional is selected
-      const needsPayment = isDatingCategory || formData.is_featured;
+      const needsPayment = formData.is_featured;
       if (needsPayment) {
         let paymentAmount: number;
         let paymentDesc: string;
         let paymentType: string;
 
-        if (isDatingCategory && !formData.is_featured) {
-          paymentAmount = settings.dating_listing.price || 25000;
-          paymentDesc = "رسوم نشر إعلان تعارف";
-          paymentType = "dating";
-        } else if (formData.paidType === "professional") {
+        if (formData.paidType === "professional") {
           paymentAmount = settings.professional_listing.price || 20000;
           paymentDesc = "ترويج إعلان احترافي";
           paymentType = "promotion";
@@ -274,18 +259,12 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
-        description: isDatingCategory
-          ? [
-              formData.maritalStatus ? `الحالة الاجتماعية: ${formData.maritalStatus}` : "",
-              formData.age ? `العمر: ${formData.age}` : "",
-              formData.description.trim(),
-            ].filter(Boolean).join("\n")
-          : formData.description.trim(),
+        description: formData.description.trim(),
         price: parseFloat(formData.price),
         category: formData.category,
         city: formData.city,
         area: formData.area || null,
-        phone: isDatingCategory ? null : formData.phone,
+        phone: formData.phone,
         images: images,
         is_featured: formData.is_featured,
       });
@@ -314,8 +293,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       phone: "",
       is_featured: false,
       paidType: "",
-      maritalStatus: "",
-      age: "",
     });
     setImages([]);
     setRejectedImages([]);
@@ -367,46 +344,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             />
           </div>
 
-          {/* Marital Status - only for dating category */}
-          {isDatingCategory && (
-            <div className="space-y-2">
-              <Label>الحالة الاجتماعية *</Label>
-              <Select
-                value={formData.maritalStatus}
-                onValueChange={(value) => setFormData({ ...formData, maritalStatus: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر الحالة الاجتماعية" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="أعزب">أعزب</SelectItem>
-                  <SelectItem value="عزباء">عزباء</SelectItem>
-                  <SelectItem value="متزوج">متزوج</SelectItem>
-                  <SelectItem value="متزوجة">متزوجة</SelectItem>
-                  <SelectItem value="مطلق">مطلق</SelectItem>
-                  <SelectItem value="مطلقة">مطلقة</SelectItem>
-                  <SelectItem value="أرمل">أرمل</SelectItem>
-                  <SelectItem value="أرملة">أرملة</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* Age - only for dating category */}
-          {isDatingCategory && (
-            <div className="space-y-2">
-              <Label htmlFor="age">العمر *</Label>
-              <Input
-                id="age"
-                type="number"
-                placeholder="مثال: 25"
-                value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                min="18"
-                max="99"
-              />
-            </div>
-          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -509,46 +446,19 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
           </div>
 
-          {/* Phone - hidden for dating category */}
-          {!isDatingCategory && (
-            <div className="space-y-2">
-              <Label htmlFor="phone">{t.listingForm.phone} *</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="09xxxxxxxx"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-                dir="ltr"
-                className={dir === "rtl" ? "text-left" : "text-left"}
-              />
-            </div>
-          )}
-
-          {/* Dating category notice */}
-          {isDatingCategory && (
-            <Alert className="border-rose-200 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30">
-              <Heart className="h-4 w-4 text-rose-500" />
-              <AlertDescription>
-                <div className="font-medium text-rose-700 dark:text-rose-300">إعلانات التعارف مدفوعة</div>
-                <div className="text-sm text-rose-600 dark:text-rose-400 mt-1">
-                  سيتم خصم {formatPrice(settings.dating_listing.price || 25000)} من رصيد محفظتك. التواصل يتم فقط عبر الدردشة الداخلية للتطبيق.
-                </div>
-                <div className="text-sm mt-1">
-                  <span className="font-medium">رصيدك: </span>
-                  <span className={wallet && wallet.balance >= (settings.dating_listing.price || 25000) ? "text-green-600" : "text-red-600"}>
-                    {formatPrice(wallet?.balance || 0)}
-                  </span>
-                  {wallet && wallet.balance < (settings.dating_listing.price || 25000) && (
-                    <Button type="button" variant="link" size="sm" className="text-primary p-0 mr-2" onClick={() => { onClose(); navigate("/wallet"); }}>
-                      شحن المحفظة
-                    </Button>
-                  )}
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="phone">{t.listingForm.phone} *</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="09xxxxxxxx"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              required
+              dir="ltr"
+              className={dir === "rtl" ? "text-left" : "text-left"}
+            />
+          </div>
 
           {/* Ad Type Section */}
           <div className="space-y-3">

@@ -36,9 +36,6 @@ import {
   Copy,
   ImagePlus,
   X,
-  Star,
-  Crown,
-  MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice, formatDate } from "@/lib/constants";
@@ -73,30 +70,11 @@ const WalletPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const [purchasing, setPurchasing] = useState(false);
-  const [activeSubscription, setActiveSubscription] = useState<any>(null);
 
   const shamcashAccount = rawSettings.shamcash_account
     ? String(rawSettings.shamcash_account).replace(/"/g, "")
     : "0999999999";
 
-  useEffect(() => {
-    if (!user) return;
-    const fetchSubscription = async () => {
-      const { data } = await supabase
-        .from("user_subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .gte("expires_at", new Date().toISOString())
-        .order("expires_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      setActiveSubscription(data);
-    };
-    fetchSubscription();
-  }, [user, purchasing]);
 
   if (authLoading || loading) {
     return (
@@ -308,151 +286,10 @@ const WalletPage = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Subscription Plans Section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-2 mb-4">
-            <MessageCircle className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold">باقات التعارف (فتح الدردشة)</h2>
-          </div>
-
-          {activeSubscription ? (
-            <Card className="border-green-300 bg-green-50 dark:bg-green-950/20">
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="h-6 w-6 text-green-500" />
-                  <div>
-                    <p className="font-semibold text-green-700 dark:text-green-400">لديك اشتراك نشط</p>
-                    <p className="text-sm text-muted-foreground">
-                      ينتهي في: {formatDate(activeSubscription.expires_at)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                {
-                  name: "مميز",
-                  planType: "featured",
-                  price: settings.featured_listing.price || 50000,
-                  duration: settings.featured_listing.duration_days,
-                  icon: Star,
-                  color: "text-amber-500",
-                  bgColor: "bg-amber-50 dark:bg-amber-950/20",
-                  borderColor: "border-amber-300",
-                },
-                {
-                  name: "احترافي",
-                  planType: "professional",
-                  price: settings.professional_listing.price || 100000,
-                  duration: settings.professional_listing.duration_days,
-                  icon: Crown,
-                  color: "text-purple-500",
-                  bgColor: "bg-purple-50 dark:bg-purple-950/20",
-                  borderColor: "border-purple-300",
-                },
-              ].map((plan) => (
-                <Card key={plan.planType} className={`${plan.borderColor} ${plan.bgColor}`}>
-                  <CardContent className="py-4 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <plan.icon className={`h-5 w-5 ${plan.color}`} />
-                      <span className="font-bold">{plan.name}</span>
-                    </div>
-                    <div>
-                      <span className="text-2xl font-bold">{formatPrice(plan.price)}</span>
-                      <span className="text-sm text-muted-foreground"> / {plan.duration} يوم</span>
-                    </div>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>✓ فتح الدردشة في التعارف</li>
-                      <li>✓ إعلانات مميزة</li>
-                    </ul>
-                    <Button
-                      className="w-full"
-                      variant={plan.planType === "featured" ? "default" : "outline"}
-                      onClick={() => {
-                        if (!user) {
-                          toast.error("يرجى تسجيل الدخول أولاً");
-                          return;
-                        }
-                        setSelectedPlan(plan);
-                      }}
-                    >
-                      شراء الباقة
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
       </main>
       <Footer />
       <BottomNavigation />
 
-      {/* Purchase Subscription Dialog */}
-      <Dialog open={!!selectedPlan} onOpenChange={(open) => !open && setSelectedPlan(null)}>
-        <DialogContent className="sm:max-w-md" dir={dir}>
-          <DialogHeader>
-            <DialogTitle>تأكيد شراء الباقة</DialogTitle>
-            <DialogDescription>
-              هل تريد شراء باقة {selectedPlan?.name}؟
-            </DialogDescription>
-          </DialogHeader>
-          {selectedPlan && (
-            <div className="space-y-4 py-4">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">سعر الباقة:</span>
-                <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">رصيد المحفظة:</span>
-                <span className={`font-bold text-lg ${(wallet?.balance || 0) >= selectedPlan.price ? "text-green-600" : "text-red-600"}`}>
-                  {formatPrice(wallet?.balance || 0)}
-                </span>
-              </div>
-              {(wallet?.balance || 0) < selectedPlan.price && (
-                <div className="bg-red-50 dark:bg-red-950/30 text-red-600 p-3 rounded-lg text-sm text-center">
-                  رصيدك غير كافٍ. اشحن محفظتك أولاً
-                </div>
-              )}
-            </div>
-          )}
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setSelectedPlan(null)}>إلغاء</Button>
-            <Button
-              disabled={purchasing || !wallet || (wallet.balance || 0) < (selectedPlan?.price || 0)}
-              onClick={async () => {
-                if (!selectedPlan || !user) return;
-                setPurchasing(true);
-                try {
-                  const { error: rpcError } = await supabase.rpc("purchase_subscription", {
-                    _user_id: user.id,
-                    _plan_type: selectedPlan.planType,
-                    _price: selectedPlan.price,
-                    _duration_days: selectedPlan.duration,
-                  });
-                  if (rpcError) throw rpcError;
-                  toast.success(`تم شراء باقة ${selectedPlan.name} بنجاح! 🎉 الدردشة مفتوحة الآن`);
-                  setSelectedPlan(null);
-                  refetch();
-                } catch (err: any) {
-                  if (err.message?.includes("Insufficient balance")) {
-                    toast.error("رصيد المحفظة غير كافٍ!");
-                  } else {
-                    toast.error("فشل في الشراء: " + (err.message || "خطأ"));
-                  }
-                } finally {
-                  setPurchasing(false);
-                }
-              }}
-            >
-              {purchasing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <WalletIcon className="h-4 w-4 ml-2" />}
-              تأكيد الشراء
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Top-up Dialog */}
       <Dialog open={topUpOpen} onOpenChange={setTopUpOpen}>

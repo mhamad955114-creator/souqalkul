@@ -36,14 +36,6 @@ const planConfig = [
     bgColor: "bg-purple-500/10",
     hasPrice: true,
   },
-  {
-    key: "dating_listing",
-    label: "إعلان التعارف",
-    icon: Heart,
-    iconColor: "text-rose-500",
-    bgColor: "bg-rose-500/10",
-    hasPrice: true,
-  },
 ];
 
 const AdminSettingsTab = () => {
@@ -84,7 +76,7 @@ const AdminSettingsTab = () => {
         free_listing: { ...settings.free_listing },
         featured_listing: { ...settings.featured_listing },
         professional_listing: { ...settings.professional_listing },
-        dating_listing: { ...settings.dating_listing },
+        
       });
     }
   }, [loading, settings]);

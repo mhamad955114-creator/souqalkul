@@ -12,14 +12,14 @@ export interface ListingSettings {
   free_listing: ListingPlan;
   featured_listing: ListingPlan;
   professional_listing: ListingPlan;
-  dating_listing: ListingPlan;
+  
 }
 
 const defaultSettings: ListingSettings = {
   free_listing: { duration_days: 30, max_images: 5, max_active_listings: 3 },
   featured_listing: { price: 50000, duration_days: 30, max_images: 10, max_active_listings: 10 },
   professional_listing: { price: 100000, duration_days: 30, max_images: 20, max_active_listings: -1 },
-  dating_listing: { price: 25000, duration_days: 30, max_images: 5, max_active_listings: 3 },
+  
 };
 
 export const useListingSettings = () => {

@@ -22,10 +22,7 @@ import {
   ChevronRight,
   MessageSquare,
   Flag,
-  Hash,
-  CalendarDays,
-  HeartHandshake,
-  Lock
+  Hash
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -139,21 +136,6 @@ const ListingDetails = () => {
           .limit(1);
         setIsOwnerPro(!!(proSub && proSub.length > 0));
 
-        // Check if user has active subscription (for dating chat lock)
-        if (user && listingData.category === "تعارف") {
-          const { data: subData } = await supabase
-            .from("user_subscriptions")
-            .select("id")
-            .eq("user_id", user.id)
-            .eq("status", "active")
-            .gte("expires_at", new Date().toISOString())
-            .limit(1);
-          
-          // Also check if user is the listing owner
-          setHasActiveSubscription(
-            (subData && subData.length > 0) || listingData.user_id === user.id
-          );
-        }
       } finally {
         setLoading(false);
       }
@@ -354,12 +336,7 @@ const ListingDetails = () => {
                   <div className="flex gap-2 flex-shrink-0">
                     {listing.status === "sold" && (
                       <Badge variant="destructive" className="text-sm">
-                        {listing.category === "تعارف" ? "تم الزواج 💍" : t.myAccount.soldBadge}
-                      </Badge>
-                    )}
-                    {listing.category === "تعارف" && listing.status !== "sold" && listing.status !== "expired" && (
-                      <Badge className="text-sm bg-green-500 hover:bg-green-600 text-white border-0">
-                        نشط ✅
+                        {t.myAccount.soldBadge}
                       </Badge>
                     )}
                     {isOwnerPro && (
@@ -399,7 +376,7 @@ const ListingDetails = () => {
                     <Eye className="h-4 w-4" />
                     {listing.views_count || 0} {t.details.views}
                   </span>
-                  {listing.phone && listing.category !== "تعارف" && (
+                  {listing.phone && (
                     <span className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
                       {listing.phone}
@@ -409,47 +386,13 @@ const ListingDetails = () => {
 
                 <Separator className="my-6" />
 
-                {/* Dating info: marital status & age */}
-                {listing.category === "تعارف" && (() => {
-                  const desc = listing.description || "";
-                  const maritalMatch = desc.match(/^الحالة الاجتماعية: (.+)/m);
-                  const ageMatch = desc.match(/^العمر: (\d+)/m);
-                  if (!maritalMatch && !ageMatch) return null;
-                  return (
-                    <div className="flex flex-wrap gap-3 mb-6">
-                      {maritalMatch && (
-                        <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-4 py-2.5">
-                          <HeartHandshake className="h-5 w-5 text-primary" />
-                          <div>
-                            <span className="text-xs text-muted-foreground block">الحالة الاجتماعية</span>
-                            <span className="font-semibold text-foreground">{maritalMatch[1]}</span>
-                          </div>
-                        </div>
-                      )}
-                      {ageMatch && (
-                        <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-4 py-2.5">
-                          <CalendarDays className="h-5 w-5 text-primary" />
-                          <div>
-                            <span className="text-xs text-muted-foreground block">العمر</span>
-                            <span className="font-semibold text-foreground">{ageMatch[1]} سنة</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
 
                 <div>
                   <h2 className="text-lg font-semibold text-foreground mb-3">
                     {t.details.description}
                   </h2>
                   <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                    {listing.category === "تعارف" && listing.description
-                      ? listing.description
-                          .replace(/^الحالة الاجتماعية: .+\n?/m, "")
-                          .replace(/^العمر: \d+\n?/m, "")
-                          .trim() || t.details.noDescription
-                      : listing.description || t.details.noDescription}
+                    {listing.description || t.details.noDescription}
                   </p>
                 </div>
               </CardContent>
@@ -468,7 +411,7 @@ const ListingDetails = () => {
             <Card className="sticky top-24">
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4">
-                  {listing?.category === "تعارف" ? "صاحب الإعلان" : t.details.sellerInfo}
+                  {t.details.sellerInfo}
                 </h2>
 
                 <div className="flex items-center gap-4 mb-6">
@@ -503,71 +446,43 @@ const ListingDetails = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Hide call/whatsapp for dating category */}
-                  {listing?.category !== "تعارف" && (
-                    <>
-                      <Button 
-                        onClick={handleCall}
-                        className="w-full" 
-                        size="lg"
-                        disabled={!seller?.phone && !listing?.phone}
-                      >
-                        <Phone className="h-5 w-5" />
-                        {t.details.call}
-                      </Button>
-                      
-                      <Button 
-                        onClick={handleWhatsApp}
-                        variant="outline" 
-                        className="w-full bg-[#25D366] hover:bg-[#25D366]/90 text-white border-[#25D366] hover:text-white" 
-                        size="lg"
-                        disabled={!seller?.phone && !listing?.phone}
-                      >
-                        <MessageCircle className="h-5 w-5" />
-                        {t.details.whatsapp}
-                      </Button>
-                    </>
-                  )}
+                  <Button 
+                    onClick={handleCall}
+                    className="w-full" 
+                    size="lg"
+                    disabled={!seller?.phone && !listing?.phone}
+                  >
+                    <Phone className="h-5 w-5" />
+                    {t.details.call}
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleWhatsApp}
+                    variant="outline" 
+                    className="w-full bg-[#25D366] hover:bg-[#25D366]/90 text-white border-[#25D366] hover:text-white" 
+                    size="lg"
+                    disabled={!seller?.phone && !listing?.phone}
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                    {t.details.whatsapp}
+                  </Button>
 
                   {listing?.user_id !== user?.id && (
-                    listing?.category === "تعارف" && !hasActiveSubscription ? (
-                      <div className="space-y-2">
-                        <Button 
-                          onClick={() => navigate("/wallet")}
-                          variant="default"
-                          className="w-full" 
-                          size="lg"
-                        >
-                          <Lock className="h-5 w-5" />
-                          الدردشة مقفلة - اشترك الآن
-                        </Button>
-                        <p className="text-sm text-muted-foreground text-center">
-                          يجب الاشتراك في باقة مدفوعة للتواصل في إعلانات التعارف
-                        </p>
-                      </div>
-                    ) : (
-                      <Button 
-                        onClick={() => {
-                          if (user) {
-                            setChatModalOpen(true);
-                          } else {
-                            setAuthModalOpen(true);
-                          }
-                        }}
-                        variant={listing?.category === "تعارف" ? "default" : "outline"}
-                        className="w-full" 
-                        size="lg"
-                      >
-                        <MessageSquare className="h-5 w-5" />
-                        {listing?.category === "تعارف" ? "دردشة مع صاحب الإعلان" : t.details.chatWithSeller}
-                      </Button>
-                    )
-                  )}
-
-                  {listing?.category === "تعارف" && listing?.user_id !== user?.id && hasActiveSubscription && (
-                    <p className="text-sm text-muted-foreground text-center">
-                      التواصل في إعلانات التعارف يتم فقط عبر الدردشة الداخلية
-                    </p>
+                    <Button 
+                      onClick={() => {
+                        if (user) {
+                          setChatModalOpen(true);
+                        } else {
+                          setAuthModalOpen(true);
+                        }
+                      }}
+                      variant="outline"
+                      className="w-full" 
+                      size="lg"
+                    >
+                      <MessageSquare className="h-5 w-5" />
+                      {t.details.chatWithSeller}
+                    </Button>
                   )}
 
                   {listing?.user_id !== user?.id && (
@@ -589,7 +504,7 @@ const ListingDetails = () => {
                   )}
                 </div>
 
-                {listing?.category !== "تعارف" && !seller?.phone && !listing?.phone && (
+                {!seller?.phone && !listing?.phone && (
                   <p className="text-sm text-muted-foreground text-center mt-4">
                     {t.details.noPhone}
                   </p>
