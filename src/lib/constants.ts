@@ -292,9 +292,9 @@ export const categoryLabels: Record<string, string> = {
 };
 
 // Status labels
-export const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  active: { label: "نشط", variant: "default" },
-  sold: { label: "تم البيع", variant: "secondary" },
+export const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; className?: string }> = {
+  active: { label: "نشط", variant: "outline", className: "bg-green-500/10 text-green-600 border-green-500/30" },
+  sold: { label: "مباع", variant: "outline", className: "bg-destructive/10 text-destructive border-destructive/30" },
   expired: { label: "منتهي", variant: "destructive" },
 };
 

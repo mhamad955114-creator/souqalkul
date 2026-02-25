@@ -743,7 +743,7 @@ const MyAccount = () => {
                           <h3 className="text-lg font-semibold text-foreground line-clamp-1">
                             {listing.title}
                           </h3>
-                          <Badge variant={statusLabels[listing.status || "active"]?.variant || "default"}>
+                          <Badge variant={statusLabels[listing.status || "active"]?.variant || "default"} className={statusLabels[listing.status || "active"]?.className}>
                             {statusLabels[listing.status || "active"]?.label || listing.status}
                           </Badge>
                         </div>
