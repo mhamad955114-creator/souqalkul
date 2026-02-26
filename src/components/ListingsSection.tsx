@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Briefcase, Pin, BarChart3, Images, Infinity, ShieldCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import ListingCard from "./ListingCard";
 import { useEffect, useState } from "react";
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, formatTime } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
+import { useListingSettings } from "@/hooks/useListingSettings";
 interface Listing {
   id: string;
   title: string;
@@ -72,6 +73,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
   const { isOnline } = usePresence();
+  const { settings } = useListingSettings();
 
   const fetchListings = async () => {
     const { data, error } = await supabase
@@ -130,6 +132,53 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
             {t.listings.viewAll}
             <ViewAllArrow className="h-4 w-4" />
           </Button>
+        </div>
+
+        {/* Business Plan Promo Banner */}
+        <div className="mb-8 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 md:p-8 relative">
+          <div className="absolute top-2 left-2 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full">
+            إعلان مدفوع
+          </div>
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center">
+              <Briefcase className="h-8 w-8 md:h-10 md:w-10" />
+            </div>
+            <div className="flex-1 text-center md:text-right">
+              <h3 className="text-xl md:text-2xl font-bold mb-2">باقة رجال الأعمال 💼</h3>
+              <p className="text-white/80 text-sm mb-4">الباقة الأقوى للشركات والمؤسسات - تصدّر نتائج البحث واحصل على ميزات حصرية</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
+                  <Pin className="h-4 w-4 flex-shrink-0" />
+                  <span>تثبيت في الأعلى</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
+                  <BarChart3 className="h-4 w-4 flex-shrink-0" />
+                  <span>إحصائيات متقدمة</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
+                  <Images className="h-4 w-4 flex-shrink-0" />
+                  <span>حتى {settings.business_listing.max_images} صورة</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
+                  <Infinity className="h-4 w-4 flex-shrink-0" />
+                  <span>إعلانات غير محدودة</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
+                  <ShieldCheck className="h-4 w-4 flex-shrink-0" />
+                  <span>{settings.business_listing.duration_days} يوم</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex-shrink-0 text-center">
+              <p className="text-3xl font-bold mb-1">{formatPrice(settings.business_listing.price || 200000)}</p>
+              <Button
+                onClick={() => navigate("/pricing")}
+                className="bg-white text-blue-600 hover:bg-white/90 font-bold mt-2"
+              >
+                اشترك الآن
+              </Button>
+            </div>
+          </div>
         </div>
 
         {loading ? (
