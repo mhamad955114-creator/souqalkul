@@ -240,7 +240,7 @@ const ListingDetails = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Image Gallery */}
             <Card className="overflow-hidden">
-              <div className="relative aspect-video">
+              <div className="relative aspect-square sm:aspect-video bg-muted/20">
                 {showAppLogo ? (
                   <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-3">
                     <img src={appLogo} alt="سوق الكل" className="w-32 h-32 object-contain opacity-60" />
@@ -250,13 +250,13 @@ const ListingDetails = () => {
                   <video
                     src={images[currentImageIndex]}
                     controls
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
                   <img
                     src={images[currentImageIndex]}
                     alt={listing.title}
-                    className="w-full h-full object-cover cursor-zoom-in"
+                    className="w-full h-full object-contain cursor-zoom-in"
                     onClick={() => setShowZoomViewer(true)}
                   />
                 )}
