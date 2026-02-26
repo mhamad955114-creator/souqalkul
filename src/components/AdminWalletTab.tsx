@@ -53,6 +53,16 @@ const AdminWalletTab = () => {
   const [adminNote, setAdminNote] = useState("");
   const [processing, setProcessing] = useState(false);
   const [filter, setFilter] = useState<string>("pending");
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+
+  const getSignedReceiptUrl = async (receiptUrl: string): Promise<string | null> => {
+    // Extract path from full URL or use as-is
+    const path = receiptUrl.includes('/storage/v1/object/') 
+      ? receiptUrl.split('/storage/v1/object/public/receipts/')[1] || receiptUrl.split('/storage/v1/object/sign/receipts/')[1] || receiptUrl
+      : receiptUrl;
+    const { data } = await supabase.storage.from('receipts').createSignedUrl(path, 3600);
+    return data?.signedUrl || null;
+  };
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -348,13 +358,28 @@ const AdminWalletTab = () => {
                     <ImageIcon className="h-4 w-4" />
                     صورة الإيصال
                   </p>
-                  <a href={selectedRequest.receipt_url} target="_blank" rel="noopener noreferrer">
-                    <img
-                      src={selectedRequest.receipt_url}
-                      alt="إيصال التحويل"
-                      className="w-full max-h-64 object-contain rounded-lg border cursor-pointer hover:opacity-80 transition-opacity"
-                    />
-                  </a>
+                  {signedUrls[selectedRequest.id] ? (
+                    <a href={signedUrls[selectedRequest.id]} target="_blank" rel="noopener noreferrer">
+                      <img
+                        src={signedUrls[selectedRequest.id]}
+                        alt="إيصال التحويل"
+                        className="w-full max-h-64 object-contain rounded-lg border cursor-pointer hover:opacity-80 transition-opacity"
+                      />
+                    </a>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        const url = await getSignedReceiptUrl(selectedRequest.receipt_url!);
+                        if (url) setSignedUrls(prev => ({ ...prev, [selectedRequest.id]: url }));
+                        else toast.error("تعذر تحميل صورة الإيصال");
+                      }}
+                    >
+                      <ImageIcon className="h-4 w-4 mr-1" />
+                      عرض الإيصال
+                    </Button>
+                  )}
                 </div>
               )}
 
