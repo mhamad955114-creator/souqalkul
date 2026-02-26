@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock, AlertTriangle, Briefcase } from "lucide-react";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock, AlertTriangle, Briefcase, BarChart3, TrendingUp, Heart, Pin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -92,6 +92,15 @@ const MyAccount = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [businessStats, setBusinessStats] = useState<{
+    totalViews: number;
+    totalFavorites: number;
+    totalListings: number;
+    activeListings: number;
+    soldListings: number;
+    avgViewsPerListing: number;
+    topListings: { id: string; title: string; views: number }[];
+  } | null>(null);
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   useEffect(() => {
@@ -142,8 +151,51 @@ const MyAccount = () => {
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .then(({ data }) => {
-          if (data) setSubscriptions(data);
+        .then(async ({ data }) => {
+          if (data) {
+            setSubscriptions(data);
+            // Check for active business subscription
+            const hasBusinessSub = data.some(
+              (s) => s.plan_type === "business" && s.status === "active" && new Date(s.expires_at) > new Date()
+            );
+            if (hasBusinessSub) {
+              // Fetch advanced stats
+              const listingsRes = await supabase
+                .from("listings")
+                .select("id, title, views_count, status")
+                .eq("user_id", user.id);
+
+              const userListings = listingsRes.data || [];
+              const listingIds = userListings.map((l) => l.id);
+              
+              let totalFavoritesCount = 0;
+              if (listingIds.length > 0) {
+                const { count } = await supabase
+                  .from("favorites")
+                  .select("id", { count: "exact", head: true })
+                  .in("listing_id", listingIds);
+                totalFavoritesCount = count || 0;
+              }
+
+              const totalViews = userListings.reduce((sum, l) => sum + (l.views_count || 0), 0);
+              const activeCount = userListings.filter((l) => l.status === "active").length;
+              const soldCount = userListings.filter((l) => l.status === "sold").length;
+              const topListings = [...userListings]
+                .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+                .slice(0, 5)
+                .map((l) => ({ id: l.id, title: l.title, views: l.views_count || 0 }));
+
+              setBusinessStats({
+                totalViews,
+                totalFavorites: totalFavoritesCount,
+                totalListings: userListings.length,
+                activeListings: activeCount,
+                soldListings: soldCount,
+                avgViewsPerListing: userListings.length > 0 ? Math.round(totalViews / userListings.length) : 0,
+                topListings,
+              });
+            }
+          }
         });
     }
   }, [user]);
@@ -693,6 +745,81 @@ const MyAccount = () => {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Business Advanced Statistics */}
+        {businessStats && (
+          <Card className="mb-8 border-blue-500/30">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-500" />
+                إحصائيات متقدمة
+                <Badge className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0 text-xs">💼 رجال أعمال</Badge>
+              </h2>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <Eye className="h-5 w-5 mx-auto mb-2 text-primary" />
+                  <p className="text-2xl font-bold text-foreground">{businessStats.totalViews.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">إجمالي المشاهدات</p>
+                </div>
+                <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <Heart className="h-5 w-5 mx-auto mb-2 text-destructive" />
+                  <p className="text-2xl font-bold text-foreground">{businessStats.totalFavorites}</p>
+                  <p className="text-xs text-muted-foreground">في المفضلة</p>
+                </div>
+                <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <TrendingUp className="h-5 w-5 mx-auto mb-2 text-green-500" />
+                  <p className="text-2xl font-bold text-foreground">{businessStats.avgViewsPerListing}</p>
+                  <p className="text-xs text-muted-foreground">متوسط المشاهدات</p>
+                </div>
+                <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <Pin className="h-5 w-5 mx-auto mb-2 text-blue-500" />
+                  <p className="text-2xl font-bold text-foreground">{businessStats.totalListings}</p>
+                  <p className="text-xs text-muted-foreground">إجمالي الإعلانات</p>
+                </div>
+                <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <CheckCircle className="h-5 w-5 mx-auto mb-2 text-green-500" />
+                  <p className="text-2xl font-bold text-foreground">{businessStats.activeListings}</p>
+                  <p className="text-xs text-muted-foreground">إعلانات نشطة</p>
+                </div>
+                <div className="bg-muted/50 rounded-xl p-4 text-center">
+                  <BarChart3 className="h-5 w-5 mx-auto mb-2 text-amber-500" />
+                  <p className="text-2xl font-bold text-foreground">{businessStats.soldListings}</p>
+                  <p className="text-xs text-muted-foreground">تم بيعها</p>
+                </div>
+              </div>
+
+              {/* Top Listings */}
+              {businessStats.topListings.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-1">
+                    <TrendingUp className="h-4 w-4" />
+                    أكثر الإعلانات مشاهدة
+                  </h3>
+                  <div className="space-y-2">
+                    {businessStats.topListings.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between bg-muted/30 rounded-lg px-4 py-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => navigate(`/listing/${item.id}`)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-bold text-muted-foreground w-6">{idx + 1}.</span>
+                          <span className="text-sm font-medium text-foreground line-clamp-1">{item.title}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>{item.views.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </CardContent>
