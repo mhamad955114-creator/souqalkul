@@ -149,6 +149,31 @@ export function useWallet() {
     return data as number;
   };
 
+  const transferByWalletId = async (walletUserId: string, amount: number) => {
+    if (!user || !wallet) throw new Error("Not authenticated");
+    if (amount <= 0) throw new Error("مبلغ غير صالح");
+    if (wallet.balance < amount) throw new Error("رصيد غير كافٍ");
+    if (walletUserId === user.id) throw new Error("لا يمكنك التحويل لنفسك");
+
+    // Verify receiver exists
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("user_id")
+      .eq("user_id", walletUserId)
+      .maybeSingle();
+
+    if (!profile) throw new Error("عنوان المحفظة غير صالح");
+
+    const { error } = await supabase.rpc("transfer_wallet_balance", {
+      _sender_id: user.id,
+      _receiver_id: walletUserId,
+      _amount: amount,
+    });
+
+    if (error) throw error;
+    await fetchWallet();
+  };
+
   return {
     wallet,
     transactions,
@@ -156,6 +181,7 @@ export function useWallet() {
     loading,
     submitTopUp,
     transferBalance,
+    transferByWalletId,
     payFromWallet,
     refetch: fetchWallet,
   };
