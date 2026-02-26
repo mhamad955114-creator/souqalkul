@@ -83,15 +83,18 @@ const RelatedUserInfo = ({ userId, type }: { userId: string; type: string }) => 
 
 const WalletPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const { wallet, transactions, topUpRequests, loading, submitTopUp, refetch } = useWallet();
+  const { wallet, transactions, topUpRequests, loading, submitTopUp, transferBalance, refetch } = useWallet();
   const { settings, rawSettings, loading: settingsLoading } = useListingSettings();
   const { dir } = useLanguage();
   const navigate = useNavigate();
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   const [topUpOpen, setTopUpOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpTxNumber, setTopUpTxNumber] = useState("");
+  const [transferPhone, setTransferPhone] = useState("");
+  const [transferAmount, setTransferAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
@@ -209,7 +212,7 @@ const WalletPage = () => {
               <Button
                 variant="secondary"
                 className="flex-1"
-                onClick={() => toast.info("ميزة التحويل قادمة قريباً")}
+                onClick={() => setTransferOpen(true)}
               >
                 <SendHorizontal className="h-4 w-4" />
                 تحويل
@@ -409,6 +412,82 @@ const WalletPage = () => {
             <Button onClick={handleTopUp} disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpCircle className="h-4 w-4" />}
               إرسال الطلب
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Transfer Dialog */}
+      <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+        <DialogContent className="max-w-md" dir={dir}>
+          <DialogHeader>
+            <DialogTitle>تحويل رصيد</DialogTitle>
+            <DialogDescription>أدخل رقم هاتف المستلم والمبلغ المراد تحويله</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <Card className="bg-muted/50">
+              <CardContent className="py-3">
+                <p className="text-sm text-muted-foreground">
+                  رصيدك الحالي: <span className="font-bold text-foreground">{formatPrice(wallet?.balance ?? 0)}</span>
+                </p>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-2">
+              <Label>رقم هاتف المستلم</Label>
+              <Input
+                type="tel"
+                placeholder="مثال: 09XXXXXXXX"
+                value={transferPhone}
+                onChange={(e) => setTransferPhone(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>المبلغ (ل.س)</Label>
+              <Input
+                type="number"
+                placeholder="أدخل المبلغ"
+                value={transferAmount}
+                onChange={(e) => setTransferAmount(e.target.value)}
+                min="1"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTransferOpen(false)}>
+              إلغاء
+            </Button>
+            <Button
+              onClick={async () => {
+                const amount = parseFloat(transferAmount);
+                if (!transferPhone.trim()) {
+                  toast.error("أدخل رقم هاتف المستلم");
+                  return;
+                }
+                if (!amount || amount <= 0) {
+                  toast.error("أدخل مبلغاً صحيحاً");
+                  return;
+                }
+                setSubmitting(true);
+                try {
+                  await transferBalance(transferPhone.trim(), amount);
+                  toast.success("تم التحويل بنجاح");
+                  setTransferOpen(false);
+                  setTransferPhone("");
+                  setTransferAmount("");
+                } catch (err: any) {
+                  toast.error(err.message || "حدث خطأ أثناء التحويل");
+                } finally {
+                  setSubmitting(false);
+                }
+              }}
+              disabled={submitting}
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <SendHorizontal className="h-4 w-4" />}
+              تحويل
             </Button>
           </DialogFooter>
         </DialogContent>

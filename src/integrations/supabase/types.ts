@@ -646,6 +646,10 @@ export type Database = {
         }
         Returns: string
       }
+      transfer_wallet_balance: {
+        Args: { _amount: number; _receiver_id: string; _sender_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

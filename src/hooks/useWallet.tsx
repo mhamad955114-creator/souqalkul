@@ -103,20 +103,29 @@ export function useWallet() {
     await fetchWallet();
   };
 
-  const transferBalance = async (receiverEmail: string, amount: number) => {
+  const transferBalance = async (receiverPhone: string, amount: number) => {
     if (!user || !wallet) throw new Error("Not authenticated");
-    if (amount <= 0) throw new Error("Invalid amount");
-    if (wallet.balance < amount) throw new Error("Insufficient balance");
+    if (amount <= 0) throw new Error("مبلغ غير صالح");
+    if (wallet.balance < amount) throw new Error("رصيد غير كافٍ");
 
-    // Find receiver by looking up profiles
-    const { data: profiles } = await supabase
+    // Find receiver by phone
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("user_id")
-      .limit(100);
+      .eq("phone", receiverPhone)
+      .maybeSingle();
 
-    // We need to find user by email - but we can't query auth.users directly
-    // Instead, we'll use a simpler approach: receiver enters their user_id or we search by phone
-    throw new Error("Transfer requires receiver user ID");
+    if (profileError || !profile) throw new Error("لم يتم العثور على مستخدم بهذا الرقم");
+    if (profile.user_id === user.id) throw new Error("لا يمكنك التحويل لنفسك");
+
+    const { error } = await supabase.rpc("transfer_wallet_balance", {
+      _sender_id: user.id,
+      _receiver_id: profile.user_id,
+      _amount: amount,
+    });
+
+    if (error) throw error;
+    await fetchWallet();
   };
 
   const payFromWallet = async (
