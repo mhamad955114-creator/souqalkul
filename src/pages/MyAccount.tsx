@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock, AlertTriangle, Briefcase, BarChart3, TrendingUp, Heart, Pin } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Edit2, Trash2, MapPin, Eye, ArrowRight, ArrowLeft, Plus, Settings, CheckCircle, RotateCcw, RefreshCw, CalendarClock, User, Mail, Phone, MapPinIcon, Crown, Star, CalendarDays, Clock, Save, X, Camera, Lock, AlertTriangle, Briefcase, BarChart3, TrendingUp, Heart, Pin, Search, Package } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -92,6 +93,8 @@ const MyAccount = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [listingTab, setListingTab] = useState("all");
+  const [listingSearch, setListingSearch] = useState("");
   const [businessStats, setBusinessStats] = useState<{
     totalViews: number;
     totalFavorites: number;
@@ -102,6 +105,29 @@ const MyAccount = () => {
     topListings: { id: string; title: string; views: number }[];
   } | null>(null);
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
+
+  // Filtered listings based on tab and search
+  const filteredListings = useMemo(() => {
+    let filtered = listings;
+    // Tab filter
+    if (listingTab === "active") filtered = filtered.filter((l) => l.status === "active");
+    else if (listingTab === "sold") filtered = filtered.filter((l) => l.status === "sold");
+    else if (listingTab === "expired") filtered = filtered.filter((l) => l.status === "expired");
+    // Search filter
+    if (listingSearch.trim()) {
+      const q = listingSearch.trim().toLowerCase();
+      filtered = filtered.filter((l) => l.title.toLowerCase().includes(q) || l.city.toLowerCase().includes(q) || (l.description || "").toLowerCase().includes(q));
+    }
+    return filtered;
+  }, [listings, listingTab, listingSearch]);
+
+  const listingStats = useMemo(() => ({
+    total: listings.length,
+    active: listings.filter((l) => l.status === "active").length,
+    sold: listings.filter((l) => l.status === "sold").length,
+    expired: listings.filter((l) => l.status === "expired").length,
+    totalViews: listings.reduce((sum, l) => sum + (l.views_count || 0), 0),
+  }), [listings]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -572,91 +598,214 @@ const MyAccount = () => {
           </CardContent>
         </Card>
 
-        {/* Password Change Section */}
+        {/* Listings Section - Enhanced */}
         <Card className="mb-8">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <Lock className="h-5 w-5 text-primary" />
-                تغيير كلمة المرور
+                <Package className="h-5 w-5 text-primary" />
+                إعلاناتي
               </h2>
-              {!showPasswordForm && (
-                <Button variant="outline" size="sm" onClick={() => setShowPasswordForm(true)}>
-                  <Edit2 className="h-4 w-4" />
-                  تغيير
-                </Button>
-              )}
             </div>
-            {showPasswordForm ? (
-              <div className="space-y-4 max-w-md">
-                <div className="space-y-1">
-                  <label className="text-xs text-muted-foreground">كلمة المرور الحالية</label>
-                  <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="أدخل كلمة المرور الحالية" />
+
+            {/* Quick Stats */}
+            {!loading && listings.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
+                <div className="bg-muted/50 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-foreground">{listingStats.total}</p>
+                  <p className="text-xs text-muted-foreground">الكل</p>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs text-muted-foreground">كلمة المرور الجديدة</label>
-                  <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="أدخل كلمة المرور الجديدة (6 أحرف على الأقل)" />
+                <div className="bg-muted/50 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-green-600">{listingStats.active}</p>
+                  <p className="text-xs text-muted-foreground">نشط</p>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs text-muted-foreground">تأكيد كلمة المرور الجديدة</label>
-                  <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="أعد إدخال كلمة المرور الجديدة" />
+                <div className="bg-muted/50 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-destructive">{listingStats.sold}</p>
+                  <p className="text-xs text-muted-foreground">مباع</p>
                 </div>
-                <div className="flex gap-2">
-                  <Button onClick={handleChangePassword} disabled={changingPassword}>
-                    {changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    حفظ كلمة المرور
-                  </Button>
-                  <Button variant="outline" onClick={() => { setShowPasswordForm(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}>
-                    <X className="h-4 w-4" />
-                    إلغاء
-                  </Button>
+                <div className="bg-muted/50 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-muted-foreground">{listingStats.expired}</p>
+                  <p className="text-xs text-muted-foreground">منتهي</p>
+                </div>
+                <div className="bg-muted/50 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-primary">{listingStats.totalViews.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">مشاهدات</p>
                 </div>
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">يمكنك تغيير كلمة المرور الخاصة بحسابك من هنا</p>
             )}
-          </CardContent>
-        </Card>
 
-        {/* Delete Account Section */}
-        <Card className="mb-8 border-destructive/30">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-bold text-destructive flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-5 w-5" />
-              حذف الحساب
-            </h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              سيؤدي حذف حسابك إلى إزالة جميع بياناتك بشكل نهائي ولا يمكن التراجع عن هذا الإجراء.
-            </p>
-            {!showDeleteConfirm ? (
-              <Button variant="destructive" onClick={() => setShowDeleteConfirm(true)}>
-                <Trash2 className="h-4 w-4" />
-                حذف حسابي
-              </Button>
-            ) : (
-              <div className="space-y-3 max-w-md border border-destructive/20 rounded-lg p-4 bg-destructive/5">
-                <p className="text-sm font-medium text-foreground">
-                  اكتب <span className="font-bold text-destructive">"حذف حسابي"</span> للتأكيد:
-                </p>
-                <Input
-                  value={deleteConfirmText}
-                  onChange={(e) => setDeleteConfirmText(e.target.value)}
-                  placeholder="حذف حسابي"
-                  className="border-destructive/30"
-                />
-                <div className="flex gap-2">
-                  <Button
-                    variant="destructive"
-                    onClick={handleDeleteAccount}
-                    disabled={deletingAccount || deleteConfirmText !== "حذف حسابي"}
-                  >
-                    {deletingAccount ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                    تأكيد الحذف
-                  </Button>
-                  <Button variant="outline" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}>
-                    إلغاء
-                  </Button>
+            {/* Tabs + Search */}
+            {!loading && listings.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-5">
+                <Tabs value={listingTab} onValueChange={setListingTab} className="w-full sm:w-auto">
+                  <TabsList className="grid grid-cols-4 w-full sm:w-auto">
+                    <TabsTrigger value="all">الكل ({listingStats.total})</TabsTrigger>
+                    <TabsTrigger value="active">نشط ({listingStats.active})</TabsTrigger>
+                    <TabsTrigger value="sold">مباع ({listingStats.sold})</TabsTrigger>
+                    <TabsTrigger value="expired">منتهي ({listingStats.expired})</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="بحث في إعلاناتك..."
+                    value={listingSearch}
+                    onChange={(e) => setListingSearch(e.target.value)}
+                    className="pr-9"
+                  />
                 </div>
+              </div>
+            )}
+
+            {/* Listing Cards */}
+            {loading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : listings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center py-16">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                  <Plus className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  {t.myAccount.noListings}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {t.myAccount.noListingsDesc}
+                </p>
+                <Button onClick={() => navigate("/")}>
+                  {t.myAccount.addNewListing}
+                </Button>
+              </div>
+            ) : filteredListings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center py-12">
+                <Search className="h-10 w-10 text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">لا توجد إعلانات مطابقة للبحث</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {filteredListings.map((listing) => (
+                  <div key={listing.id} className="border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-card">
+                    <div className="flex flex-col md:flex-row">
+                      {/* Image */}
+                      <div className="w-full md:w-48 h-48 md:h-auto flex-shrink-0">
+                        <img
+                          src={listing.images?.[0] || "/placeholder.svg"}
+                          alt={listing.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 p-4 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <h3 className="text-lg font-semibold text-foreground line-clamp-1">
+                              {listing.title}
+                            </h3>
+                            <Badge variant={statusLabels[listing.status || "active"]?.variant || "default"} className={statusLabels[listing.status || "active"]?.className}>
+                              {statusLabels[listing.status || "active"]?.label || listing.status}
+                            </Badge>
+                          </div>
+
+                          <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
+                            {listing.description || t.myAccount.noDescription}
+                          </p>
+
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {listing.city}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="h-4 w-4" />
+                              {listing.views_count || 0} {t.myAccount.views}
+                            </span>
+                            <Badge variant="outline">
+                              {categoryLabels[listing.category] || listing.category}
+                            </Badge>
+                            {listing.status === "active" && (() => {
+                              const durationDays = listing.is_featured
+                                ? settings.featured_listing.duration_days
+                                : settings.free_listing.duration_days;
+                              const createdAt = new Date(listing.created_at);
+                              const expiryDate = new Date(createdAt.getTime() + durationDays * 24 * 60 * 60 * 1000);
+                              const now = new Date();
+                              const daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                              const isExpiringSoon = daysLeft <= 3;
+                              return (
+                                <span className={`flex items-center gap-1 ${isExpiringSoon ? "text-destructive font-medium" : ""}`}>
+                                  <CalendarClock className="h-4 w-4" />
+                                  {daysLeft > 0
+                                    ? `ينتهي خلال ${daysLeft} يوم`
+                                    : "منتهي الصلاحية"}
+                                </span>
+                              );
+                            })()}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                          <div>
+                            <span className="text-xl font-bold text-primary">
+                              {formatPrice(listing.price)}
+                            </span>
+                            <span className="text-xs text-muted-foreground block">
+                              {formatDate(listing.created_at)}
+                            </span>
+                          </div>
+
+                          <div className="flex gap-2 flex-wrap">
+                            {listing.status === "expired" ? (
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleRenewListing(listing)}
+                              >
+                                <RefreshCw className="h-4 w-4" />
+                                تجديد الإعلان
+                              </Button>
+                            ) : (
+                              <Button
+                                variant={listing.status === "sold" ? "outline" : "secondary"}
+                                size="sm"
+                                onClick={() => handleToggleSold(listing)}
+                              >
+                                {listing.status === "sold" ? (
+                                  <>
+                                    <RotateCcw className="h-4 w-4" />
+                                    {t.myAccount.markAsActive}
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircle className="h-4 w-4" />
+                                    {t.myAccount.markAsSold}
+                                  </>
+                                )}
+                              </Button>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingListing(listing)}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                              {t.myAccount.editBtn}
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => setDeletingListing(listing)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              {t.myAccount.deleteBtn}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
@@ -826,157 +975,95 @@ const MyAccount = () => {
           </Card>
         )}
 
-        {/* Listings */}
-        <h2 className="text-xl font-bold text-foreground mb-4">إعلاناتي</h2>
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : listings.length === 0 ? (
-          <Card className="py-16">
-            <CardContent className="flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <Plus className="h-8 w-8 text-muted-foreground" />
+        {/* Password Change Section */}
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <Lock className="h-5 w-5 text-primary" />
+                تغيير كلمة المرور
+              </h2>
+              {!showPasswordForm && (
+                <Button variant="outline" size="sm" onClick={() => setShowPasswordForm(true)}>
+                  <Edit2 className="h-4 w-4" />
+                  تغيير
+                </Button>
+              )}
+            </div>
+            {showPasswordForm ? (
+              <div className="space-y-4 max-w-md">
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">كلمة المرور الحالية</label>
+                  <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="أدخل كلمة المرور الحالية" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">كلمة المرور الجديدة</label>
+                  <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="أدخل كلمة المرور الجديدة (6 أحرف على الأقل)" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-muted-foreground">تأكيد كلمة المرور الجديدة</label>
+                  <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="أعد إدخال كلمة المرور الجديدة" />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleChangePassword} disabled={changingPassword}>
+                    {changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    حفظ كلمة المرور
+                  </Button>
+                  <Button variant="outline" onClick={() => { setShowPasswordForm(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}>
+                    <X className="h-4 w-4" />
+                    إلغاء
+                  </Button>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                {t.myAccount.noListings}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                {t.myAccount.noListingsDesc}
-              </p>
-              <Button onClick={() => navigate("/")}>
-                {t.myAccount.addNewListing}
+            ) : (
+              <p className="text-sm text-muted-foreground">يمكنك تغيير كلمة المرور الخاصة بحسابك من هنا</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Delete Account Section */}
+        <Card className="mb-8 border-destructive/30">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold text-destructive flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-5 w-5" />
+              حذف الحساب
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              سيؤدي حذف حسابك إلى إزالة جميع بياناتك بشكل نهائي ولا يمكن التراجع عن هذا الإجراء.
+            </p>
+            {!showDeleteConfirm ? (
+              <Button variant="destructive" onClick={() => setShowDeleteConfirm(true)}>
+                <Trash2 className="h-4 w-4" />
+                حذف حسابي
               </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {listings.map((listing) => (
-              <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="flex flex-col md:flex-row">
-                    {/* Image */}
-                    <div className="w-full md:w-48 h-48 md:h-auto flex-shrink-0">
-                      <img
-                        src={listing.images?.[0] || "/placeholder.svg"}
-                        alt={listing.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 p-4 flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="text-lg font-semibold text-foreground line-clamp-1">
-                            {listing.title}
-                          </h3>
-                          <Badge variant={statusLabels[listing.status || "active"]?.variant || "default"} className={statusLabels[listing.status || "active"]?.className}>
-                            {statusLabels[listing.status || "active"]?.label || listing.status}
-                          </Badge>
-                        </div>
-
-                        <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
-                          {listing.description || t.myAccount.noDescription}
-                        </p>
-
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            {listing.city}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Eye className="h-4 w-4" />
-                            {listing.views_count || 0} {t.myAccount.views}
-                          </span>
-                          <Badge variant="outline">
-                            {categoryLabels[listing.category] || listing.category}
-                          </Badge>
-                          {listing.status === "active" && (() => {
-                            const durationDays = listing.is_featured
-                              ? settings.featured_listing.duration_days
-                              : settings.free_listing.duration_days;
-                            const createdAt = new Date(listing.created_at);
-                            const expiryDate = new Date(createdAt.getTime() + durationDays * 24 * 60 * 60 * 1000);
-                            const now = new Date();
-                            const daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                            const isExpiringSoon = daysLeft <= 3;
-                            return (
-                              <span className={`flex items-center gap-1 ${isExpiringSoon ? "text-destructive font-medium" : ""}`}>
-                                <CalendarClock className="h-4 w-4" />
-                                {daysLeft > 0
-                                  ? `ينتهي خلال ${daysLeft} يوم`
-                                  : "منتهي الصلاحية"}
-                              </span>
-                            );
-                          })()}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                        <div>
-                          <span className="text-xl font-bold text-primary">
-                            {formatPrice(listing.price)}
-                          </span>
-                          <span className="text-xs text-muted-foreground block">
-                            {formatDate(listing.created_at)}
-                          </span>
-                        </div>
-
-                        <div className="flex gap-2 flex-wrap">
-                          {listing.status === "expired" ? (
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => handleRenewListing(listing)}
-                            >
-                              <RefreshCw className="h-4 w-4" />
-                              تجديد الإعلان
-                            </Button>
-                          ) : (
-                            <Button
-                              variant={listing.status === "sold" ? "outline" : "secondary"}
-                              size="sm"
-                              onClick={() => handleToggleSold(listing)}
-                            >
-                              {listing.status === "sold" ? (
-                                <>
-                                  <RotateCcw className="h-4 w-4" />
-                                  {t.myAccount.markAsActive}
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle className="h-4 w-4" />
-                                  {t.myAccount.markAsSold}
-                                </>
-                              )}
-                            </Button>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setEditingListing(listing)}
-                          >
-                            <Edit2 className="h-4 w-4" />
-                            {t.myAccount.editBtn}
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => setDeletingListing(listing)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            {t.myAccount.deleteBtn}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div className="space-y-3 max-w-md border border-destructive/20 rounded-lg p-4 bg-destructive/5">
+                <p className="text-sm font-medium text-foreground">
+                  اكتب <span className="font-bold text-destructive">"حذف حسابي"</span> للتأكيد:
+                </p>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="حذف حسابي"
+                  className="border-destructive/30"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteAccount}
+                    disabled={deletingAccount || deleteConfirmText !== "حذف حسابي"}
+                  >
+                    {deletingAccount ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    تأكيد الحذف
+                  </Button>
+                  <Button variant="outline" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}>
+                    إلغاء
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
 
       <Footer />
