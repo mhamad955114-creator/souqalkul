@@ -56,6 +56,31 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
   rejected: { label: "مرفوض", variant: "destructive", icon: XCircle },
 };
 
+// Component to show sender/receiver info
+const RelatedUserInfo = ({ userId, type }: { userId: string; type: string }) => {
+  const [name, setName] = useState<string | null>(null);
+  useEffect(() => {
+    supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("user_id", userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setName(data.full_name);
+      });
+  }, [userId]);
+
+  const label = type === "transfer_in" ? "من:" : type === "transfer_out" ? "إلى:" : "";
+  if (!label) return null;
+
+  return (
+    <p className="text-xs text-muted-foreground flex items-center gap-1">
+      <span>{label}</span>
+      <span className="font-medium text-foreground">{name || userId.slice(0, 8)}</span>
+    </p>
+  );
+};
+
 const WalletPage = () => {
   const { user, loading: authLoading } = useAuth();
   const { wallet, transactions, topUpRequests, loading, submitTopUp, refetch } = useWallet();
@@ -232,6 +257,9 @@ const WalletPage = () => {
                         <p className="font-medium text-sm">{config.label}</p>
                         {tx.description && (
                           <p className="text-xs text-muted-foreground truncate">{tx.description}</p>
+                        )}
+                        {tx.related_user_id && (
+                          <RelatedUserInfo userId={tx.related_user_id} type={tx.type} />
                         )}
                         <p className="text-xs text-muted-foreground">{formatDate(tx.created_at)}</p>
                       </div>
