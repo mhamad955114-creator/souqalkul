@@ -135,45 +135,44 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
         </div>
 
         {/* Business Plan Promo Banner */}
-        <div className="mb-8 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-6 md:p-8 relative">
-          <div className="absolute top-2 left-2 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full">
+        <div className="mb-8 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-600 text-white p-6 md:p-8 relative animate-fade-in shadow-xl hover:shadow-2xl transition-shadow duration-500 group">
+          {/* Animated background shimmer */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+          
+          <div className="absolute top-2 left-2 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
             إعلان مدفوع
           </div>
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center">
+          <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
+            <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center animate-[pulse_3s_cubic-bezier(0.4,0,0.6,1)_infinite] group-hover:scale-110 transition-transform duration-300">
               <Briefcase className="h-8 w-8 md:h-10 md:w-10" />
             </div>
             <div className="flex-1 text-center md:text-right">
               <h3 className="text-xl md:text-2xl font-bold mb-2">باقة رجال الأعمال 💼</h3>
               <p className="text-white/80 text-sm mb-4">الباقة الأقوى للشركات والمؤسسات - تصدّر نتائج البحث واحصل على ميزات حصرية</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
-                  <Pin className="h-4 w-4 flex-shrink-0" />
-                  <span>تثبيت في الأعلى</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
-                  <BarChart3 className="h-4 w-4 flex-shrink-0" />
-                  <span>إحصائيات متقدمة</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
-                  <Images className="h-4 w-4 flex-shrink-0" />
-                  <span>حتى {settings.business_listing.max_images} صورة</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
-                  <Infinity className="h-4 w-4 flex-shrink-0" />
-                  <span>إعلانات غير محدودة</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
-                  <ShieldCheck className="h-4 w-4 flex-shrink-0" />
-                  <span>{settings.business_listing.duration_days} يوم</span>
-                </div>
+                {[
+                  { icon: <Pin className="h-4 w-4 flex-shrink-0" />, text: "تثبيت في الأعلى" },
+                  { icon: <BarChart3 className="h-4 w-4 flex-shrink-0" />, text: "إحصائيات متقدمة" },
+                  { icon: <Images className="h-4 w-4 flex-shrink-0" />, text: `حتى ${settings.business_listing.max_images} صورة` },
+                  { icon: <Infinity className="h-4 w-4 flex-shrink-0" />, text: "إعلانات غير محدودة" },
+                  { icon: <ShieldCheck className="h-4 w-4 flex-shrink-0" />, text: `${settings.business_listing.duration_days} يوم` },
+                ].map((feature, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 hover:bg-white/20 transition-colors duration-200 animate-fade-up"
+                    style={{ animationDelay: `${idx * 0.1}s` }}
+                  >
+                    {feature.icon}
+                    <span>{feature.text}</span>
+                  </div>
+                ))}
               </div>
             </div>
             <div className="flex-shrink-0 text-center">
               <p className="text-3xl font-bold mb-1">{formatPrice(settings.business_listing.price || 200000)}</p>
               <Button
                 onClick={() => navigate("/pricing")}
-                className="bg-white text-blue-600 hover:bg-white/90 font-bold mt-2"
+                className="bg-white text-blue-600 hover:bg-white/90 font-bold mt-2 hover-scale"
               >
                 اشترك الآن
               </Button>
