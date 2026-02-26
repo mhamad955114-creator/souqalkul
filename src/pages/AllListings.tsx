@@ -159,6 +159,12 @@ const AllListings = () => {
       const proUserIds = new Set((subs || []).filter((s) => s.plan_type === "professional").map((s) => s.user_id));
       const bizUserIds = new Set((subs || []).filter((s) => s.plan_type === "business").map((s) => s.user_id));
       const enriched = data.map((l) => ({ ...l, _isPro: proUserIds.has(l.user_id), _isBusiness: bizUserIds.has(l.user_id) }));
+      // Pin business listings to top
+      enriched.sort((a, b) => {
+        if (a._isBusiness && !b._isBusiness) return -1;
+        if (!a._isBusiness && b._isBusiness) return 1;
+        return 0;
+      });
 
       if (append) {
         setListings(prev => [...prev, ...enriched]);

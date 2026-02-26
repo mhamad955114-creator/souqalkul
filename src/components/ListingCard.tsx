@@ -66,10 +66,16 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
           </div>
         )}
         {business && status !== "sold" && status !== "expired" && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-            <span>💼</span>
-            <span>رجال أعمال</span>
-          </div>
+          <>
+            <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+              <span>💼</span>
+              <span>رجال أعمال</span>
+            </div>
+            <div className="absolute top-11 right-3 bg-card/90 backdrop-blur-sm text-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1">
+              <span>📌</span>
+              <span>مثبت</span>
+            </div>
+          </>
         )}
         {professional && !business && status !== "sold" && status !== "expired" && (
           <div className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
