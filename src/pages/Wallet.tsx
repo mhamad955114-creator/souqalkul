@@ -83,7 +83,7 @@ const RelatedUserInfo = ({ userId, type }: { userId: string; type: string }) => 
 
 const WalletPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const { wallet, transactions, topUpRequests, loading, submitTopUp, transferBalance, refetch } = useWallet();
+  const { wallet, transactions, topUpRequests, loading, submitTopUp, transferBalance, transferByWalletId, refetch } = useWallet();
   const { settings, rawSettings, loading: settingsLoading } = useListingSettings();
   const { dir } = useLanguage();
   const navigate = useNavigate();
@@ -94,6 +94,7 @@ const WalletPage = () => {
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpTxNumber, setTopUpTxNumber] = useState("");
   const [transferPhone, setTransferPhone] = useState("");
+  const [transferWalletId, setTransferWalletId] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -191,7 +192,7 @@ const WalletPage = () => {
         {/* Balance Card */}
         <Card className="mb-6 overflow-hidden">
           <div className="bg-gradient-to-br from-primary to-accent p-6 text-primary-foreground">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center">
                 <WalletIcon className="h-6 w-6" />
               </div>
@@ -200,6 +201,24 @@ const WalletPage = () => {
                 <p className="text-3xl font-bold">{formatPrice(wallet?.balance ?? 0)}</p>
               </div>
             </div>
+            {/* Wallet Address */}
+            {user && (
+              <div className="mb-4 flex items-center gap-2 bg-primary-foreground/10 rounded-lg px-3 py-2 text-xs">
+                <span className="opacity-70">عنوان محفظتك:</span>
+                <span className="font-mono flex-1 truncate">{user.id.slice(0, 8)}...{user.id.slice(-4)}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-primary-foreground hover:bg-primary-foreground/20"
+                  onClick={() => {
+                    navigator.clipboard.writeText(user.id);
+                    toast.success("تم نسخ عنوان المحفظة");
+                  }}
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
             <div className="flex gap-3">
               <Button
                 variant="secondary"
@@ -422,7 +441,7 @@ const WalletPage = () => {
         <DialogContent className="max-w-md" dir={dir}>
           <DialogHeader>
             <DialogTitle>تحويل رصيد</DialogTitle>
-            <DialogDescription>أدخل رقم هاتف المستلم والمبلغ المراد تحويله</DialogDescription>
+            <DialogDescription>أدخل رقم هاتف المستلم أو عنوان محفظته</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -434,15 +453,30 @@ const WalletPage = () => {
               </CardContent>
             </Card>
 
-            <div className="space-y-2">
-              <Label>رقم هاتف المستلم</Label>
-              <Input
-                type="tel"
-                placeholder="مثال: 09XXXXXXXX"
-                value={transferPhone}
-                onChange={(e) => setTransferPhone(e.target.value)}
-              />
-            </div>
+            <Tabs defaultValue="phone" className="w-full">
+              <TabsList className="w-full grid grid-cols-2">
+                <TabsTrigger value="phone">رقم الهاتف</TabsTrigger>
+                <TabsTrigger value="wallet_id">عنوان المحفظة</TabsTrigger>
+              </TabsList>
+              <TabsContent value="phone" className="mt-3 space-y-2">
+                <Label>رقم هاتف المستلم</Label>
+                <Input
+                  type="tel"
+                  placeholder="مثال: 09XXXXXXXX"
+                  value={transferPhone}
+                  onChange={(e) => { setTransferPhone(e.target.value); setTransferWalletId(""); }}
+                />
+              </TabsContent>
+              <TabsContent value="wallet_id" className="mt-3 space-y-2">
+                <Label>عنوان محفظة المستلم</Label>
+                <Input
+                  type="text"
+                  placeholder="الصق عنوان المحفظة هنا"
+                  value={transferWalletId}
+                  onChange={(e) => { setTransferWalletId(e.target.value); setTransferPhone(""); }}
+                />
+              </TabsContent>
+            </Tabs>
 
             <div className="space-y-2">
               <Label>المبلغ (ل.س)</Label>
@@ -463,8 +497,10 @@ const WalletPage = () => {
             <Button
               onClick={async () => {
                 const amount = parseFloat(transferAmount);
-                if (!transferPhone.trim()) {
-                  toast.error("أدخل رقم هاتف المستلم");
+                const hasPhone = transferPhone.trim().length > 0;
+                const hasWalletId = transferWalletId.trim().length > 0;
+                if (!hasPhone && !hasWalletId) {
+                  toast.error("أدخل رقم هاتف المستلم أو عنوان محفظته");
                   return;
                 }
                 if (!amount || amount <= 0) {
@@ -473,10 +509,15 @@ const WalletPage = () => {
                 }
                 setSubmitting(true);
                 try {
-                  await transferBalance(transferPhone.trim(), amount);
+                  if (hasPhone) {
+                    await transferBalance(transferPhone.trim(), amount);
+                  } else {
+                    await transferByWalletId(transferWalletId.trim(), amount);
+                  }
                   toast.success("تم التحويل بنجاح");
                   setTransferOpen(false);
                   setTransferPhone("");
+                  setTransferWalletId("");
                   setTransferAmount("");
                 } catch (err: any) {
                   toast.error(err.message || "حدث خطأ أثناء التحويل");
