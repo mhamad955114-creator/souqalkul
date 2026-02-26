@@ -22,6 +22,16 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import {
   Wallet as WalletIcon,
   ArrowUpCircle,
   ArrowDownCircle,
@@ -36,6 +46,9 @@ import {
   Copy,
   ImagePlus,
   X,
+  Share2,
+  Receipt,
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice, formatDate } from "@/lib/constants";
@@ -83,7 +96,7 @@ const RelatedUserInfo = ({ userId, type }: { userId: string; type: string }) => 
 
 const WalletPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const { wallet, transactions, topUpRequests, loading, submitTopUp, transferBalance, transferByWalletId, refetch } = useWallet();
+  const { wallet, transactions, topUpRequests, loading, submitTopUp, transferBalance, transferByWalletId, lookupReceiverByPhone, lookupReceiverByWalletId, executeTransfer, refetch } = useWallet();
   const { settings, rawSettings, loading: settingsLoading } = useListingSettings();
   const { dir } = useLanguage();
   const navigate = useNavigate();
@@ -99,6 +112,24 @@ const WalletPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+
+  // Confirmation state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [receiverInfo, setReceiverInfo] = useState<{ userId: string; name: string; phone: string } | null>(null);
+  const [pendingAmount, setPendingAmount] = useState(0);
+
+  // Receipt state
+  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
+  const [receiptData, setReceiptData] = useState<{
+    invoiceNumber: string;
+    receiverName: string;
+    receiverPhone: string;
+    receiverWalletId: string;
+    amount: number;
+    date: string;
+    senderName: string;
+    senderWalletId: string;
+  } | null>(null);
 
   const shamcashAccount = rawSettings.shamcash_account
     ? String(rawSettings.shamcash_account).replace(/"/g, "")
@@ -509,18 +540,18 @@ const WalletPage = () => {
                 }
                 setSubmitting(true);
                 try {
+                  let receiver;
                   if (hasPhone) {
-                    await transferBalance(transferPhone.trim(), amount);
+                    receiver = await lookupReceiverByPhone(transferPhone.trim());
                   } else {
-                    await transferByWalletId(transferWalletId.trim(), amount);
+                    receiver = await lookupReceiverByWalletId(transferWalletId.trim());
                   }
-                  toast.success("تم التحويل بنجاح");
+                  setReceiverInfo(receiver);
+                  setPendingAmount(amount);
                   setTransferOpen(false);
-                  setTransferPhone("");
-                  setTransferWalletId("");
-                  setTransferAmount("");
+                  setConfirmOpen(true);
                 } catch (err: any) {
-                  toast.error(err.message || "حدث خطأ أثناء التحويل");
+                  toast.error(err.message || "حدث خطأ");
                 } finally {
                   setSubmitting(false);
                 }
@@ -528,9 +559,216 @@ const WalletPage = () => {
               disabled={submitting}
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <SendHorizontal className="h-4 w-4" />}
-              تحويل
+              متابعة
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent dir={dir}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد التحويل</AlertDialogTitle>
+            <AlertDialogDescription>
+              يرجى التحقق من بيانات المستلم قبل إتمام التحويل
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {receiverInfo && (
+            <div className="space-y-3 my-2">
+              <Card className="border-primary/20">
+                <CardContent className="py-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">اسم المستلم</p>
+                      <p className="font-bold">{receiverInfo.name}</p>
+                    </div>
+                  </div>
+                  {receiverInfo.phone && (
+                    <div className="flex items-center justify-between text-sm border-t pt-2">
+                      <span className="text-muted-foreground">رقم الهاتف</span>
+                      <span className="font-mono">{receiverInfo.phone}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between text-sm border-t pt-2">
+                    <span className="text-muted-foreground">عنوان المحفظة</span>
+                    <span className="font-mono text-xs">{receiverInfo.userId.slice(0, 8)}...{receiverInfo.userId.slice(-4)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm border-t pt-2">
+                    <span className="text-muted-foreground">المبلغ</span>
+                    <span className="font-bold text-primary text-lg">{formatPrice(pendingAmount)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setConfirmOpen(false);
+              setTransferOpen(true);
+            }}>
+              رجوع
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!receiverInfo) return;
+                setSubmitting(true);
+                try {
+                  await executeTransfer(receiverInfo.userId, pendingAmount);
+                  const invoiceNum = `INV-${Date.now().toString(36).toUpperCase()}`;
+                  const senderProfile = user ? await supabase
+                    .from("profiles")
+                    .select("full_name")
+                    .eq("user_id", user.id)
+                    .maybeSingle() : null;
+
+                  setReceiptData({
+                    invoiceNumber: invoiceNum,
+                    receiverName: receiverInfo.name,
+                    receiverPhone: receiverInfo.phone,
+                    receiverWalletId: receiverInfo.userId,
+                    amount: pendingAmount,
+                    date: new Date().toLocaleString("ar-SY"),
+                    senderName: senderProfile?.data?.full_name || "أنت",
+                    senderWalletId: user?.id || "",
+                  });
+                  setConfirmOpen(false);
+                  setReceiptDialogOpen(true);
+                  setTransferPhone("");
+                  setTransferWalletId("");
+                  setTransferAmount("");
+                } catch (err: any) {
+                  toast.error(err.message || "حدث خطأ أثناء التحويل");
+                  setConfirmOpen(false);
+                } finally {
+                  setSubmitting(false);
+                }
+              }}
+              disabled={submitting}
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+              تأكيد التحويل
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Receipt Dialog */}
+      <Dialog open={receiptDialogOpen} onOpenChange={setReceiptDialogOpen}>
+        <DialogContent className="max-w-md" dir={dir}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Receipt className="h-5 w-5 text-primary" />
+              فاتورة التحويل
+            </DialogTitle>
+          </DialogHeader>
+
+          {receiptData && (
+            <div className="space-y-4">
+              <div className="text-center space-y-1 py-2">
+                <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
+                <p className="text-lg font-bold text-green-600">تم التحويل بنجاح</p>
+              </div>
+
+              <Card>
+                <CardContent className="py-4 space-y-3 text-sm">
+                  <div className="flex justify-between border-b pb-2">
+                    <span className="text-muted-foreground">رقم الفاتورة</span>
+                    <span className="font-mono font-bold text-primary">{receiptData.invoiceNumber}</span>
+                  </div>
+                  <div className="flex justify-between border-b pb-2">
+                    <span className="text-muted-foreground">التاريخ</span>
+                    <span>{receiptData.date}</span>
+                  </div>
+                  <div className="flex justify-between border-b pb-2">
+                    <span className="text-muted-foreground">المبلغ</span>
+                    <span className="font-bold text-lg">{formatPrice(receiptData.amount)}</span>
+                  </div>
+
+                  <div className="border-t pt-3 space-y-2">
+                    <p className="font-semibold text-xs text-muted-foreground">المُرسل</p>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">الاسم</span>
+                      <span>{receiptData.senderName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">المحفظة</span>
+                      <span className="font-mono text-xs">{receiptData.senderWalletId.slice(0, 8)}...{receiptData.senderWalletId.slice(-4)}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-3 space-y-2">
+                    <p className="font-semibold text-xs text-muted-foreground">المُستلم</p>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">الاسم</span>
+                      <span>{receiptData.receiverName}</span>
+                    </div>
+                    {receiptData.receiverPhone && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">الهاتف</span>
+                        <span className="font-mono">{receiptData.receiverPhone}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">المحفظة</span>
+                      <span className="font-mono text-xs">{receiptData.receiverWalletId.slice(0, 8)}...{receiptData.receiverWalletId.slice(-4)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    const text = [
+                      `فاتورة تحويل رقم: ${receiptData.invoiceNumber}`,
+                      `التاريخ: ${receiptData.date}`,
+                      `المبلغ: ${formatPrice(receiptData.amount)}`,
+                      `المرسل: ${receiptData.senderName}`,
+                      `المستلم: ${receiptData.receiverName}`,
+                      receiptData.receiverPhone ? `هاتف المستلم: ${receiptData.receiverPhone}` : "",
+                      `محفظة المستلم: ${receiptData.receiverWalletId.slice(0, 8)}...${receiptData.receiverWalletId.slice(-4)}`,
+                    ].filter(Boolean).join("\n");
+                    navigator.clipboard.writeText(text);
+                    toast.success("تم نسخ الفاتورة");
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                  نسخ
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={() => {
+                    const text = [
+                      `✅ فاتورة تحويل رقم: ${receiptData.invoiceNumber}`,
+                      `📅 التاريخ: ${receiptData.date}`,
+                      `💰 المبلغ: ${formatPrice(receiptData.amount)}`,
+                      `👤 المرسل: ${receiptData.senderName}`,
+                      `👤 المستلم: ${receiptData.receiverName}`,
+                      receiptData.receiverPhone ? `📱 هاتف المستلم: ${receiptData.receiverPhone}` : "",
+                    ].filter(Boolean).join("\n");
+
+                    if (navigator.share) {
+                      navigator.share({ title: "فاتورة تحويل", text });
+                    } else {
+                      navigator.clipboard.writeText(text);
+                      toast.success("تم نسخ الفاتورة للمشاركة");
+                    }
+                  }}
+                >
+                  <Share2 className="h-4 w-4" />
+                  مشاركة
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

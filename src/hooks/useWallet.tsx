@@ -103,29 +103,46 @@ export function useWallet() {
     await fetchWallet();
   };
 
-  const transferBalance = async (receiverPhone: string, amount: number) => {
+  const lookupReceiverByPhone = async (phone: string) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("user_id, full_name, phone")
+      .eq("phone", phone)
+      .maybeSingle();
+    if (!profile) throw new Error("لم يتم العثور على مستخدم بهذا الرقم");
+    if (user && profile.user_id === user.id) throw new Error("لا يمكنك التحويل لنفسك");
+    return { userId: profile.user_id, name: profile.full_name || "مستخدم", phone: profile.phone || phone };
+  };
+
+  const lookupReceiverByWalletId = async (walletUserId: string) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("user_id, full_name, phone")
+      .eq("user_id", walletUserId)
+      .maybeSingle();
+    if (!profile) throw new Error("عنوان المحفظة غير صالح");
+    if (user && profile.user_id === user.id) throw new Error("لا يمكنك التحويل لنفسك");
+    return { userId: profile.user_id, name: profile.full_name || "مستخدم", phone: profile.phone || "" };
+  };
+
+  const executeTransfer = async (receiverId: string, amount: number) => {
     if (!user || !wallet) throw new Error("Not authenticated");
     if (amount <= 0) throw new Error("مبلغ غير صالح");
     if (wallet.balance < amount) throw new Error("رصيد غير كافٍ");
 
-    // Find receiver by phone
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("user_id")
-      .eq("phone", receiverPhone)
-      .maybeSingle();
-
-    if (profileError || !profile) throw new Error("لم يتم العثور على مستخدم بهذا الرقم");
-    if (profile.user_id === user.id) throw new Error("لا يمكنك التحويل لنفسك");
-
     const { error } = await supabase.rpc("transfer_wallet_balance", {
       _sender_id: user.id,
-      _receiver_id: profile.user_id,
+      _receiver_id: receiverId,
       _amount: amount,
     });
 
     if (error) throw error;
     await fetchWallet();
+  };
+
+  const transferBalance = async (receiverPhone: string, amount: number) => {
+    const receiver = await lookupReceiverByPhone(receiverPhone);
+    await executeTransfer(receiver.userId, amount);
   };
 
   const payFromWallet = async (
@@ -150,28 +167,8 @@ export function useWallet() {
   };
 
   const transferByWalletId = async (walletUserId: string, amount: number) => {
-    if (!user || !wallet) throw new Error("Not authenticated");
-    if (amount <= 0) throw new Error("مبلغ غير صالح");
-    if (wallet.balance < amount) throw new Error("رصيد غير كافٍ");
-    if (walletUserId === user.id) throw new Error("لا يمكنك التحويل لنفسك");
-
-    // Verify receiver exists
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("user_id")
-      .eq("user_id", walletUserId)
-      .maybeSingle();
-
-    if (!profile) throw new Error("عنوان المحفظة غير صالح");
-
-    const { error } = await supabase.rpc("transfer_wallet_balance", {
-      _sender_id: user.id,
-      _receiver_id: walletUserId,
-      _amount: amount,
-    });
-
-    if (error) throw error;
-    await fetchWallet();
+    const receiver = await lookupReceiverByWalletId(walletUserId);
+    await executeTransfer(receiver.userId, amount);
   };
 
   return {
@@ -182,6 +179,9 @@ export function useWallet() {
     submitTopUp,
     transferBalance,
     transferByWalletId,
+    lookupReceiverByPhone,
+    lookupReceiverByWalletId,
+    executeTransfer,
     payFromWallet,
     refetch: fetchWallet,
   };
