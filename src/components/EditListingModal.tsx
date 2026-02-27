@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cities, categories, statuses, areasByCity } from "@/lib/constants";
+import { cities, categories, statuses, areasByCity, categoryMetadataFields } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Listing {
@@ -24,6 +24,7 @@ interface Listing {
   phone: string | null;
   images: string[] | null;
   status: string | null;
+  metadata?: Record<string, string> | null;
 }
 
 interface EditListingModalProps {
@@ -54,7 +55,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     age: "",
   });
   const [images, setImages] = useState<string[]>([]);
-
+  const [metadata, setMetadata] = useState<Record<string, string>>({});
   useEffect(() => {
     if (listing) {
       let description = listing.description || "";
@@ -83,6 +84,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         age,
       });
       setImages(listing.images || []);
+      setMetadata((listing.metadata as Record<string, string>) || {});
       setRejectedImages([]);
       setSuggestedCategory(null);
     }
@@ -225,7 +227,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
           phone: formData.phone || null,
           status: formData.status,
           images: images,
-        })
+          metadata: Object.keys(metadata).length > 0 ? metadata : null,
+        } as any)
         .eq("id", listing.id);
 
       if (error) {
@@ -387,6 +390,46 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
               </Select>
             </div>
           </div>
+
+          {/* Category-specific metadata fields */}
+          {(() => {
+            const fields = categoryMetadataFields[formData.category] || [];
+            if (fields.length === 0) return null;
+            return (
+              <div className="space-y-3 p-4 rounded-xl border border-border bg-muted/30">
+                <Label className="text-sm font-semibold">تفاصيل إضافية ({formData.category})</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {fields.map((field) => (
+                    <div key={field.key} className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">{field.label}</Label>
+                      {field.type === "select" && field.options ? (
+                        <Select
+                          value={metadata[field.key] || ""}
+                          onValueChange={(value) => setMetadata(prev => ({ ...prev, [field.key]: value }))}
+                        >
+                          <SelectTrigger className="h-9">
+                            <SelectValue placeholder={`اختر ${field.label}`} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {field.options.map((opt) => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          className="h-9"
+                          placeholder={field.label}
+                          value={metadata[field.key] || ""}
+                          onChange={(e) => setMetadata(prev => ({ ...prev, [field.key]: e.target.value }))}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Images Section */}
           <div className="space-y-2">

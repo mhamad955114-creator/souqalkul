@@ -39,7 +39,7 @@ import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatPrice, formatDate, categoryLabels } from "@/lib/constants";
+import { formatPrice, formatDate, categoryLabels, categoryMetadataFields } from "@/lib/constants";
 
 interface Listing {
   id: string;
@@ -56,6 +56,7 @@ interface Listing {
   views_count: number | null;
   created_at: string;
   user_id: string;
+  metadata?: Record<string, string> | any;
 }
 
 interface SellerProfile {
@@ -110,7 +111,7 @@ const ListingDetails = () => {
           return;
         }
 
-        setListing(listingData);
+        setListing(listingData as any);
 
         await supabase
           .from("listings")
@@ -426,6 +427,20 @@ const ListingDetails = () => {
                   <span className="text-muted-foreground">{categoryLabels[listing.category] || listing.category}</span>
                   <span className="font-medium text-foreground">التصنيف</span>
                 </div>
+
+                {/* Dynamic Metadata Fields */}
+                {listing.metadata && typeof listing.metadata === 'object' && (() => {
+                  const fields = categoryMetadataFields[listing.category] || [];
+                  const meta = listing.metadata as Record<string, string>;
+                  const filledFields = fields.filter(f => meta[f.key]);
+                  if (filledFields.length === 0) return null;
+                  return filledFields.map(field => (
+                    <div key={field.key} className="flex items-center justify-between py-3 border-b border-border">
+                      <span className="text-muted-foreground">{meta[field.key]}</span>
+                      <span className="font-medium text-foreground">{field.label}</span>
+                    </div>
+                  ));
+                })()}
 
                 {/* Description */}
                 <div className="pt-4">
