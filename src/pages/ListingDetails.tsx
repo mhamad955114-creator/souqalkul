@@ -352,74 +352,84 @@ const ListingDetails = () => {
               )}
             </Card>
 
-            {/* Listing Info */}
+            {/* Listing Info - Table Style */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <h1 className="text-2xl font-bold text-foreground">
-                    {listing.title}
-                  </h1>
-                  <div className="flex gap-2 flex-shrink-0">
-                    {listing.status === "sold" && (
-                      <Badge variant="destructive" className="text-sm">
-                        {t.myAccount.soldBadge}
-                      </Badge>
-                    )}
-                    {isOwnerBusiness && (
-                      <Badge className="text-sm bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0">
-                        💼 رجال أعمال
-                      </Badge>
-                    )}
-                    {isOwnerPro && !isOwnerBusiness && (
-                      <Badge className="text-sm bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
-                        👑 احترافي
-                      </Badge>
-                    )}
-                    {listing.is_featured && !isOwnerPro && !isOwnerBusiness && (
-                      <Badge className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
-                        ⭐ {t.listings.featured}
-                      </Badge>
-                    )}
-                    <Badge variant="outline">
-                      {categoryLabels[listing.category] || listing.category}
+              <CardContent className="p-4 sm:p-6">
+                {/* Badges Row */}
+                <div className="flex flex-wrap gap-2 mb-4 justify-end">
+                  {listing.status === "sold" && (
+                    <Badge variant="destructive" className="text-sm">
+                      {t.myAccount.soldBadge}
                     </Badge>
-                  </div>
-                </div>
-
-                <div className="text-3xl font-bold text-primary mb-4">
-                  {formatPrice(listing.price)}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
-                  <span className="flex items-center gap-1 font-mono">
-                    <Hash className="h-4 w-4" />
-                    {listing.id.split("-")[0].toUpperCase()}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4" />
-                    {listing.city}{listing.area && ` - ${listing.area}`}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    {getTimeSince(listing.created_at)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Eye className="h-4 w-4" />
-                    {listing.views_count || 0} {t.details.views}
-                  </span>
-                  {listing.phone && (
-                    <span className="flex items-center gap-1">
-                      <Phone className="h-4 w-4" />
-                      {listing.phone}
-                    </span>
+                  )}
+                  {isOwnerBusiness && (
+                    <Badge className="text-sm bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0">
+                      💼 رجال أعمال
+                    </Badge>
+                  )}
+                  {isOwnerPro && !isOwnerBusiness && (
+                    <Badge className="text-sm bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
+                      👑 احترافي
+                    </Badge>
+                  )}
+                  {listing.is_featured && !isOwnerPro && !isOwnerBusiness && (
+                    <Badge className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                      ⭐ {t.listings.featured}
+                    </Badge>
                   )}
                 </div>
 
-                <Separator className="my-6" />
+                {/* Price Row */}
+                <div className="flex items-center justify-between py-3 border-b border-border">
+                  <span className="text-2xl font-bold text-primary">{formatPrice(listing.price)}</span>
+                  <span className="text-lg font-semibold text-foreground">السعر</span>
+                </div>
 
+                {/* Title */}
+                <div className="py-3 border-b border-border text-end">
+                  <h1 className="text-lg font-bold text-foreground">{listing.title}</h1>
+                </div>
 
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground mb-3">
+                {/* Location + Views */}
+                <div className="flex items-center justify-between py-3 border-b border-border">
+                  <span className="flex items-center gap-1.5 text-muted-foreground">
+                    <Eye className="h-4 w-4 text-amber-500" />
+                    {listing.views_count || 0}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {listing.city}{listing.area && ` - ${listing.area}`}
+                  </span>
+                </div>
+
+                {/* Date */}
+                <div className="flex items-center justify-between py-3 border-b border-border">
+                  <span className="text-muted-foreground">{formatDate(listing.created_at)}</span>
+                  <span className="font-medium text-foreground">تاريخ الإعلان</span>
+                </div>
+
+                {/* Listing ID */}
+                <div className="flex items-center justify-between py-3 border-b border-border">
+                  <span className="text-muted-foreground font-mono">{listing.id.split("-")[0].toUpperCase()}</span>
+                  <span className="font-medium text-foreground">رقم الإعلان</span>
+                </div>
+
+                {/* Phone */}
+                {(seller?.phone || listing?.phone) && (
+                  <div className="flex items-center justify-between py-3 border-b border-border">
+                    <span className="text-muted-foreground direction-ltr" dir="ltr">{seller?.phone || listing?.phone}</span>
+                    <span className="font-medium text-foreground">رقم هاتف المعلن</span>
+                  </div>
+                )}
+
+                {/* Category */}
+                <div className="flex items-center justify-between py-3 border-b border-border">
+                  <span className="text-muted-foreground">{categoryLabels[listing.category] || listing.category}</span>
+                  <span className="font-medium text-foreground">التصنيف</span>
+                </div>
+
+                {/* Description */}
+                <div className="pt-4">
+                  <h2 className="text-lg font-semibold text-foreground mb-3 text-end">
                     {t.details.description}
                   </h2>
                   <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
