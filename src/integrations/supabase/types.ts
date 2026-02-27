@@ -142,6 +142,7 @@ export type Database = {
           id: string
           images: string[] | null
           is_featured: boolean | null
+          metadata: Json | null
           phone: string | null
           price: number
           sold_at: string | null
@@ -160,6 +161,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          metadata?: Json | null
           phone?: string | null
           price: number
           sold_at?: string | null
@@ -178,6 +180,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          metadata?: Json | null
           phone?: string | null
           price?: number
           sold_at?: string | null

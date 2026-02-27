@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet, Video } from "lucide-react";
-import { cities, categories, areasByCity, formatPrice } from "@/lib/constants";
+import { cities, categories, areasByCity, formatPrice, categoryMetadataFields } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -47,7 +47,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     paidType: "" as "" | "featured" | "professional",
   });
   const [images, setImages] = useState<string[]>([]);
+  const [metadata, setMetadata] = useState<Record<string, string>>({});
 
+  const currentMetadataFields = categoryMetadataFields[formData.category] || [];
   const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
     try {
       const response = await supabase.functions.invoke('moderate-image', {
@@ -267,7 +269,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         phone: formData.phone,
         images: images,
         is_featured: formData.is_featured,
-      });
+        metadata: Object.keys(metadata).length > 0 ? metadata : null,
+      } as any);
 
       if (error) {
         toast.error(t.listingForm.addError + ": " + error.message);
@@ -295,6 +298,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       paidType: "",
     });
     setImages([]);
+    setMetadata({});
     setRejectedImages([]);
     setSuggestedCategory(null);
   };
@@ -459,6 +463,42 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               className={dir === "rtl" ? "text-left" : "text-left"}
             />
           </div>
+
+          {/* Category-specific metadata fields */}
+          {currentMetadataFields.length > 0 && (
+            <div className="space-y-3 p-4 rounded-xl border border-border bg-muted/30">
+              <Label className="text-sm font-semibold">تفاصيل إضافية ({categoryMetadataFields[formData.category] ? formData.category : ""})</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {currentMetadataFields.map((field) => (
+                  <div key={field.key} className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">{field.label}</Label>
+                    {field.type === "select" && field.options ? (
+                      <Select
+                        value={metadata[field.key] || ""}
+                        onValueChange={(value) => setMetadata(prev => ({ ...prev, [field.key]: value }))}
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder={`اختر ${field.label}`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {field.options.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        className="h-9"
+                        placeholder={field.label}
+                        value={metadata[field.key] || ""}
+                        onChange={(e) => setMetadata(prev => ({ ...prev, [field.key]: e.target.value }))}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Ad Type Section */}
           <div className="space-y-3">

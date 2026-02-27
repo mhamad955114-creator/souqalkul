@@ -242,6 +242,70 @@ export const subcategoriesByCategory: Record<string, string[]> = {
   ],
 };
 
+// Category-specific metadata fields
+export interface MetadataField {
+  key: string;
+  label: string;
+  type: "text" | "select";
+  options?: string[];
+}
+
+export const categoryMetadataFields: Record<string, MetadataField[]> = {
+  "سيارات": [
+    { key: "model", label: "الموديل", type: "text" },
+    { key: "year", label: "سنة الصنع", type: "text" },
+    { key: "origin", label: "بلد الصنع", type: "text" },
+    { key: "fuel", label: "نوع الوقود", type: "select", options: ["بنزين", "ديزل", "كهربائي", "هايبرد"] },
+    { key: "transmission", label: "نوع ناقل الحركة", type: "select", options: ["أوتوماتيك", "عادي"] },
+    { key: "color", label: "اللون", type: "text" },
+    { key: "doors", label: "عدد الأبواب", type: "select", options: ["2 أبواب", "4 أبواب", "5 أبواب"] },
+    { key: "licensed", label: "مرخصة", type: "select", options: ["نعم", "لا"] },
+    { key: "kilometers", label: "عدد الكيلومترات", type: "text" },
+    { key: "engine", label: "حجم المحرك", type: "text" },
+  ],
+  "عقارات": [
+    { key: "property_type", label: "نوع العقار", type: "select", options: ["شقة", "فيلا", "أرض", "محل تجاري", "مكتب", "مستودع", "بناء كامل"] },
+    { key: "purpose", label: "الغرض", type: "select", options: ["للبيع", "للإيجار"] },
+    { key: "area_sqm", label: "المساحة (م²)", type: "text" },
+    { key: "rooms", label: "عدد الغرف", type: "text" },
+    { key: "floor", label: "الطابق", type: "text" },
+    { key: "building_age", label: "عمر العقار", type: "select", options: ["جديد", "1-5 سنوات", "5-10 سنوات", "أكثر من 10 سنوات"] },
+    { key: "furnished", label: "مفروش", type: "select", options: ["نعم", "لا", "نصف مفروش"] },
+    { key: "parking", label: "موقف سيارة", type: "select", options: ["نعم", "لا"] },
+    { key: "rental_period", label: "مدة الإيجار", type: "select", options: ["شهري", "سنوي", "يومي"] },
+  ],
+  "الكترونيات": [
+    { key: "brand", label: "الماركة", type: "text" },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "مجدد"] },
+    { key: "warranty", label: "الضمان", type: "select", options: ["نعم", "لا"] },
+  ],
+  "أثاث": [
+    { key: "furniture_type", label: "نوع الأثاث", type: "text" },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "ممتاز"] },
+    { key: "material", label: "المادة", type: "text" },
+  ],
+  "ملابس": [
+    { key: "clothing_type", label: "نوع الملابس", type: "text" },
+    { key: "size", label: "المقاس", type: "text" },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل"] },
+    { key: "gender", label: "الجنس", type: "select", options: ["رجالي", "نسائي", "أطفال", "للجنسين"] },
+  ],
+  "وظائف": [
+    { key: "job_type", label: "نوع الوظيفة", type: "select", options: ["دوام كامل", "دوام جزئي", "عن بعد", "مؤقت"] },
+    { key: "experience", label: "الخبرة المطلوبة", type: "text" },
+    { key: "salary_range", label: "نطاق الراتب", type: "text" },
+  ],
+  "خدمات": [
+    { key: "service_type", label: "نوع الخدمة", type: "text" },
+    { key: "availability", label: "التوفر", type: "select", options: ["متاح الآن", "بالحجز المسبق"] },
+  ],
+  "حيوانات أليفة": [
+    { key: "animal_type", label: "نوع الحيوان", type: "text" },
+    { key: "age", label: "العمر", type: "text" },
+    { key: "vaccinated", label: "محصّن", type: "select", options: ["نعم", "لا"] },
+  ],
+};
+
 // Categories
 export const categories = [
   { value: "سيارات", label: "سيارات" },
