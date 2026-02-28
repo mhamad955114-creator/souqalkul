@@ -345,6 +345,12 @@ export const categoryMetadataFields: Record<string, MetadataField[]> = {
     { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "ممتاز"] },
     { key: "brand", label: "الماركة", type: "text" },
   ],
+  "أخرى": [
+    { key: "item_type", label: "نوع المنتج", type: "text" },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "ممتاز"] },
+    { key: "brand", label: "الماركة", type: "text" },
+    { key: "quantity", label: "الكمية", type: "text" },
+  ],
 };
 
 // Categories
