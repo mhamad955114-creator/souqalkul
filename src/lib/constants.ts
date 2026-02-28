@@ -339,6 +339,12 @@ export const categoryMetadataFields: Record<string, MetadataField[]> = {
     { key: "quantity", label: "الكمية", type: "text" },
     { key: "unit", label: "وحدة القياس", type: "select", options: ["طن", "كيلو", "متر", "متر مربع", "قطعة", "كيس"] },
   ],
+  "ألعاب": [
+    { key: "game_type", label: "نوع اللعبة", type: "select", options: ["ألعاب فيديو", "ألعاب طاولة", "ألعاب أطفال", "ألعاب تعليمية", "دمى", "ألعاب خارجية", "أخرى"] },
+    { key: "age_group", label: "الفئة العمرية", type: "select", options: ["0-3 سنوات", "3-6 سنوات", "6-12 سنة", "12+ سنة", "للجميع"] },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "ممتاز"] },
+    { key: "brand", label: "الماركة", type: "text" },
+  ],
 };
 
 // Categories
