@@ -38,7 +38,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
       className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1"
       onClick={handleClick}
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-square overflow-hidden">
         {!image || image.includes("placeholder") || image.includes("unsplash") ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-2">
             <img src={appLogo} alt="سوق الكل" className="w-20 h-20 object-contain opacity-60" />
