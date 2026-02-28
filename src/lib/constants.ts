@@ -304,6 +304,41 @@ export const categoryMetadataFields: Record<string, MetadataField[]> = {
     { key: "age", label: "العمر", type: "text" },
     { key: "vaccinated", label: "محصّن", type: "select", options: ["نعم", "لا"] },
   ],
+  "اكسسوارات": [
+    { key: "accessory_type", label: "نوع الاكسسوار", type: "select", options: ["ساعات", "نظارات", "مجوهرات", "حقائب", "أحزمة", "أخرى"] },
+    { key: "brand", label: "الماركة", type: "text" },
+    { key: "material", label: "المادة", type: "select", options: ["ذهب", "فضة", "جلد", "ستانلس ستيل", "بلاستيك", "أخرى"] },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "ممتاز"] },
+    { key: "gender", label: "الجنس", type: "select", options: ["رجالي", "نسائي", "للجنسين"] },
+  ],
+  "مكياج": [
+    { key: "product_type", label: "نوع المنتج", type: "select", options: ["عطور", "كريمات", "أدوات تجميل", "مكياج وجه", "عناية بالبشرة", "عناية بالشعر", "أخرى"] },
+    { key: "brand", label: "الماركة", type: "text" },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل"] },
+    { key: "origin", label: "بلد المنشأ", type: "text" },
+    { key: "expiry", label: "تاريخ الانتهاء", type: "text" },
+  ],
+  "معدات صناعية": [
+    { key: "equipment_type", label: "نوع المعدات", type: "text" },
+    { key: "brand", label: "الماركة", type: "text" },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "مجدد"] },
+    { key: "power_source", label: "مصدر الطاقة", type: "select", options: ["كهربائي", "ديزل", "بنزين", "يدوي"] },
+    { key: "year", label: "سنة الصنع", type: "text" },
+    { key: "warranty", label: "الضمان", type: "select", options: ["نعم", "لا"] },
+  ],
+  "معدات زراعية": [
+    { key: "equipment_type", label: "نوع المعدات", type: "text" },
+    { key: "brand", label: "الماركة", type: "text" },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "مجدد"] },
+    { key: "power_source", label: "مصدر الطاقة", type: "select", options: ["كهربائي", "ديزل", "بنزين", "يدوي"] },
+    { key: "year", label: "سنة الصنع", type: "text" },
+    { key: "usage", label: "الاستخدام", type: "select", options: ["حراثة", "ري", "حصاد", "رش", "نقل", "أخرى"] },
+  ],
+  "مواد بناء": [
+    { key: "material_type", label: "نوع المادة", type: "select", options: ["إسمنت", "حديد", "بلاط", "دهانات", "رمل", "بلوك", "خشب", "أخرى"] },
+    { key: "quantity", label: "الكمية", type: "text" },
+    { key: "unit", label: "وحدة القياس", type: "select", options: ["طن", "كيلو", "متر", "متر مربع", "قطعة", "كيس"] },
+  ],
 };
 
 // Categories
