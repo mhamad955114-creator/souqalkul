@@ -224,6 +224,14 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       return;
     }
 
+    // Validate metadata fields are filled for the selected category
+    const requiredMetaFields = categoryMetadataFields[formData.category] || [];
+    const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
+    if (missingMetaFields.length > 0) {
+      toast.error(`يرجى ملء جميع تفاصيل الإعلان: ${missingMetaFields.map(f => f.label).join('، ')}`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -467,11 +475,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           {/* Category-specific metadata fields */}
           {currentMetadataFields.length > 0 && (
             <div className="space-y-3 p-4 rounded-xl border border-border bg-muted/30">
-              <Label className="text-sm font-semibold">تفاصيل إضافية ({categoryMetadataFields[formData.category] ? formData.category : ""})</Label>
+              <Label className="text-sm font-semibold">تفاصيل الإعلان (إجبارية) <span className="text-destructive">*</span></Label>
               <div className="grid grid-cols-2 gap-3">
                 {currentMetadataFields.map((field) => (
                   <div key={field.key} className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">{field.label}</Label>
+                    <Label className="text-xs text-muted-foreground">{field.label} <span className="text-destructive">*</span></Label>
                     {field.type === "select" && field.options ? (
                       <Select
                         value={metadata[field.key] || ""}
