@@ -286,8 +286,16 @@ export const categoryMetadataFields: Record<string, MetadataField[]> = {
     { key: "rental_period", label: "مدة الإيجار", type: "select", options: ["شهري", "سنوي", "يومي"] },
   ],
   "الكترونيات": [
+    { key: "device_type", label: "نوع الجهاز", type: "select", options: ["هاتف محمول", "لابتوب", "تابلت", "كمبيوتر مكتبي", "تلفزيون", "سماعات", "كاميرا", "طابعة", "أخرى"] },
     { key: "brand", label: "الماركة", type: "text" },
+    { key: "model", label: "الموديل", type: "text" },
     { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "مجدد"] },
+    { key: "screen_size", label: "حجم الشاشة", type: "text" },
+    { key: "storage", label: "سعة التخزين", type: "select", options: ["16GB", "32GB", "64GB", "128GB", "256GB", "512GB", "1TB", "2TB", "أخرى"] },
+    { key: "ram", label: "الذاكرة (RAM)", type: "select", options: ["2GB", "4GB", "6GB", "8GB", "12GB", "16GB", "32GB", "64GB", "أخرى"] },
+    { key: "os", label: "نظام التشغيل", type: "select", options: ["Android", "iOS", "Windows", "macOS", "Linux", "أخرى"] },
+    { key: "battery", label: "حالة البطارية", type: "select", options: ["ممتازة", "جيدة", "متوسطة", "ضعيفة"] },
+    { key: "color", label: "اللون", type: "text" },
     { key: "warranty", label: "الضمان", type: "select", options: ["نعم", "لا"] },
   ],
   "أثاث": [
