@@ -61,6 +61,31 @@ serve(async (req) => {
       );
     }
 
+    // Validate URL domain to prevent SSRF
+    try {
+      const parsedUrl = new URL(imageUrl);
+      const ALLOWED_HOSTS = [
+        'dhkdgdehcwcglhntsegs.supabase.co',
+      ];
+      if (!ALLOWED_HOSTS.includes(parsedUrl.hostname)) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid image URL domain' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (parsedUrl.protocol !== 'https:') {
+        return new Response(
+          JSON.stringify({ error: 'Only HTTPS URLs are allowed' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid URL format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
