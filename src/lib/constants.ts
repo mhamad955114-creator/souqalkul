@@ -308,10 +308,14 @@ export const categoryMetadataFields: Record<string, MetadataField[]> = {
     { key: "dimensions", label: "الأبعاد (الطول × العرض × الارتفاع)", type: "text" },
   ],
   "ملابس": [
-    { key: "clothing_type", label: "نوع الملابس", type: "text" },
-    { key: "size", label: "المقاس", type: "text" },
-    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل"] },
+    { key: "clothing_type", label: "نوع الملابس", type: "select", options: ["قميص", "بنطال", "فستان", "جاكيت", "معطف", "بدلة", "عباية", "حجاب", "ملابس رياضية", "ملابس داخلية", "بيجامة", "أخرى"] },
+    { key: "size", label: "المقاس", type: "select", options: ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "مقاس حر"] },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد بالتغليف", "جديد بدون تغليف", "مستعمل - ممتاز", "مستعمل - جيد"] },
     { key: "gender", label: "الجنس", type: "select", options: ["رجالي", "نسائي", "أطفال", "للجنسين"] },
+    { key: "brand", label: "العلامة التجارية", type: "text" },
+    { key: "fabric", label: "الخامة", type: "select", options: ["قطن", "بوليستر", "حرير", "صوف", "كتان", "جلد", "جينز", "شيفون", "مخلوط", "أخرى"] },
+    { key: "season", label: "الموسم", type: "select", options: ["صيفي", "شتوي", "ربيعي/خريفي", "لجميع الفصول"] },
+    { key: "color", label: "اللون", type: "select", options: ["أبيض", "أسود", "أحمر", "أزرق", "أخضر", "بني", "بيج", "رمادي", "وردي", "أصفر", "متعدد الألوان", "أخرى"] },
   ],
   "وظائف": [
     { key: "job_type", label: "نوع الوظيفة", type: "select", options: ["دوام كامل", "دوام جزئي", "عن بعد", "مؤقت"] },
