@@ -299,9 +299,13 @@ export const categoryMetadataFields: Record<string, MetadataField[]> = {
     { key: "warranty", label: "الضمان", type: "select", options: ["نعم", "لا"] },
   ],
   "أثاث": [
-    { key: "furniture_type", label: "نوع الأثاث", type: "text" },
-    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل", "ممتاز"] },
-    { key: "material", label: "المادة", type: "text" },
+    { key: "furniture_type", label: "نوع الأثاث", type: "select", options: ["غرفة نوم", "غرفة جلوس", "صالون", "سفرة", "مطبخ", "مكتب", "خزانة", "سرير", "طاولة", "كرسي", "أخرى"] },
+    { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل - ممتاز", "مستعمل - جيد", "مستعمل - مقبول"] },
+    { key: "material", label: "المادة", type: "select", options: ["خشب طبيعي", "خشب صناعي (MDF)", "معدن", "قماش", "جلد", "زجاج", "بلاستيك", "أخرى"] },
+    { key: "pieces_count", label: "عدد القطع", type: "select", options: ["1", "2", "3", "4", "5", "6", "7", "8", "أكثر من 8"] },
+    { key: "color", label: "اللون", type: "select", options: ["أبيض", "أسود", "بني", "بيج", "رمادي", "أحمر", "أزرق", "أخضر", "خشبي طبيعي", "متعدد الألوان", "أخرى"] },
+    { key: "design_style", label: "نمط التصميم", type: "select", options: ["كلاسيكي", "مودرن", "عصري", "ريفي", "إسلامي", "بسيط (مينيمال)", "أخرى"] },
+    { key: "dimensions", label: "الأبعاد (الطول × العرض × الارتفاع)", type: "text" },
   ],
   "ملابس": [
     { key: "clothing_type", label: "نوع الملابس", type: "text" },
