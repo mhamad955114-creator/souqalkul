@@ -96,7 +96,7 @@ const RelatedUserInfo = ({ userId, type }: { userId: string; type: string }) => 
 
 const WalletPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const { wallet, transactions, topUpRequests, loading, submitTopUp, transferBalance, transferByWalletId, lookupReceiverByPhone, lookupReceiverByWalletId, executeTransfer, refetch } = useWallet();
+  const { wallet, transactions, topUpRequests, loading, submitTopUp, lookupReceiverByWalletId, executeTransfer, refetch } = useWallet();
   const { settings, rawSettings, loading: settingsLoading } = useListingSettings();
   const { dir } = useLanguage();
   const navigate = useNavigate();
@@ -106,7 +106,6 @@ const WalletPage = () => {
   const [transferOpen, setTransferOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpTxNumber, setTopUpTxNumber] = useState("");
-  const [transferPhone, setTransferPhone] = useState("");
   const [transferWalletId, setTransferWalletId] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -115,7 +114,7 @@ const WalletPage = () => {
 
   // Confirmation state
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [receiverInfo, setReceiverInfo] = useState<{ userId: string; name: string; phone: string } | null>(null);
+  const [receiverInfo, setReceiverInfo] = useState<{ userId: string; name: string } | null>(null);
   const [pendingAmount, setPendingAmount] = useState(0);
 
   // Receipt state
@@ -123,7 +122,6 @@ const WalletPage = () => {
   const [receiptData, setReceiptData] = useState<{
     invoiceNumber: string;
     receiverName: string;
-    receiverPhone: string;
     receiverWalletId: string;
     amount: number;
     date: string;
@@ -472,7 +470,7 @@ const WalletPage = () => {
         <DialogContent className="max-w-md" dir={dir}>
           <DialogHeader>
             <DialogTitle>تحويل رصيد</DialogTitle>
-            <DialogDescription>أدخل رقم هاتف المستلم أو عنوان محفظته</DialogDescription>
+            <DialogDescription>أدخل عنوان محفظة المستلم</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -484,30 +482,15 @@ const WalletPage = () => {
               </CardContent>
             </Card>
 
-            <Tabs defaultValue="phone" className="w-full">
-              <TabsList className="w-full grid grid-cols-2">
-                <TabsTrigger value="phone">رقم الهاتف</TabsTrigger>
-                <TabsTrigger value="wallet_id">عنوان المحفظة</TabsTrigger>
-              </TabsList>
-              <TabsContent value="phone" className="mt-3 space-y-2">
-                <Label>رقم هاتف المستلم</Label>
-                <Input
-                  type="tel"
-                  placeholder="مثال: 09XXXXXXXX"
-                  value={transferPhone}
-                  onChange={(e) => { setTransferPhone(e.target.value); setTransferWalletId(""); }}
-                />
-              </TabsContent>
-              <TabsContent value="wallet_id" className="mt-3 space-y-2">
-                <Label>عنوان محفظة المستلم</Label>
-                <Input
-                  type="text"
-                  placeholder="الصق عنوان المحفظة هنا"
-                  value={transferWalletId}
-                  onChange={(e) => { setTransferWalletId(e.target.value); setTransferPhone(""); }}
-                />
-              </TabsContent>
-            </Tabs>
+            <div className="space-y-2">
+              <Label>عنوان محفظة المستلم</Label>
+              <Input
+                type="text"
+                placeholder="الصق عنوان المحفظة هنا"
+                value={transferWalletId}
+                onChange={(e) => setTransferWalletId(e.target.value)}
+              />
+            </div>
 
             <div className="space-y-2">
               <Label>المبلغ (ل.س)</Label>
@@ -528,10 +511,8 @@ const WalletPage = () => {
             <Button
               onClick={async () => {
                 const amount = parseFloat(transferAmount);
-                const hasPhone = transferPhone.trim().length > 0;
-                const hasWalletId = transferWalletId.trim().length > 0;
-                if (!hasPhone && !hasWalletId) {
-                  toast.error("أدخل رقم هاتف المستلم أو عنوان محفظته");
+                if (!transferWalletId.trim()) {
+                  toast.error("أدخل عنوان محفظة المستلم");
                   return;
                 }
                 if (!amount || amount <= 0) {
@@ -540,13 +521,8 @@ const WalletPage = () => {
                 }
                 setSubmitting(true);
                 try {
-                  let receiver;
-                  if (hasPhone) {
-                    receiver = await lookupReceiverByPhone(transferPhone.trim());
-                  } else {
-                    receiver = await lookupReceiverByWalletId(transferWalletId.trim());
-                  }
-                  setReceiverInfo(receiver);
+                  const receiver = await lookupReceiverByWalletId(transferWalletId.trim());
+                  setReceiverInfo({ userId: receiver.userId, name: receiver.name });
                   setPendingAmount(amount);
                   setTransferOpen(false);
                   setConfirmOpen(true);
@@ -588,12 +564,6 @@ const WalletPage = () => {
                       <p className="font-bold">{receiverInfo.name}</p>
                     </div>
                   </div>
-                  {receiverInfo.phone && (
-                    <div className="flex items-center justify-between text-sm border-t pt-2">
-                      <span className="text-muted-foreground">رقم الهاتف</span>
-                      <span className="font-mono">{receiverInfo.phone}</span>
-                    </div>
-                  )}
                   <div className="flex items-center justify-between text-sm border-t pt-2">
                     <span className="text-muted-foreground">عنوان المحفظة</span>
                     <span className="font-mono text-xs">{receiverInfo.userId.slice(0, 8)}...{receiverInfo.userId.slice(-4)}</span>
@@ -630,7 +600,6 @@ const WalletPage = () => {
                   setReceiptData({
                     invoiceNumber: invoiceNum,
                     receiverName: receiverInfo.name,
-                    receiverPhone: receiverInfo.phone,
                     receiverWalletId: receiverInfo.userId,
                     amount: pendingAmount,
                     date: new Date().toLocaleString("ar-SY"),
@@ -639,7 +608,6 @@ const WalletPage = () => {
                   });
                   setConfirmOpen(false);
                   setReceiptDialogOpen(true);
-                  setTransferPhone("");
                   setTransferWalletId("");
                   setTransferAmount("");
                 } catch (err: any) {
@@ -708,12 +676,6 @@ const WalletPage = () => {
                       <span className="text-muted-foreground">الاسم</span>
                       <span>{receiptData.receiverName}</span>
                     </div>
-                    {receiptData.receiverPhone && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">الهاتف</span>
-                        <span className="font-mono">{receiptData.receiverPhone}</span>
-                      </div>
-                    )}
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">المحفظة</span>
                       <span className="font-mono text-xs">{receiptData.receiverWalletId.slice(0, 8)}...{receiptData.receiverWalletId.slice(-4)}</span>
@@ -733,7 +695,7 @@ const WalletPage = () => {
                       `المبلغ: ${formatPrice(receiptData.amount)}`,
                       `المرسل: ${receiptData.senderName}`,
                       `المستلم: ${receiptData.receiverName}`,
-                      receiptData.receiverPhone ? `هاتف المستلم: ${receiptData.receiverPhone}` : "",
+                      `محفظة المستلم: ${receiptData.receiverWalletId.slice(0, 8)}...${receiptData.receiverWalletId.slice(-4)}`,
                       `محفظة المستلم: ${receiptData.receiverWalletId.slice(0, 8)}...${receiptData.receiverWalletId.slice(-4)}`,
                     ].filter(Boolean).join("\n");
                     navigator.clipboard.writeText(text);
@@ -752,7 +714,7 @@ const WalletPage = () => {
                       `💰 المبلغ: ${formatPrice(receiptData.amount)}`,
                       `👤 المرسل: ${receiptData.senderName}`,
                       `👤 المستلم: ${receiptData.receiverName}`,
-                      receiptData.receiverPhone ? `📱 هاتف المستلم: ${receiptData.receiverPhone}` : "",
+                      `💼 محفظة المستلم: ${receiptData.receiverWalletId.slice(0, 8)}...${receiptData.receiverWalletId.slice(-4)}`,
                     ].filter(Boolean).join("\n");
 
                     if (navigator.share) {
