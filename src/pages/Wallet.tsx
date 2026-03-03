@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
@@ -49,6 +49,7 @@ import {
   Share2,
   Receipt,
   User,
+  Camera,
 } from "lucide-react";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
@@ -118,6 +119,10 @@ const WalletPage = () => {
   const [receiverInfo, setReceiverInfo] = useState<{ userId: string; name: string } | null>(null);
   const [pendingAmount, setPendingAmount] = useState(0);
 
+  // QR Scanner state
+  const [scanning, setScanning] = useState(false);
+  const scannerRef = useRef<any>(null);
+
   // QR state
   const [qrOpen, setQrOpen] = useState(false);
 
@@ -136,6 +141,48 @@ const WalletPage = () => {
   const shamcashAccount = rawSettings.shamcash_account
     ? String(rawSettings.shamcash_account).replace(/"/g, "")
     : "0999999999";
+
+  // QR Scanner effect
+  const onScanSuccess = useCallback((decodedText: string) => {
+    setTransferWalletId(decodedText.trim());
+    setScanning(false);
+    toast.success("تم مسح رمز QR بنجاح");
+  }, []);
+
+  useEffect(() => {
+    if (!scanning) {
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(() => {});
+        scannerRef.current = null;
+      }
+      return;
+    }
+
+    let cancelled = false;
+    import("html5-qrcode").then(({ Html5Qrcode }) => {
+      if (cancelled) return;
+      const scanner = new Html5Qrcode("qr-reader");
+      scannerRef.current = scanner;
+      scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        () => {}
+      ).catch(() => {
+        toast.error("تعذر الوصول إلى الكاميرا");
+        setScanning(false);
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+        scannerRef.current.clear().catch(() => {});
+        scannerRef.current = null;
+      }
+    };
+  }, [scanning, onScanSuccess]);
 
 
   if (authLoading || loading) {
@@ -551,12 +598,29 @@ const WalletPage = () => {
 
             <div className="space-y-2">
               <Label>عنوان محفظة المستلم</Label>
-              <Input
-                type="text"
-                placeholder="الصق عنوان المحفظة هنا"
-                value={transferWalletId}
-                onChange={(e) => setTransferWalletId(e.target.value)}
-              />
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  placeholder="الصق عنوان المحفظة هنا"
+                  value={transferWalletId}
+                  onChange={(e) => setTransferWalletId(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  type="button"
+                  onClick={() => setScanning((prev) => !prev)}
+                  title="مسح رمز QR"
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+              </div>
+              {scanning && (
+                <div className="rounded-lg overflow-hidden border">
+                  <div id="qr-reader" className="w-full" />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
