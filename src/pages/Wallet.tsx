@@ -264,73 +264,79 @@ const WalletPage = () => {
       <Header />
       <main className="container mx-auto px-4 py-6 max-w-2xl">
         {/* Back button */}
-        <Button variant="ghost" className="mb-4" onClick={() => navigate(-1)}>
+        <Button variant="ghost" className="mb-4 animate-fade-in" onClick={() => navigate(-1)}>
           <BackArrow className="h-4 w-4" />
           رجوع
         </Button>
 
         {/* Balance Card */}
-        <Card className="mb-6 overflow-hidden">
-          <div className="bg-gradient-to-br from-primary to-accent p-6 text-primary-foreground">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                <WalletIcon className="h-6 w-6" />
+        <Card className="mb-6 overflow-hidden animate-scale-in shadow-xl">
+          <div className="bg-gradient-to-br from-primary via-primary/90 to-accent p-6 text-primary-foreground relative">
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-foreground/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary-foreground/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform duration-300 hover:scale-110">
+                  <WalletIcon className="h-7 w-7" />
+                </div>
+                <div>
+                  <p className="text-sm opacity-80 mb-1">رصيدك الحالي</p>
+                  <p className="text-4xl font-extrabold tracking-tight">{formatPrice(wallet?.balance ?? 0)}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm opacity-80">رصيدك الحالي</p>
-                <p className="text-3xl font-bold">{formatPrice(wallet?.balance ?? 0)}</p>
-              </div>
-            </div>
-            {/* Wallet Address */}
-            {user && (
-              <div className="mb-4 flex items-center gap-2 bg-primary-foreground/10 rounded-lg px-3 py-2 text-xs">
-                <span className="opacity-70">عنوان محفظتك:</span>
-                <span className="font-mono flex-1 truncate">{user.id.slice(0, 8)}...{user.id.slice(-4)}</span>
+              {/* Wallet Address */}
+              {user && (
+                <div className="mb-4 flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm rounded-xl px-3 py-2.5 text-xs border border-primary-foreground/10 transition-all duration-300 hover:bg-primary-foreground/15">
+                  <span className="opacity-70">عنوان محفظتك:</span>
+                  <span className="font-mono flex-1 truncate">{user.id.slice(0, 8)}...{user.id.slice(-4)}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-primary-foreground hover:bg-primary-foreground/20 rounded-lg transition-transform duration-200 hover:scale-110"
+                    onClick={() => setQrOpen(true)}
+                    title="عرض رمز QR"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="20" y="14" width="1" height="3"/><rect x="14" y="20" width="3" height="1"/><rect x="20" y="20" width="1" height="1"/></svg>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-primary-foreground hover:bg-primary-foreground/20 rounded-lg transition-transform duration-200 hover:scale-110"
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.id);
+                      toast.success("تم نسخ عنوان المحفظة");
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              )}
+              <div className="flex gap-3">
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-primary-foreground hover:bg-primary-foreground/20"
-                  onClick={() => setQrOpen(true)}
-                  title="عرض رمز QR"
+                  variant="secondary"
+                  className="flex-1 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
+                  onClick={() => setTopUpOpen(true)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="20" y="14" width="1" height="3"/><rect x="14" y="20" width="3" height="1"/><rect x="20" y="20" width="1" height="1"/></svg>
+                  <ArrowUpCircle className="h-4 w-4" />
+                  شحن رصيد
                 </Button>
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-primary-foreground hover:bg-primary-foreground/20"
-                  onClick={() => {
-                    navigator.clipboard.writeText(user.id);
-                    toast.success("تم نسخ عنوان المحفظة");
-                  }}
+                  variant="secondary"
+                  className="flex-1 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
+                  onClick={() => setTransferOpen(true)}
                 >
-                  <Copy className="h-3 w-3" />
+                  <SendHorizontal className="h-4 w-4" />
+                  تحويل
                 </Button>
               </div>
-            )}
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                className="flex-1"
-                onClick={() => setTopUpOpen(true)}
-              >
-                <ArrowUpCircle className="h-4 w-4" />
-                شحن رصيد
-              </Button>
-              <Button
-                variant="secondary"
-                className="flex-1"
-                onClick={() => setTransferOpen(true)}
-              >
-                <SendHorizontal className="h-4 w-4" />
-                تحويل
-              </Button>
             </div>
           </div>
         </Card>
 
         {/* Tabs */}
-        <Tabs defaultValue="transactions" className="w-full">
+        <Tabs defaultValue="transactions" className="w-full animate-fade-in" style={{ animationDelay: "150ms" }}>
           <TabsList className="w-full grid grid-cols-2">
             <TabsTrigger value="transactions" className="gap-2">
               <History className="h-4 w-4" />
@@ -350,7 +356,7 @@ const WalletPage = () => {
                 </CardContent>
               </Card>
             ) : (
-              transactions.map((tx) => {
+              transactions.map((tx, idx) => {
                 const config = transactionTypeLabels[tx.type] || {
                   label: tx.type,
                   color: "text-muted-foreground",
@@ -359,7 +365,7 @@ const WalletPage = () => {
                 const Icon = config.icon;
                 const isPositive = ["top_up", "transfer_in"].includes(tx.type);
                 return (
-                  <Card key={tx.id}>
+                  <Card key={tx.id} className="transition-all duration-300 hover:shadow-md hover:-translate-y-0.5" style={{ animationDelay: `${idx * 50}ms` }}>
                     <CardContent className="flex items-center gap-3 py-4">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-muted ${config.color}`}>
                         <Icon className="h-5 w-5" />
