@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Banknote, Briefcase } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
@@ -145,24 +145,24 @@ const AdminSettingsTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* ShamCash Account Card */}
+      {/* Wallet Address for Top-up */}
       <Card className="border-primary/30">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Banknote className="h-5 w-5 text-primary" />
+              <Wallet className="h-5 w-5 text-primary" />
             </div>
-            <h3 className="text-lg font-bold text-foreground">رقم حساب شام كاش</h3>
+            <h3 className="text-lg font-bold text-foreground">عنوان محفظة الشحن</h3>
           </div>
 
           <div className="space-y-2">
-            <Label>رقم الحساب الذي يظهر للمستخدمين عند شحن المحفظة</Label>
+            <Label>عنوان المحفظة الذي يظهر للمستخدمين عند شحن الرصيد</Label>
             <Input
               value={shamcashAccount}
               onChange={(e) => setShamcashAccount(e.target.value)}
-              placeholder="0999999999"
+              placeholder="أدخل عنوان المحفظة"
               dir="ltr"
-              className="text-left font-mono"
+              className="text-left font-mono text-sm"
             />
           </div>
 
@@ -172,7 +172,7 @@ const AdminSettingsTab = () => {
             disabled={savingShamcash}
           >
             {savingShamcash ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            حفظ رقم شام كاش
+            حفظ عنوان المحفظة
           </Button>
         </CardContent>
       </Card>
