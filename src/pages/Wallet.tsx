@@ -256,7 +256,7 @@ const WalletPage = () => {
 
   const copyAccount = () => {
     navigator.clipboard.writeText(shamcashAccount);
-    toast.success("تم نسخ رقم الحساب");
+    toast.success("تم نسخ عنوان المحفظة");
   };
 
   return (
@@ -488,7 +488,7 @@ const WalletPage = () => {
       <Dialog open={topUpOpen} onOpenChange={setTopUpOpen}>
         <DialogContent className="max-w-md" dir={dir}>
           <DialogHeader>
-            <DialogTitle>شحن رصيد عبر شام كاش</DialogTitle>
+            <DialogTitle>شحن رصيد</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -497,16 +497,15 @@ const WalletPage = () => {
               <CardContent className="py-4 space-y-2">
                 <p className="text-sm font-medium">خطوات الشحن:</p>
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                  <li>افتح تطبيق شام كاش</li>
-                  <li>حوّل المبلغ المطلوب إلى الرقم التالي:</li>
+                  <li>حوّل المبلغ المطلوب إلى عنوان المحفظة التالي:</li>
                 </ol>
                 <div className="flex items-center gap-2 bg-background rounded-lg p-3 border">
-                  <span className="font-mono font-bold text-lg flex-1">{shamcashAccount}</span>
+                  <span className="font-mono font-bold text-sm flex-1 truncate" dir="ltr">{shamcashAccount}</span>
                   <Button variant="ghost" size="icon" onClick={copyAccount}>
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <ol start={3} className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                <ol start={2} className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                   <li>أدخل المبلغ ورقم العملية أدناه</li>
                   <li>سيتم مراجعة طلبك وإضافة الرصيد خلال دقائق</li>
                 </ol>
