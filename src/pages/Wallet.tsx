@@ -51,6 +51,7 @@ import {
   User,
 } from "lucide-react";
 import { toast } from "sonner";
+import { QRCodeSVG } from "qrcode.react";
 import { formatPrice, formatDate } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -116,6 +117,9 @@ const WalletPage = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [receiverInfo, setReceiverInfo] = useState<{ userId: string; name: string } | null>(null);
   const [pendingAmount, setPendingAmount] = useState(0);
+
+  // QR state
+  const [qrOpen, setQrOpen] = useState(false);
 
   // Receipt state
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
@@ -235,6 +239,15 @@ const WalletPage = () => {
               <div className="mb-4 flex items-center gap-2 bg-primary-foreground/10 rounded-lg px-3 py-2 text-xs">
                 <span className="opacity-70">عنوان محفظتك:</span>
                 <span className="font-mono flex-1 truncate">{user.id.slice(0, 8)}...{user.id.slice(-4)}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-primary-foreground hover:bg-primary-foreground/20"
+                  onClick={() => setQrOpen(true)}
+                  title="عرض رمز QR"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="20" y="14" width="1" height="3"/><rect x="14" y="20" width="3" height="1"/><rect x="20" y="20" width="1" height="1"/></svg>
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -369,6 +382,60 @@ const WalletPage = () => {
       <Footer />
       <BottomNavigation />
 
+
+      {/* QR Code Dialog */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="max-w-sm" dir={dir}>
+          <DialogHeader>
+            <DialogTitle>رمز QR للمحفظة</DialogTitle>
+            <DialogDescription>امسح هذا الرمز لاستلام تحويلات</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="bg-white p-4 rounded-xl">
+              <QRCodeSVG
+                value={user?.id || ""}
+                size={200}
+                level="H"
+                includeMargin={false}
+              />
+            </div>
+            <div className="text-center space-y-1">
+              <p className="text-xs text-muted-foreground">عنوان المحفظة</p>
+              <p className="font-mono text-sm select-all break-all">{user?.id}</p>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                navigator.clipboard.writeText(user?.id || "");
+                toast.success("تم نسخ عنوان المحفظة");
+              }}
+            >
+              <Copy className="h-4 w-4" />
+              نسخ العنوان
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={() => {
+                if (typeof navigator.share === "function") {
+                  navigator.share({
+                    title: "عنوان محفظتي",
+                    text: `عنوان محفظتي في سوق الكل: ${user?.id}`,
+                  });
+                } else {
+                  navigator.clipboard.writeText(user?.id || "");
+                  toast.success("تم نسخ عنوان المحفظة");
+                }
+              }}
+            >
+              <Share2 className="h-4 w-4" />
+              مشاركة
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Top-up Dialog */}
       <Dialog open={topUpOpen} onOpenChange={setTopUpOpen}>
