@@ -363,7 +363,7 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
               {user && (
                 <div className="mb-4 flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm rounded-xl px-3 py-2.5 text-xs border border-primary-foreground/10 transition-all duration-300 hover:bg-primary-foreground/15">
                   <span className="opacity-70">عنوان محفظتك:</span>
-                  <span className="font-mono flex-1 truncate">{user.id.slice(0, 8)}...{user.id.slice(-4)}</span>
+                  <span className="font-mono flex-1 truncate" dir="ltr">{shamcashAccount}</span>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -378,7 +378,7 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
                     size="icon"
                     className="h-7 w-7 text-primary-foreground hover:bg-primary-foreground/20 rounded-lg transition-transform duration-200 hover:scale-110"
                     onClick={() => {
-                      navigator.clipboard.writeText(user.id);
+                      navigator.clipboard.writeText(shamcashAccount);
                       toast.success("تم نسخ عنوان المحفظة");
                     }}
                   >
@@ -519,7 +519,7 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
           <div className="flex flex-col items-center gap-4 py-4">
             <div className="bg-white p-4 rounded-xl">
               <QRCodeSVG
-                value={user?.id || ""}
+                value={shamcashAccount}
                 size={200}
                 level="H"
                 includeMargin={false}
@@ -527,7 +527,7 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
             </div>
             <div className="text-center space-y-1">
               <p className="text-xs text-muted-foreground">عنوان المحفظة</p>
-              <p className="font-mono text-sm select-all break-all">{user?.id}</p>
+              <p className="font-mono text-sm select-all break-all">{shamcashAccount}</p>
             </div>
           </div>
           <DialogFooter className="flex gap-2">
@@ -535,7 +535,7 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
               variant="outline"
               className="flex-1"
               onClick={() => {
-                navigator.clipboard.writeText(user?.id || "");
+                navigator.clipboard.writeText(shamcashAccount);
                 toast.success("تم نسخ عنوان المحفظة");
               }}
             >
@@ -548,10 +548,10 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
                 if (typeof navigator.share === "function") {
                   navigator.share({
                     title: "عنوان محفظتي",
-                    text: `عنوان محفظتي في سوق الكل: ${user?.id}`,
+                    text: `عنوان محفظتي في سوق الكل: ${shamcashAccount}`,
                   });
                 } else {
-                  navigator.clipboard.writeText(user?.id || "");
+                  navigator.clipboard.writeText(shamcashAccount);
                   toast.success("تم نسخ عنوان المحفظة");
                 }
               }}
