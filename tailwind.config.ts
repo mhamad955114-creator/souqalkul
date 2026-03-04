@@ -89,6 +89,13 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-6px)" },
         },
+        "balance-pulse": {
+          "0%": { transform: "scale(1)", boxShadow: "0 0 0 0 hsl(168 76% 42% / 0.4)" },
+          "25%": { transform: "scale(1.03)", boxShadow: "0 0 20px 4px hsl(168 76% 42% / 0.3)" },
+          "50%": { transform: "scale(0.98)" },
+          "75%": { transform: "scale(1.01)" },
+          "100%": { transform: "scale(1)", boxShadow: "0 0 0 0 hsl(168 76% 42% / 0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -96,6 +103,7 @@ export default {
         "dating-pop": "dating-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
         "dating-glow": "dating-glow 3s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
+        "balance-pulse": "balance-pulse 0.8s ease-in-out",
       },
     },
   },
