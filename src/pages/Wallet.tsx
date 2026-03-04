@@ -143,6 +143,30 @@ const WalletPage = () => {
   // Realtime subscription for wallet changes
   useEffect(() => {
     if (!user) return;
+    const playNotificationSound = () => {
+      try {
+        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const playTone = (freq: number, startTime: number, duration: number) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.3, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+          osc.start(startTime);
+          osc.stop(startTime + duration);
+        };
+        const now = ctx.currentTime;
+        playTone(523, now, 0.15);        // C5
+        playTone(659, now + 0.15, 0.15); // E5
+        playTone(784, now + 0.3, 0.25);  // G5
+      } catch (e) {
+        // Audio not supported
+      }
+    };
+
     const channel = supabase
       .channel('wallet-balance')
       .on(
@@ -153,7 +177,13 @@ const WalletPage = () => {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'wallet_transactions', filter: `user_id=eq.${user.id}` },
-        () => { refetch(); }
+        (payload: any) => {
+          refetch();
+          if (payload.new?.type === 'transfer_in' || payload.new?.type === 'top_up') {
+            playNotificationSound();
+            toast.success('💰 تم استلام تحويل جديد!');
+          }
+        }
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
