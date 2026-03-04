@@ -548,11 +548,21 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                   <li>حوّل المبلغ المطلوب إلى عنوان المحفظة التالي:</li>
                 </ol>
-                <div className="flex items-center gap-2 bg-background rounded-lg p-3 border">
-                  <span className="font-mono font-bold text-sm flex-1 truncate" dir="ltr">{shamcashAccount}</span>
-                  <Button variant="ghost" size="icon" onClick={copyAccount}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
+                <div className="flex flex-col items-center gap-3">
+                  <div className="bg-white p-3 rounded-xl shadow-sm">
+                    <QRCodeSVG
+                      value={shamcashAccount}
+                      size={160}
+                      level="H"
+                      includeMargin={false}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 bg-background rounded-lg p-3 border w-full">
+                    <span className="font-mono font-bold text-sm flex-1 truncate" dir="ltr">{shamcashAccount}</span>
+                    <Button variant="ghost" size="icon" onClick={copyAccount}>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <ol start={2} className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                   <li>أدخل المبلغ ورقم العملية أدناه</li>
