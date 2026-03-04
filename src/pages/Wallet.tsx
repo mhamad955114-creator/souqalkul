@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
@@ -184,6 +185,16 @@ const WalletPage = () => {
     };
   }, [scanning, onScanSuccess]);
 
+// Animated balance display component
+const AnimatedBalance = ({ balance }: { balance: number }) => {
+  const animatedValue = useAnimatedCounter(balance);
+  return (
+    <p className="text-4xl font-extrabold tracking-tight transition-all duration-300">
+      {formatPrice(Math.round(animatedValue))}
+    </p>
+  );
+};
+
 
   if (authLoading || loading) {
     return (
@@ -283,7 +294,7 @@ const WalletPage = () => {
                 </div>
                 <div>
                   <p className="text-sm opacity-80 mb-1">رصيدك الحالي</p>
-                  <p className="text-4xl font-extrabold tracking-tight">{formatPrice(wallet?.balance ?? 0)}</p>
+                  <AnimatedBalance balance={wallet?.balance ?? 0} />
                 </div>
               </div>
               {/* Wallet Address */}
