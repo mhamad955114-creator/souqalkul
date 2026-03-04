@@ -127,6 +127,38 @@ const WalletPage = () => {
   // QR state
   const [qrOpen, setQrOpen] = useState(false);
 
+  // Balance pulse animation on change
+  const [balancePulse, setBalancePulse] = useState(false);
+  const prevBalanceRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (wallet && prevBalanceRef.current !== null && wallet.balance !== prevBalanceRef.current) {
+      setBalancePulse(true);
+      const timer = setTimeout(() => setBalancePulse(false), 1200);
+      return () => clearTimeout(timer);
+    }
+    if (wallet) prevBalanceRef.current = wallet.balance;
+  }, [wallet?.balance]);
+
+  // Realtime subscription for wallet changes
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('wallet-balance')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'wallets', filter: `user_id=eq.${user.id}` },
+        () => { refetch(); }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'wallet_transactions', filter: `user_id=eq.${user.id}` },
+        () => { refetch(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, refetch]);
+
   // Receipt state
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<{
@@ -281,8 +313,8 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
         </Button>
 
         {/* Balance Card */}
-        <Card className="mb-6 overflow-hidden animate-scale-in shadow-xl">
-          <div className="bg-gradient-to-br from-primary via-primary/90 to-accent p-6 text-primary-foreground relative">
+        <Card className={`mb-6 overflow-hidden animate-scale-in shadow-xl transition-all duration-300 ${balancePulse ? 'animate-balance-pulse ring-2 ring-accent/50' : ''}`}>
+          <div className="bg-gradient-to-br from-primary via-primary/90 to-accent p-6 text-primary-foreground relative transition-all duration-500">
             {/* Decorative circles */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-foreground/5 rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary-foreground/5 rounded-full translate-y-1/2 -translate-x-1/2" />
