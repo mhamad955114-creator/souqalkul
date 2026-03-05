@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Heart, MapPin, Clock, Hash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
@@ -26,6 +27,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
   const isListingFavorite = id ? isFavorite(id) : false;
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleClick = () => {
     if (id) {
@@ -33,25 +35,35 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
     }
   };
 
+  const hasRealImage = image && !image.includes("placeholder") && !image.includes("unsplash");
+
   return (
     <div 
       className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1"
       onClick={handleClick}
     >
       <div className="relative aspect-square overflow-hidden">
-        {!image || image.includes("placeholder") || image.includes("unsplash") ? (
+        {!hasRealImage ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-2">
             <img src={appLogo} alt="سوق الكل" className="w-20 h-20 object-contain opacity-60" />
             <span className="text-xs text-muted-foreground">لا توجد صورة لهذا الإعلان</span>
           </div>
         ) : (
-          <img
-            src={image}
-            alt={title}
-            loading="lazy"
-            decoding="async"
-            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${status === "sold" || status === "expired" ? "opacity-60" : ""}`}
-          />
+          <>
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-muted animate-pulse rounded-none" />
+            )}
+            <img
+              src={image}
+              alt={title}
+              loading="lazy"
+              decoding="async"
+              onLoad={() => setImageLoaded(true)}
+              className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              } ${status === "sold" || status === "expired" ? "opacity-60" : ""}`}
+            />
+          </>
         )}
         {status === "sold" && (
           <div className="absolute inset-0 flex items-center justify-center">
