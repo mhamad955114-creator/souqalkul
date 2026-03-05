@@ -565,7 +565,7 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
 
       {/* Top-up Dialog */}
       <Dialog open={topUpOpen} onOpenChange={setTopUpOpen}>
-        <DialogContent className="max-w-md" dir={dir}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" dir={dir}>
           <DialogHeader>
             <DialogTitle>شحن رصيد</DialogTitle>
           </DialogHeader>
@@ -579,10 +579,10 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
                   <li>حوّل المبلغ المطلوب إلى عنوان المحفظة التالي:</li>
                 </ol>
                 <div className="flex flex-col items-center gap-3">
-                  <div className="bg-white p-3 rounded-xl shadow-sm">
+                  <div className="bg-white p-2 rounded-xl shadow-sm">
                     <QRCodeSVG
                       value={shamcashAccount}
-                      size={160}
+                      size={120}
                       level="H"
                       includeMargin={false}
                     />
