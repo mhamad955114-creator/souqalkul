@@ -121,12 +121,6 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
             {title}
           </h3>
         </div>
-        {id && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-            <Hash className="h-3 w-3" />
-            <span dir="ltr">{id.split("-")[0].toUpperCase()}</span>
-          </div>
-        )}
         <div className="text-xl font-bold text-primary mb-3">{price}</div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
