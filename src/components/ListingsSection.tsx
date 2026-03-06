@@ -22,6 +22,7 @@ interface Listing {
   user_id: string;
   _isPro?: boolean;
   _isBusiness?: boolean;
+  _avgRating?: number;
 }
 
 const fallbackListings = [
@@ -95,9 +96,31 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
         .in("plan_type", ["professional", "business"])
         .eq("status", "active")
         .gte("expires_at", new Date().toISOString());
+      
+      // Fetch average ratings for sellers
+      const { data: ratingsData } = await supabase
+        .from("ratings")
+        .select("seller_id, rating")
+        .in("seller_id", userIds);
+      const ratingMap = new Map<string, { sum: number; count: number }>();
+      (ratingsData || []).forEach((r) => {
+        const entry = ratingMap.get(r.seller_id) || { sum: 0, count: 0 };
+        entry.sum += r.rating;
+        entry.count += 1;
+        ratingMap.set(r.seller_id, entry);
+      });
+
       const proUserIds = new Set((subs || []).filter((s) => s.plan_type === "professional").map((s) => s.user_id));
       const bizUserIds = new Set((subs || []).filter((s) => s.plan_type === "business").map((s) => s.user_id));
-      const enriched = data.map((l) => ({ ...l, _isPro: proUserIds.has(l.user_id), _isBusiness: bizUserIds.has(l.user_id) }));
+      const enriched = data.map((l) => {
+        const rEntry = ratingMap.get(l.user_id);
+        return {
+          ...l,
+          _isPro: proUserIds.has(l.user_id),
+          _isBusiness: bizUserIds.has(l.user_id),
+          _avgRating: rEntry ? rEntry.sum / rEntry.count : undefined,
+        };
+      });
       // Pin business listings to top
       enriched.sort((a, b) => {
         if (a._isBusiness && !b._isBusiness) return -1;
@@ -221,6 +244,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       userId={listing.user_id}
                       isOwnerOnline={isOnline(listing.user_id)}
                       description={listing.description}
+                      averageRating={listing._avgRating}
                     />
                   </div>
                 ))
