@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, MapPin, Clock, Hash } from "lucide-react";
+import { Heart, MapPin, Clock, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,9 +20,10 @@ interface ListingCardProps {
   userId?: string;
   isOwnerOnline?: boolean;
   description?: string | null;
+  averageRating?: number;
 }
 
-const ListingCard = ({ id, image, title, price, location, time, featured, professional, business, status, category, userId, isOwnerOnline, description }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, location, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -125,6 +126,12 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
             <span className="text-[10px] font-medium text-green-600 dark:text-green-400">متصل</span>
+          </div>
+        )}
+        {averageRating !== undefined && averageRating > 0 && (
+          <div className="absolute bottom-3 right-3 flex items-center gap-0.5 bg-card/90 backdrop-blur-sm px-2 py-1 rounded-full">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            <span className="text-[11px] font-semibold text-foreground">{averageRating.toFixed(1)}</span>
           </div>
         )}
       </div>
