@@ -52,9 +52,8 @@ const Header = ({ onListingAdded }: HeaderProps) => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-              <img src={logoImage} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
-              <span className="text-xl font-bold text-foreground">{t.appName}</span>
+            <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
+              <img src={logoImage} alt={t.appName} className="h-12 w-12 rounded-xl object-contain" />
             </div>
 
             {/* Desktop Navigation */}
