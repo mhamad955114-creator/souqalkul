@@ -184,11 +184,15 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="bg-card rounded-2xl overflow-hidden shadow-card animate-pulse">
-                <div className="aspect-[4/3] bg-muted" />
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-muted rounded w-3/4" />
-                  <div className="h-6 bg-muted rounded w-1/2" />
-                  <div className="h-3 bg-muted rounded w-full" />
+                <div className="aspect-square bg-muted" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-muted rounded-md w-4/5" />
+                  <div className="h-4 bg-muted rounded-md w-2/5" />
+                  <div className="h-6 bg-muted rounded-md w-1/3" />
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="h-3 bg-muted rounded-md w-1/3" />
+                    <div className="h-3 bg-muted rounded-md w-1/4" />
+                  </div>
                 </div>
               </div>
             ))}
