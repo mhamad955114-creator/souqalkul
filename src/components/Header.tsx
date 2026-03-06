@@ -53,7 +53,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
-              <img src={logoImage} alt={t.appName} className="h-12 w-12 rounded-xl object-contain" />
+              <img src={logoImage} alt={t.appName} className="h-14 w-14 rounded-xl object-contain" />
             </div>
 
             {/* Desktop Navigation */}
