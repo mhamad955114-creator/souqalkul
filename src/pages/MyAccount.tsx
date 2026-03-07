@@ -77,6 +77,8 @@ const MyAccount = () => {
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [deletingListing, setDeletingListing] = useState<Listing | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [deleteAllLoading, setDeleteAllLoading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -247,6 +249,27 @@ const MyAccount = () => {
     } finally {
       setDeleteLoading(false);
       setDeletingListing(null);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!user) return;
+    setDeleteAllLoading(true);
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (error) {
+        toast.error("فشل حذف الإعلانات: " + error.message);
+      } else {
+        toast.success("تم حذف جميع الإعلانات بنجاح");
+        setListings([]);
+      }
+    } finally {
+      setDeleteAllLoading(false);
+      setShowDeleteAllConfirm(false);
     }
   };
 
@@ -494,109 +517,6 @@ const MyAccount = () => {
           </div>
         </div>
 
-        {/* Personal Info Section */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <User className="h-5 w-5 text-primary" />
-                المعلومات الشخصية
-              </h2>
-              {!isEditingProfile ? (
-                <Button variant="outline" size="sm" onClick={startEditProfile}>
-                  <Edit2 className="h-4 w-4" />
-                  تعديل
-                </Button>
-              ) : (
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleSaveProfile} disabled={savingProfile}>
-                    {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    حفظ
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setIsEditingProfile(false)}>
-                    <X className="h-4 w-4" />
-                    إلغاء
-                  </Button>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col md:flex-row gap-6">
-              {/* Avatar */}
-              <div className="flex-shrink-0 relative">
-                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-primary/20">
-                  {uploadingAvatar ? (
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  ) : profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="h-10 w-10 text-muted-foreground" />
-                  )}
-                </div>
-                {isEditingProfile && (
-                  <label className="absolute -bottom-1 -left-1 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
-                    <Camera className="h-3.5 w-3.5" />
-                    <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-                  </label>
-                )}
-              </div>
-              {/* Details */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-                {isEditingProfile ? (
-                  <>
-                    <div className="space-y-1">
-                      <label className="text-xs text-muted-foreground flex items-center gap-1"><User className="h-3 w-3" /> الاسم</label>
-                      <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="الاسم الكامل" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="h-3 w-3" /> الهاتف</label>
-                      <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="رقم الهاتف" dir="ltr" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs text-muted-foreground flex items-center gap-1"><MapPinIcon className="h-3 w-3" /> المدينة</label>
-                      <Input value={editCity} onChange={(e) => setEditCity(e.target.value)} placeholder="المدينة" />
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">البريد:</span>
-                      <span className="font-medium text-foreground" dir="ltr">{user.email || "غير محدد"}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2 text-sm">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">الاسم:</span>
-                      <span className="font-medium text-foreground">{profile?.full_name || "غير محدد"}</span>
-                      {profile?.is_verified && (
-                        <Badge className="text-xs bg-green-500/10 text-green-600 border-green-500/20">موثّق ✓</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">البريد:</span>
-                      <span className="font-medium text-foreground" dir="ltr">{user.email || "غير محدد"}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">الهاتف:</span>
-                      <span className="font-medium text-foreground" dir="ltr">{profile?.phone || "غير محدد"}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPinIcon className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">المدينة:</span>
-                      <span className="font-medium text-foreground">{profile?.city || "غير محدد"}</span>
-                    </div>
-                  </>
-                )}
-                <div className="flex items-center gap-2 text-sm">
-                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">تاريخ التسجيل:</span>
-                  <span className="font-medium text-foreground">{profile ? formatFullDate(profile.created_at) : "—"}</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Listings Section - Enhanced */}
         <Card className="mb-8">
@@ -606,6 +526,12 @@ const MyAccount = () => {
                 <Package className="h-5 w-5 text-primary" />
                 إعلاناتي
               </h2>
+              {listings.length > 0 && (
+                <Button variant="destructive" size="sm" onClick={() => setShowDeleteAllConfirm(true)}>
+                  <Trash2 className="h-4 w-4" />
+                  حذف الكل
+                </Button>
+              )}
             </div>
 
             {/* Quick Stats */}
@@ -1104,6 +1030,35 @@ const MyAccount = () => {
                 </>
               ) : (
                 t.myAccount.deleteListingBtn
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete All Confirmation Dialog */}
+      <AlertDialog open={showDeleteAllConfirm} onOpenChange={setShowDeleteAllConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف جميع الإعلانات</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف جميع إعلاناتك؟ لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAll}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteAllLoading}
+            >
+              {deleteAllLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  جاري الحذف...
+                </>
+              ) : (
+                "حذف الكل"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
