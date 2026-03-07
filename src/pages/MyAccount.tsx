@@ -77,6 +77,8 @@ const MyAccount = () => {
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [deletingListing, setDeletingListing] = useState<Listing | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [deleteAllLoading, setDeleteAllLoading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
