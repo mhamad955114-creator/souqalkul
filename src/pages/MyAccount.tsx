@@ -273,7 +273,7 @@ const MyAccount = () => {
     }
   };
 
-
+  const handleToggleSold = async (listing: Listing) => {
     const newStatus = listing.status === "sold" ? "active" : "sold";
     try {
       const { error } = await supabase
