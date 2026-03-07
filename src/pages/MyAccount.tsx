@@ -252,7 +252,28 @@ const MyAccount = () => {
     }
   };
 
-  const handleToggleSold = async (listing: Listing) => {
+  const handleDeleteAll = async () => {
+    if (!user) return;
+    setDeleteAllLoading(true);
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (error) {
+        toast.error("فشل حذف الإعلانات: " + error.message);
+      } else {
+        toast.success("تم حذف جميع الإعلانات بنجاح");
+        setListings([]);
+      }
+    } finally {
+      setDeleteAllLoading(false);
+      setShowDeleteAllConfirm(false);
+    }
+  };
+
+
     const newStatus = listing.status === "sold" ? "active" : "sold";
     try {
       const { error } = await supabase
