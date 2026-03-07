@@ -29,7 +29,7 @@ const CategoryCard = ({ icon: Icon, title, count, color, categoryValue, adLabel 
         <Icon className="h-7 w-7 text-primary-foreground" />
       </div>
       <h3 className="text-lg font-bold text-foreground mb-1">{title}</h3>
-      <p className="text-muted-foreground text-sm">{count} {adLabel}</p>
+      
     </div>
   );
 };
