@@ -505,6 +505,12 @@ const MyAccount = () => {
                 <Package className="h-5 w-5 text-primary" />
                 إعلاناتي
               </h2>
+              {listings.length > 0 && (
+                <Button variant="destructive" size="sm" onClick={() => setShowDeleteAllConfirm(true)}>
+                  <Trash2 className="h-4 w-4" />
+                  حذف الكل
+                </Button>
+              )}
             </div>
 
             {/* Quick Stats */}
