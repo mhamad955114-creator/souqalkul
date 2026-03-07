@@ -82,9 +82,8 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
         )}
         {business && status !== "sold" && status !== "expired" && (
           <>
-            <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-              <span>💼</span>
-              <span>رجال أعمال</span>
+            <div className="absolute top-3 right-3 animate-pulse">
+              <span className="text-2xl drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]">💎</span>
             </div>
             <div className="absolute top-11 right-3 bg-card/90 backdrop-blur-sm text-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1">
               <span>📌</span>
