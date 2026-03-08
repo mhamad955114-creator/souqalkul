@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, MapPin, Clock, Star } from "lucide-react";
+import { Heart, MapPin, Clock, Star, Video } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
