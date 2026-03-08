@@ -937,7 +937,7 @@ const MyAccount = () => {
               <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-blue-500" />
                 إحصائيات متقدمة
-                <Badge className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0 text-xs">💼 رجال أعمال</Badge>
+                <Badge className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0 text-xs"><Badge className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0 text-xs">💎 رجال أعمال</Badge></Badge>
               </h2>
 
               {/* Stats Grid */}
