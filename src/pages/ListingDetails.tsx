@@ -365,7 +365,7 @@ const ListingDetails = () => {
                   )}
                   {isOwnerBusiness && (
                     <Badge className="text-sm bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0">
-                      💼 رجال أعمال
+                      <span className="animate-pulse">💎</span> رجال أعمال
                     </Badge>
                   )}
                   {isOwnerPro && !isOwnerBusiness && (

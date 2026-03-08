@@ -170,7 +170,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
               <Briefcase className="h-8 w-8 md:h-10 md:w-10" />
             </div>
             <div className="flex-1 text-center md:text-right">
-              <h3 className="text-xl md:text-2xl font-bold mb-2">باقة رجال الأعمال 💼</h3>
+              <h3 className="text-xl md:text-2xl font-bold mb-2"><h3 className="text-xl md:text-2xl font-bold mb-2">باقة رجال الأعمال <span className="animate-pulse drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]">💎</span></h3></h3>
               <p className="text-white/80 text-sm mb-4">الباقة الأقوى للشركات والمؤسسات - تصدّر نتائج البحث واحصل على ميزات حصرية</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
                 {[
