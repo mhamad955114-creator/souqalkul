@@ -131,10 +131,20 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
             <span className="text-[10px] font-medium text-green-600 dark:text-green-400">متصل</span>
           </div>
         )}
-        {hasVideo && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-card/90 backdrop-blur-sm px-2 py-1 rounded-full">
-            <Video className="h-3 w-3 text-primary" />
-            <span className="text-[10px] font-semibold text-foreground">فيديو</span>
+        {(imageCount > 0 || videoCount > 0) && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-card/90 backdrop-blur-sm px-2.5 py-1 rounded-full">
+            {imageCount > 0 && (
+              <div className="flex items-center gap-0.5">
+                <ImageIcon className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[10px] font-semibold text-foreground">{imageCount}</span>
+              </div>
+            )}
+            {videoCount > 0 && (
+              <div className="flex items-center gap-0.5">
+                <Video className="h-3 w-3 text-primary" />
+                <span className="text-[10px] font-semibold text-foreground">{videoCount}</span>
+              </div>
+            )}
           </div>
         )}
         {averageRating !== undefined && averageRating > 0 && (
