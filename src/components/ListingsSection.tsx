@@ -245,6 +245,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       isOwnerOnline={isOnline(listing.user_id)}
                       description={listing.description}
                       averageRating={listing._avgRating}
+                      images={listing.images}
                     />
                   </div>
                 ))
