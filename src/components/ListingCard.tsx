@@ -21,6 +21,7 @@ interface ListingCardProps {
   isOwnerOnline?: boolean;
   description?: string | null;
   averageRating?: number;
+  images?: string[];
 }
 
 const ListingCard = ({ id, image, title, price, location, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating }: ListingCardProps) => {
