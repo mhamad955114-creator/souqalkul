@@ -24,7 +24,7 @@ interface ListingCardProps {
   images?: string[];
 }
 
-const ListingCard = ({ id, image, title, price, location, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, location, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
