@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Briefcase, Pin, BarChart3, Images, Infinity, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pin, BarChart3, Images, Infinity, ShieldCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import ListingCard from "./ListingCard";
 import { useEffect, useState } from "react";
@@ -166,11 +166,11 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
             إعلان مدفوع
           </div>
           <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
-            <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center animate-[pulse_3s_cubic-bezier(0.4,0,0.6,1)_infinite] group-hover:scale-110 transition-transform duration-300">
-              <Briefcase className="h-8 w-8 md:h-10 md:w-10" />
+            <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <span className="text-4xl md:text-5xl animate-pulse drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] [filter:drop-shadow(0_0_8px_rgba(6,182,212,0.7))_drop-shadow(0_0_24px_rgba(59,130,246,0.6))]">💎</span>
             </div>
             <div className="flex-1 text-center md:text-right">
-              <h3 className="text-xl md:text-2xl font-bold mb-2"><h3 className="text-xl md:text-2xl font-bold mb-2">باقة رجال الأعمال <span className="animate-pulse drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]">💎</span></h3></h3>
+              <h3 className="text-xl md:text-2xl font-bold mb-2">باقة رجال الأعمال <span className="animate-pulse drop-shadow-[0_0_12px_rgba(59,130,246,0.9)] [filter:drop-shadow(0_0_6px_rgba(6,182,212,0.8))_drop-shadow(0_0_20px_rgba(99,102,241,0.6))]">💎</span></h3>
               <p className="text-white/80 text-sm mb-4">الباقة الأقوى للشركات والمؤسسات - تصدّر نتائج البحث واحصل على ميزات حصرية</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
                 {[
