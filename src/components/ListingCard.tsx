@@ -38,6 +38,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
   };
 
   const hasRealImage = image && !image.includes("placeholder") && !image.includes("unsplash");
+  const hasVideo = images?.some(url => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url));
 
   return (
     <div 
