@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Briefcase, Pin, BarChart3, Images, Infinity, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pin, BarChart3, Images, Infinity, ShieldCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import ListingCard from "./ListingCard";
 import { useEffect, useState } from "react";
