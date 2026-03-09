@@ -2124,7 +2124,7 @@ export const tr: Translations = {
     teamDesc: "Kullanıcılarımıza en iyi deneyimi sunmak için tutkuyla çalışan geliştiriciler, tasarımcılar ve e-ticaret uzmanlarından oluşan uzman bir ekip.",
     contactTitle: "Bize Ulaşın",
     contactDesc: "Her türlü soru veya öneri için bizimle iletişime geçmenizden memnuniyet duyarız.",
-    contactEmail: "info@soukcom.com",
+    contactEmail: "suopalkul5@gmail.com",
   },
   privacy: {
     title: "Gizlilik Politikası",
