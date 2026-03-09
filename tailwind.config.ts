@@ -96,6 +96,10 @@ export default {
           "75%": { transform: "scale(1.01)" },
           "100%": { transform: "scale(1)", boxShadow: "0 0 0 0 hsl(168 76% 42% / 0)" },
         },
+        "shrink-width": {
+          "0%": { width: "100%" },
+          "100%": { width: "0%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -104,6 +108,7 @@ export default {
         "dating-glow": "dating-glow 3s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "balance-pulse": "balance-pulse 0.8s ease-in-out",
+        "shrink-width": "shrink-width linear forwards",
       },
     },
   },

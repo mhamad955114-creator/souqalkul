@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { BrandProvider } from "@/contexts/BrandContext";
 import SplashScreen from "@/components/SplashScreen";
 import UpdateNotification from "@/components/UpdateNotification";
+import InAppNotificationBanner from "@/components/InAppNotificationBanner";
 import MaintenancePage from "@/components/MaintenancePage";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import Index from "./pages/Index";
@@ -47,7 +48,8 @@ const AppContent = () => {
     <>
       {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
       <UpdateNotification />
-            <BrowserRouter>
+      <BrowserRouter>
+        <InAppNotificationBanner />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/my-account" element={<MyAccount />} />
