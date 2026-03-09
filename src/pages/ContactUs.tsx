@@ -19,6 +19,8 @@ const ContactUs = () => {
   const navigate = useNavigate();
   const isRtl = dir === "rtl";
 
+  const { contact } = useContactSettings();
+
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
