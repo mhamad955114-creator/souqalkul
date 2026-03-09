@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
@@ -75,6 +75,14 @@ const AdminSettingsTab = () => {
   const [secondaryColor, setSecondaryColor] = useState("#f5f5f5");
   const [accentColor, setAccentColor] = useState("#2d8f78");
   const [savingTheme, setSavingTheme] = useState(false);
+  const [resettingTheme, setResettingTheme] = useState(false);
+
+  // Default theme colors
+  const DEFAULT_COLORS = {
+    primary: "#ff6b35",
+    secondary: "#f5f5f5", 
+    accent: "#2d8f78",
+  };
 
   const normalizeText = (val: unknown, fallback: string) => {
     if (val == null) return fallback;
@@ -319,6 +327,36 @@ const AdminSettingsTab = () => {
     }
     
     setSavingTheme(false);
+  };
+
+  const handleResetTheme = async () => {
+    setResettingTheme(true);
+
+    setPrimaryColor(DEFAULT_COLORS.primary);
+    setSecondaryColor(DEFAULT_COLORS.secondary);
+    setAccentColor(DEFAULT_COLORS.accent);
+
+    const results = await Promise.all([
+      upsertSetting("theme_primary", DEFAULT_COLORS.primary as any),
+      upsertSetting("theme_secondary", DEFAULT_COLORS.secondary as any),
+      upsertSetting("theme_accent", DEFAULT_COLORS.accent as any),
+    ]);
+
+    const hasError = results.some((r) => !!(r as any).error);
+
+    if (!hasError) {
+      const root = document.documentElement;
+      root.style.setProperty('--primary', hexToHsl(DEFAULT_COLORS.primary));
+      root.style.setProperty('--secondary', hexToHsl(DEFAULT_COLORS.secondary));
+      root.style.setProperty('--accent', hexToHsl(DEFAULT_COLORS.accent));
+      root.style.setProperty('--ring', hexToHsl(DEFAULT_COLORS.primary));
+
+      toast.success("تمت استعادة الألوان الافتراضية");
+    } else {
+      toast.error("فشل في استعادة الألوان الافتراضية");
+    }
+
+    setResettingTheme(false);
   };
 
   if (loading) {
@@ -592,10 +630,22 @@ const AdminSettingsTab = () => {
             </div>
           </div>
 
-          <Button className="w-full gap-2" onClick={handleSaveTheme} disabled={savingTheme}>
-            {savingTheme ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            حفظ وتطبيق ألوان الموقع
-          </Button>
+          <div className="grid gap-3 md:grid-cols-2">
+            <Button className="w-full gap-2" onClick={handleSaveTheme} disabled={savingTheme || resettingTheme}>
+              {savingTheme ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              حفظ وتطبيق ألوان الموقع
+            </Button>
+
+            <Button
+              className="w-full gap-2"
+              variant="outline"
+              onClick={handleResetTheme}
+              disabled={resettingTheme || savingTheme}
+            >
+              {resettingTheme ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+              استعادة الألوان الافتراضية
+            </Button>
+          </div>
 
           <p className="text-xs text-muted-foreground text-center">
             💡 ستظهر الألوان الجديدة فور الحفظ على جميع عناصر الموقع
