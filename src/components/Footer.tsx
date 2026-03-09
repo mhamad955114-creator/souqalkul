@@ -6,7 +6,7 @@ import logoImage from "@/assets/logo.png";
 
 const Footer = () => {
   const { t } = useLanguage();
-  const { contact } = useContactSettings();
+  const { contact, social } = useContactSettings();
 
   return (
     <footer className="bg-foreground text-background">
@@ -22,18 +22,31 @@ const Footer = () => {
               {t.footer.aboutDesc}
             </p>
             <div className="flex gap-3">
-              <a href="#" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                <Youtube className="h-5 w-5" />
-              </a>
+              {social.facebook && (
+                <a href={social.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                  <Facebook className="h-5 w-5" />
+                </a>
+              )}
+              {social.twitter && (
+                <a href={social.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                  <Twitter className="h-5 w-5" />
+                </a>
+              )}
+              {social.instagram && (
+                <a href={social.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                  <Instagram className="h-5 w-5" />
+                </a>
+              )}
+              {social.youtube && (
+                <a href={social.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                  <Youtube className="h-5 w-5" />
+                </a>
+              )}
+              {social.snapchat && (
+                <a href={social.snapchat} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center hover:bg-[#FFFC00] hover:text-black transition-colors">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12.922-.246.133-.065.262-.089.397-.089.345 0 .628.211.735.39.089.151.135.39-.074.614-.196.21-.533.39-.838.502-.307.115-.632.193-.903.246-.145.03-.287.045-.374.06l-.006.001c-.052.009-.091.015-.122.024-.09.03-.193.09-.24.21a.67.67 0 0 0-.015.39c.473 1.545 1.47 2.749 2.422 3.315.256.149.48.27.556.39.18.285.03.63-.15.81-.255.24-.616.42-.988.555-.485.18-.965.27-1.455.36-.18.03-.285.15-.33.27-.045.12-.06.27-.09.42-.045.195-.09.39-.225.555-.18.21-.48.315-.795.315-.195 0-.42-.045-.66-.105-.36-.09-.81-.21-1.395-.21-.27 0-.555.03-.84.09-.795.18-1.41.72-2.07 1.305-.42.375-.855.75-1.395 1.02-.255.12-.54.21-.84.21s-.585-.09-.84-.21c-.54-.27-.975-.645-1.395-1.02-.66-.585-1.275-1.125-2.07-1.305a4.14 4.14 0 0 0-.84-.09c-.585 0-1.035.12-1.395.21-.24.06-.465.105-.66.105-.315 0-.615-.105-.795-.315-.135-.165-.18-.36-.225-.555-.03-.15-.045-.3-.09-.42-.045-.12-.15-.24-.33-.27-.49-.09-.97-.18-1.455-.36-.375-.135-.735-.315-.99-.555-.18-.18-.33-.525-.15-.81.075-.12.3-.24.555-.39.955-.565 1.95-1.77 2.425-3.315a.67.67 0 0 0-.015-.39c-.045-.12-.15-.18-.24-.21-.03-.009-.07-.015-.12-.024l-.007-.001c-.087-.015-.229-.03-.374-.06-.27-.053-.596-.131-.903-.246-.305-.113-.642-.292-.838-.503-.209-.224-.163-.463-.074-.614.107-.179.39-.39.735-.39.135 0 .264.024.397.09.265.126.622.233.922.246.197 0 .326-.045.4-.09a43.33 43.33 0 0 1-.032-.57c-.104-1.628-.23-3.654.3-4.847C7.46 1.07 10.816.793 11.806.793h.4z"/></svg>
+                </a>
+              )}
             </div>
           </div>
 
