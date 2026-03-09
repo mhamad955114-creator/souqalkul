@@ -116,19 +116,16 @@ export const useNotifications = () => {
           if (localStorage.getItem("notification_sound") !== "off") {
             playNotificationSound();
           }
-          // Show toast for new messages
-          if (newNotif.type === "new_message" && newNotif.related_id) {
-            toast.info(newNotif.title, {
-              description: newNotif.message,
-              duration: 6000,
-              action: {
-                label: "فتح المحادثة",
-                onClick: () => {
-                  window.location.href = `/listing/${newNotif.related_id}`;
-                },
-              },
-            });
-          }
+
+          // Always show in-app notification banner (works on all platforms including iOS)
+          showInAppNotification({
+            id: newNotif.id,
+            title: newNotif.title,
+            message: newNotif.message,
+            type: newNotif.type,
+            related_id: newNotif.related_id,
+            created_at: newNotif.created_at,
+          });
         }
       )
       .subscribe();

@@ -108,6 +108,7 @@ export default {
         "dating-glow": "dating-glow 3s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "balance-pulse": "balance-pulse 0.8s ease-in-out",
+        "shrink-width": "shrink-width linear forwards",
       },
     },
   },
