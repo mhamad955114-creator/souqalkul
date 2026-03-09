@@ -56,6 +56,36 @@ const AdminSettingsTab = () => {
   const [shamcashAccount, setShamcashAccount] = useState("0999999999");
   const [savingShamcash, setSavingShamcash] = useState(false);
 
+  const [contactEmail, setContactEmail] = useState("suopalkul5@gmail.com");
+  const [contactPhone, setContactPhone] = useState("+905350348850");
+  const [contactLocation, setContactLocation] = useState("Damascus, Syria");
+  const [savingContact, setSavingContact] = useState(false);
+
+  const normalizeText = (val: unknown, fallback: string) => {
+    if (val == null) return fallback;
+    if (typeof val === "string") return val || fallback;
+    const asJson = JSON.stringify(val);
+    return asJson.replace(/^\"|\"$/g, "") || fallback;
+  };
+
+  const upsertSetting = async (setting_key: string, setting_value: any) => {
+    const { data, error } = await supabase
+      .from("listing_settings")
+      .update({ setting_value: setting_value as any, updated_at: new Date().toISOString() })
+      .eq("setting_key", setting_key)
+      .select("id")
+      .limit(1);
+
+    if (error) return { error };
+    if (!data || data.length === 0) {
+      return await supabase
+        .from("listing_settings")
+        .insert({ setting_key, setting_value: setting_value as any });
+    }
+
+    return { error: null };
+  };
+
   useEffect(() => {
     const fetchExtraSettings = async () => {
       const { data } = await supabase
