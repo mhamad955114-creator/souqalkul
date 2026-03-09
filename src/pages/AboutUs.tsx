@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContactSettings } from "@/hooks/useContactSettings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, ArrowLeft, Users, Target, Eye, Shield, Zap, Globe, HeadphonesIcon, Mail } from "lucide-react";

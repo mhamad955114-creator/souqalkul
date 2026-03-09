@@ -1,6 +1,7 @@
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContactSettings } from "@/hooks/useContactSettings";
 import logoImage from "@/assets/logo.png";
 
 const Footer = () => {
