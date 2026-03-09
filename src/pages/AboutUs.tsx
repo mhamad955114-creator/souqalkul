@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 const AboutUs = () => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
+  const { contact } = useContactSettings();
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   const features = [
