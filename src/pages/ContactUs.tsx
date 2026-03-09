@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useContactSettings } from "@/hooks/useContactSettings";
+import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
-import { ArrowLeft, ArrowRight, Send, Mail, Phone, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ContactUs = () => {
@@ -173,6 +173,29 @@ const ContactUs = () => {
                       dir="ltr"
                     >
                       {contact.phone}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <a
+                    href={buildWhatsAppUrl(contact.whatsapp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0 hover:bg-green-600 transition-colors"
+                  >
+                    <MessageCircle className="h-5 w-5 text-white" />
+                  </a>
+                  <div>
+                    <p className="font-medium text-foreground text-sm">WhatsApp</p>
+                    <a
+                      href={buildWhatsAppUrl(contact.whatsapp)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground text-sm hover:text-green-500 transition-colors"
+                      dir="ltr"
+                    >
+                      {contact.whatsapp}
                     </a>
                   </div>
                 </div>

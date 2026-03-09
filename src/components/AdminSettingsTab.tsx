@@ -59,6 +59,7 @@ const AdminSettingsTab = () => {
   const [contactEmail, setContactEmail] = useState("suopalkul5@gmail.com");
   const [contactPhone, setContactPhone] = useState("+905350348850");
   const [contactLocation, setContactLocation] = useState("Damascus, Syria");
+  const [contactWhatsapp, setContactWhatsapp] = useState("+905350348850");
   const [savingContact, setSavingContact] = useState(false);
 
   const normalizeText = (val: unknown, fallback: string) => {
@@ -97,6 +98,7 @@ const AdminSettingsTab = () => {
           "contact_email",
           "contact_phone",
           "contact_location",
+          "contact_whatsapp",
         ]);
 
       if (data) {
@@ -117,6 +119,9 @@ const AdminSettingsTab = () => {
           }
           if (row.setting_key === "contact_location") {
             setContactLocation(normalizeText(row.setting_value, "Damascus, Syria"));
+          }
+          if (row.setting_key === "contact_whatsapp") {
+            setContactWhatsapp(normalizeText(row.setting_value, "+905350348850"));
           }
         });
       }
@@ -188,6 +193,7 @@ const AdminSettingsTab = () => {
       upsertSetting("contact_email", contactEmail as any),
       upsertSetting("contact_phone", contactPhone as any),
       upsertSetting("contact_location", contactLocation as any),
+      upsertSetting("contact_whatsapp", contactWhatsapp as any),
     ]);
 
     const hasError = results.some((r) => !!(r as any).error);
@@ -244,13 +250,25 @@ const AdminSettingsTab = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>الموقع</Label>
-            <Input
-              value={contactLocation}
-              onChange={(e) => setContactLocation(e.target.value)}
-              placeholder="City, Country"
-            />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>رقم WhatsApp</Label>
+              <Input
+                value={contactWhatsapp}
+                onChange={(e) => setContactWhatsapp(e.target.value)}
+                placeholder="+905..."
+                dir="ltr"
+                className="text-left font-mono text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>الموقع</Label>
+              <Input
+                value={contactLocation}
+                onChange={(e) => setContactLocation(e.target.value)}
+                placeholder="City, Country"
+              />
+            </div>
           </div>
 
           <Button className="w-full gap-2" onClick={handleSaveContact} disabled={savingContact}>

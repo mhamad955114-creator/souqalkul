@@ -1,7 +1,7 @@
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, Share2 } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, Share2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useContactSettings } from "@/hooks/useContactSettings";
+import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 import logoImage from "@/assets/logo.png";
 
 const Footer = () => {
@@ -116,6 +116,25 @@ const Footer = () => {
                   dir="ltr"
                 >
                   {contact.phone}
+                </a>
+              </li>
+              <li className="flex items-center gap-3">
+                <a
+                  href={buildWhatsAppUrl(contact.whatsapp)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                </a>
+                <a
+                  href={buildWhatsAppUrl(contact.whatsapp)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-background/70 hover:text-green-400 transition-colors"
+                  dir="ltr"
+                >
+                  WhatsApp
                 </a>
               </li>
               <li className="flex items-center gap-3">
