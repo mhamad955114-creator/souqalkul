@@ -59,6 +59,7 @@ const AdminSettingsTab = () => {
   const [contactEmail, setContactEmail] = useState("suopalkul5@gmail.com");
   const [contactPhone, setContactPhone] = useState("+905350348850");
   const [contactLocation, setContactLocation] = useState("Damascus, Syria");
+  const [contactWhatsapp, setContactWhatsapp] = useState("+905350348850");
   const [savingContact, setSavingContact] = useState(false);
 
   const normalizeText = (val: unknown, fallback: string) => {
