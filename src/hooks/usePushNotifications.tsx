@@ -12,10 +12,17 @@ export const usePushNotifications = () => {
   const { user } = useAuth();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [isIOSPWA, setIsIOSPWA] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone === true;
+    const iosPWA = isIOS && isStandalone;
+    setIsIOSPWA(iosPWA);
+
+    // iOS 16.4+ supports push in PWA mode
     const supported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
     setIsSupported(supported);
     if (supported) {
@@ -156,7 +163,7 @@ export const usePushNotifications = () => {
     }
   }, [user]);
 
-  return { isSubscribed, isSupported, permission, loading, subscribe, unsubscribe };
+  return { isSubscribed, isSupported, isIOSPWA, permission, loading, subscribe, unsubscribe };
 };
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {

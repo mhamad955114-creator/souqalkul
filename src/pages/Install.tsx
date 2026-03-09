@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useBrand } from "@/contexts/BrandContext";
 
-const APP_URL = "https://swqalkil-io.lovable.app";
+const APP_URL = "https://souqalkul.lovable.app";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -220,7 +220,7 @@ const Install = () => {
                 }}
               />
             </div>
-            <p className="text-xs text-muted-foreground mb-3">swqalkil-io.lovable.app</p>
+            <p className="text-xs text-muted-foreground mb-3">souqalkul.lovable.app</p>
             <Button
               variant="outline"
               size="sm"
