@@ -284,7 +284,41 @@ const Settings = () => {
   };
 
   const PushNotificationCard = () => {
-    const { isSubscribed, isSupported, permission, loading: pushLoading, subscribe, unsubscribe } = usePushNotifications();
+    const { isSubscribed, isSupported, isIOSPWA, permission, loading: pushLoading, subscribe, unsubscribe } = usePushNotifications();
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone === true;
+
+    // Show iOS guidance if on iOS but not in PWA or not supported
+    if (isIOS && !isStandalone) {
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BellRing className="h-5 w-5" />
+              الإشعارات الفورية (Push)
+            </CardTitle>
+            <CardDescription>
+              تلقّي إشعارات حتى عندما يكون التطبيق مغلقاً
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="bg-accent/50 border border-border rounded-xl p-4 space-y-2">
+              <p className="text-sm font-medium text-foreground">📱 لتفعيل الإشعارات على iPhone:</p>
+              <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                <li>اضغط على زر المشاركة <span className="inline-block">⬆️</span> في Safari</li>
+                <li>اختر "إضافة إلى الشاشة الرئيسية"</li>
+                <li>افتح التطبيق من الشاشة الرئيسية</li>
+                <li>فعّل الإشعارات من الإعدادات</li>
+              </ol>
+              <p className="text-xs text-muted-foreground mt-2">
+                ⚠️ يتطلب iOS 16.4 أو أحدث وفتح التطبيق كـ PWA
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
 
     if (!isSupported) return null;
 
@@ -315,7 +349,7 @@ const Settings = () => {
             تلقّي إشعارات حتى عندما يكون التطبيق مغلقاً
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <BellRing className="h-4 w-4 text-muted-foreground" />
@@ -330,6 +364,11 @@ const Settings = () => {
           {permission === "denied" && (
             <p className="text-xs text-destructive mt-2">
               تم حظر الإشعارات من المتصفح. يرجى تغيير الإعداد من إعدادات المتصفح.
+            </p>
+          )}
+          {isIOSPWA && (
+            <p className="text-xs text-muted-foreground mt-1">
+              ✅ أنت تستخدم التطبيق كـ PWA - الإشعارات مدعومة على iOS 16.4+
             </p>
           )}
         </CardContent>
