@@ -193,6 +193,7 @@ const AdminSettingsTab = () => {
       upsertSetting("contact_email", contactEmail as any),
       upsertSetting("contact_phone", contactPhone as any),
       upsertSetting("contact_location", contactLocation as any),
+      upsertSetting("contact_whatsapp", contactWhatsapp as any),
     ]);
 
     const hasError = results.some((r) => !!(r as any).error);
