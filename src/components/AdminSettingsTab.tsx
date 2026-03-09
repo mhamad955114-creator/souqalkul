@@ -78,6 +78,11 @@ const AdminSettingsTab = () => {
   const [savingTheme, setSavingTheme] = useState(false);
   const [resettingTheme, setResettingTheme] = useState(false);
 
+  // Brand / Logo
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [removingLogo, setRemovingLogo] = useState(false);
+  const { logoUrl, setLogoUrl, isDefaultLogo } = useBrand();
+
   // Default theme colors
   const DEFAULT_COLORS = {
     primary: "#ff6b35",
