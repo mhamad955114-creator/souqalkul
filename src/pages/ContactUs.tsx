@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useContactSettings } from "@/hooks/useContactSettings";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -17,6 +18,8 @@ const ContactUs = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const isRtl = dir === "rtl";
+
+  const { contact } = useContactSettings();
 
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [sending, setSending] = useState(false);
@@ -149,7 +152,12 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">{t.contactForm.emailLabel}</p>
-                    <p className="text-muted-foreground text-sm">support@opensouq.com</p>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      className="text-muted-foreground text-sm hover:text-primary transition-colors"
+                    >
+                      {contact.email}
+                    </a>
                   </div>
                 </div>
 
@@ -159,7 +167,13 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">{t.contactForm.phoneLabel}</p>
-                    <p className="text-muted-foreground text-sm">920000000</p>
+                    <a
+                      href={`tel:${contact.phone}`}
+                      className="text-muted-foreground text-sm hover:text-primary transition-colors"
+                      dir="ltr"
+                    >
+                      {contact.phone}
+                    </a>
                   </div>
                 </div>
 
@@ -169,7 +183,7 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">{t.contactForm.addressLabel}</p>
-                    <p className="text-muted-foreground text-sm">Damascus, Syria</p>
+                    <p className="text-muted-foreground text-sm">{contact.location}</p>
                   </div>
                 </div>
               </div>

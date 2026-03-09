@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
@@ -56,12 +56,49 @@ const AdminSettingsTab = () => {
   const [shamcashAccount, setShamcashAccount] = useState("0999999999");
   const [savingShamcash, setSavingShamcash] = useState(false);
 
+  const [contactEmail, setContactEmail] = useState("suopalkul5@gmail.com");
+  const [contactPhone, setContactPhone] = useState("+905350348850");
+  const [contactLocation, setContactLocation] = useState("Damascus, Syria");
+  const [savingContact, setSavingContact] = useState(false);
+
+  const normalizeText = (val: unknown, fallback: string) => {
+    if (val == null) return fallback;
+    if (typeof val === "string") return val || fallback;
+    const asJson = JSON.stringify(val);
+    return asJson.replace(/^\"|\"$/g, "") || fallback;
+  };
+
+  const upsertSetting = async (setting_key: string, setting_value: any) => {
+    const { data, error } = await supabase
+      .from("listing_settings")
+      .update({ setting_value: setting_value as any, updated_at: new Date().toISOString() })
+      .eq("setting_key", setting_key)
+      .select("id")
+      .limit(1);
+
+    if (error) return { error };
+    if (!data || data.length === 0) {
+      return await supabase
+        .from("listing_settings")
+        .insert({ setting_key, setting_value: setting_value as any });
+    }
+
+    return { error: null };
+  };
+
   useEffect(() => {
     const fetchExtraSettings = async () => {
       const { data } = await supabase
         .from("listing_settings")
         .select("setting_key, setting_value")
-        .in("setting_key", ["maintenance_mode", "shamcash_account"]);
+        .in("setting_key", [
+          "maintenance_mode",
+          "shamcash_account",
+          "contact_email",
+          "contact_phone",
+          "contact_location",
+        ]);
+
       if (data) {
         data.forEach((row: any) => {
           if (row.setting_key === "maintenance_mode") {
@@ -70,11 +107,21 @@ const AdminSettingsTab = () => {
             setMaintenanceMessage(val.message ?? "");
           }
           if (row.setting_key === "shamcash_account") {
-            setShamcashAccount(String(row.setting_value).replace(/"/g, "") || "0999999999");
+            setShamcashAccount(normalizeText(row.setting_value, "0999999999"));
+          }
+          if (row.setting_key === "contact_email") {
+            setContactEmail(normalizeText(row.setting_value, "suopalkul5@gmail.com"));
+          }
+          if (row.setting_key === "contact_phone") {
+            setContactPhone(normalizeText(row.setting_value, "+905350348850"));
+          }
+          if (row.setting_key === "contact_location") {
+            setContactLocation(normalizeText(row.setting_value, "Damascus, Syria"));
           }
         });
       }
     };
+
     fetchExtraSettings();
   }, []);
 
@@ -109,10 +156,11 @@ const AdminSettingsTab = () => {
 
   const handleSaveMaintenance = async () => {
     setSavingMaintenance(true);
-    const { error } = await supabase
-      .from("listing_settings")
-      .update({ setting_value: { enabled: maintenanceEnabled, message: maintenanceMessage } as any })
-      .eq("setting_key", "maintenance_mode");
+    const { error } = await upsertSetting(
+      "maintenance_mode",
+      { enabled: maintenanceEnabled, message: maintenanceMessage } as any
+    );
+
     if (!error) {
       toast.success("تم حفظ إعدادات الصيانة");
     } else {
@@ -123,16 +171,34 @@ const AdminSettingsTab = () => {
 
   const handleSaveShamcash = async () => {
     setSavingShamcash(true);
-    const { error } = await supabase
-      .from("listing_settings")
-      .update({ setting_value: shamcashAccount as any })
-      .eq("setting_key", "shamcash_account");
+    const { error } = await upsertSetting("shamcash_account", shamcashAccount as any);
+
     if (!error) {
       toast.success("تم حفظ رقم شام كاش");
     } else {
       toast.error("فشل حفظ رقم شام كاش");
     }
     setSavingShamcash(false);
+  };
+
+  const handleSaveContact = async () => {
+    setSavingContact(true);
+
+    const results = await Promise.all([
+      upsertSetting("contact_email", contactEmail as any),
+      upsertSetting("contact_phone", contactPhone as any),
+      upsertSetting("contact_location", contactLocation as any),
+    ]);
+
+    const hasError = results.some((r) => !!(r as any).error);
+
+    if (!hasError) {
+      toast.success("تم حفظ بيانات التواصل");
+    } else {
+      toast.error("فشل حفظ بيانات التواصل");
+    }
+
+    setSavingContact(false);
   };
 
   if (loading) {
@@ -145,6 +211,55 @@ const AdminSettingsTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Contact Settings */}
+      <Card className="border-primary/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Phone className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">بيانات التواصل</h3>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>إيميل التواصل</Label>
+              <Input
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                placeholder="example@email.com"
+                dir="ltr"
+                className="text-left"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>رقم الهاتف</Label>
+              <Input
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="+905..."
+                dir="ltr"
+                className="text-left font-mono text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>الموقع</Label>
+            <Input
+              value={contactLocation}
+              onChange={(e) => setContactLocation(e.target.value)}
+              placeholder="City, Country"
+            />
+          </div>
+
+          <Button className="w-full gap-2" onClick={handleSaveContact} disabled={savingContact}>
+            {savingContact ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ بيانات التواصل
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Wallet Address for Top-up */}
       <Card className="border-primary/30">
         <CardContent className="p-6 space-y-4">

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useContactSettings } from "@/hooks/useContactSettings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, ArrowLeft, Users, Target, Eye, Shield, Zap, Globe, HeadphonesIcon, Mail } from "lucide-react";
@@ -9,6 +10,7 @@ import Footer from "@/components/Footer";
 const AboutUs = () => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
+  const { contact } = useContactSettings();
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
   const features = [
@@ -122,10 +124,10 @@ const AboutUs = () => {
               <h2 className="text-xl font-bold text-foreground mb-2">{t.aboutUs.contactTitle}</h2>
               <p className="text-muted-foreground mb-4">{t.aboutUs.contactDesc}</p>
               <a
-                href={`mailto:${t.aboutUs.contactEmail}`}
+                href={`mailto:${contact.email}`}
                 className="text-primary font-semibold hover:underline text-lg"
               >
-                {t.aboutUs.contactEmail}
+                {contact.email}
               </a>
             </CardContent>
           </Card>
