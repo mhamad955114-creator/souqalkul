@@ -115,6 +115,15 @@ export const useNotifications = () => {
             playNotificationSound();
           }
 
+          // Vibrate on mobile devices that support it
+          if ("vibrate" in navigator) {
+            try {
+              navigator.vibrate([100, 50, 100]);
+            } catch (e) {
+              // Silently fail if vibration not allowed
+            }
+          }
+
           // Always show in-app notification banner (works on all platforms including iOS)
           showInAppNotification({
             id: newNotif.id,
