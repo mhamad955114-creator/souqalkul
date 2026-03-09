@@ -20,30 +20,57 @@ export const useNotifications = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  const playNotificationSound = useCallback(() => {
+  const playNotificationSound = useCallback(async () => {
     try {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       const ctx = audioContextRef.current;
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(880, ctx.currentTime);
-      oscillator.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
-      oscillator.frequency.setValueAtTime(880, ctx.currentTime + 0.2);
-      
-      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-      
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.4);
+
+      // Resume suspended AudioContext (browser autoplay policy)
+      if (ctx.state === "suspended") {
+        await ctx.resume();
+      }
+
+      // First tone
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(880, ctx.currentTime);
+      gain1.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      osc1.start(ctx.currentTime);
+      osc1.stop(ctx.currentTime + 0.2);
+
+      // Second tone (higher pitch, slight delay)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(1100, ctx.currentTime + 0.15);
+      gain2.gain.setValueAtTime(0, ctx.currentTime);
+      gain2.gain.setValueAtTime(0.4, ctx.currentTime + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+      osc2.start(ctx.currentTime + 0.15);
+      osc2.stop(ctx.currentTime + 0.45);
+
+      // Third tone
+      const osc3 = ctx.createOscillator();
+      const gain3 = ctx.createGain();
+      osc3.connect(gain3);
+      gain3.connect(ctx.destination);
+      osc3.type = "sine";
+      osc3.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
+      gain3.gain.setValueAtTime(0, ctx.currentTime);
+      gain3.gain.setValueAtTime(0.35, ctx.currentTime + 0.3);
+      gain3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.55);
+      osc3.start(ctx.currentTime + 0.3);
+      osc3.stop(ctx.currentTime + 0.55);
     } catch (e) {
-      // Audio not supported or blocked
+      console.debug("Notification sound failed:", e);
     }
   }, []);
 
