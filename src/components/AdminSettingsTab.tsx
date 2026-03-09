@@ -365,6 +365,65 @@ const AdminSettingsTab = () => {
     setResettingTheme(false);
   };
 
+  // Logo upload handler
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("يرجى اختيار صورة فقط");
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب أن يكون أقل من 2 ميجابايت");
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      const filePath = `brand/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("listings")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("listings").getPublicUrl(filePath);
+      const publicUrl = urlData.publicUrl;
+
+      // Save to settings
+      await upsertSetting("brand_logo_url", publicUrl);
+
+      setLogoUrl(publicUrl);
+      toast.success("تم رفع الشعار بنجاح");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("فشل في رفع الشعار: " + (err.message || ""));
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  // Remove custom logo
+  const handleRemoveLogo = async () => {
+    setRemovingLogo(true);
+    try {
+      await upsertSetting("brand_logo_url", "");
+      setLogoUrl("");
+      toast.success("تم إزالة الشعار المخصص");
+    } catch (err: any) {
+      toast.error("فشل في إزالة الشعار");
+    } finally {
+      setRemovingLogo(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
