@@ -178,6 +178,29 @@ const ContactUs = () => {
                 </div>
 
                 <div className="flex items-start gap-3">
+                  <a
+                    href={buildWhatsAppUrl(contact.whatsapp)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0 hover:bg-green-600 transition-colors"
+                  >
+                    <MessageCircle className="h-5 w-5 text-white" />
+                  </a>
+                  <div>
+                    <p className="font-medium text-foreground text-sm">WhatsApp</p>
+                    <a
+                      href={buildWhatsAppUrl(contact.whatsapp)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground text-sm hover:text-green-500 transition-colors"
+                      dir="ltr"
+                    >
+                      {contact.whatsapp}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>

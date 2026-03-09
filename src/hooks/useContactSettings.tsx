@@ -5,12 +5,14 @@ export interface ContactSettings {
   email: string;
   phone: string;
   location: string;
+  whatsapp: string;
 }
 
 const DEFAULT_CONTACT: ContactSettings = {
   email: "suopalkul5@gmail.com",
   phone: "+905350348850",
   location: "Damascus, Syria",
+  whatsapp: "+905350348850",
 };
 
 const toPlainString = (value: unknown, fallback: string) => {
@@ -23,6 +25,12 @@ const toPlainString = (value: unknown, fallback: string) => {
   return unquoted || fallback;
 };
 
+export const buildWhatsAppUrl = (phone: string, message = "") => {
+  const digits = phone.replace(/[\s\-()]/g, "").replace(/^\+/, "");
+  const encoded = message ? `?text=${encodeURIComponent(message)}` : "";
+  return `https://wa.me/${digits}${encoded}`;
+};
+
 export const useContactSettings = () => {
   const [contact, setContact] = useState<ContactSettings>(DEFAULT_CONTACT);
   const [loading, setLoading] = useState(true);
@@ -32,7 +40,7 @@ export const useContactSettings = () => {
     const { data, error } = await supabase
       .from("listing_settings")
       .select("setting_key, setting_value")
-      .in("setting_key", ["contact_email", "contact_phone", "contact_location"]);
+      .in("setting_key", ["contact_email", "contact_phone", "contact_location", "contact_whatsapp"]);
 
     if (!error && data) {
       const next: ContactSettings = { ...DEFAULT_CONTACT };
@@ -43,6 +51,8 @@ export const useContactSettings = () => {
           next.phone = toPlainString(row.setting_value, DEFAULT_CONTACT.phone);
         } else if (row.setting_key === "contact_location") {
           next.location = toPlainString(row.setting_value, DEFAULT_CONTACT.location);
+        } else if (row.setting_key === "contact_whatsapp") {
+          next.whatsapp = toPlainString(row.setting_value, DEFAULT_CONTACT.whatsapp);
         }
       }
       setContact(next);

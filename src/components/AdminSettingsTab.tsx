@@ -120,6 +120,9 @@ const AdminSettingsTab = () => {
           if (row.setting_key === "contact_location") {
             setContactLocation(normalizeText(row.setting_value, "Damascus, Syria"));
           }
+          if (row.setting_key === "contact_whatsapp") {
+            setContactWhatsapp(normalizeText(row.setting_value, "+905350348850"));
+          }
         });
       }
     };
