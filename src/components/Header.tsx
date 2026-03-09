@@ -33,6 +33,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { isAdmin } = useAdminRole();
   const { t, dir } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { logoUrl } = useBrand();
 
   const handleAddListing = () => {
     if (user) {
