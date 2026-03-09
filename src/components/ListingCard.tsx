@@ -97,7 +97,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
         )}
         {professional && !business && status !== "sold" && status !== "expired" && (
           <div className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-            <span>👑</span>
+            <span className="animate-pulse drop-shadow-[0_0_8px_rgba(147,51,234,0.8)]">👑</span>
             <span>احترافي</span>
           </div>
         )}
