@@ -399,6 +399,19 @@ const AdminSettingsTab = () => {
                 className="text-left text-sm"
               />
             </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <svg className="h-4 w-4 text-foreground" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.23-1.04 4.41-2.61 6.01-1.58 1.61-3.9 2.58-6.2 2.45-2.18-.11-4.29-1.2-5.61-2.91-1.3-1.7-1.83-3.95-1.5-6.08.3-2.07 1.48-4 3.12-5.32 1.62-1.28 3.78-1.89 5.86-1.66v4.06c-1.17-.3-2.51-.12-3.48.65-.96.76-1.48 2.01-1.32 3.2.14 1.25.99 2.37 2.12 2.89 1.12.51 2.5.49 3.55-.17 1.05-.66 1.66-1.87 1.69-3.13.06-4.52.02-9.05.03-13.57.01-1.07.01-2.14.01-3.21Z"/></svg>
+                TikTok
+              </Label>
+              <Input
+                value={socialTiktok}
+                onChange={(e) => setSocialTiktok(e.target.value)}
+                placeholder="https://tiktok.com/@yourpage"
+                dir="ltr"
+                className="text-left text-sm"
+              />
+            </div>
           </div>
 
           <Button className="w-full gap-2" onClick={handleSaveSocial} disabled={savingSocial}>

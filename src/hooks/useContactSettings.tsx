@@ -68,7 +68,7 @@ export const useContactSettings = () => {
       .select("setting_key, setting_value")
       .in("setting_key", [
         "contact_email", "contact_phone", "contact_location", "contact_whatsapp",
-        "social_facebook", "social_instagram", "social_twitter", "social_snapchat", "social_youtube",
+        "social_facebook", "social_instagram", "social_twitter", "social_snapchat", "social_youtube", "social_tiktok",
       ]);
 
     if (!error && data) {
