@@ -152,6 +152,9 @@ const AdminSettingsTab = () => {
           if (row.setting_key === "social_snapchat") setSocialSnapchat(normalizeText(row.setting_value, ""));
           if (row.setting_key === "social_youtube") setSocialYoutube(normalizeText(row.setting_value, ""));
           if (row.setting_key === "social_tiktok") setSocialTiktok(normalizeText(row.setting_value, ""));
+          if (row.setting_key === "theme_primary") setPrimaryColor(normalizeText(row.setting_value, "#ff6b35"));
+          if (row.setting_key === "theme_secondary") setSecondaryColor(normalizeText(row.setting_value, "#f5f5f5"));
+          if (row.setting_key === "theme_accent") setAccentColor(normalizeText(row.setting_value, "#2d8f78"));
         });
       }
     };
