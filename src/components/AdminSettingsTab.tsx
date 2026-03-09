@@ -67,6 +67,7 @@ const AdminSettingsTab = () => {
   const [socialTwitter, setSocialTwitter] = useState("");
   const [socialSnapchat, setSocialSnapchat] = useState("");
   const [socialYoutube, setSocialYoutube] = useState("");
+  const [socialTiktok, setSocialTiktok] = useState("");
   const [savingSocial, setSavingSocial] = useState(false);
 
   const normalizeText = (val: unknown, fallback: string) => {
