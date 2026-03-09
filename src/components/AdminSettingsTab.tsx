@@ -250,13 +250,25 @@ const AdminSettingsTab = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>الموقع</Label>
-            <Input
-              value={contactLocation}
-              onChange={(e) => setContactLocation(e.target.value)}
-              placeholder="City, Country"
-            />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>رقم WhatsApp</Label>
+              <Input
+                value={contactWhatsapp}
+                onChange={(e) => setContactWhatsapp(e.target.value)}
+                placeholder="+905..."
+                dir="ltr"
+                className="text-left font-mono text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>الموقع</Label>
+              <Input
+                value={contactLocation}
+                onChange={(e) => setContactLocation(e.target.value)}
+                placeholder="City, Country"
+              />
+            </div>
           </div>
 
           <Button className="w-full gap-2" onClick={handleSaveContact} disabled={savingContact}>
