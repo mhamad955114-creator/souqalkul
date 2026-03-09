@@ -1050,7 +1050,7 @@ export const ar: Translations = {
     teamDesc: "فريق متخصص من المطورين والمصممين وخبراء التجارة الإلكترونية، يعملون بشغف لتقديم أفضل تجربة لمستخدمينا.",
     contactTitle: "تواصل معنا",
     contactDesc: "نسعد بتواصلكم معنا لأي استفسار أو اقتراح.",
-    contactEmail: "info@soukcom.com",
+    contactEmail: "suopalkul5@gmail.com",
   },
   privacy: {
     title: "سياسة الخصوصية",
