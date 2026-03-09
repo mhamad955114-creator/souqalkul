@@ -7,6 +7,7 @@ import { useBrand } from "@/contexts/BrandContext";
 const Footer = () => {
   const { t } = useLanguage();
   const { contact, social } = useContactSettings();
+  const { logoUrl } = useBrand();
 
   return (
     <footer className="bg-foreground text-background">
