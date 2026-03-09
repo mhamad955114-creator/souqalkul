@@ -91,7 +91,14 @@ const AdminSettingsTab = () => {
       const { data } = await supabase
         .from("listing_settings")
         .select("setting_key, setting_value")
-        .in("setting_key", ["maintenance_mode", "shamcash_account"]);
+        .in("setting_key", [
+          "maintenance_mode",
+          "shamcash_account",
+          "contact_email",
+          "contact_phone",
+          "contact_location",
+        ]);
+
       if (data) {
         data.forEach((row: any) => {
           if (row.setting_key === "maintenance_mode") {
@@ -100,11 +107,21 @@ const AdminSettingsTab = () => {
             setMaintenanceMessage(val.message ?? "");
           }
           if (row.setting_key === "shamcash_account") {
-            setShamcashAccount(String(row.setting_value).replace(/"/g, "") || "0999999999");
+            setShamcashAccount(normalizeText(row.setting_value, "0999999999"));
+          }
+          if (row.setting_key === "contact_email") {
+            setContactEmail(normalizeText(row.setting_value, "suopalkul5@gmail.com"));
+          }
+          if (row.setting_key === "contact_phone") {
+            setContactPhone(normalizeText(row.setting_value, "+905350348850"));
+          }
+          if (row.setting_key === "contact_location") {
+            setContactLocation(normalizeText(row.setting_value, "Damascus, Syria"));
           }
         });
       }
     };
+
     fetchExtraSettings();
   }, []);
 
