@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { X, MessageSquare, Bell, Tag, ShieldAlert, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,8 @@ const typeConfig: Record<string, { icon: typeof Bell; color: string; bgColor: st
   info: { icon: Bell, color: "text-primary", bgColor: "bg-primary/10" },
 };
 
+const SWIPE_THRESHOLD = 60;
+
 const InAppNotificationBanner = () => {
   const [queue, setQueue] = useState<InAppNotification[]>([]);
   const [current, setCurrent] = useState<InAppNotification | null>(null);
@@ -26,7 +28,11 @@ const InAppNotificationBanner = () => {
   const [isExiting, setIsExiting] = useState(false);
   const navigate = useNavigate();
 
-  // Listen for custom events dispatched from the notification hook
+  // Swipe state
+  const [swipeY, setSwipeY] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const touchStartRef = useRef<{ y: number; time: number } | null>(null);
+
   useEffect(() => {
     const handler = (e: CustomEvent<InAppNotification>) => {
       setQueue((prev) => [...prev, e.detail]);
@@ -35,7 +41,6 @@ const InAppNotificationBanner = () => {
     return () => window.removeEventListener("in-app-notification" as any, handler);
   }, []);
 
-  // Process queue
   useEffect(() => {
     if (current || queue.length === 0) return;
     const next = queue[0];
@@ -43,9 +48,9 @@ const InAppNotificationBanner = () => {
     setCurrent(next);
     setIsVisible(true);
     setIsExiting(false);
+    setSwipeY(0);
   }, [queue, current]);
 
-  // Auto-dismiss after 6 seconds
   useEffect(() => {
     if (!current) return;
     const timer = setTimeout(() => dismiss(), 6000);
@@ -58,35 +63,76 @@ const InAppNotificationBanner = () => {
       setIsVisible(false);
       setIsExiting(false);
       setCurrent(null);
+      setSwipeY(0);
     }, 300);
   }, []);
 
   const handleClick = useCallback(() => {
+    if (isSwiping) return;
     if (!current) return;
-    if (current.type === "new_message" && current.related_id) {
-      navigate(`/listing/${current.related_id}`);
-    } else if (current.related_id) {
+    if (current.related_id) {
       navigate(`/listing/${current.related_id}`);
     }
     dismiss();
-  }, [current, navigate, dismiss]);
+  }, [current, navigate, dismiss, isSwiping]);
+
+  // Touch handlers for swipe-to-dismiss
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = { y: e.touches[0].clientY, time: Date.now() };
+    setIsSwiping(false);
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const deltaY = e.touches[0].clientY - touchStartRef.current.y;
+    // Only allow swiping up (negative deltaY)
+    const clampedY = Math.min(0, deltaY);
+    setSwipeY(clampedY);
+    if (Math.abs(deltaY) > 10) {
+      setIsSwiping(true);
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartRef.current) return;
+    if (swipeY < -SWIPE_THRESHOLD) {
+      // Swiped up past threshold — dismiss
+      dismiss();
+    } else {
+      // Snap back
+      setSwipeY(0);
+    }
+    touchStartRef.current = null;
+    setTimeout(() => setIsSwiping(false), 50);
+  }, [swipeY, dismiss]);
 
   if (!isVisible || !current) return null;
 
   const config = typeConfig[current.type] || typeConfig.info;
   const Icon = config.icon;
+  const opacity = isSwiping ? Math.max(0, 1 - Math.abs(swipeY) / 150) : 1;
 
   return (
     <div
       className={cn(
-        "fixed top-4 left-4 right-4 z-[9999] mx-auto max-w-md",
-        "transition-all duration-300 ease-out",
-        isExiting
-          ? "opacity-0 -translate-y-4 scale-95"
-          : "opacity-100 translate-y-0 scale-100"
+        "fixed top-4 left-4 right-4 z-[9999] mx-auto max-w-md touch-pan-x",
+        !isSwiping && "transition-all duration-300 ease-out",
+        isExiting && "opacity-0 -translate-y-full scale-95"
       )}
+      style={{
+        transform: isExiting ? undefined : `translateY(${swipeY}px)`,
+        opacity: isExiting ? undefined : opacity,
+      }}
       dir="rtl"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
+      {/* Swipe hint bar */}
+      <div className="flex justify-center mb-1">
+        <div className="w-8 h-1 rounded-full bg-muted-foreground/30" />
+      </div>
+
       <div
         className="relative bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl shadow-black/10 overflow-hidden cursor-pointer"
         onClick={handleClick}
@@ -100,12 +146,10 @@ const InAppNotificationBanner = () => {
         </div>
 
         <div className="flex items-start gap-3 p-4">
-          {/* Icon */}
           <div className={cn("shrink-0 w-10 h-10 rounded-xl flex items-center justify-center", config.bgColor)}>
             <Icon className={cn("h-5 w-5", config.color)} />
           </div>
 
-          {/* Content */}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground truncate">{current.title}</p>
             <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{current.message}</p>
@@ -117,7 +161,6 @@ const InAppNotificationBanner = () => {
             )}
           </div>
 
-          {/* Close button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
