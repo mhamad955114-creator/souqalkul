@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useContactSettings } from "@/hooks/useContactSettings";
+import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
-import { ArrowLeft, ArrowRight, Send, Mail, Phone, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ContactUs = () => {
