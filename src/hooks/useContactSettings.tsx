@@ -14,6 +14,7 @@ export interface SocialSettings {
   twitter: string;
   snapchat: string;
   youtube: string;
+  tiktok: string;
 }
 
 const DEFAULT_CONTACT: ContactSettings = {
@@ -29,6 +30,7 @@ const DEFAULT_SOCIAL: SocialSettings = {
   twitter: "",
   snapchat: "",
   youtube: "",
+  tiktok: "",
 };
 
 const toPlainString = (value: unknown, fallback: string) => {
@@ -51,6 +53,7 @@ const SOCIAL_KEY_MAP: Record<string, keyof SocialSettings> = {
   social_twitter: "twitter",
   social_snapchat: "snapchat",
   social_youtube: "youtube",
+  social_tiktok: "tiktok",
 };
 
 export const useContactSettings = () => {
@@ -65,7 +68,7 @@ export const useContactSettings = () => {
       .select("setting_key, setting_value")
       .in("setting_key", [
         "contact_email", "contact_phone", "contact_location", "contact_whatsapp",
-        "social_facebook", "social_instagram", "social_twitter", "social_snapchat", "social_youtube",
+        "social_facebook", "social_instagram", "social_twitter", "social_snapchat", "social_youtube", "social_tiktok",
       ]);
 
     if (!error && data) {
