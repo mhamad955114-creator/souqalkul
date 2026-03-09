@@ -3,6 +3,7 @@ import { Heart, MapPin, Clock, Star, Video, Image as ImageIcon } from "lucide-re
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import appLogo from "@/assets/logo.png";
 
 interface ListingCardProps {
