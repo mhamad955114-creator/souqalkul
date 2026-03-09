@@ -93,7 +93,7 @@ const Install = () => {
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl scale-110" />
               <img
-                src={logo}
+                src={logoUrl}
                 alt="سوق الكل"
                 className="relative w-24 h-24 rounded-3xl shadow-lg mx-auto"
               />
