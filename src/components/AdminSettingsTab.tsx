@@ -70,6 +70,12 @@ const AdminSettingsTab = () => {
   const [socialTiktok, setSocialTiktok] = useState("");
   const [savingSocial, setSavingSocial] = useState(false);
 
+  // Theme colors
+  const [primaryColor, setPrimaryColor] = useState("#ff6b35");
+  const [secondaryColor, setSecondaryColor] = useState("#f5f5f5");
+  const [accentColor, setAccentColor] = useState("#2d8f78");
+  const [savingTheme, setSavingTheme] = useState(false);
+
   const normalizeText = (val: unknown, fallback: string) => {
     if (val == null) return fallback;
     if (typeof val === "string") return val || fallback;
