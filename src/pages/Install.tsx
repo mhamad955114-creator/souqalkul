@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useBrand } from "@/contexts/BrandContext";
 
-const APP_URL = "https://swqalkil-io.lovable.app";
+const APP_URL = "https://souqalkul.lovable.app";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
