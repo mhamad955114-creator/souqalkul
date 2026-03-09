@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
-import { ArrowLeft, ArrowRight, Send, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send, Mail, Phone, MapPin, MessageCircle, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ContactUs = () => {
