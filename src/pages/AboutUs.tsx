@@ -124,10 +124,10 @@ const AboutUs = () => {
               <h2 className="text-xl font-bold text-foreground mb-2">{t.aboutUs.contactTitle}</h2>
               <p className="text-muted-foreground mb-4">{t.aboutUs.contactDesc}</p>
               <a
-                href={`mailto:${t.aboutUs.contactEmail}`}
+                href={`mailto:${contact.email}`}
                 className="text-primary font-semibold hover:underline text-lg"
               >
-                {t.aboutUs.contactEmail}
+                {contact.email}
               </a>
             </CardContent>
           </Card>

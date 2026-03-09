@@ -99,19 +99,30 @@ const Footer = () => {
                 <div className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center">
                   <Mail className="h-5 w-5" />
                 </div>
-                <a href="mailto:suopalkul5@gmail.com" className="text-background/70 hover:text-primary transition-colors">suopalkul5@gmail.com</a>
+                <a
+                  href={`mailto:${contact.email}`}
+                  className="text-background/70 hover:text-primary transition-colors"
+                >
+                  {contact.email}
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center">
                   <Phone className="h-5 w-5" />
                 </div>
-                <span className="text-background/70">920000000</span>
+                <a
+                  href={`tel:${contact.phone}`}
+                  className="text-background/70 hover:text-primary transition-colors"
+                  dir="ltr"
+                >
+                  {contact.phone}
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-background/10 rounded-full flex items-center justify-center">
                   <MapPin className="h-5 w-5" />
                 </div>
-                <span className="text-background/70">Damascus, Syria</span>
+                <span className="text-background/70">{contact.location}</span>
               </li>
             </ul>
           </div>

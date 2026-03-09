@@ -152,7 +152,12 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">{t.contactForm.emailLabel}</p>
-                    <p className="text-muted-foreground text-sm">support@opensouq.com</p>
+                    <a
+                      href={`mailto:${contact.email}`}
+                      className="text-muted-foreground text-sm hover:text-primary transition-colors"
+                    >
+                      {contact.email}
+                    </a>
                   </div>
                 </div>
 
@@ -162,7 +167,13 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">{t.contactForm.phoneLabel}</p>
-                    <p className="text-muted-foreground text-sm">920000000</p>
+                    <a
+                      href={`tel:${contact.phone}`}
+                      className="text-muted-foreground text-sm hover:text-primary transition-colors"
+                      dir="ltr"
+                    >
+                      {contact.phone}
+                    </a>
                   </div>
                 </div>
 
@@ -172,7 +183,7 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">{t.contactForm.addressLabel}</p>
-                    <p className="text-muted-foreground text-sm">Damascus, Syria</p>
+                    <p className="text-muted-foreground text-sm">{contact.location}</p>
                   </div>
                 </div>
               </div>
