@@ -484,6 +484,113 @@ const AdminSettingsTab = () => {
         </CardContent>
       </Card>
 
+      {/* Theme Customization */}
+      <Card className="border-primary/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Palette className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">تخصيص ألوان الموقع</h3>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="space-y-3">
+              <Label>اللون الأساسي (Primary)</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="w-12 h-12 rounded-lg border-2 border-border cursor-pointer"
+                />
+                <Input
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  placeholder="#ff6b35"
+                  dir="ltr"
+                  className="text-left font-mono text-sm"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">يستخدم للأزرار والروابط النشطة</p>
+            </div>
+
+            <div className="space-y-3">
+              <Label>اللون الثانوي (Secondary)</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={secondaryColor}
+                  onChange={(e) => setSecondaryColor(e.target.value)}
+                  className="w-12 h-12 rounded-lg border-2 border-border cursor-pointer"
+                />
+                <Input
+                  value={secondaryColor}
+                  onChange={(e) => setSecondaryColor(e.target.value)}
+                  placeholder="#f5f5f5"
+                  dir="ltr"
+                  className="text-left font-mono text-sm"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">يستخدم للخلفيات الفرعية والكروت</p>
+            </div>
+
+            <div className="space-y-3">
+              <Label>لون التمييز (Accent)</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="w-12 h-12 rounded-lg border-2 border-border cursor-pointer"
+                />
+                <Input
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  placeholder="#2d8f78"
+                  dir="ltr"
+                  className="text-left font-mono text-sm"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">يستخدم للعناصر المميزة والتأكيدات</p>
+            </div>
+          </div>
+
+          <div className="bg-muted/30 rounded-lg p-4 mt-6">
+            <h4 className="font-medium text-foreground text-sm mb-3">معاينة الألوان</h4>
+            <div className="flex flex-wrap gap-3">
+              <div 
+                className="px-4 py-2 rounded-lg text-white text-sm font-medium shadow-sm"
+                style={{ backgroundColor: primaryColor }}
+              >
+                اللون الأساسي
+              </div>
+              <div 
+                className="px-4 py-2 rounded-lg text-foreground text-sm font-medium border"
+                style={{ backgroundColor: secondaryColor }}
+              >
+                اللون الثانوي
+              </div>
+              <div 
+                className="px-4 py-2 rounded-lg text-white text-sm font-medium shadow-sm"
+                style={{ backgroundColor: accentColor }}
+              >
+                لون التمييز
+              </div>
+            </div>
+          </div>
+
+          <Button className="w-full gap-2" onClick={handleSaveTheme} disabled={savingTheme}>
+            {savingTheme ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ وتطبيق ألوان الموقع
+          </Button>
+
+          <p className="text-xs text-muted-foreground text-center">
+            💡 ستظهر الألوان الجديدة فور الحفظ على جميع عناصر الموقع
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Wallet Address for Top-up */}
       <Card className="border-primary/30">
         <CardContent className="p-6 space-y-4">
