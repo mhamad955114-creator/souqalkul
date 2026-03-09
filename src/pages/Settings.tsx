@@ -18,7 +18,7 @@ import Footer from "@/components/Footer";
 import { cities } from "@/lib/constants";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
-import { MessageSquare, RefreshCw, Tag, ShieldAlert } from "lucide-react";
+import { MessageSquare, RefreshCw, Tag, ShieldAlert, Smartphone } from "lucide-react";
 import { useAdminRole } from "@/hooks/useAdminRole";
 
 interface Profile {
