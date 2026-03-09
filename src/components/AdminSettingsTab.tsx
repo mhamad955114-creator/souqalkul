@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
@@ -70,6 +70,12 @@ const AdminSettingsTab = () => {
   const [socialTiktok, setSocialTiktok] = useState("");
   const [savingSocial, setSavingSocial] = useState(false);
 
+  // Theme colors
+  const [primaryColor, setPrimaryColor] = useState("#ff6b35");
+  const [secondaryColor, setSecondaryColor] = useState("#f5f5f5");
+  const [accentColor, setAccentColor] = useState("#2d8f78");
+  const [savingTheme, setSavingTheme] = useState(false);
+
   const normalizeText = (val: unknown, fallback: string) => {
     if (val == null) return fallback;
     if (typeof val === "string") return val || fallback;
@@ -113,6 +119,9 @@ const AdminSettingsTab = () => {
           "social_snapchat",
           "social_youtube",
           "social_tiktok",
+          "theme_primary",
+          "theme_secondary", 
+          "theme_accent",
         ]);
 
       if (data) {
@@ -143,12 +152,26 @@ const AdminSettingsTab = () => {
           if (row.setting_key === "social_snapchat") setSocialSnapchat(normalizeText(row.setting_value, ""));
           if (row.setting_key === "social_youtube") setSocialYoutube(normalizeText(row.setting_value, ""));
           if (row.setting_key === "social_tiktok") setSocialTiktok(normalizeText(row.setting_value, ""));
+          if (row.setting_key === "theme_primary") setPrimaryColor(normalizeText(row.setting_value, "#ff6b35"));
+          if (row.setting_key === "theme_secondary") setSecondaryColor(normalizeText(row.setting_value, "#f5f5f5"));
+          if (row.setting_key === "theme_accent") setAccentColor(normalizeText(row.setting_value, "#2d8f78"));
         });
       }
     };
 
     fetchExtraSettings();
   }, []);
+
+  // Apply theme colors when they change
+  useEffect(() => {
+    const root = document.documentElement;
+    if (primaryColor && secondaryColor && accentColor) {
+      root.style.setProperty('--primary', hexToHsl(primaryColor));
+      root.style.setProperty('--secondary', hexToHsl(secondaryColor));
+      root.style.setProperty('--accent', hexToHsl(accentColor));
+      root.style.setProperty('--ring', hexToHsl(primaryColor));
+    }
+  }, [primaryColor, secondaryColor, accentColor]);
 
   useEffect(() => {
     if (!loading) {
@@ -244,6 +267,58 @@ const AdminSettingsTab = () => {
       toast.error("فشل حفظ روابط التواصل الاجتماعي");
     }
     setSavingSocial(false);
+  };
+
+  // Helper function to convert hex to HSL
+  const hexToHsl = (hex: string) => {
+    if (!hex.startsWith('#') || hex.length !== 7) return '0 0% 50%';
+    
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+
+    return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+  };
+  const handleSaveTheme = async () => {
+    setSavingTheme(true);
+    
+    const results = await Promise.all([
+      upsertSetting("theme_primary", primaryColor as any),
+      upsertSetting("theme_secondary", secondaryColor as any),
+      upsertSetting("theme_accent", accentColor as any),
+    ]);
+    
+    const hasError = results.some((r) => !!(r as any).error);
+    
+    if (!hasError) {
+      // Apply colors to CSS variables
+      const root = document.documentElement;
+      root.style.setProperty('--primary', hexToHsl(primaryColor));
+      root.style.setProperty('--secondary', hexToHsl(secondaryColor));
+      root.style.setProperty('--accent', hexToHsl(accentColor));
+      root.style.setProperty('--ring', hexToHsl(primaryColor));
+      
+      toast.success("تم حفظ ألوان الموقع بنجاح");
+    } else {
+      toast.error("فشل في حفظ ألوان الموقع");
+    }
+    
+    setSavingTheme(false);
   };
 
   if (loading) {
@@ -418,6 +493,113 @@ const AdminSettingsTab = () => {
             {savingSocial ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             حفظ روابط التواصل الاجتماعي
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Theme Customization */}
+      <Card className="border-primary/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Palette className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">تخصيص ألوان الموقع</h3>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="space-y-3">
+              <Label>اللون الأساسي (Primary)</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="w-12 h-12 rounded-lg border-2 border-border cursor-pointer"
+                />
+                <Input
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  placeholder="#ff6b35"
+                  dir="ltr"
+                  className="text-left font-mono text-sm"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">يستخدم للأزرار والروابط النشطة</p>
+            </div>
+
+            <div className="space-y-3">
+              <Label>اللون الثانوي (Secondary)</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={secondaryColor}
+                  onChange={(e) => setSecondaryColor(e.target.value)}
+                  className="w-12 h-12 rounded-lg border-2 border-border cursor-pointer"
+                />
+                <Input
+                  value={secondaryColor}
+                  onChange={(e) => setSecondaryColor(e.target.value)}
+                  placeholder="#f5f5f5"
+                  dir="ltr"
+                  className="text-left font-mono text-sm"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">يستخدم للخلفيات الفرعية والكروت</p>
+            </div>
+
+            <div className="space-y-3">
+              <Label>لون التمييز (Accent)</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="w-12 h-12 rounded-lg border-2 border-border cursor-pointer"
+                />
+                <Input
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  placeholder="#2d8f78"
+                  dir="ltr"
+                  className="text-left font-mono text-sm"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">يستخدم للعناصر المميزة والتأكيدات</p>
+            </div>
+          </div>
+
+          <div className="bg-muted/30 rounded-lg p-4 mt-6">
+            <h4 className="font-medium text-foreground text-sm mb-3">معاينة الألوان</h4>
+            <div className="flex flex-wrap gap-3">
+              <div 
+                className="px-4 py-2 rounded-lg text-white text-sm font-medium shadow-sm"
+                style={{ backgroundColor: primaryColor }}
+              >
+                اللون الأساسي
+              </div>
+              <div 
+                className="px-4 py-2 rounded-lg text-foreground text-sm font-medium border"
+                style={{ backgroundColor: secondaryColor }}
+              >
+                اللون الثانوي
+              </div>
+              <div 
+                className="px-4 py-2 rounded-lg text-white text-sm font-medium shadow-sm"
+                style={{ backgroundColor: accentColor }}
+              >
+                لون التمييز
+              </div>
+            </div>
+          </div>
+
+          <Button className="w-full gap-2" onClick={handleSaveTheme} disabled={savingTheme}>
+            {savingTheme ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ وتطبيق ألوان الموقع
+          </Button>
+
+          <p className="text-xs text-muted-foreground text-center">
+            💡 ستظهر الألوان الجديدة فور الحفظ على جميع عناصر الموقع
+          </p>
         </CardContent>
       </Card>
 
