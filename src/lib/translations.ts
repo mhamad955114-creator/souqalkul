@@ -1587,7 +1587,7 @@ export const en: Translations = {
     teamDesc: "A specialized team of developers, designers, and e-commerce experts, passionately working to deliver the best experience for our users.",
     contactTitle: "Contact Us",
     contactDesc: "We'd love to hear from you for any inquiries or suggestions.",
-    contactEmail: "info@soukcom.com",
+    contactEmail: "suopalkul5@gmail.com",
   },
   privacy: {
     title: "Privacy Policy",
