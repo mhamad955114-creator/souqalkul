@@ -224,6 +224,24 @@ const AdminSettingsTab = () => {
     setSavingContact(false);
   };
 
+  const handleSaveSocial = async () => {
+    setSavingSocial(true);
+    const results = await Promise.all([
+      upsertSetting("social_facebook", socialFacebook as any),
+      upsertSetting("social_instagram", socialInstagram as any),
+      upsertSetting("social_twitter", socialTwitter as any),
+      upsertSetting("social_snapchat", socialSnapchat as any),
+      upsertSetting("social_youtube", socialYoutube as any),
+    ]);
+    const hasError = results.some((r) => !!(r as any).error);
+    if (!hasError) {
+      toast.success("تم حفظ روابط التواصل الاجتماعي");
+    } else {
+      toast.error("فشل حفظ روابط التواصل الاجتماعي");
+    }
+    setSavingSocial(false);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
