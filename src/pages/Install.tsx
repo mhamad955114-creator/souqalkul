@@ -220,7 +220,7 @@ const Install = () => {
                 }}
               />
             </div>
-            <p className="text-xs text-muted-foreground mb-3">swqalkil-io.lovable.app</p>
+            <p className="text-xs text-muted-foreground mb-3">souqalkul.lovable.app</p>
             <Button
               variant="outline"
               size="sm"
