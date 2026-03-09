@@ -28,6 +28,7 @@ const Ring = ({ delay, size }: { delay: number; size: number }) => (
 const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const { logoUrl } = useBrand();
 
   const particles = useMemo(
     () =>
