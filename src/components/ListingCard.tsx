@@ -3,6 +3,7 @@ import { Heart, MapPin, Clock, Star, Video, Image as ImageIcon } from "lucide-re
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import appLogo from "@/assets/logo.png";
 
 interface ListingCardProps {
@@ -28,6 +29,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
+  const { playBadgeSound } = useSoundEffects();
   const isListingFavorite = id ? isFavorite(id) : false;
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -86,7 +88,10 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
         )}
         {business && status !== "sold" && status !== "expired" && (
           <>
-            <div className="absolute top-3 right-3 animate-pulse">
+            <div 
+              className="absolute top-3 right-3 animate-pulse cursor-pointer transition-transform hover:scale-110"
+              onMouseEnter={() => playBadgeSound('business')}
+            >
               <span className="text-2xl drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]">💎</span>
             </div>
             <div className="absolute top-11 right-3 bg-card/90 backdrop-blur-sm text-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1">
@@ -96,13 +101,19 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
           </>
         )}
         {professional && !business && status !== "sold" && status !== "expired" && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+          <div 
+            className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 cursor-pointer transition-transform hover:scale-105"
+            onMouseEnter={() => playBadgeSound('professional')}
+          >
             <span className="animate-pulse drop-shadow-[0_0_8px_rgba(147,51,234,0.8)]">👑</span>
             <span>احترافي</span>
           </div>
         )}
 {featured && !professional && !business && status !== "sold" && status !== "expired" && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+          <div 
+            className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 cursor-pointer transition-transform hover:scale-105"
+            onMouseEnter={() => playBadgeSound('featured')}
+          >
             <span className="animate-pulse drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">⭐</span>
             <span>{t.listings.featured}</span>
           </div>
