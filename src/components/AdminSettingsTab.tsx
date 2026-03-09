@@ -106,6 +106,11 @@ const AdminSettingsTab = () => {
           "contact_phone",
           "contact_location",
           "contact_whatsapp",
+          "social_facebook",
+          "social_instagram",
+          "social_twitter",
+          "social_snapchat",
+          "social_youtube",
         ]);
 
       if (data) {
