@@ -75,6 +75,14 @@ const AdminSettingsTab = () => {
   const [secondaryColor, setSecondaryColor] = useState("#f5f5f5");
   const [accentColor, setAccentColor] = useState("#2d8f78");
   const [savingTheme, setSavingTheme] = useState(false);
+  const [resettingTheme, setResettingTheme] = useState(false);
+
+  // Default theme colors
+  const DEFAULT_COLORS = {
+    primary: "#ff6b35",
+    secondary: "#f5f5f5", 
+    accent: "#2d8f78",
+  };
 
   const normalizeText = (val: unknown, fallback: string) => {
     if (val == null) return fallback;
