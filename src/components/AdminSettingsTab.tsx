@@ -119,6 +119,9 @@ const AdminSettingsTab = () => {
           "social_snapchat",
           "social_youtube",
           "social_tiktok",
+          "theme_primary",
+          "theme_secondary", 
+          "theme_accent",
         ]);
 
       if (data) {
