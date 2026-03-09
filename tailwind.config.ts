@@ -96,6 +96,10 @@ export default {
           "75%": { transform: "scale(1.01)" },
           "100%": { transform: "scale(1)", boxShadow: "0 0 0 0 hsl(168 76% 42% / 0)" },
         },
+        "shrink-width": {
+          "0%": { width: "100%" },
+          "100%": { width: "0%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
