@@ -162,6 +162,17 @@ const AdminSettingsTab = () => {
     fetchExtraSettings();
   }, []);
 
+  // Apply theme colors when they change
+  useEffect(() => {
+    const root = document.documentElement;
+    if (primaryColor && secondaryColor && accentColor) {
+      root.style.setProperty('--primary', hexToHsl(primaryColor));
+      root.style.setProperty('--secondary', hexToHsl(secondaryColor));
+      root.style.setProperty('--accent', hexToHsl(accentColor));
+      root.style.setProperty('--ring', hexToHsl(primaryColor));
+    }
+  }, [primaryColor, secondaryColor, accentColor]);
+
   useEffect(() => {
     if (!loading) {
       setEditValues({
