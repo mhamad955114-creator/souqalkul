@@ -18,7 +18,7 @@ import Footer from "@/components/Footer";
 import { cities } from "@/lib/constants";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
-import { MessageSquare, RefreshCw, Tag, ShieldAlert } from "lucide-react";
+import { MessageSquare, RefreshCw, Tag, ShieldAlert, Smartphone } from "lucide-react";
 import { useAdminRole } from "@/hooks/useAdminRole";
 
 interface Profile {
@@ -655,17 +655,39 @@ const Settings = () => {
                   تفعيل أو إيقاف صوت التنبيه عند وصول إشعار جديد
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Bell className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-foreground">تشغيل صوت الإشعارات</span>
+                    <div>
+                      <span className="text-sm font-medium text-foreground">تشغيل صوت الإشعارات</span>
+                      <p className="text-xs text-muted-foreground">تشغيل نغمة عند وصول إشعار جديد</p>
+                    </div>
                   </div>
                   <Switch
                     checked={localStorage.getItem("notification_sound") !== "off"}
                     onCheckedChange={(checked) => {
                       localStorage.setItem("notification_sound", checked ? "on" : "off");
                       toast.success(checked ? "تم تفعيل صوت الإشعارات" : "تم إيقاف صوت الإشعارات");
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Smartphone className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <span className="text-sm font-medium text-foreground">اهتزاز الإشعارات</span>
+                      <p className="text-xs text-muted-foreground">اهتزاز الجهاز عند وصول إشعار جديد</p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={localStorage.getItem("notification_vibration") !== "off"}
+                    onCheckedChange={(checked) => {
+                      localStorage.setItem("notification_vibration", checked ? "on" : "off");
+                      if (checked && "vibrate" in navigator) {
+                        try { navigator.vibrate([100, 50, 100]); } catch (e) {}
+                      }
+                      toast.success(checked ? "تم تفعيل اهتزاز الإشعارات" : "تم إيقاف اهتزاز الإشعارات");
                     }}
                   />
                 </div>

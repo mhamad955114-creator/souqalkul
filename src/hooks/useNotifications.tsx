@@ -115,8 +115,8 @@ export const useNotifications = () => {
             playNotificationSound();
           }
 
-          // Vibrate on mobile devices that support it
-          if ("vibrate" in navigator) {
+          // Vibrate on mobile devices that support it (if enabled)
+          if (localStorage.getItem("notification_vibration") !== "off" && "vibrate" in navigator) {
             try {
               navigator.vibrate([100, 50, 100]);
             } catch (e) {
