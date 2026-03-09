@@ -142,6 +142,7 @@ const AdminSettingsTab = () => {
           if (row.setting_key === "social_twitter") setSocialTwitter(normalizeText(row.setting_value, ""));
           if (row.setting_key === "social_snapchat") setSocialSnapchat(normalizeText(row.setting_value, ""));
           if (row.setting_key === "social_youtube") setSocialYoutube(normalizeText(row.setting_value, ""));
+          if (row.setting_key === "social_tiktok") setSocialTiktok(normalizeText(row.setting_value, ""));
         });
       }
     };
