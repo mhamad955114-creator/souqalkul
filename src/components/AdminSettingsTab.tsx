@@ -62,6 +62,13 @@ const AdminSettingsTab = () => {
   const [contactWhatsapp, setContactWhatsapp] = useState("+905350348850");
   const [savingContact, setSavingContact] = useState(false);
 
+  const [socialFacebook, setSocialFacebook] = useState("");
+  const [socialInstagram, setSocialInstagram] = useState("");
+  const [socialTwitter, setSocialTwitter] = useState("");
+  const [socialSnapchat, setSocialSnapchat] = useState("");
+  const [socialYoutube, setSocialYoutube] = useState("");
+  const [savingSocial, setSavingSocial] = useState(false);
+
   const normalizeText = (val: unknown, fallback: string) => {
     if (val == null) return fallback;
     if (typeof val === "string") return val || fallback;
