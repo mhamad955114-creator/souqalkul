@@ -112,6 +112,7 @@ const AdminSettingsTab = () => {
           "social_twitter",
           "social_snapchat",
           "social_youtube",
+          "social_tiktok",
         ]);
 
       if (data) {
