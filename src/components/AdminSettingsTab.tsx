@@ -156,10 +156,11 @@ const AdminSettingsTab = () => {
 
   const handleSaveMaintenance = async () => {
     setSavingMaintenance(true);
-    const { error } = await supabase
-      .from("listing_settings")
-      .update({ setting_value: { enabled: maintenanceEnabled, message: maintenanceMessage } as any })
-      .eq("setting_key", "maintenance_mode");
+    const { error } = await upsertSetting(
+      "maintenance_mode",
+      { enabled: maintenanceEnabled, message: maintenanceMessage } as any
+    );
+
     if (!error) {
       toast.success("تم حفظ إعدادات الصيانة");
     } else {
@@ -170,16 +171,34 @@ const AdminSettingsTab = () => {
 
   const handleSaveShamcash = async () => {
     setSavingShamcash(true);
-    const { error } = await supabase
-      .from("listing_settings")
-      .update({ setting_value: shamcashAccount as any })
-      .eq("setting_key", "shamcash_account");
+    const { error } = await upsertSetting("shamcash_account", shamcashAccount as any);
+
     if (!error) {
       toast.success("تم حفظ رقم شام كاش");
     } else {
       toast.error("فشل حفظ رقم شام كاش");
     }
     setSavingShamcash(false);
+  };
+
+  const handleSaveContact = async () => {
+    setSavingContact(true);
+
+    const results = await Promise.all([
+      upsertSetting("contact_email", contactEmail as any),
+      upsertSetting("contact_phone", contactPhone as any),
+      upsertSetting("contact_location", contactLocation as any),
+    ]);
+
+    const hasError = results.some((r) => !!(r as any).error);
+
+    if (!hasError) {
+      toast.success("تم حفظ بيانات التواصل");
+    } else {
+      toast.error("فشل حفظ بيانات التواصل");
+    }
+
+    setSavingContact(false);
   };
 
   if (loading) {
