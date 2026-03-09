@@ -6,7 +6,7 @@ import logoImage from "@/assets/logo.png";
 
 const Footer = () => {
   const { t } = useLanguage();
-  const { contact } = useContactSettings();
+  const { contact, social } = useContactSettings();
 
   return (
     <footer className="bg-foreground text-background">
