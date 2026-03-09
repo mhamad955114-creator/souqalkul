@@ -163,7 +163,7 @@ export const usePushNotifications = () => {
     }
   }, [user]);
 
-  return { isSubscribed, isSupported, permission, loading, subscribe, unsubscribe };
+  return { isSubscribed, isSupported, isIOSPWA, permission, loading, subscribe, unsubscribe };
 };
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
