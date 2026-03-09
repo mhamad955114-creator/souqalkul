@@ -1050,7 +1050,7 @@ export const ar: Translations = {
     teamDesc: "فريق متخصص من المطورين والمصممين وخبراء التجارة الإلكترونية، يعملون بشغف لتقديم أفضل تجربة لمستخدمينا.",
     contactTitle: "تواصل معنا",
     contactDesc: "نسعد بتواصلكم معنا لأي استفسار أو اقتراح.",
-    contactEmail: "info@soukcom.com",
+    contactEmail: "suopalkul5@gmail.com",
   },
   privacy: {
     title: "سياسة الخصوصية",
@@ -1587,7 +1587,7 @@ export const en: Translations = {
     teamDesc: "A specialized team of developers, designers, and e-commerce experts, passionately working to deliver the best experience for our users.",
     contactTitle: "Contact Us",
     contactDesc: "We'd love to hear from you for any inquiries or suggestions.",
-    contactEmail: "info@soukcom.com",
+    contactEmail: "suopalkul5@gmail.com",
   },
   privacy: {
     title: "Privacy Policy",
@@ -2124,7 +2124,7 @@ export const tr: Translations = {
     teamDesc: "Kullanıcılarımıza en iyi deneyimi sunmak için tutkuyla çalışan geliştiriciler, tasarımcılar ve e-ticaret uzmanlarından oluşan uzman bir ekip.",
     contactTitle: "Bize Ulaşın",
     contactDesc: "Her türlü soru veya öneri için bizimle iletişime geçmenizden memnuniyet duyarız.",
-    contactEmail: "info@soukcom.com",
+    contactEmail: "suopalkul5@gmail.com",
   },
   privacy: {
     title: "Gizlilik Politikası",
