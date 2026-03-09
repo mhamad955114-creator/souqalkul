@@ -109,7 +109,7 @@ const Auth = () => {
         <div className="relative z-10 text-center px-12 max-w-lg">
           <div className="mb-8 flex justify-center">
             <div className="w-28 h-28 rounded-3xl bg-card/10 backdrop-blur-sm border border-primary-foreground/10 flex items-center justify-center shadow-2xl">
-              <img src={logo} alt="سوق الكل" className="w-20 h-20 object-contain" />
+              <img src={logoUrl} alt="سوق الكل" className="w-20 h-20 object-contain" />
             </div>
           </div>
           <h1 className="text-4xl font-bold text-primary-foreground mb-4 font-cairo">
