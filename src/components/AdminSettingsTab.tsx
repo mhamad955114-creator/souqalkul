@@ -211,6 +211,55 @@ const AdminSettingsTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Contact Settings */}
+      <Card className="border-primary/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Phone className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">بيانات التواصل</h3>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label>إيميل التواصل</Label>
+              <Input
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                placeholder="example@email.com"
+                dir="ltr"
+                className="text-left"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>رقم الهاتف</Label>
+              <Input
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="+905..."
+                dir="ltr"
+                className="text-left font-mono text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>الموقع</Label>
+            <Input
+              value={contactLocation}
+              onChange={(e) => setContactLocation(e.target.value)}
+              placeholder="City, Country"
+            />
+          </div>
+
+          <Button className="w-full gap-2" onClick={handleSaveContact} disabled={savingContact}>
+            {savingContact ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ بيانات التواصل
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Wallet Address for Top-up */}
       <Card className="border-primary/30">
         <CardContent className="p-6 space-y-4">
