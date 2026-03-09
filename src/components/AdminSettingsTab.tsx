@@ -235,6 +235,7 @@ const AdminSettingsTab = () => {
       upsertSetting("social_twitter", socialTwitter as any),
       upsertSetting("social_snapchat", socialSnapchat as any),
       upsertSetting("social_youtube", socialYoutube as any),
+      upsertSetting("social_tiktok", socialTiktok as any),
     ]);
     const hasError = results.some((r) => !!(r as any).error);
     if (!hasError) {
