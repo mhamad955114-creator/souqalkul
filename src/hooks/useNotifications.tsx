@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { useAuth } from "./useAuth";
 import { showInAppNotification } from "@/components/InAppNotificationBanner";
-import { useAuth } from "./useAuth";
 
 export interface Notification {
   id: string;
