@@ -135,6 +135,11 @@ const AdminSettingsTab = () => {
           if (row.setting_key === "contact_whatsapp") {
             setContactWhatsapp(normalizeText(row.setting_value, "+905350348850"));
           }
+          if (row.setting_key === "social_facebook") setSocialFacebook(normalizeText(row.setting_value, ""));
+          if (row.setting_key === "social_instagram") setSocialInstagram(normalizeText(row.setting_value, ""));
+          if (row.setting_key === "social_twitter") setSocialTwitter(normalizeText(row.setting_value, ""));
+          if (row.setting_key === "social_snapchat") setSocialSnapchat(normalizeText(row.setting_value, ""));
+          if (row.setting_key === "social_youtube") setSocialYoutube(normalizeText(row.setting_value, ""));
         });
       }
     };
