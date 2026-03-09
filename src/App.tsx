@@ -48,7 +48,8 @@ const AppContent = () => {
     <>
       {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
       <UpdateNotification />
-            <BrowserRouter>
+      <BrowserRouter>
+        <InAppNotificationBanner />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/my-account" element={<MyAccount />} />
