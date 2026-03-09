@@ -434,6 +434,79 @@ const AdminSettingsTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Brand / Logo Settings */}
+      <Card className="border-primary/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Image className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">الشعار والأيقونات</h3>
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            قم برفع شعار مخصص للموقع. سيظهر في الهيدر والفوتر وشاشة التحميل وغيرها.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {/* Logo Preview */}
+            <div className="w-24 h-24 rounded-2xl bg-muted/30 border-2 border-dashed border-border flex items-center justify-center overflow-hidden">
+              <img
+                src={logoUrl}
+                alt="الشعار الحالي"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 flex-1">
+              <div className="flex flex-wrap gap-2">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                  />
+                  <Button
+                    type="button"
+                    variant="default"
+                    className="pointer-events-none gap-2"
+                    disabled={uploadingLogo}
+                  >
+                    {uploadingLogo ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    رفع شعار جديد
+                  </Button>
+                </label>
+
+                {!isDefaultLogo && (
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={handleRemoveLogo}
+                    disabled={removingLogo}
+                  >
+                    {removingLogo ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                    إزالة الشعار
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                الحجم المُوصى به: 512×512 بكسل • PNG أو JPG • الحد الأقصى 2MB
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Contact Settings */}
       <Card className="border-primary/30">
         <CardContent className="p-6 space-y-4">
