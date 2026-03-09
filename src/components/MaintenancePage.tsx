@@ -1,5 +1,5 @@
 import { Construction, Wrench, Clock } from "lucide-react";
-import logoImage from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 interface MaintenancePageProps {
   message?: string;

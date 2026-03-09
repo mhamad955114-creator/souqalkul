@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import logoImage from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 const Particle = ({ delay, x, y, size }: { delay: number; x: number; y: number; size: number }) => (
   <div

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logo from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 type AuthMode = "login" | "signup" | "forgot";
 type AuthMethod = "email" | "phone";

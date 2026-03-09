@@ -4,7 +4,7 @@ import { Download, Smartphone, Check, Share2, Wifi, WifiOff, Zap, Shield, Bell, 
 import { QRCodeSVG } from "qrcode.react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import logo from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 const APP_URL = "https://swqalkil-io.lovable.app";
 

@@ -2,7 +2,7 @@ import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, S
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
-import logoImage from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 const Footer = () => {
   const { t } = useLanguage();
