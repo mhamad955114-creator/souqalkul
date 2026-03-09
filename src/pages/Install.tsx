@@ -213,7 +213,7 @@ const Install = () => {
                 level="H"
                 includeMargin
                 imageSettings={{
-                  src: logo,
+                  src: logoUrl,
                   height: 40,
                   width: 40,
                   excavate: true,

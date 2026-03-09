@@ -137,7 +137,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
-            <img src={logo} alt="سوق الكل" className="w-16 h-16 object-contain" />
+            <img src={logoUrl} alt="سوق الكل" className="w-16 h-16 object-contain" />
           </div>
 
           <div className="mb-8">

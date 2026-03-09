@@ -80,7 +80,7 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
 
       {/* Logo */}
       <img
-        src={logoImage}
+        src={logoUrl}
         alt="سوق الكل"
         className={`relative h-28 w-28 rounded-3xl object-contain transition-all duration-700 ${
           showContent

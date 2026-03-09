@@ -16,7 +16,7 @@ const Footer = () => {
           {/* About */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src={logoImage} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
+              <img src={logoUrl} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
               <span className="text-xl font-bold">{t.appName}</span>
             </div>
             <p className="text-background/70 mb-6 leading-relaxed">

@@ -73,6 +73,7 @@ const ListingDetails = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t, dir } = useLanguage();
+  const { logoUrl: appLogo } = useBrand();
   const [listing, setListing] = useState<Listing | null>(null);
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
