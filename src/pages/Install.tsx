@@ -18,6 +18,7 @@ const Install = () => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const { logoUrl } = useBrand();
 
   useEffect(() => {
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
