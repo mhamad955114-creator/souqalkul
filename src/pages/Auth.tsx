@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logo from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 type AuthMode = "login" | "signup" | "forgot";
 type AuthMethod = "email" | "phone";
@@ -24,6 +24,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, user } = useAuth();
   const { t, dir } = useLanguage();
+  const { logoUrl } = useBrand();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -108,7 +109,7 @@ const Auth = () => {
         <div className="relative z-10 text-center px-12 max-w-lg">
           <div className="mb-8 flex justify-center">
             <div className="w-28 h-28 rounded-3xl bg-card/10 backdrop-blur-sm border border-primary-foreground/10 flex items-center justify-center shadow-2xl">
-              <img src={logo} alt="سوق الكل" className="w-20 h-20 object-contain" />
+              <img src={logoUrl} alt="سوق الكل" className="w-20 h-20 object-contain" />
             </div>
           </div>
           <h1 className="text-4xl font-bold text-primary-foreground mb-4 font-cairo">
@@ -136,7 +137,7 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
-            <img src={logo} alt="سوق الكل" className="w-16 h-16 object-contain" />
+            <img src={logoUrl} alt="سوق الكل" className="w-16 h-16 object-contain" />
           </div>
 
           <div className="mb-8">

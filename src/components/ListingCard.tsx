@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
-import appLogo from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 interface ListingCardProps {
   id?: string;
@@ -30,6 +30,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
   const { playBadgeSound } = useSoundEffects();
+  const { logoUrl: appLogo } = useBrand();
   const isListingFavorite = id ? isFavorite(id) : false;
   const [imageLoaded, setImageLoaded] = useState(false);
 

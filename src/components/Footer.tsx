@@ -2,11 +2,12 @@ import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, S
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
-import logoImage from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 const Footer = () => {
   const { t } = useLanguage();
   const { contact, social } = useContactSettings();
+  const { logoUrl } = useBrand();
 
   return (
     <footer className="bg-foreground text-background">
@@ -15,7 +16,7 @@ const Footer = () => {
           {/* About */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src={logoImage} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
+              <img src={logoUrl} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
               <span className="text-xl font-bold">{t.appName}</span>
             </div>
             <p className="text-background/70 mb-6 leading-relaxed">

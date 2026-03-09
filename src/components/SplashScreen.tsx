@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import logoImage from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 const Particle = ({ delay, x, y, size }: { delay: number; x: number; y: number; size: number }) => (
   <div
@@ -28,6 +28,7 @@ const Ring = ({ delay, size }: { delay: number; size: number }) => (
 const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const { logoUrl } = useBrand();
 
   const particles = useMemo(
     () =>
@@ -79,7 +80,7 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
 
       {/* Logo */}
       <img
-        src={logoImage}
+        src={logoUrl}
         alt="سوق الكل"
         className={`relative h-28 w-28 rounded-3xl object-contain transition-all duration-700 ${
           showContent

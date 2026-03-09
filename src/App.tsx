@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { BrandProvider } from "@/contexts/BrandContext";
 import SplashScreen from "@/components/SplashScreen";
 import UpdateNotification from "@/components/UpdateNotification";
 import MaintenancePage from "@/components/MaintenancePage";
@@ -78,15 +79,17 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <LanguageProvider>
-          <AuthProvider>
-            <FavoritesProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <AppContent />
-              </TooltipProvider>
-            </FavoritesProvider>
-          </AuthProvider>
+          <BrandProvider>
+            <AuthProvider>
+              <FavoritesProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <AppContent />
+                </TooltipProvider>
+              </FavoritesProvider>
+            </AuthProvider>
+          </BrandProvider>
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>

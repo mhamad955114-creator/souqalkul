@@ -1,6 +1,6 @@
 import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Wallet, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import logoImage from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
 import { useState } from "react";
@@ -33,6 +33,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { isAdmin } = useAdminRole();
   const { t, dir } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { logoUrl } = useBrand();
 
   const handleAddListing = () => {
     if (user) {
@@ -53,7 +54,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-              <img src={logoImage} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
+              <img src={logoUrl} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
               <span className="text-lg font-bold text-foreground">{t.appName}</span>
             </div>
 

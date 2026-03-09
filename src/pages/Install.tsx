@@ -4,7 +4,7 @@ import { Download, Smartphone, Check, Share2, Wifi, WifiOff, Zap, Shield, Bell, 
 import { QRCodeSVG } from "qrcode.react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import logo from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 const APP_URL = "https://swqalkil-io.lovable.app";
 
@@ -18,6 +18,7 @@ const Install = () => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const { logoUrl } = useBrand();
 
   useEffect(() => {
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -92,7 +93,7 @@ const Install = () => {
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl scale-110" />
               <img
-                src={logo}
+                src={logoUrl}
                 alt="سوق الكل"
                 className="relative w-24 h-24 rounded-3xl shadow-lg mx-auto"
               />
@@ -212,7 +213,7 @@ const Install = () => {
                 level="H"
                 includeMargin
                 imageSettings={{
-                  src: logo,
+                  src: logoUrl,
                   height: 40,
                   width: 40,
                   excavate: true,

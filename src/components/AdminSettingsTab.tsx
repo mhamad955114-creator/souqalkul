@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette, RotateCcw } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Wallet, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette, RotateCcw, Image, Upload, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
+import { useBrand } from "@/contexts/BrandContext";
 
 const planConfig = [
   {
@@ -76,6 +77,11 @@ const AdminSettingsTab = () => {
   const [accentColor, setAccentColor] = useState("#2d8f78");
   const [savingTheme, setSavingTheme] = useState(false);
   const [resettingTheme, setResettingTheme] = useState(false);
+
+  // Brand / Logo
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [removingLogo, setRemovingLogo] = useState(false);
+  const { logoUrl, setLogoUrl, isDefaultLogo } = useBrand();
 
   // Default theme colors
   const DEFAULT_COLORS = {
@@ -359,6 +365,65 @@ const AdminSettingsTab = () => {
     setResettingTheme(false);
   };
 
+  // Logo upload handler
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("يرجى اختيار صورة فقط");
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب أن يكون أقل من 2 ميجابايت");
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      const filePath = `brand/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("listings")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("listings").getPublicUrl(filePath);
+      const publicUrl = urlData.publicUrl;
+
+      // Save to settings
+      await upsertSetting("brand_logo_url", publicUrl);
+
+      setLogoUrl(publicUrl);
+      toast.success("تم رفع الشعار بنجاح");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("فشل في رفع الشعار: " + (err.message || ""));
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  // Remove custom logo
+  const handleRemoveLogo = async () => {
+    setRemovingLogo(true);
+    try {
+      await upsertSetting("brand_logo_url", "");
+      setLogoUrl("");
+      toast.success("تم إزالة الشعار المخصص");
+    } catch (err: any) {
+      toast.error("فشل في إزالة الشعار");
+    } finally {
+      setRemovingLogo(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
@@ -369,6 +434,79 @@ const AdminSettingsTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Brand / Logo Settings */}
+      <Card className="border-primary/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Image className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">الشعار والأيقونات</h3>
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            قم برفع شعار مخصص للموقع. سيظهر في الهيدر والفوتر وشاشة التحميل وغيرها.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {/* Logo Preview */}
+            <div className="w-24 h-24 rounded-2xl bg-muted/30 border-2 border-dashed border-border flex items-center justify-center overflow-hidden">
+              <img
+                src={logoUrl}
+                alt="الشعار الحالي"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 flex-1">
+              <div className="flex flex-wrap gap-2">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                  />
+                  <Button
+                    type="button"
+                    variant="default"
+                    className="pointer-events-none gap-2"
+                    disabled={uploadingLogo}
+                  >
+                    {uploadingLogo ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    رفع شعار جديد
+                  </Button>
+                </label>
+
+                {!isDefaultLogo && (
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={handleRemoveLogo}
+                    disabled={removingLogo}
+                  >
+                    {removingLogo ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                    إزالة الشعار
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                الحجم المُوصى به: 512×512 بكسل • PNG أو JPG • الحد الأقصى 2MB
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Contact Settings */}
       <Card className="border-primary/30">
         <CardContent className="p-6 space-y-4">

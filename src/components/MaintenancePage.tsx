@@ -1,11 +1,12 @@
 import { Construction, Wrench, Clock } from "lucide-react";
-import logoImage from "@/assets/logo.png";
+import { useBrand } from "@/contexts/BrandContext";
 
 interface MaintenancePageProps {
   message?: string;
 }
 
 const MaintenancePage = ({ message = "الموقع تحت الصيانة حالياً، سنعود قريباً!" }: MaintenancePageProps) => {
+  const { logoUrl } = useBrand();
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center" dir="rtl">
       {/* Animated background elements */}
@@ -17,7 +18,7 @@ const MaintenancePage = ({ message = "الموقع تحت الصيانة حال�
       <div className="relative z-10 max-w-md w-full space-y-8">
         {/* Logo */}
         <div className="flex justify-center">
-          <img src={logoImage} alt="سوق الكل" className="h-20 w-20 rounded-2xl object-contain" />
+          <img src={logoUrl} alt="سوق الكل" className="h-20 w-20 rounded-2xl object-contain" />
         </div>
 
         {/* Icon */}
