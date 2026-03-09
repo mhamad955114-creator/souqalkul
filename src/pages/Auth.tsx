@@ -24,6 +24,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, user } = useAuth();
   const { t, dir } = useLanguage();
+  const { logoUrl } = useBrand();
   const navigate = useNavigate();
 
   useEffect(() => {
