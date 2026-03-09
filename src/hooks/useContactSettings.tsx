@@ -53,6 +53,7 @@ const SOCIAL_KEY_MAP: Record<string, keyof SocialSettings> = {
   social_twitter: "twitter",
   social_snapchat: "snapchat",
   social_youtube: "youtube",
+  social_tiktok: "tiktok",
 };
 
 export const useContactSettings = () => {
