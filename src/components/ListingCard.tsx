@@ -29,6 +29,7 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
+  const { playBadgeSound } = useSoundEffects();
   const isListingFavorite = id ? isFavorite(id) : false;
   const [imageLoaded, setImageLoaded] = useState(false);
 
