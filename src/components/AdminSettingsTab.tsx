@@ -630,10 +630,22 @@ const AdminSettingsTab = () => {
             </div>
           </div>
 
-          <Button className="w-full gap-2" onClick={handleSaveTheme} disabled={savingTheme}>
-            {savingTheme ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            حفظ وتطبيق ألوان الموقع
-          </Button>
+          <div className="grid gap-3 md:grid-cols-2">
+            <Button className="w-full gap-2" onClick={handleSaveTheme} disabled={savingTheme || resettingTheme}>
+              {savingTheme ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              حفظ وتطبيق ألوان الموقع
+            </Button>
+
+            <Button
+              className="w-full gap-2"
+              variant="outline"
+              onClick={handleResetTheme}
+              disabled={resettingTheme || savingTheme}
+            >
+              {resettingTheme ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+              استعادة الألوان الافتراضية
+            </Button>
+          </div>
 
           <p className="text-xs text-muted-foreground text-center">
             💡 ستظهر الألوان الجديدة فور الحفظ على جميع عناصر الموقع
