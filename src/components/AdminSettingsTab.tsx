@@ -98,6 +98,7 @@ const AdminSettingsTab = () => {
           "contact_email",
           "contact_phone",
           "contact_location",
+          "contact_whatsapp",
         ]);
 
       if (data) {
