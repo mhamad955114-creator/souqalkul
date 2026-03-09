@@ -14,6 +14,7 @@ export interface SocialSettings {
   twitter: string;
   snapchat: string;
   youtube: string;
+  tiktok: string;
 }
 
 const DEFAULT_CONTACT: ContactSettings = {
@@ -29,6 +30,7 @@ const DEFAULT_SOCIAL: SocialSettings = {
   twitter: "",
   snapchat: "",
   youtube: "",
+  tiktok: "",
 };
 
 const toPlainString = (value: unknown, fallback: string) => {
