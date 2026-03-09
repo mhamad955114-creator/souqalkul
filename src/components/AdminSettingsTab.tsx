@@ -329,6 +329,36 @@ const AdminSettingsTab = () => {
     setSavingTheme(false);
   };
 
+  const handleResetTheme = async () => {
+    setResettingTheme(true);
+
+    setPrimaryColor(DEFAULT_COLORS.primary);
+    setSecondaryColor(DEFAULT_COLORS.secondary);
+    setAccentColor(DEFAULT_COLORS.accent);
+
+    const results = await Promise.all([
+      upsertSetting("theme_primary", DEFAULT_COLORS.primary as any),
+      upsertSetting("theme_secondary", DEFAULT_COLORS.secondary as any),
+      upsertSetting("theme_accent", DEFAULT_COLORS.accent as any),
+    ]);
+
+    const hasError = results.some((r) => !!(r as any).error);
+
+    if (!hasError) {
+      const root = document.documentElement;
+      root.style.setProperty('--primary', hexToHsl(DEFAULT_COLORS.primary));
+      root.style.setProperty('--secondary', hexToHsl(DEFAULT_COLORS.secondary));
+      root.style.setProperty('--accent', hexToHsl(DEFAULT_COLORS.accent));
+      root.style.setProperty('--ring', hexToHsl(DEFAULT_COLORS.primary));
+
+      toast.success("تمت استعادة الألوان الافتراضية");
+    } else {
+      toast.error("فشل في استعادة الألوان الافتراضية");
+    }
+
+    setResettingTheme(false);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
