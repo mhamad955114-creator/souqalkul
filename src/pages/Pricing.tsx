@@ -102,7 +102,7 @@ const Pricing = () => {
     },
     {
       name: "رجال الأعمال",
-      price: settings.business_listing.price || 200000,
+      price: settings.business_listing.price || 100000,
       duration: `${settings.business_listing.duration_days} يوم`,
       description: "للشركات والمؤسسات",
       icon: Briefcase,
