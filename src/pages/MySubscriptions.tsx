@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useWallet } from "@/hooks/useWallet";
+import { useListingSettings } from "@/hooks/useListingSettings";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -9,8 +11,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Crown, Star, Briefcase, ArrowRight, ArrowLeft, Clock, CalendarDays, Sparkles, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Crown, Star, Briefcase, ArrowRight, ArrowLeft, Clock, CalendarDays, Sparkles, ShieldCheck, AlertTriangle, RefreshCw, Wallet, Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/constants";
+import { toast } from "sonner";
 
 interface Subscription {
   id: string;
@@ -74,8 +78,12 @@ const MySubscriptions = () => {
   const { user, loading: authLoading } = useAuth();
   const { dir } = useLanguage();
   const navigate = useNavigate();
+  const { wallet, refetch: refetchWallet } = useWallet();
+  const { settings } = useListingSettings();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
+  const [renewPlan, setRenewPlan] = useState<{ planType: string; label: string } | null>(null);
+  const [renewing, setRenewing] = useState(false);
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
@@ -85,17 +93,18 @@ const MySubscriptions = () => {
     }
   }, [user, authLoading, navigate]);
 
-  useEffect(() => {
+  const fetchSubs = async () => {
     if (!user) return;
-    const fetchSubs = async () => {
-      const { data } = await supabase
-        .from("user_subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      setSubscriptions(data || []);
-      setLoading(false);
-    };
+    const { data } = await supabase
+      .from("user_subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    setSubscriptions(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchSubs();
   }, [user]);
 
@@ -114,8 +123,52 @@ const MySubscriptions = () => {
       day: "numeric",
     });
 
+  const getPlanPriceAndDuration = (planType: string) => {
+    switch (planType) {
+      case "featured":
+        return { price: settings.featured_listing?.price || 50000, duration: settings.featured_listing?.duration_days || 30 };
+      case "professional":
+        return { price: settings.professional_listing?.price || 100000, duration: settings.professional_listing?.duration_days || 30 };
+      case "business":
+        return { price: settings.business_listing?.price || 200000, duration: settings.business_listing?.duration_days || 100 };
+      default:
+        return { price: 0, duration: 0 };
+    }
+  };
+
+  const handleRenew = async () => {
+    if (!renewPlan || !user) return;
+    setRenewing(true);
+    try {
+      const { price, duration } = getPlanPriceAndDuration(renewPlan.planType);
+
+      const { error: rpcError } = await supabase.rpc("purchase_subscription", {
+        _user_id: user.id,
+        _plan_type: renewPlan.planType,
+        _price: price,
+        _duration_days: duration,
+      });
+
+      if (rpcError) throw rpcError;
+
+      toast.success(`تم تجديد ${renewPlan.label} بنجاح! 🎉`);
+      setRenewPlan(null);
+      await Promise.all([fetchSubs(), refetchWallet()]);
+    } catch (err: any) {
+      if (err.message?.includes("Insufficient balance")) {
+        toast.error("رصيد المحفظة غير كافٍ!");
+      } else {
+        toast.error("فشل في التجديد: " + (err.message || "خطأ"));
+      }
+    } finally {
+      setRenewing(false);
+    }
+  };
+
   const activeSubs = subscriptions.filter(isActive);
   const expiredSubs = subscriptions.filter((s) => !isActive(s));
+
+  const renewPlanDetails = renewPlan ? getPlanPriceAndDuration(renewPlan.planType) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,7 +197,6 @@ const MySubscriptions = () => {
             ))}
           </div>
         ) : subscriptions.length === 0 ? (
-          /* Empty state */
           <Card className="border-dashed border-2">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center gap-4">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
@@ -188,7 +240,6 @@ const MySubscriptions = () => {
                       key={sub.id}
                       className={`overflow-hidden border-0 shadow-lg ${config.bgClass}`}
                     >
-                      {/* Gradient header */}
                       <div
                         className={`bg-gradient-to-r ${config.gradient} p-4 text-white flex items-center justify-between`}
                       >
@@ -208,7 +259,6 @@ const MySubscriptions = () => {
                       </div>
 
                       <CardContent className="p-4 space-y-4">
-                        {/* Warning if expiring soon */}
                         {isExpiringSoon && (
                           <div className="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-lg px-3 py-2 text-sm">
                             <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -216,7 +266,6 @@ const MySubscriptions = () => {
                           </div>
                         )}
 
-                        {/* Dates */}
                         <div className="grid grid-cols-2 gap-3">
                           <div className="flex items-center gap-2 text-sm">
                             <CalendarDays className="h-4 w-4 text-muted-foreground" />
@@ -234,7 +283,6 @@ const MySubscriptions = () => {
                           </div>
                         </div>
 
-                        {/* Progress bar */}
                         <div>
                           <div className="flex justify-between text-xs text-muted-foreground mb-1">
                             <span>المدة المتبقية</span>
@@ -250,7 +298,6 @@ const MySubscriptions = () => {
                           </div>
                         </div>
 
-                        {/* Features */}
                         <div className="space-y-2">
                           <h4 className="text-sm font-semibold text-foreground">مزايا الباقة:</h4>
                           <ul className="space-y-1.5">
@@ -262,6 +309,15 @@ const MySubscriptions = () => {
                             ))}
                           </ul>
                         </div>
+
+                        {/* Renew button */}
+                        <Button
+                          className={`w-full bg-gradient-to-r ${config.gradient} text-white hover:opacity-90`}
+                          onClick={() => setRenewPlan({ planType: sub.plan_type, label: config.label })}
+                        >
+                          <RefreshCw className="h-4 w-4 ml-2" />
+                          تجديد الباقة
+                        </Button>
                       </CardContent>
                     </Card>
                   );
@@ -281,18 +337,26 @@ const MySubscriptions = () => {
                   if (!config) return null;
 
                   return (
-                    <Card key={sub.id} className="opacity-60">
-                      <CardContent className="p-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                    <Card key={sub.id} className="border">
+                      <CardContent className="p-4 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
                           <span className="text-2xl grayscale">{config.emoji}</span>
-                          <div>
+                          <div className="min-w-0">
                             <h3 className="font-semibold text-foreground">{config.label}</h3>
                             <p className="text-xs text-muted-foreground">
                               انتهت في {formatDate(sub.expires_at)}
                             </p>
                           </div>
                         </div>
-                        <Badge variant="secondary" className="text-xs">منتهية</Badge>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setRenewPlan({ planType: sub.plan_type, label: config.label })}
+                          className="shrink-0"
+                        >
+                          <RefreshCw className="h-3.5 w-3.5 ml-1" />
+                          إعادة الاشتراك
+                        </Button>
                       </CardContent>
                     </Card>
                   );
@@ -316,6 +380,55 @@ const MySubscriptions = () => {
           </div>
         )}
       </div>
+
+      {/* Renewal confirmation dialog */}
+      <Dialog open={!!renewPlan} onOpenChange={(open) => !open && setRenewPlan(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>تأكيد تجديد الباقة</DialogTitle>
+            <DialogDescription>
+              هل تريد تجديد {renewPlan?.label}؟
+            </DialogDescription>
+          </DialogHeader>
+          {renewPlan && renewPlanDetails && (
+            <div className="space-y-4 py-4">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">سعر التجديد:</span>
+                <span className="font-bold text-lg">{formatPrice(renewPlanDetails.price)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">المدة:</span>
+                <span className="font-bold">{renewPlanDetails.duration} يوم</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">رصيد المحفظة:</span>
+                <span className={`font-bold text-lg ${(wallet?.balance || 0) >= renewPlanDetails.price ? "text-green-600" : "text-destructive"}`}>
+                  {formatPrice(wallet?.balance || 0)}
+                </span>
+              </div>
+              {(wallet?.balance || 0) < renewPlanDetails.price && (
+                <div className="bg-destructive/10 text-destructive p-3 rounded-lg text-sm text-center">
+                  رصيدك غير كافٍ.{" "}
+                  <Button variant="link" className="p-0 h-auto text-destructive underline" onClick={() => { setRenewPlan(null); navigate("/wallet"); }}>
+                    شحن المحفظة
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setRenewPlan(null)}>إلغاء</Button>
+            <Button
+              disabled={renewing || !wallet || (wallet.balance || 0) < (renewPlanDetails?.price || 0)}
+              onClick={handleRenew}
+            >
+              {renewing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Wallet className="h-4 w-4 ml-2" />}
+              تأكيد التجديد
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <BottomNavigation />
     </div>
   );
