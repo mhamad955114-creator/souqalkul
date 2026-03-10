@@ -126,11 +126,11 @@ const MySubscriptions = () => {
   const getPlanPriceAndDuration = (planType: string) => {
     switch (planType) {
       case "featured":
-        return { price: settings.featured_listing?.price || 50000, duration: settings.featured_listing?.duration_days || 30 };
+        return { price: settings.featured_listing?.price || 10000, duration: settings.featured_listing?.duration_days || 30 };
       case "professional":
-        return { price: settings.professional_listing?.price || 100000, duration: settings.professional_listing?.duration_days || 30 };
+        return { price: settings.professional_listing?.price || 20000, duration: settings.professional_listing?.duration_days || 30 };
       case "business":
-        return { price: settings.business_listing?.price || 200000, duration: settings.business_listing?.duration_days || 100 };
+        return { price: settings.business_listing?.price || 100000, duration: settings.business_listing?.duration_days || 100 };
       default:
         return { price: 0, duration: 0 };
     }
