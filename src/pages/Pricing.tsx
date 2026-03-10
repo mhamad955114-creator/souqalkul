@@ -53,7 +53,7 @@ const Pricing = () => {
     },
     {
       name: t.pricing.featured,
-      price: settings.featured_listing.price || 50000,
+      price: settings.featured_listing.price || 10000,
       duration: `${settings.featured_listing.duration_days} يوم`,
       description: t.pricing.mostPopular,
       icon: Star,
