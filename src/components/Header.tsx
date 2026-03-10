@@ -237,6 +237,10 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                       <ShoppingBag className="h-4 w-4" />
                       {t.nav.myOrders}
                     </Button>
+                    <Button variant="outline" onClick={() => navigate("/my-subscriptions")}>
+                      <Crown className="h-4 w-4" />
+                      اشتراكاتي
+                    </Button>
                     <Button variant="outline" onClick={() => navigate("/favorites")}>
                       <Heart className="h-4 w-4" />
                       {t.nav.favorites}
