@@ -17,9 +17,9 @@ export interface ListingSettings {
 
 const defaultSettings: ListingSettings = {
   free_listing: { duration_days: 30, max_images: 5, max_active_listings: 3 },
-  featured_listing: { price: 50000, duration_days: 30, max_images: 10, max_active_listings: 10 },
-  professional_listing: { price: 100000, duration_days: 30, max_images: 20, max_active_listings: -1 },
-  business_listing: { price: 200000, duration_days: 60, max_images: 30, max_active_listings: -1 },
+  featured_listing: { price: 10000, duration_days: 30, max_images: 10, max_active_listings: 10 },
+  professional_listing: { price: 20000, duration_days: 30, max_images: 20, max_active_listings: -1 },
+  business_listing: { price: 100000, duration_days: 100, max_images: 30, max_active_listings: -1 },
 };
 
 export const useListingSettings = () => {

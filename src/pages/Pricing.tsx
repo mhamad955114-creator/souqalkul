@@ -53,7 +53,7 @@ const Pricing = () => {
     },
     {
       name: t.pricing.featured,
-      price: settings.featured_listing.price || 50000,
+      price: settings.featured_listing.price || 10000,
       duration: `${settings.featured_listing.duration_days} يوم`,
       description: t.pricing.mostPopular,
       icon: Star,
@@ -78,7 +78,7 @@ const Pricing = () => {
     },
     {
       name: t.pricing.professional,
-      price: settings.professional_listing.price || 100000,
+      price: settings.professional_listing.price || 20000,
       duration: `${settings.professional_listing.duration_days} يوم`,
       description: t.pricing.forProfessionals,
       icon: Crown,
@@ -102,7 +102,7 @@ const Pricing = () => {
     },
     {
       name: "رجال الأعمال",
-      price: settings.business_listing.price || 200000,
+      price: settings.business_listing.price || 100000,
       duration: `${settings.business_listing.duration_days} يوم`,
       description: "للشركات والمؤسسات",
       icon: Briefcase,
