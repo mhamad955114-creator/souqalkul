@@ -78,7 +78,7 @@ const Pricing = () => {
     },
     {
       name: t.pricing.professional,
-      price: settings.professional_listing.price || 100000,
+      price: settings.professional_listing.price || 20000,
       duration: `${settings.professional_listing.duration_days} يوم`,
       description: t.pricing.forProfessionals,
       icon: Crown,
