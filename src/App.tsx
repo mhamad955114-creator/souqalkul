@@ -32,6 +32,7 @@ import ContactUs from "./pages/ContactUs";
 import Install from "./pages/Install";
 import Wallet from "./pages/Wallet";
 import Auth from "./pages/Auth";
+import MySubscriptions from "./pages/MySubscriptions";
 
 const queryClient = new QueryClient();
 
