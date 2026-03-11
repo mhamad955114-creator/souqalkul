@@ -559,6 +559,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 >
                   <Gift className="h-8 w-8 text-green-500" />
                   <span className="font-semibold">{t.listingForm.freeAd}</span>
+                  <span className="text-xs text-muted-foreground text-center">
+                    حتى {settings.free_listing.max_images} صور • {settings.free_listing.duration_days} يوم • {settings.free_listing.max_active_listings} إعلان
+                  </span>
                   <span className="text-xs text-muted-foreground text-center">{t.listingForm.freeAdDesc}</span>
                 </label>
               </div>
