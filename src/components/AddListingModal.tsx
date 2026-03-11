@@ -558,8 +558,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 <Label className="text-sm text-muted-foreground">اختر نوع الباقة:</Label>
                 <RadioGroup
                   value={formData.paidType}
-                  onValueChange={(value) => setFormData({ ...formData, paidType: value as "featured" | "professional" })}
-                  className="grid grid-cols-2 gap-3"
+                  onValueChange={(value) => setFormData({ ...formData, paidType: value as "featured" | "professional" | "business" })}
+                  className="grid grid-cols-3 gap-3"
                 >
                   <div className="relative">
                     <RadioGroupItem value="featured" id="featured-type" className="peer sr-only" />
