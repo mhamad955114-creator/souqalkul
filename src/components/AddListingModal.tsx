@@ -691,9 +691,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                       <span className="font-medium">رصيدك: </span>
                       <span className={
                         wallet && wallet.balance >= (
-                          formData.paidType === "professional"
+                          formData.paidType === "business"
+                            ? (settings.business_listing.price || 100000)
+                            : formData.paidType === "professional"
                             ? (settings.professional_listing.price || 20000)
-                            : (settings.featured_listing.price || 50000)
+                            : (settings.featured_listing.price || 10000)
                         ) ? "text-green-600" : "text-destructive"
                       }>
                         {formatPrice(wallet?.balance || 0)}
