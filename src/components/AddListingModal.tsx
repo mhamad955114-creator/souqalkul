@@ -241,7 +241,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         let durationDays: number;
         let planType: string;
 
-        if (formData.paidType === "professional") {
+        if (formData.paidType === "business") {
+          paymentAmount = settings.business_listing.price || 100000;
+          durationDays = settings.business_listing.duration_days || 100;
+          planType = "business";
+        } else if (formData.paidType === "professional") {
           paymentAmount = settings.professional_listing.price || 20000;
           durationDays = settings.professional_listing.duration_days || 30;
           planType = "professional";
