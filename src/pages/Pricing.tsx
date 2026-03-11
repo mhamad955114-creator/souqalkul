@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Wallet, Briefcase } from "lucide-react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -105,7 +105,8 @@ const Pricing = () => {
       price: settings.business_listing.price || 100000,
       duration: `${settings.business_listing.duration_days} يوم`,
       description: "للشركات والمؤسسات",
-      icon: Briefcase,
+      icon: null,
+      customIcon: true,
       iconColor: "text-blue-500",
       borderColor: "border-blue-300",
       bgColor: "bg-blue-50",
@@ -165,7 +166,11 @@ const Pricing = () => {
               
               <CardHeader className={`text-center ${plan.popular ? "pt-10" : "pt-6"}`}>
                 <div className={`w-16 h-16 mx-auto rounded-full ${plan.bgColor} flex items-center justify-center mb-4`}>
-                  <plan.icon className={`h-8 w-8 ${plan.iconColor}`} />
+                  {(plan as any).customIcon ? (
+                    <span className="text-4xl animate-pulse drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]">💎</span>
+                  ) : (
+                    <plan.icon className={`h-8 w-8 ${plan.iconColor}`} />
+                  )}
                 </div>
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
