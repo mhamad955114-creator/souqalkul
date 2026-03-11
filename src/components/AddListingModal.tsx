@@ -89,8 +89,31 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const isVideoFile = (file: File) => file.type.startsWith("video/");
   const isVideoUrl = (url: string) => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
 
+  // Determine max images allowed based on selected plan
+  const getMaxImages = () => {
+    if (formData.is_featured) {
+      if (formData.paidType === "business") return settings.business_listing.max_images || 30;
+      if (formData.paidType === "professional") return settings.professional_listing.max_images || 20;
+      return settings.featured_listing.max_images || 10;
+    }
+    return settings.free_listing.max_images || 5;
+  };
+
+  const maxImages = getMaxImages();
+
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return;
+
+    // Enforce max images limit
+    const remainingSlots = maxImages - images.length;
+    if (remainingSlots <= 0) {
+      toast.error(`الحد الأقصى للصور هو ${maxImages} للباقة المختارة`);
+      return;
+    }
+    if (e.target.files.length > remainingSlots) {
+      toast.error(`يمكنك رفع ${remainingSlots} صور/فيديو إضافية فقط (الحد الأقصى: ${maxImages})`);
+      return;
+    }
 
     setUploadingImages(true);
     setRejectedImages([]);
@@ -536,6 +559,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 >
                   <Gift className="h-8 w-8 text-green-500" />
                   <span className="font-semibold">{t.listingForm.freeAd}</span>
+                  <span className="text-xs text-muted-foreground text-center">
+                    حتى {settings.free_listing.max_images} صور • {settings.free_listing.duration_days} يوم • {settings.free_listing.max_active_listings} إعلان
+                  </span>
                   <span className="text-xs text-muted-foreground text-center">{t.listingForm.freeAdDesc}</span>
                 </label>
               </div>
@@ -749,7 +775,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                       ? t.listingForm.moderating
                       : "اضغط لرفع صور أو فيديو"}
                 </span>
-                <span className="text-xs text-muted-foreground mt-1">حجم الفيديو: 50 ميجابايت كحد أقصى</span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  {images.length}/{maxImages} صور • حجم الفيديو: 50 ميجابايت كحد أقصى
+                </span>
               </label>
 
               {images.length > 0 && (
