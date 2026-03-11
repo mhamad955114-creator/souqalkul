@@ -35,6 +35,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [moderatingImages, setModeratingImages] = useState(false);
   const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
+  const [remainingListings, setRemainingListings] = useState<{ remaining: number; max: number; planName: string } | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
