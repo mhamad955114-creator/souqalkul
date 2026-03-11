@@ -100,6 +100,17 @@ export default {
           "0%": { width: "100%" },
           "100%": { width: "0%" },
         },
+        "diamond-spin": {
+          "0%": { transform: "rotateY(0deg) scale(1)", filter: "drop-shadow(0 0 6px rgba(59,130,246,0.6))" },
+          "25%": { transform: "rotateY(90deg) scale(1.15)", filter: "drop-shadow(0 0 16px rgba(59,130,246,1))" },
+          "50%": { transform: "rotateY(180deg) scale(1)", filter: "drop-shadow(0 0 10px rgba(139,92,246,0.8))" },
+          "75%": { transform: "rotateY(270deg) scale(1.15)", filter: "drop-shadow(0 0 16px rgba(59,130,246,1))" },
+          "100%": { transform: "rotateY(360deg) scale(1)", filter: "drop-shadow(0 0 6px rgba(59,130,246,0.6))" },
+        },
+        "diamond-glow-ring": {
+          "0%, 100%": { boxShadow: "0 0 8px 2px rgba(59,130,246,0.3), 0 0 16px 4px rgba(139,92,246,0.15)" },
+          "50%": { boxShadow: "0 0 16px 6px rgba(59,130,246,0.5), 0 0 32px 8px rgba(139,92,246,0.3)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -109,6 +120,8 @@ export default {
         "float": "float 3s ease-in-out infinite",
         "balance-pulse": "balance-pulse 0.8s ease-in-out",
         "shrink-width": "shrink-width linear forwards",
+        "diamond-spin": "diamond-spin 3s cubic-bezier(0.4, 0, 0.2, 1) infinite",
+        "diamond-glow-ring": "diamond-glow-ring 2s ease-in-out infinite",
       },
     },
   },

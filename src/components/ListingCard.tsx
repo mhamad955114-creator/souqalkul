@@ -90,10 +90,10 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
         {business && status !== "sold" && status !== "expired" && (
           <>
             <div 
-              className="absolute top-3 right-3 animate-pulse cursor-pointer transition-transform hover:scale-110"
+              className="absolute top-3 right-3 cursor-pointer transition-transform hover:scale-125 animate-diamond-glow-ring rounded-full p-1"
               onMouseEnter={() => playBadgeSound('business')}
             >
-              <span className="text-2xl drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]">💎</span>
+              <span className="text-2xl inline-block animate-diamond-spin">💎</span>
             </div>
             <div className="absolute top-11 right-3 bg-card/90 backdrop-blur-sm text-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1">
               <span>📌</span>
