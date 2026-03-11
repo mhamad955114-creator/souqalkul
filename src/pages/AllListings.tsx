@@ -148,7 +148,7 @@ const AllListings = () => {
     const { data, error, count } = await query;
 
     if (!error && data) {
-      // Fetch professional and business subscriptions for listing owners
+      const userIds = [...new Set(data.map((l) => l.user_id))];
       const { data: subs } = await supabase.rpc("get_active_subscription_types", {
         _user_ids: userIds,
       });
