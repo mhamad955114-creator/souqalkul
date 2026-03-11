@@ -621,6 +621,13 @@ export type Database = {
         Args: { _admin_note?: string; _request_id: string }
         Returns: undefined
       }
+      get_active_subscription_types: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          plan_type: string
+          user_id: string
+        }[]
+      }
       get_listing_phone: { Args: { _listing_id: string }; Returns: string }
       get_user_phone: { Args: { _target_user_id: string }; Returns: string }
       has_role: {
