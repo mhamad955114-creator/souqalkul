@@ -572,7 +572,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                         <li>• مدة {settings.featured_listing.duration_days || 30} يوم</li>
                       </ul>
                       <span className="text-xs font-bold text-amber-600 mt-1">
-                        {formatPrice(settings.featured_listing.price || 50000)}
+                        {formatPrice(settings.featured_listing.price || 10000)}
                       </span>
                     </label>
                   </div>
