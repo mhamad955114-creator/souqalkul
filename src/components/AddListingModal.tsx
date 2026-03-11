@@ -238,21 +238,29 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       const needsPayment = formData.is_featured;
       if (needsPayment) {
         let paymentAmount: number;
-        let paymentDesc: string;
-        let paymentType: string;
+        let durationDays: number;
+        let planType: string;
 
         if (formData.paidType === "professional") {
           paymentAmount = settings.professional_listing.price || 20000;
-          paymentDesc = "ترويج إعلان احترافي";
-          paymentType = "promotion";
+          durationDays = settings.professional_listing.duration_days || 30;
+          planType = "professional";
         } else {
-          paymentAmount = settings.featured_listing.price || 50000;
-          paymentDesc = "ترويج إعلان مميز";
-          paymentType = "promotion";
+          paymentAmount = settings.featured_listing.price || 10000;
+          durationDays = settings.featured_listing.duration_days || 30;
+          planType = "featured";
         }
 
         try {
-          await payFromWallet(paymentAmount, paymentType, paymentDesc);
+          const { error: subError } = await supabase.rpc("purchase_subscription", {
+            _user_id: user.id,
+            _plan_type: planType,
+            _price: paymentAmount,
+            _duration_days: durationDays,
+          });
+          if (subError) throw subError;
+          // Refresh wallet balance after purchase
+          refetch();
         } catch (err: any) {
           if (err.message?.includes("Insufficient balance")) {
             toast.error("رصيد المحفظة غير كافٍ! يرجى شحن المحفظة أولاً", {
