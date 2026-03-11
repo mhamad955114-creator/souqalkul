@@ -149,14 +149,9 @@ const AllListings = () => {
 
     if (!error && data) {
       // Fetch professional and business subscriptions for listing owners
-      const userIds = [...new Set(data.map((l) => l.user_id))];
-      const { data: subs } = await supabase
-        .from("user_subscriptions")
-        .select("user_id, plan_type")
-        .in("user_id", userIds)
-        .in("plan_type", ["professional", "business"])
-        .eq("status", "active")
-        .gte("expires_at", new Date().toISOString());
+      const { data: subs } = await supabase.rpc("get_active_subscription_types", {
+        _user_ids: userIds,
+      });
 
       // Fetch average ratings for sellers
       const { data: ratingsData } = await supabase
