@@ -134,16 +134,12 @@ const ListingDetails = () => {
 
         setSeller(profileData ? { ...profileData, phone: sellerPhone } : null);
 
-        // Check if listing owner has professional subscription
-        const { data: ownerSubs } = await supabase
-          .from("user_subscriptions")
-          .select("id, plan_type")
-          .eq("user_id", listingData.user_id)
-          .in("plan_type", ["professional", "business"])
-          .eq("status", "active")
-          .gte("expires_at", new Date().toISOString());
-        setIsOwnerPro(!!(ownerSubs && ownerSubs.some((s) => s.plan_type === "professional")));
-        setIsOwnerBusiness(!!(ownerSubs && ownerSubs.some((s) => s.plan_type === "business")));
+        // Check if listing owner has professional/business subscription
+        const { data: ownerSubs } = await supabase.rpc("get_active_subscription_types", {
+          _user_ids: [listingData.user_id],
+        });
+        setIsOwnerPro(!!(ownerSubs && ownerSubs.some((s: any) => s.plan_type === "professional")));
+        setIsOwnerBusiness(!!(ownerSubs && ownerSubs.some((s: any) => s.plan_type === "business")));
 
       } finally {
         setLoading(false);

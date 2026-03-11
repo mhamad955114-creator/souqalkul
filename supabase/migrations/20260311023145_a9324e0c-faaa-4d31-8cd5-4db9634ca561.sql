@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Anyone can view active subscriptions" ON public.user_subscriptions;
