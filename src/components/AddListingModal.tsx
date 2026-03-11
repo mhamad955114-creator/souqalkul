@@ -44,7 +44,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     area: "",
     phone: "",
     is_featured: false,
-    paidType: "" as "" | "featured" | "professional",
+    paidType: "" as "" | "featured" | "professional" | "business",
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
@@ -241,7 +241,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         let durationDays: number;
         let planType: string;
 
-        if (formData.paidType === "professional") {
+        if (formData.paidType === "business") {
+          paymentAmount = settings.business_listing.price || 100000;
+          durationDays = settings.business_listing.duration_days || 100;
+          planType = "business";
+        } else if (formData.paidType === "professional") {
           paymentAmount = settings.professional_listing.price || 20000;
           durationDays = settings.professional_listing.duration_days || 30;
           planType = "professional";
@@ -554,8 +558,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 <Label className="text-sm text-muted-foreground">اختر نوع الباقة:</Label>
                 <RadioGroup
                   value={formData.paidType}
-                  onValueChange={(value) => setFormData({ ...formData, paidType: value as "featured" | "professional" })}
-                  className="grid grid-cols-2 gap-3"
+                  onValueChange={(value) => setFormData({ ...formData, paidType: value as "featured" | "professional" | "business" })}
+                  className="grid grid-cols-3 gap-3"
                 >
                   <div className="relative">
                     <RadioGroupItem value="featured" id="featured-type" className="peer sr-only" />
@@ -595,6 +599,25 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                       </span>
                     </label>
                   </div>
+                  <div className="relative">
+                    <RadioGroupItem value="business" id="business-type" className="peer sr-only" />
+                    <label
+                      htmlFor="business-type"
+                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-blue-500 peer-data-[state=checked]:bg-blue-500/5 cursor-pointer transition-all"
+                    >
+                      <span className="text-2xl animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]">💎</span>
+                      <span className="font-semibold text-sm">رجال أعمال 💎</span>
+                      <ul className="text-[11px] text-muted-foreground text-right space-y-1 w-full mt-1">
+                        <li>• جميع مزايا الاحترافي</li>
+                        <li>• شارة 💎 مثبت</li>
+                        <li>• حتى {settings.business_listing.max_images || 30} صورة</li>
+                        <li>• مدة {settings.business_listing.duration_days || 100} يوم</li>
+                      </ul>
+                      <span className="text-xs font-bold text-blue-600 mt-1">
+                        {formatPrice(settings.business_listing.price || 100000)}
+                      </span>
+                    </label>
+                  </div>
                 </RadioGroup>
 
                 {/* Comparison table */}
@@ -605,6 +628,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                         <th className="p-2 text-right font-medium text-muted-foreground">الميزة</th>
                         <th className="p-2 text-center font-medium text-amber-600">مميز ⭐</th>
                         <th className="p-2 text-center font-medium text-purple-600">احترافي 👑</th>
+                        <th className="p-2 text-center font-medium text-blue-600">أعمال 💎</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -612,30 +636,36 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                         <td className="p-2 text-right text-muted-foreground">الظهور في المقدمة</td>
                         <td className="p-2 text-center text-green-600">✓</td>
                         <td className="p-2 text-center text-green-600">✓</td>
+                        <td className="p-2 text-center text-green-600">✓</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-right text-muted-foreground">شارة مميزة</td>
                         <td className="p-2 text-center text-green-600">✓ ذهبية</td>
                         <td className="p-2 text-center text-green-600">✓ بنفسجية</td>
+                        <td className="p-2 text-center text-green-600">✓ 💎</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-right text-muted-foreground">عدد الصور</td>
                         <td className="p-2 text-center">{settings.featured_listing.max_images || 10}</td>
-                        <td className="p-2 text-center font-medium">{settings.professional_listing.max_images || 20}</td>
+                        <td className="p-2 text-center">{settings.professional_listing.max_images || 20}</td>
+                        <td className="p-2 text-center font-medium">{settings.business_listing.max_images || 30}</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-right text-muted-foreground">مدة الإعلان</td>
                         <td className="p-2 text-center">{settings.featured_listing.duration_days || 30} يوم</td>
-                        <td className="p-2 text-center font-medium">{settings.professional_listing.duration_days || 60} يوم</td>
+                        <td className="p-2 text-center">{settings.professional_listing.duration_days || 30} يوم</td>
+                        <td className="p-2 text-center font-medium">{settings.business_listing.duration_days || 100} يوم</td>
                       </tr>
                       <tr>
-                        <td className="p-2 text-right text-muted-foreground">عدد الإعلانات</td>
-                        <td className="p-2 text-center">{settings.featured_listing.max_active_listings || 10}</td>
-                        <td className="p-2 text-center font-medium">{settings.professional_listing.max_active_listings || 20}</td>
+                        <td className="p-2 text-right text-muted-foreground">تثبيت أعلى</td>
+                        <td className="p-2 text-center text-destructive">✗</td>
+                        <td className="p-2 text-center text-destructive">✗</td>
+                        <td className="p-2 text-center text-green-600">✓</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-right text-muted-foreground">أولوية في البحث</td>
                         <td className="p-2 text-center text-destructive">✗</td>
+                        <td className="p-2 text-center text-green-600">✓</td>
                         <td className="p-2 text-center text-green-600">✓</td>
                       </tr>
                     </tbody>
@@ -650,7 +680,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                       <span className="font-medium">سعر الباقة: </span>
                       <span>
                         {formatPrice(
-                          formData.paidType === "professional"
+                          formData.paidType === "business"
+                            ? (settings.business_listing.price || 100000)
+                            : formData.paidType === "professional"
                             ? (settings.professional_listing.price || 20000)
                             : (settings.featured_listing.price || 10000)
                         )}
@@ -659,9 +691,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                       <span className="font-medium">رصيدك: </span>
                       <span className={
                         wallet && wallet.balance >= (
-                          formData.paidType === "professional"
+                          formData.paidType === "business"
+                            ? (settings.business_listing.price || 100000)
+                            : formData.paidType === "professional"
                             ? (settings.professional_listing.price || 20000)
-                            : (settings.featured_listing.price || 50000)
+                            : (settings.featured_listing.price || 10000)
                         ) ? "text-green-600" : "text-destructive"
                       }>
                         {formatPrice(wallet?.balance || 0)}
