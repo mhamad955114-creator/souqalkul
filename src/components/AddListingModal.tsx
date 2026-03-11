@@ -260,7 +260,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           });
           if (subError) throw subError;
           // Refresh wallet balance after purchase
-          refetch();
+          refetchWallet();
         } catch (err: any) {
           if (err.message?.includes("Insufficient balance")) {
             toast.error("رصيد المحفظة غير كافٍ! يرجى شحن المحفظة أولاً", {
