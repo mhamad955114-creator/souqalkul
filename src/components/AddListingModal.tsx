@@ -50,6 +50,45 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
 
+  // Fetch remaining listings count when modal opens
+  useEffect(() => {
+    if (!isOpen || !user) return;
+    const fetchRemaining = async () => {
+      try {
+        const { data: activeSub } = await supabase
+          .from("user_subscriptions")
+          .select("plan_type")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .gte("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        const userPlan = activeSub?.[0]?.plan_type || "free";
+        const planNames: Record<string, string> = { free: "المجانية", featured: "المميزة", professional: "الاحترافية", business: "رجال الأعمال" };
+        let maxActive: number;
+        if (userPlan === "business") maxActive = settings.business_listing.max_active_listings;
+        else if (userPlan === "professional") maxActive = settings.professional_listing.max_active_listings;
+        else if (userPlan === "featured") maxActive = settings.featured_listing.max_active_listings;
+        else maxActive = settings.free_listing.max_active_listings;
+
+        if (maxActive === -1) {
+          setRemainingListings({ remaining: -1, max: -1, planName: planNames[userPlan] || userPlan });
+        } else {
+          const { count } = await supabase
+            .from("listings")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("status", "active");
+          setRemainingListings({ remaining: maxActive - (count ?? 0), max: maxActive, planName: planNames[userPlan] || userPlan });
+        }
+      } catch (err) {
+        console.error("Error fetching remaining listings:", err);
+      }
+    };
+    fetchRemaining();
+  }, [isOpen, user, settings]);
+
   const currentMetadataFields = categoryMetadataFields[formData.category] || [];
   const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
     try {
