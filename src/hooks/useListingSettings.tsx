@@ -54,15 +54,26 @@ export const useListingSettings = () => {
   }, []);
 
   const updateSetting = async (key: string, value: ListingPlan) => {
-    const { error } = await supabase
+    // Try update first
+    const { data, error } = await supabase
       .from("listing_settings")
       .update({ setting_value: value as any, updated_at: new Date().toISOString() })
-      .eq("setting_key", key);
+      .eq("setting_key", key)
+      .select("id")
+      .limit(1);
 
-    if (!error) {
-      setSettings((prev) => ({ ...prev, [key]: value }));
+    if (error) return false;
+
+    // If no rows were updated, insert instead
+    if (!data || data.length === 0) {
+      const { error: insertError } = await supabase
+        .from("listing_settings")
+        .insert({ setting_key: key, setting_value: value as any });
+      if (insertError) return false;
     }
-    return !error;
+
+    setSettings((prev) => ({ ...prev, [key]: value }));
+    return true;
   };
 
   return { settings, rawSettings, loading, updateSetting, refetch: fetchSettings };
