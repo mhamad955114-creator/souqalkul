@@ -27,7 +27,7 @@ interface AddListingModalProps {
 const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
-  const { wallet, payFromWallet } = useWallet();
+  const { wallet, payFromWallet, refetch: refetchWallet } = useWallet();
   const { settings } = useListingSettings();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
