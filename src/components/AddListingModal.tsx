@@ -772,7 +772,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                       ? t.listingForm.moderating
                       : "اضغط لرفع صور أو فيديو"}
                 </span>
-                <span className="text-xs text-muted-foreground mt-1">حجم الفيديو: 50 ميجابايت كحد أقصى</span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  {images.length}/{maxImages} صور • حجم الفيديو: 50 ميجابايت كحد أقصى
+                </span>
               </label>
 
               {images.length > 0 && (

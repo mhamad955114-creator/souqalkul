@@ -172,7 +172,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                   { icon: <Pin className="h-4 w-4 flex-shrink-0" />, text: "تثبيت في الأعلى" },
                   { icon: <BarChart3 className="h-4 w-4 flex-shrink-0" />, text: "إحصائيات متقدمة" },
                   { icon: <Images className="h-4 w-4 flex-shrink-0" />, text: `حتى ${settings.business_listing.max_images} صورة` },
-                  { icon: <Infinity className="h-4 w-4 flex-shrink-0" />, text: "إعلانات غير محدودة" },
+                  { icon: <Infinity className="h-4 w-4 flex-shrink-0" />, text: settings.business_listing.max_active_listings === -1 ? "إعلانات غير محدودة" : `حتى ${settings.business_listing.max_active_listings} إعلان` },
                   { icon: <ShieldCheck className="h-4 w-4 flex-shrink-0" />, text: `${settings.business_listing.duration_days} يوم` },
                 ].map((feature, idx) => (
                   <div
