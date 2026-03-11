@@ -166,7 +166,11 @@ const Pricing = () => {
               
               <CardHeader className={`text-center ${plan.popular ? "pt-10" : "pt-6"}`}>
                 <div className={`w-16 h-16 mx-auto rounded-full ${plan.bgColor} flex items-center justify-center mb-4`}>
-                  <plan.icon className={`h-8 w-8 ${plan.iconColor}`} />
+                  {(plan as any).customIcon ? (
+                    <span className="text-4xl animate-pulse drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]">💎</span>
+                  ) : (
+                    <plan.icon className={`h-8 w-8 ${plan.iconColor}`} />
+                  )}
                 </div>
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
