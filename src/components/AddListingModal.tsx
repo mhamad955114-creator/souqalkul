@@ -241,6 +241,50 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       return;
     }
 
+    // Check active listings limit based on user's plan
+    try {
+      // Get user's active subscription
+      const { data: activeSub } = await supabase
+        .from("user_subscriptions")
+        .select("plan_type")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .gte("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      const userPlan = activeSub?.[0]?.plan_type || "free";
+      
+      let maxActive: number;
+      if (userPlan === "business") {
+        maxActive = settings.business_listing.max_active_listings;
+      } else if (userPlan === "professional") {
+        maxActive = settings.professional_listing.max_active_listings;
+      } else if (userPlan === "featured") {
+        maxActive = settings.featured_listing.max_active_listings;
+      } else {
+        maxActive = settings.free_listing.max_active_listings;
+      }
+
+      // -1 means unlimited
+      if (maxActive !== -1) {
+        const { count } = await supabase
+          .from("listings")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("status", "active");
+
+        if ((count ?? 0) >= maxActive) {
+          toast.error(`لقد وصلت للحد الأقصى من الإعلانات النشطة (${maxActive}). قم بترقية باقتك لنشر المزيد.`, {
+            action: { label: "ترقية الباقة", onClick: () => { onClose(); navigate("/pricing"); } },
+          });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Error checking active listings limit:", err);
+    }
+
     const phoneRegex = /^09\d{8}$/;
     if (!phoneRegex.test(formData.phone)) {
       toast.error(t.listingForm.invalidPhone);
