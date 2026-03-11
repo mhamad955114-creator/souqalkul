@@ -652,7 +652,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                         {formatPrice(
                           formData.paidType === "professional"
                             ? (settings.professional_listing.price || 20000)
-                            : (settings.featured_listing.price || 50000)
+                            : (settings.featured_listing.price || 10000)
                         )}
                       </span>
                       <span className="mx-2">|</span>
