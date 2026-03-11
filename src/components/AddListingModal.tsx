@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [moderatingImages, setModeratingImages] = useState(false);
   const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
+  const [remainingListings, setRemainingListings] = useState<{ remaining: number; max: number; planName: string } | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -48,6 +49,45 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
+
+  // Fetch remaining listings count when modal opens
+  useEffect(() => {
+    if (!isOpen || !user) return;
+    const fetchRemaining = async () => {
+      try {
+        const { data: activeSub } = await supabase
+          .from("user_subscriptions")
+          .select("plan_type")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .gte("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        const userPlan = activeSub?.[0]?.plan_type || "free";
+        const planNames: Record<string, string> = { free: "المجانية", featured: "المميزة", professional: "الاحترافية", business: "رجال الأعمال" };
+        let maxActive: number;
+        if (userPlan === "business") maxActive = settings.business_listing.max_active_listings;
+        else if (userPlan === "professional") maxActive = settings.professional_listing.max_active_listings;
+        else if (userPlan === "featured") maxActive = settings.featured_listing.max_active_listings;
+        else maxActive = settings.free_listing.max_active_listings;
+
+        if (maxActive === -1) {
+          setRemainingListings({ remaining: -1, max: -1, planName: planNames[userPlan] || userPlan });
+        } else {
+          const { count } = await supabase
+            .from("listings")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("status", "active");
+          setRemainingListings({ remaining: maxActive - (count ?? 0), max: maxActive, planName: planNames[userPlan] || userPlan });
+        }
+      } catch (err) {
+        console.error("Error fetching remaining listings:", err);
+      }
+    };
+    fetchRemaining();
+  }, [isOpen, user, settings]);
 
   const currentMetadataFields = categoryMetadataFields[formData.category] || [];
   const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
@@ -411,6 +451,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{t.listingForm.addTitle}</DialogTitle>
         </DialogHeader>
+
+        {remainingListings && (
+          <Alert className={remainingListings.remaining === -1 ? "border-primary/30 bg-primary/5" : remainingListings.remaining <= 0 ? "border-destructive/30 bg-destructive/5" : remainingListings.remaining <= 2 ? "border-orange-500/30 bg-orange-500/5" : "border-primary/30 bg-primary/5"}>
+            <AlertDescription className="text-sm flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              {remainingListings.remaining === -1 ? (
+                <span>باقتك: <strong>{remainingListings.planName}</strong> — إعلانات غير محدودة</span>
+              ) : remainingListings.remaining <= 0 ? (
+                <span>وصلت للحد الأقصى ({remainingListings.max} إعلان) في الباقة {remainingListings.planName}. <button type="button" onClick={() => { onClose(); navigate("/pricing"); }} className="underline text-primary font-medium">ترقية الباقة</button></span>
+              ) : (
+                <span>باقتك: <strong>{remainingListings.planName}</strong> — متبقي <strong>{remainingListings.remaining}</strong> من {remainingListings.max} إعلان</span>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
