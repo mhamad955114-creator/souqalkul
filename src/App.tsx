@@ -61,7 +61,7 @@ const AppContent = () => {
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/settings" element={<Settings />} />
-                <Route path="/admin/reports" element={<AdminReports />} />
+                <Route path="/admin/reports" element={<Suspense fallback={null}><AdminReports /></Suspense>} />
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
