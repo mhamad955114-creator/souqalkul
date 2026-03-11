@@ -452,6 +452,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           <DialogTitle className="text-2xl font-bold">{t.listingForm.addTitle}</DialogTitle>
         </DialogHeader>
 
+        {remainingListings && (
+          <Alert className={remainingListings.remaining === -1 ? "border-primary/30 bg-primary/5" : remainingListings.remaining <= 0 ? "border-destructive/30 bg-destructive/5" : remainingListings.remaining <= 2 ? "border-orange-500/30 bg-orange-500/5" : "border-primary/30 bg-primary/5"}>
+            <AlertDescription className="text-sm flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary shrink-0" />
+              {remainingListings.remaining === -1 ? (
+                <span>باقتك: <strong>{remainingListings.planName}</strong> — إعلانات غير محدودة</span>
+              ) : remainingListings.remaining <= 0 ? (
+                <span>وصلت للحد الأقصى ({remainingListings.max} إعلان) في الباقة {remainingListings.planName}. <button type="button" onClick={() => { onClose(); navigate("/pricing"); }} className="underline text-primary font-medium">ترقية الباقة</button></span>
+              ) : (
+                <span>باقتك: <strong>{remainingListings.planName}</strong> — متبقي <strong>{remainingListings.remaining}</strong> من {remainingListings.max} إعلان</span>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="title">{t.listingForm.titleLabel} *</Label>
