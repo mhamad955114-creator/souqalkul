@@ -29,9 +29,7 @@ export const useListingSettings = () => {
 
   const fetchSettings = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("listing_settings")
-      .select("setting_key, setting_value");
+    const { data, error } = await supabase.from("listing_settings").select("setting_key, setting_value");
 
     if (!error && data) {
       const s = { ...defaultSettings };
@@ -40,7 +38,7 @@ export const useListingSettings = () => {
         raw[row.setting_key] = row.setting_value;
         const key = row.setting_key as keyof ListingSettings;
         if (s[key]) {
-          s[key] = row.setting_value as ListingPlan;
+          s[key] = { ...s[key], ...(row.setting_value || {}) } as ListingPlan;
         }
       });
       setSettings(s);
