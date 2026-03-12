@@ -1,63 +1,37 @@
 import { useCallback } from "react";
 
-interface SoundCache {
-  [key: string]: string;
-}
-
-const soundCache: SoundCache = {};
+const playTone = (frequency: number, duration: number, type: OscillatorType = 'sine') => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = frequency;
+    gain.gain.value = 0.15;
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch {
+    // Fail silently
+  }
+};
 
 export const useSoundEffects = () => {
-  const playSound = useCallback(async (prompt: string, duration?: number) => {
-    try {
-      // Check cache first
-      const cacheKey = `${prompt}-${duration || 1}`;
-      let audioUrl = soundCache[cacheKey];
-
-      if (!audioUrl) {
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-sfx`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-            body: JSON.stringify({ prompt, duration: duration || 1 }),
-          }
-        );
-
-        if (!response.ok) {
-          console.warn(`Sound generation failed: ${response.status}`);
-          return;
-        }
-
-        const audioBlob = await response.blob();
-        audioUrl = URL.createObjectURL(audioBlob);
-        soundCache[cacheKey] = audioUrl;
-      }
-
-      const audio = new Audio(audioUrl);
-      audio.volume = 0.3; // Keep volume moderate
-      await audio.play().catch(e => {
-        // Ignore autoplay restrictions
-        console.debug("Sound autoplay blocked:", e);
-      });
-    } catch (error) {
-      console.debug("Sound effect error:", error);
-      // Fail silently to not disrupt user experience
-    }
+  const playSound = useCallback(async (_prompt: string, _duration?: number) => {
+    playTone(800, 0.3, 'sine');
   }, []);
 
   const playBadgeSound = useCallback((badgeType: 'business' | 'professional' | 'featured') => {
-    const soundPrompts = {
-      business: "luxurious diamond chime, premium crystal ding, elegant metallic sparkle",
-      professional: "royal crown fanfare, majestic trumpet note, regal brass accent", 
-      featured: "bright star twinkle, magical sparkle, shimmering celestial chime"
+    const tones: Record<string, [number, number, OscillatorType]> = {
+      business: [1200, 0.4, 'sine'],
+      professional: [900, 0.5, 'triangle'],
+      featured: [1400, 0.3, 'sine'],
     };
-
-    playSound(soundPrompts[badgeType], 0.8);
-  }, [playSound]);
+    const [freq, dur, type] = tones[badgeType];
+    playTone(freq, dur, type);
+  }, []);
 
   return { playSound, playBadgeSound };
 };
