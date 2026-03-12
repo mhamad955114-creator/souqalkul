@@ -14,6 +14,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 
 const Pricing = () => {
   const navigate = useNavigate();
@@ -328,6 +329,15 @@ const Pricing = () => {
                     if (rpcError) throw rpcError;
 
                     toast.success(`تم شراء باقة ${selectedPlan.name} بنجاح! 🎉`);
+
+                    // Notify admins about the new subscription
+                    notifyAdmins({
+                      title: "اشتراك جديد 🎉",
+                      message: `مستخدم قام بشراء باقة ${selectedPlan.name} بمبلغ ${selectedPlan.price.toLocaleString("ar-SY")} ل.س`,
+                      type: "subscription_purchase",
+                      relatedId: user.id,
+                    });
+
                     setSelectedPlan(null);
                   } catch (err: any) {
                     if (err.message?.includes("Insufficient balance")) {

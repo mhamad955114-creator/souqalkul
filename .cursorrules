@@ -1,0 +1,67 @@
+# Project Overview
+This is a modern React web application built with Vite and TypeScript, featuring a mobile app wrapper using Capacitor and a Progressive Web App (PWA) setup. The backend is powered by Supabase.
+
+# Tech Stack
+
+- **Framework:** React 18, Vite
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **UI Components:** Shadcn UI (Radix UI + Tailwind), Lucide React (Icons)
+- **Routing:** React Router DOM (v6)
+- **State Management & Data Fetching:** 
+  - Server State: TanStack React Query
+  - Global UI/Auth State: React Context API (`AuthProvider`, `ThemeProvider`, `LanguageProvider`, `BrandProvider`, `FavoritesProvider`)
+- **Forms & Validation:** React Hook Form, Zod
+- **Backend/Database:** Supabase (@supabase/supabase-js)
+- **Mobile/Native:** Capacitor (@capacitor/core, @capacitor/android)
+- **PWA Setup:** vite-plugin-pwa (Service Worker implemented)
+
+# Coding Standards & Conventions
+
+## File Structure & Naming
+- Use PascalCase for React component files (`MyComponent.tsx`).
+- Use camelCase for utility files, hooks, and contexts (`useAuth.ts`, `formatDate.ts`).
+- Keep components small, focused, and single-responsibility.
+- Place UI components in `src/components/ui` (Shadcn components).
+- Place pages in `src/pages`.
+- Group custom hooks in `src/hooks`.
+- Group context providers in `src/contexts`.
+- Group layout and generic components in `src/components`.
+
+## React & TypeScript Practices
+- Use functional components and React Hooks exclusively.
+- Always add TypeScript types/interfaces for props, state, and API responses.
+- Use `import type` when only importing types to optimize build sizes.
+- Handle loading, error, and empty states gracefully, especially for data fetching (use TanStack Query's `isLoading` and `isError`).
+- Use `lazy` and `Suspense` for heavy routes (like Admin panels) to enable code splitting.
+
+## Styling & UI
+- Use Tailwind CSS utility classes directly within `className`.
+- Use `cn` (from `clsx` and `tailwind-merge`) to conditionally join classNames, especially in custom UI components.
+- Adhere to the Shadcn UI design system. Do not write custom CSS unless absolutely necessary; prefer Tailwind configuration or inline utilities.
+- Ensure the app is fully responsive using Tailwind's breakpoint prefixes (`sm:`, `md:`, `lg:`).
+- Support Dark Mode via `next-themes` and `ThemeProvider`. Always test styles in both `light` and `dark` classes.
+
+## State Management
+- Prefer local component state (`useState`, `useReducer`) for simple UI states.
+- Use React Context for global UI state (Theme, Language, Brand).
+- **Never** store server or API data in Context. Always use **TanStack React Query** for fetching, caching, synchronizing, and updating server state.
+
+## Routing
+- Rely on `react-router-dom` for navigation.
+- Use `useNavigate` for programmatic navigation.
+- Ensure all public vs. protected routes are correctly guarded.
+
+## Backend Integration (Supabase)
+- Use `@supabase/supabase-js` client for database operations (CRUD), Auth, and Storage.
+- Keep Supabase queries abstracted into custom hooks or explicit service functions, rather than keeping them inside the UI components directly. This makes it easier to test and manage.
+
+## Mobile & PWA (Capacitor)
+- Be mindful of the app running in a native mobile shell via Capacitor.
+- Avoid browser-specific APIs that might fail in native unless gracefully handled or patched using Capacitor plugins.
+- Handle PWA updates properly using the documented service worker events (`sw-update-ready`).
+
+## Best Practices
+- Avoid magic numbers and hardcoded strings; use constants or configuration files (especially for external URLs).
+- Remove dead code, `console.log`s, and commented-out blocks before wrapping up a feature.
+- Avoid `any` types. Enforce strict typing.

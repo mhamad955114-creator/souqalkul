@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Crown, Star, Briefcase, ArrowRight, ArrowLeft, Clock, CalendarDays, Sparkles, ShieldCheck, AlertTriangle, RefreshCw, Wallet, Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/constants";
 import { toast } from "sonner";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 
 interface Subscription {
   id: string;
@@ -152,6 +153,15 @@ const MySubscriptions = () => {
       if (rpcError) throw rpcError;
 
       toast.success(`تم تجديد ${renewPlan.label} بنجاح! 🎉`);
+
+      // Notify admins about the subscription renewal
+      notifyAdmins({
+        title: "تجديد اشتراك 🔄",
+        message: `مستخدم قام بتجديد ${renewPlan.label} بمبلغ ${price.toLocaleString("ar-SY")} ل.س`,
+        type: "subscription_renewal",
+        relatedId: user.id,
+      });
+
       setRenewPlan(null);
       await Promise.all([fetchSubs(), refetchWallet()]);
     } catch (err: any) {

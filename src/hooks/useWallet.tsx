@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 
 interface Wallet {
   id: string;
@@ -100,6 +101,22 @@ export function useWallet() {
       });
 
     if (error) throw error;
+
+    // Notify admins about the new top-up request
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const userName = profile?.full_name || "مستخدم";
+
+    notifyAdmins({
+      title: "طلب شحن محفظة جديد 💰",
+      message: `${userName} يطلب شحن رصيد بمبلغ ${amount.toLocaleString("ar-SY")} ل.س — رقم العملية: ${transactionNumber}`,
+      type: "wallet_topup",
+      relatedId: user.id,
+    });
+
     await fetchWallet();
   };
 

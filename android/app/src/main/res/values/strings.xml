@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">سوق الكل</string>
+    <string name="title_activity_main">سوق الكل</string>
+    <string name="package_name">app.lovable.ddb3d223b5b54708966b845064964fb6</string>
+    <string name="custom_url_scheme">app.lovable.ddb3d223b5b54708966b845064964fb6</string>
+</resources>
