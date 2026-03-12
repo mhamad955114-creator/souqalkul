@@ -49,33 +49,35 @@ const AppContent = () => {
     <>
       {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
       {!showSplash && (
-      <>
-      <UpdateNotification />
-      <BrowserRouter>
-        <InAppNotificationBanner />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/my-account" element={<MyAccount />} />
-                <Route path="/listing/:id" element={<ListingDetails />} />
-                <Route path="/listings" element={<AllListings />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/my-orders" element={<MyOrders />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/admin/reports" element={<Suspense fallback={null}><AdminReports /></Suspense>} />
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/contact" element={<ContactUs />} />
-                <Route path="/install" element={<Install />} />
-                <Route path="/wallet" element={<Wallet />} />
-                <Route path="/my-subscriptions" element={<MySubscriptions />} />
-                <Route path="/auth" element={<Auth />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+        <>
+          <UpdateNotification />
+          <BrowserRouter>
+            <InAppNotificationBanner />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/my-account" element={<MyAccount />} />
+              <Route path="/listing/:id" element={<ListingDetails />} />
+              <Route path="/listings" element={<AllListings />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/admin/reports" element={<Suspense fallback={null}><AdminReports /></Suspense>} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/install" element={<Install />} />
+              <Route path="/wallet" element={<Wallet />} />
+              <Route path="/my-subscriptions" element={<MySubscriptions />} />
+              <Route path="/auth" element={<Auth />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </>
+      )}
     </>
   );
 };
