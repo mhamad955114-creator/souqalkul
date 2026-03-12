@@ -48,6 +48,8 @@ const AppContent = () => {
   return (
     <>
       {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
+      {!showSplash && (
+      <>
       <UpdateNotification />
       <BrowserRouter>
         <InAppNotificationBanner />
