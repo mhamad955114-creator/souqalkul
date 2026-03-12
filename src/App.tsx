@@ -34,6 +34,7 @@ import Install from "./pages/Install";
 import Wallet from "./pages/Wallet";
 import Auth from "./pages/Auth";
 import MySubscriptions from "./pages/MySubscriptions";
+import DeleteData from "./pages/DeleteData";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const AppContent = () => {
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/my-subscriptions" element={<MySubscriptions />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/delete-data" element={<DeleteData />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
