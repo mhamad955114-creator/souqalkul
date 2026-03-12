@@ -59,6 +59,19 @@ const Privacy = () => {
             </Card>
           ))}
 
+          {/* Data Deletion Link */}
+          <Card className="border-destructive/20">
+            <CardContent className="p-8 text-center">
+              <Trash2 className="h-8 w-8 text-destructive mx-auto mb-3" />
+              <h2 className="text-lg font-bold text-foreground mb-2">حذف البيانات</h2>
+              <p className="text-muted-foreground mb-4">يمكنك طلب حذف حسابك وجميع بياناتك من خلال صفحة حذف البيانات</p>
+              <Button onClick={() => navigate("/delete-data")} variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
+                <Trash2 className="h-4 w-4" />
+                طلب حذف البيانات
+              </Button>
+            </CardContent>
+          </Card>
+
           <Card className="border-primary/20">
             <CardContent className="p-8 text-center">
               <Mail className="h-8 w-8 text-primary mx-auto mb-3" />
