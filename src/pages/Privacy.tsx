@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, ArrowLeft, Shield, Database, Share2, Lock, Cookie, UserCheck, Mail } from "lucide-react";
+import { ArrowRight, ArrowLeft, Shield, Database, Share2, Lock, Cookie, UserCheck, Mail, Trash2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
