@@ -6,7 +6,20 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { translateAuthError } from "@/lib/authErrors";
-import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  Phone,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ShoppingBag,
+  Sparkles,
+  CheckCircle2,
+  Inbox,
+} from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBrand } from "@/contexts/BrandContext";
 
@@ -22,6 +35,8 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState("");
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, user } = useAuth();
   const { t, dir } = useLanguage();
   const { logoUrl } = useBrand();
@@ -55,12 +70,18 @@ const Auth = () => {
         if (method === "email") {
           const { error } = await signIn(email, password);
           if (error) toast.error(t.auth.loginError + translateAuthError(error.message));
-          else { toast.success(t.auth.loginSuccess); navigate("/"); }
+          else {
+            toast.success(t.auth.loginSuccess);
+            navigate("/");
+          }
         } else {
           const formattedPhone = formatPhone(phone);
           const { error } = await signInWithPhone(formattedPhone, password);
           if (error) toast.error(t.auth.loginError + translateAuthError(error.message));
-          else { toast.success(t.auth.loginSuccess); navigate("/"); }
+          else {
+            toast.success(t.auth.loginSuccess);
+            navigate("/");
+          }
         }
       } else {
         if (!fullName.trim()) {
@@ -70,12 +91,17 @@ const Auth = () => {
         if (method === "email") {
           const { error } = await signUp(email, password, fullName);
           if (error) toast.error(translateAuthError(error.message));
-          else { toast.success(t.auth.signupSuccess); }
+          else {
+            setConfirmationEmail(email);
+            setShowEmailConfirmation(true);
+          }
         } else {
           const formattedPhone = formatPhone(phone);
           const { error } = await signUpWithPhone(formattedPhone, password, fullName);
           if (error) toast.error(translateAuthError(error.message));
-          else { toast.success("تم إنشاء الحساب بنجاح!"); }
+          else {
+            toast.success("تم إنشاء الحساب بنجاح!");
+          }
         }
       }
     } finally {
@@ -97,13 +123,61 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex" dir={dir}>
+      {/* Email Confirmation Notice */}
+      {showEmailConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md bg-card rounded-2xl shadow-2xl border border-border p-8 text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
+            <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+              <Inbox className="h-10 w-10 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">تحقق من بريدك الإلكتروني</h2>
+              <p className="text-muted-foreground leading-relaxed">تم إرسال رابط التأكيد إلى</p>
+              <p className="font-semibold text-primary text-lg" dir="ltr">
+                {confirmationEmail}
+              </p>
+            </div>
+            <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+              <div className="flex items-start gap-3 text-start">
+                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  افتح بريدك الإلكتروني واضغط على رابط التأكيد لتفعيل حسابك
+                </p>
+              </div>
+              <div className="flex items-start gap-3 text-start">
+                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  إذا لم تجد الرسالة، تحقق من مجلد الرسائل غير المرغوب فيها (Spam)
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => {
+                setShowEmailConfirmation(false);
+                setMode("login");
+              }}
+              className="w-full h-12 text-base shadow-button"
+              size="lg"
+            >
+              <Mail className="h-5 w-5" />
+              العودة لتسجيل الدخول
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Left Panel - Decorative */}
       <div className="hidden lg:flex lg:w-1/2 gradient-hero relative overflow-hidden items-center justify-center">
         {/* Animated background elements */}
         <div className="absolute inset-0">
           <div className="absolute top-20 right-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl animate-float" />
-          <div className="absolute bottom-32 left-16 w-56 h-56 rounded-full bg-accent/10 blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
-          <div className="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-primary/5 blur-2xl animate-float" style={{ animationDelay: "3s" }} />
+          <div
+            className="absolute bottom-32 left-16 w-56 h-56 rounded-full bg-accent/10 blur-3xl animate-float"
+            style={{ animationDelay: "1.5s" }}
+          />
+          <div
+            className="absolute top-1/2 left-1/3 w-40 h-40 rounded-full bg-primary/5 blur-2xl animate-float"
+            style={{ animationDelay: "3s" }}
+          />
         </div>
 
         <div className="relative z-10 text-center px-12 max-w-lg">
@@ -112,9 +186,7 @@ const Auth = () => {
               <img src={logoUrl} alt="سوق الكل" className="w-20 h-20 object-contain" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-primary-foreground mb-4 font-cairo">
-            سوق الكل
-          </h1>
+          <h1 className="text-4xl font-bold text-primary-foreground mb-4 font-cairo">سوق الكل</h1>
           <p className="text-primary-foreground/70 text-lg leading-relaxed">
             منصتك الموثوقة للبيع والشراء. اكتشف آلاف الإعلانات أو أنشئ إعلانك الخاص بسهولة.
           </p>
@@ -148,8 +220,8 @@ const Auth = () => {
               {mode === "forgot"
                 ? "أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور"
                 : mode === "login"
-                ? "أهلاً بعودتك! سجّل دخولك للمتابعة"
-                : "أنشئ حسابك الآن وابدأ رحلتك معنا"}
+                  ? "أهلاً بعودتك! سجّل دخولك للمتابعة"
+                  : "أنشئ حسابك الآن وابدأ رحلتك معنا"}
             </p>
           </div>
 
@@ -171,9 +243,19 @@ const Auth = () => {
                 </div>
               </div>
               <Button type="submit" className="w-full h-12 text-base shadow-button" disabled={loading}>
-                {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> جاري الإرسال...</> : "إرسال رابط الاسترداد"}
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> جاري الإرسال...
+                  </>
+                ) : (
+                  "إرسال رابط الاسترداد"
+                )}
               </Button>
-              <button type="button" onClick={() => setMode("login")} className="text-primary hover:underline text-sm flex items-center gap-1 mx-auto">
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                className="text-primary hover:underline text-sm flex items-center gap-1 mx-auto"
+              >
                 <ArrowRight className="h-3 w-3" /> العودة لتسجيل الدخول
               </button>
             </form>
@@ -246,7 +328,9 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="phone">رقم الهاتف</Label>
                     <div className="relative">
-                      <Phone className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
+                      <Phone
+                        className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`}
+                      />
                       <Input
                         id="phone"
                         type="tel"
@@ -288,7 +372,11 @@ const Auth = () => {
 
                 {mode === "login" && method === "email" && (
                   <div className="text-end">
-                    <button type="button" onClick={() => setMode("forgot")} className="text-primary hover:underline text-sm">
+                    <button
+                      type="button"
+                      onClick={() => setMode("forgot")}
+                      className="text-primary hover:underline text-sm"
+                    >
                       نسيت كلمة المرور؟
                     </button>
                   </div>
@@ -296,8 +384,14 @@ const Auth = () => {
 
                 <Button type="submit" className="w-full h-12 text-base shadow-button" size="lg" disabled={loading}>
                   {loading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> {t.auth.processing}</>
-                  ) : mode === "login" ? t.auth.login : t.auth.signup}
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> {t.auth.processing}
+                    </>
+                  ) : mode === "login" ? (
+                    t.auth.login
+                  ) : (
+                    t.auth.signup
+                  )}
                 </Button>
               </form>
 
