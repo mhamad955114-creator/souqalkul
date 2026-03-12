@@ -18,6 +18,7 @@ const Privacy = () => {
     { icon: Lock, title: t.privacy.dataProtectionTitle, desc: t.privacy.dataProtectionDesc },
     { icon: Cookie, title: t.privacy.cookiesTitle, desc: t.privacy.cookiesDesc },
     { icon: UserCheck, title: t.privacy.userRightsTitle, desc: t.privacy.userRightsDesc },
+    { icon: Trash2, title: "حذف البيانات", desc: "يحق لك طلب حذف جميع بياناتك الشخصية في أي وقت. عند حذف حسابك، سيتم إزالة جميع بياناتك بشكل نهائي بما في ذلك الإعلانات، الرسائل، المفضلة، التقييمات، ورصيد المحفظة. يمكنك حذف حسابك من صفحة حسابي أو من صفحة حذف البيانات المخصصة." },
   ];
 
   return (
