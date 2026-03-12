@@ -73,6 +73,7 @@ const AppContent = () => {
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/my-subscriptions" element={<MySubscriptions />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/delete-data" element={<DeleteData />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
