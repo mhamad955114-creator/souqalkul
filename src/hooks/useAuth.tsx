@@ -2,6 +2,16 @@ import { useState, useEffect, createContext, useContext, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+// Security: Define allowed redirect paths to prevent open redirect attacks
+const ALLOWED_REDIRECTS = ["/", "/settings", "/account", "/home"];
+
+const getSecureRedirectUrl = (path: string = "/"): string => {
+  // Only allow redirects to whitelisted paths
+  const isAllowed = ALLOWED_REDIRECTS.includes(path);
+  const safePath = isAllowed ? path : "/";
+  return `${window.location.origin}${safePath}`;
+};
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -44,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: getSecureRedirectUrl("/"),
         data: { full_name: fullName },
       },
     });
@@ -80,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/settings`,
+      redirectTo: getSecureRedirectUrl("/settings"),
     });
     return { error };
   };

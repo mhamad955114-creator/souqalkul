@@ -427,17 +427,17 @@ const AdminReports = () => {
       <Header />
 
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <Shield className="h-8 w-8 text-primary" />
+            <Shield className="h-8 w-8 text-primary shrink-0" />
             <div>
-              <h1 className="text-3xl font-bold text-foreground">لوحة التحكم</h1>
-              <p className="text-muted-foreground">إحصائيات عامة وإدارة البلاغات</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">لوحة التحكم</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">إحصائيات عامة وإدارة البلاغات</p>
             </div>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 ml-2" />
                 تصدير CSV
               </Button>
@@ -460,7 +460,7 @@ const AdminReports = () => {
         </div>
 
         {/* General Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -583,53 +583,60 @@ const AdminReports = () => {
           </Card>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6">
-          <Button
-            variant={activeTab === "reports" ? "default" : "outline"}
-            onClick={() => setActiveTab("reports")}
-            className="gap-2"
-          >
-            <Flag className="h-4 w-4" />
-            البلاغات
-          </Button>
-          <Button
-            variant={activeTab === "messages" ? "default" : "outline"}
-            onClick={() => setActiveTab("messages")}
-            className="gap-2"
-          >
-            <Mail className="h-4 w-4" />
-            رسائل التواصل
-            {contactMessages.filter(m => !m.is_read).length > 0 && (
-              <Badge variant="destructive" className="text-xs px-1.5 py-0">
-                {contactMessages.filter(m => !m.is_read).length}
-              </Badge>
-            )}
-          </Button>
-          <Button
-            variant={activeTab === "settings" ? "default" : "outline"}
-            onClick={() => setActiveTab("settings")}
-            className="gap-2"
-          >
-            <Settings className="h-4 w-4" />
-            إعدادات الإعلانات
-          </Button>
-          <Button
-            variant={activeTab === "wallet" ? "default" : "outline"}
-            onClick={() => setActiveTab("wallet")}
-            className="gap-2"
-          >
-            <Wallet className="h-4 w-4" />
-            المحفظة
-          </Button>
-          <Button
-            variant={activeTab === "verification" ? "default" : "outline"}
-            onClick={() => setActiveTab("verification")}
-            className="gap-2"
-          >
-            <BadgeCheck className="h-4 w-4" />
-            توثيق الحسابات
-          </Button>
+        {/* Tabs — horizontally scrollable on mobile */}
+        <div className="overflow-x-auto -mx-4 px-4 mb-6">
+          <div className="flex gap-2 w-max min-w-full sm:w-auto sm:flex-wrap">
+            <Button
+              variant={activeTab === "reports" ? "default" : "outline"}
+              onClick={() => setActiveTab("reports")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <Flag className="h-4 w-4" />
+              البلاغات
+            </Button>
+            <Button
+              variant={activeTab === "messages" ? "default" : "outline"}
+              onClick={() => setActiveTab("messages")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <Mail className="h-4 w-4" />
+              رسائل التواصل
+              {contactMessages.filter(m => !m.is_read).length > 0 && (
+                <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
+                  {contactMessages.filter(m => !m.is_read).length}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              variant={activeTab === "settings" ? "default" : "outline"}
+              onClick={() => setActiveTab("settings")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <Settings className="h-4 w-4" />
+              إعدادات
+            </Button>
+            <Button
+              variant={activeTab === "wallet" ? "default" : "outline"}
+              onClick={() => setActiveTab("wallet")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <Wallet className="h-4 w-4" />
+              المحفظة
+            </Button>
+            <Button
+              variant={activeTab === "verification" ? "default" : "outline"}
+              onClick={() => setActiveTab("verification")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <BadgeCheck className="h-4 w-4" />
+              توثيق
+            </Button>
+          </div>
         </div>
 
         {activeTab === "reports" && (

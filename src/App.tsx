@@ -1,4 +1,4 @@
-import { useState, useCallback, lazy, Suspense } from "react";
+import { useState, useCallback, lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +14,7 @@ import UpdateNotification from "@/components/UpdateNotification";
 import InAppNotificationBanner from "@/components/InAppNotificationBanner";
 import MaintenancePage from "@/components/MaintenancePage";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
+import { useBackButton } from "@/hooks/useBackButton";
 import Index from "./pages/Index";
 import MyAccount from "./pages/MyAccount";
 import ListingDetails from "./pages/ListingDetails";
@@ -33,7 +34,6 @@ import Install from "./pages/Install";
 import Wallet from "./pages/Wallet";
 import Auth from "./pages/Auth";
 import MySubscriptions from "./pages/MySubscriptions";
-import DeleteData from "./pages/DeleteData";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +41,16 @@ const AppContent = () => {
   const [showSplash, setShowSplash] = useState(true);
   const handleSplashFinish = useCallback(() => setShowSplash(false), []);
   const { maintenance, loading } = useMaintenanceMode();
+
+  useEffect(() => {
+    import('@capacitor-community/safe-area').then(({ SafeArea }) => {
+      // For modern capacitor plugins, edge-to-edge is typically enabled via config
+      console.log('SafeArea initialized');
+    }).catch(console.error);
+  }, []);
+
+  // Handle Android hardware back button with haptic feedback
+  useBackButton();
 
   if (!loading && maintenance.enabled) {
     return <MaintenancePage message={maintenance.message} />;
@@ -73,7 +83,6 @@ const AppContent = () => {
               <Route path="/wallet" element={<Wallet />} />
               <Route path="/my-subscriptions" element={<MySubscriptions />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/delete-data" element={<DeleteData />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

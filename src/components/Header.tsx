@@ -1,5 +1,5 @@
 import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Wallet, Share2, Crown } from "lucide-react";
-import { toast } from "sonner";
+import { shareApp } from "@/lib/shareApp";
 import { useBrand } from "@/contexts/BrandContext";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
@@ -175,20 +175,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 variant="ghost"
                 size="icon"
                 className="md:hidden"
-                onClick={() => {
-                  const url = 'https://swkalkillcom.lovable.app';
-                  if (typeof navigator.share === 'function') {
-                    navigator.share({
-                      title: 'سوق الكل',
-                      text: 'تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء',
-                      url: url,
-                    });
-                  } else {
-                    navigator.clipboard.writeText(url).then(() => {
-                      toast.success('تم نسخ رابط التطبيق');
-                    });
-                  }
-                }}
+                onClick={() => shareApp()}
               >
                 <Share2 className="h-5 w-5" />
               </Button>

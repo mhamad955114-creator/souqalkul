@@ -1,66 +1,90 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png" />
-    
-    <!-- Apple PWA Meta Tags -->
-    <meta name="theme-color" content="#16a34a" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="سوق الكل" />
-    
-    <!-- Apple Splash Screens -->
-    <link rel="apple-touch-startup-image" href="/apple-splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
-    <link rel="apple-touch-startup-image" href="/apple-splash-1170x2532.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" />
-    <link rel="apple-touch-startup-image" href="/apple-splash-1170x2532.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" />
-    <link rel="apple-touch-startup-image" href="/apple-splash-1170x2532.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
-    <title>سوق الكل - بيع واشتري بسهولة</title>
-    <meta name="description" content="سوق الكل - منصة إلكترونية للبيع والشراء في سوريا">
-    <meta name="author" content="سوق الكل" />
 
-    
-    
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/1e3bee9mXQPs9Yq1MavTOz9SbH02/social-images/social-1772390474271-IMG-20260301-WA0005.webp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- Security: Content Security Policy to prevent XSS attacks -->
+  <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; 
+                 script-src 'self' 'wasm-unsafe-eval'; 
+                 style-src 'self' 'unsafe-inline'; 
+                 img-src 'self' https: data:; 
+                 font-src 'self' data:; 
+                 connect-src 'self' https://dhkdgdehcwcglhntsegs.supabase.co https://*.supabase.co; 
+                 frame-ancestors 'none'; 
+                 base-uri 'self'; 
+                 form-action 'self';" />
+  <!-- Additional Security Headers -->
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@souqalkul" />
-    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/1e3bee9mXQPs9Yq1MavTOz9SbH02/social-images/social-1772390474271-IMG-20260301-WA0005.webp">
-    
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  <!-- Apple PWA Meta Tags -->
+  <meta name="theme-color" content="#16a34a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="سوق الكل" />
+
+  <!-- Apple Splash Screens -->
+  <link rel="apple-touch-startup-image" href="/apple-splash-1170x2532.png"
+    media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/apple-splash-1170x2532.png"
+    media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/apple-splash-1170x2532.png"
+    media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/apple-splash-1170x2532.png"
+    media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+  <title>سوق الكل - بيع واشتري بسهولة</title>
+  <meta name="description" content="سوق الكل - منصة إلكترونية للبيع والشراء في سوريا">
+  <meta name="author" content="سوق الكل" />
+
+
+
+  <meta property="og:type" content="website" />
+  <meta property="og:image"
+    content="https://storage.googleapis.com/gpt-engineer-file-uploads/1e3bee9mXQPs9Yq1MavTOz9SbH02/social-images/social-1772390474271-IMG-20260301-WA0005.webp">
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@souqalkul" />
+  <meta name="twitter:image"
+    content="https://storage.googleapis.com/gpt-engineer-file-uploads/1e3bee9mXQPs9Yq1MavTOz9SbH02/social-images/social-1772390474271-IMG-20260301-WA0005.webp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <meta property="og:title" content="سوق الكل - بيع واشتري بسهولة">
   <meta name="twitter:title" content="سوق الكل - بيع واشتري بسهولة">
   <meta property="og:description" content="سوق الكل - منصة إلكترونية للبيع والشراء في سوريا">
   <meta name="twitter:description" content="سوق الكل - منصة إلكترونية للبيع والشراء في سوريا">
 </head>
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

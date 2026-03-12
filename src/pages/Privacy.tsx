@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, ArrowLeft, Shield, Database, Share2, Lock, Cookie, UserCheck, Mail, Trash2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Shield, Database, Share2, Lock, Cookie, UserCheck, Mail } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -18,7 +18,6 @@ const Privacy = () => {
     { icon: Lock, title: t.privacy.dataProtectionTitle, desc: t.privacy.dataProtectionDesc },
     { icon: Cookie, title: t.privacy.cookiesTitle, desc: t.privacy.cookiesDesc },
     { icon: UserCheck, title: t.privacy.userRightsTitle, desc: t.privacy.userRightsDesc },
-    { icon: Trash2, title: "حذف البيانات", desc: "يحق لك طلب حذف جميع بياناتك الشخصية في أي وقت. عند حذف حسابك، سيتم إزالة جميع بياناتك بشكل نهائي بما في ذلك الإعلانات، الرسائل، المفضلة، التقييمات، ورصيد المحفظة. يمكنك حذف حسابك من صفحة حسابي أو من صفحة حذف البيانات المخصصة." },
   ];
 
   return (
@@ -58,19 +57,6 @@ const Privacy = () => {
               </CardContent>
             </Card>
           ))}
-
-          {/* Data Deletion Link */}
-          <Card className="border-destructive/20">
-            <CardContent className="p-8 text-center">
-              <Trash2 className="h-8 w-8 text-destructive mx-auto mb-3" />
-              <h2 className="text-lg font-bold text-foreground mb-2">حذف البيانات</h2>
-              <p className="text-muted-foreground mb-4">يمكنك طلب حذف حسابك وجميع بياناتك من خلال صفحة حذف البيانات</p>
-              <Button onClick={() => navigate("/delete-data")} variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
-                <Trash2 className="h-4 w-4" />
-                طلب حذف البيانات
-              </Button>
-            </CardContent>
-          </Card>
 
           <Card className="border-primary/20">
             <CardContent className="p-8 text-center">
