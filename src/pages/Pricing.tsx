@@ -10,7 +10,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { formatPrice } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useListingSettings } from "@/hooks/useListingSettings";
-import { useWallet } from "@/hooks/useWallet";
+
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
