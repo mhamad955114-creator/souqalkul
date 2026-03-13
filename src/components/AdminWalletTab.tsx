@@ -157,14 +157,23 @@ const AdminWalletTab = () => {
     setProcessing(true);
 
     try {
-      const { error: rpcError } = await supabase.rpc("admin_approve_topup", {
-        _request_id: request.id,
-        _admin_note: adminNote || null,
-      });
+      // Use subscription-specific RPC if plan_type exists
+      if (request.plan_type) {
+        const { error: rpcError } = await supabase.rpc("admin_approve_subscription_request" as any, {
+          _request_id: request.id,
+          _admin_note: adminNote || null,
+        });
+        if (rpcError) throw rpcError;
+        toast.success("تم قبول الطلب وتفعيل الاشتراك بنجاح");
+      } else {
+        const { error: rpcError } = await supabase.rpc("admin_approve_topup", {
+          _request_id: request.id,
+          _admin_note: adminNote || null,
+        });
+        if (rpcError) throw rpcError;
+        toast.success("تم قبول الطلب وإضافة الرصيد بنجاح");
+      }
 
-      if (rpcError) throw rpcError;
-
-      toast.success("تم قبول الطلب وإضافة الرصيد بنجاح");
       setSelectedRequest(null);
       setAdminNote("");
       fetchRequests();
