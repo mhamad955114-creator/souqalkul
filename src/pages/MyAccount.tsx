@@ -98,6 +98,7 @@ const MyAccount = () => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [listingTab, setListingTab] = useState("all");
   const [listingSearch, setListingSearch] = useState("");
+  const [addListingModalOpen, setAddListingModalOpen] = useState(false);
   const [businessStats, setBusinessStats] = useState<{
     totalViews: number;
     totalFavorites: number;
