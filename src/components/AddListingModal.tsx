@@ -14,7 +14,7 @@ import { cities, categories, areasByCity, formatPrice, categoryMetadataFields } 
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useWallet } from "@/hooks/useWallet";
+
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
 
