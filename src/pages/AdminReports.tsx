@@ -618,15 +618,6 @@ const AdminReports = () => {
               إعدادات
             </Button>
             <Button
-              variant={activeTab === "wallet" ? "default" : "outline"}
-              onClick={() => setActiveTab("wallet")}
-              className="gap-1.5 text-xs sm:text-sm shrink-0"
-              size="sm"
-            >
-              <Wallet className="h-4 w-4" />
-              المحفظة
-            </Button>
-            <Button
               variant={activeTab === "verification" ? "default" : "outline"}
               onClick={() => setActiveTab("verification")}
               className="gap-1.5 text-xs sm:text-sm shrink-0"
