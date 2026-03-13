@@ -1,4 +1,4 @@
-import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Share2, Crown } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Share2, Crown, Receipt } from "lucide-react";
 import { shareApp } from "@/lib/shareApp";
 import { useBrand } from "@/contexts/BrandContext";
 import NotificationsDropdown from "./NotificationsDropdown";
@@ -118,7 +118,11 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/my-subscriptions")} className="flex items-center gap-2">
                           <Crown className="h-4 w-4" />
-                          اشتراكاتي
+                          {dir === "rtl" ? "اشتراكاتي" : "My Subscriptions"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/my-payments")} className="flex items-center gap-2">
+                          <Receipt className="h-4 w-4" />
+                          {dir === "rtl" ? "طلبات الدفع" : "Payment Requests"}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/favorites")} className="flex items-center gap-2">
                           <Heart className="h-4 w-4" />
@@ -218,7 +222,11 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     </Button>
                     <Button variant="outline" onClick={() => navigate("/my-subscriptions")}>
                       <Crown className="h-4 w-4" />
-                      اشتراكاتي
+                      {dir === "rtl" ? "اشتراكاتي" : "My Subscriptions"}
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate("/my-payments")}>
+                      <Receipt className="h-4 w-4" />
+                      {dir === "rtl" ? "طلبات الدفع" : "Payment Requests"}
                     </Button>
                     <Button variant="outline" onClick={() => navigate("/favorites")}>
                       <Heart className="h-4 w-4" />
