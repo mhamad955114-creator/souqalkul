@@ -127,8 +127,8 @@ const AdminWalletTab = () => {
             oscillator.stop(audioCtx.currentTime + 0.5);
           } catch {}
 
-          toast.info("طلب شحن جديد!", {
-            description: `مبلغ: ${(payload.new as any).amount} - رقم العملية: ${(payload.new as any).transaction_number}`,
+          toast.info("طلب دفع جديد!", {
+            description: `مبلغ: ${(payload.new as any).amount} - باقة: ${(payload.new as any).plan_type || 'شحن'} - رقم العملية: ${(payload.new as any).transaction_number}`,
             duration: 10000,
           });
           fetchRequests();
