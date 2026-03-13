@@ -28,7 +28,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const { settings } = useListingSettings();
-  const { settings } = useListingSettings();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
