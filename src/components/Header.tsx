@@ -116,10 +116,6 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                           <ShoppingBag className="h-4 w-4" />
                           {t.nav.myOrders}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/wallet")} className="flex items-center gap-2">
-                          <Wallet className="h-4 w-4" />
-                          محفظتي
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/my-subscriptions")} className="flex items-center gap-2">
                           <Crown className="h-4 w-4" />
                           اشتراكاتي
