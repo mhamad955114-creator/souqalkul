@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Wallet } from "lucide-react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
