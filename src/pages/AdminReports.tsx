@@ -500,7 +500,7 @@ const AdminReports = () => {
                 <TrendingUp className="h-5 w-5 text-amber-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.views.toLocaleString("ar-SY")}</p>
+                <p className="text-2xl font-bold text-foreground">{stats.views.toLocaleString("en-US")}</p>
                 <p className="text-sm text-muted-foreground">مشاهدة إجمالية</p>
               </div>
             </CardContent>

@@ -821,7 +821,7 @@ const AnimatedBalance = ({ balance }: { balance: number }) => {
                     receiverName: receiverInfo.name,
                     receiverWalletId: receiverInfo.userId,
                     amount: pendingAmount,
-                    date: new Date().toLocaleString("ar-SY"),
+                    date: new Date().toLocaleString("en-US"),
                     senderName: senderProfile?.data?.full_name || "أنت",
                     senderWalletId: user?.id || "",
                   });
