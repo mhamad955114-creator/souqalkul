@@ -344,42 +344,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     try {
       const needsPayment = formData.is_featured;
       if (needsPayment) {
-        let paymentAmount: number;
-        let durationDays: number;
-        let planType: string;
+        // Check if user already has an active subscription for this plan type
+        const planType = formData.paidType || "featured";
+        const { data: activeSub } = await supabase
+          .from("user_subscriptions")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("plan_type", planType)
+          .eq("status", "active")
+          .gt("expires_at", new Date().toISOString())
+          .limit(1);
 
-        if (formData.paidType === "business") {
-          paymentAmount = settings.business_listing.price || 100000;
-          durationDays = settings.business_listing.duration_days || 100;
-          planType = "business";
-        } else if (formData.paidType === "professional") {
-          paymentAmount = settings.professional_listing.price || 20000;
-          durationDays = settings.professional_listing.duration_days || 30;
-          planType = "professional";
-        } else {
-          paymentAmount = settings.featured_listing.price || 10000;
-          durationDays = settings.featured_listing.duration_days || 30;
-          planType = "featured";
-        }
-
-        try {
-          const { error: subError } = await supabase.rpc("purchase_subscription", {
-            _user_id: user.id,
-            _plan_type: planType,
-            _price: paymentAmount,
-            _duration_days: durationDays,
+        if (!activeSub || activeSub.length === 0) {
+          toast.error("يجب شراء الباقة أولاً قبل إضافة إعلان مميز", {
+            action: { label: "شراء باقة", onClick: () => { onClose(); navigate("/pricing"); } },
           });
-          if (subError) throw subError;
-          // Refresh wallet balance after purchase
-          refetchWallet();
-        } catch (err: any) {
-          if (err.message?.includes("Insufficient balance")) {
-            toast.error("رصيد المحفظة غير كافٍ! يرجى شحن المحفظة أولاً", {
-              action: { label: "شحن المحفظة", onClick: () => { onClose(); navigate("/wallet"); } },
-            });
-          } else {
-            toast.error("فشل في الدفع: " + (err.message || "خطأ غير معروف"));
-          }
           setLoading(false);
           return;
         }
