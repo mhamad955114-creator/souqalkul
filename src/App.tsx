@@ -34,6 +34,7 @@ import Install from "./pages/Install";
 
 import Auth from "./pages/Auth";
 import MySubscriptions from "./pages/MySubscriptions";
+import MyPaymentRequests from "./pages/MyPaymentRequests";
 import DeleteData from "./pages/DeleteData";
 
 const queryClient = new QueryClient();
