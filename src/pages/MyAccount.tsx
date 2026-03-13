@@ -1113,7 +1113,17 @@ const MyAccount = () => {
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
+      {/* Add Listing Modal */}
+      <AddListingModal
+        isOpen={addListingModalOpen}
+        onClose={() => setAddListingModalOpen(false)}
+        onSuccess={() => {
+          setAddListingModalOpen(false);
+          fetchListings();
+        }}
+      />
+
+
       <AlertDialog open={!!deletingListing} onOpenChange={() => setDeletingListing(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
