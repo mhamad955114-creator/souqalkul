@@ -80,12 +80,23 @@ const MySubscriptions = () => {
   const { user, loading: authLoading } = useAuth();
   const { dir } = useLanguage();
   const navigate = useNavigate();
-  const { wallet, refetch: refetchWallet } = useWallet();
   const { settings } = useListingSettings();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [renewPlan, setRenewPlan] = useState<{ planType: string; label: string } | null>(null);
   const [renewing, setRenewing] = useState(false);
+  const [transactionNumber, setTransactionNumber] = useState("");
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [shamcashAccount, setShamcashAccount] = useState("0999999999");
+
+  useEffect(() => {
+    supabase.from("listing_settings").select("setting_value").eq("setting_key", "shamcash_account").single().then(({ data }) => {
+      if (data?.setting_value) {
+        const val = typeof data.setting_value === "string" ? data.setting_value : String(data.setting_value);
+        if (val && val !== "{}") setShamcashAccount(val);
+      }
+    });
+  }, []);
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
