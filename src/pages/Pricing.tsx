@@ -283,19 +283,9 @@ const Pricing = () => {
                   <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">رصيد المحفظة:</span>
-                  <span className={`font-bold text-lg ${(wallet?.balance || 0) >= selectedPlan.price ? "text-green-600" : "text-red-600"}`}>
-                    {formatPrice(wallet?.balance || 0)}
-                  </span>
+                  <span className="text-muted-foreground">سعر الباقة:</span>
+                  <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
                 </div>
-                {(wallet?.balance || 0) < selectedPlan.price && (
-                  <div className="bg-red-50 dark:bg-red-950/30 text-red-600 p-3 rounded-lg text-sm text-center">
-                    رصيدك غير كافٍ.{" "}
-                    <Button variant="link" className="p-0 h-auto text-red-600 underline" onClick={() => { setSelectedPlan(null); navigate("/wallet"); }}>
-                      شحن المحفظة
-                    </Button>
-                  </div>
-                )}
               </div>
             )}
             <DialogFooter className="gap-2">
