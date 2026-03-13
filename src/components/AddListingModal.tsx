@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet, Video } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
 import { cities, categories, areasByCity, formatPrice, categoryMetadataFields } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
