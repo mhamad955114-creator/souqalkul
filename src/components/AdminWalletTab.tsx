@@ -339,7 +339,7 @@ const AdminWalletTab = () => {
       <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>مراجعة طلب الشحن</DialogTitle>
+            <DialogTitle>مراجعة طلب الدفع</DialogTitle>
           </DialogHeader>
           {selectedRequest && (
             <div className="space-y-4">
