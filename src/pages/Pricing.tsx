@@ -283,7 +283,7 @@ const Pricing = () => {
 
         {/* Purchase Confirmation Dialog */}
         <Dialog open={!!selectedPlan} onOpenChange={(open) => { if (!open) { setSelectedPlan(null); setTransactionNumber(""); setReceiptFile(null); } }}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>شراء باقة {selectedPlan?.name}</DialogTitle>
               <DialogDescription>
@@ -291,40 +291,41 @@ const Pricing = () => {
               </DialogDescription>
             </DialogHeader>
             {selectedPlan && (
-              <div className="space-y-4 py-4">
+              <div className="space-y-3 py-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">سعر الباقة:</span>
-                  <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
+                  <span className="text-muted-foreground text-sm">سعر الباقة:</span>
+                  <span className="font-bold">{formatPrice(selectedPlan.price)}</span>
                 </div>
                 
                 {/* ShamCash Account */}
-                <div className="bg-muted/50 border border-border rounded-lg p-4 text-center space-y-2">
-                  <p className="text-sm text-muted-foreground">أرسل المبلغ إلى حساب شام كاش:</p>
-                  <p className="text-xl font-bold font-mono tracking-widest text-primary" dir="ltr">{shamcashAccount}</p>
-                  <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(shamcashAccount); toast.success("تم نسخ الرقم"); }}>
+                <div className="bg-muted/50 border border-border rounded-lg p-3 text-center space-y-1.5">
+                  <p className="text-xs text-muted-foreground">أرسل المبلغ إلى حساب شام كاش:</p>
+                  <p className="text-sm font-bold font-mono tracking-wide text-primary break-all" dir="ltr">{shamcashAccount}</p>
+                  <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { navigator.clipboard.writeText(shamcashAccount); toast.success("تم نسخ الرقم"); }}>
                     نسخ الرقم
                   </Button>
                 </div>
 
                 {/* Transaction Number */}
-                <div className="space-y-2">
-                  <Label>رقم العملية (إلزامي)</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">رقم العملية (إلزامي)</Label>
                   <Input
                     value={transactionNumber}
                     onChange={(e) => setTransactionNumber(e.target.value)}
                     placeholder="أدخل رقم عملية التحويل"
                     dir="ltr"
-                    className="font-mono"
+                    className="font-mono text-sm"
                   />
                 </div>
 
                 {/* Receipt Upload */}
-                <div className="space-y-2">
-                  <Label>صورة الإيصال (اختياري)</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">صورة الإيصال (اختياري)</Label>
                   <Input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                    className="text-sm"
                   />
                 </div>
               </div>
