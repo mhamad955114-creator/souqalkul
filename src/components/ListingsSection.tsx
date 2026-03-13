@@ -39,7 +39,7 @@ const fallbackListings = [
     id: "2",
     image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=375&fit=crop",
     title: "شقة فاخرة للإيجار - 3 غرف نوم",
-    price: "٨,٠٠٠,٠٠٠ ل.س/شهر",
+    price: "8,000,000 ل.س/شهر",
     location: "حلب",
     time: "منذ 3 ساعات",
     featured: true,
