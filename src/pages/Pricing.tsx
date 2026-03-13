@@ -21,7 +21,7 @@ const Pricing = () => {
   const { t, dir } = useLanguage();
   const { settings, loading: settingsLoading } = useListingSettings();
   const { user } = useAuth();
-  const { wallet, payFromWallet } = useWallet();
+  
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [purchasing, setPurchasing] = useState(false);
 
