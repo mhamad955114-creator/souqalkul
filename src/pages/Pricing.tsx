@@ -291,7 +291,7 @@ const Pricing = () => {
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => setSelectedPlan(null)}>إلغاء</Button>
               <Button
-                disabled={purchasing || !wallet || (wallet.balance || 0) < (selectedPlan?.price || 0)}
+                disabled={purchasing}
                 onClick={async () => {
                   if (!selectedPlan || !user) return;
                   setPurchasing(true);
