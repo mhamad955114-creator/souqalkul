@@ -412,12 +412,12 @@ const MySubscriptions = () => {
       </div>
 
       {/* Renewal confirmation dialog */}
-      <Dialog open={!!renewPlan} onOpenChange={(open) => !open && setRenewPlan(null)}>
+      <Dialog open={!!renewPlan} onOpenChange={(open) => { if (!open) { setRenewPlan(null); setTransactionNumber(""); setReceiptFile(null); } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>تأكيد تجديد الباقة</DialogTitle>
+            <DialogTitle>تجديد {renewPlan?.label}</DialogTitle>
             <DialogDescription>
-              هل تريد تجديد {renewPlan?.label}؟
+              أرسل المبلغ عبر شام كاش ثم أدخل رقم العملية
             </DialogDescription>
           </DialogHeader>
           {renewPlan && renewPlanDetails && (
@@ -430,30 +430,47 @@ const MySubscriptions = () => {
                 <span className="text-muted-foreground">المدة:</span>
                 <span className="font-bold">{renewPlanDetails.duration} يوم</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">رصيد المحفظة:</span>
-                <span className={`font-bold text-lg ${(wallet?.balance || 0) >= renewPlanDetails.price ? "text-green-600" : "text-destructive"}`}>
-                  {formatPrice(wallet?.balance || 0)}
-                </span>
+
+              {/* ShamCash Account */}
+              <div className="bg-muted/50 border border-border rounded-lg p-4 text-center space-y-2">
+                <p className="text-sm text-muted-foreground">أرسل المبلغ إلى حساب شام كاش:</p>
+                <p className="text-xl font-bold font-mono tracking-widest text-primary" dir="ltr">{shamcashAccount}</p>
+                <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(shamcashAccount); toast.success("تم نسخ الرقم"); }}>
+                  نسخ الرقم
+                </Button>
               </div>
-              {(wallet?.balance || 0) < renewPlanDetails.price && (
-                <div className="bg-destructive/10 text-destructive p-3 rounded-lg text-sm text-center">
-                  رصيدك غير كافٍ.{" "}
-                  <Button variant="link" className="p-0 h-auto text-destructive underline" onClick={() => { setRenewPlan(null); navigate("/wallet"); }}>
-                    شحن المحفظة
-                  </Button>
-                </div>
-              )}
+
+              {/* Transaction Number */}
+              <div className="space-y-2">
+                <Label>رقم العملية (إلزامي)</Label>
+                <Input
+                  value={transactionNumber}
+                  onChange={(e) => setTransactionNumber(e.target.value)}
+                  placeholder="أدخل رقم عملية التحويل"
+                  dir="ltr"
+                  className="font-mono"
+                />
+              </div>
+
+              {/* Receipt Upload */}
+              <div className="space-y-2">
+                <Label>صورة الإيصال (اختياري)</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                />
+              </div>
             </div>
           )}
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setRenewPlan(null)}>إلغاء</Button>
+            <Button variant="outline" onClick={() => { setRenewPlan(null); setTransactionNumber(""); setReceiptFile(null); }}>إلغاء</Button>
             <Button
-              disabled={renewing || !wallet || (wallet.balance || 0) < (renewPlanDetails?.price || 0)}
+              disabled={renewing || !transactionNumber.trim()}
               onClick={handleRenew}
             >
-              {renewing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Wallet className="h-4 w-4 ml-2" />}
-              تأكيد التجديد
+              {renewing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
+              إرسال طلب التجديد
             </Button>
           </DialogFooter>
         </DialogContent>
