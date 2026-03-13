@@ -30,7 +30,7 @@ const fallbackListings = [
     id: "1",
     image: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=500&h=375&fit=crop",
     title: "سيارة مرسيدس موديل 2022 - حالة ممتازة",
-    price: "٢٥٠,٠٠٠,٠٠٠ ل.س",
+    price: "250,000,000 ل.س",
     location: "دمشق",
     time: "منذ ساعة",
     featured: true,
