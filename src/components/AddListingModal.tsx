@@ -9,12 +9,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Wallet, Video } from "lucide-react";
+import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
 import { cities, categories, areasByCity, formatPrice, categoryMetadataFields } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useWallet } from "@/hooks/useWallet";
+
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
 
@@ -27,7 +27,6 @@ interface AddListingModalProps {
 const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
-  const { wallet, payFromWallet, refetch: refetchWallet } = useWallet();
   const { settings } = useListingSettings();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -344,42 +343,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     try {
       const needsPayment = formData.is_featured;
       if (needsPayment) {
-        let paymentAmount: number;
-        let durationDays: number;
-        let planType: string;
+        // Check if user already has an active subscription for this plan type
+        const planType = formData.paidType || "featured";
+        const { data: activeSub } = await supabase
+          .from("user_subscriptions")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("plan_type", planType)
+          .eq("status", "active")
+          .gt("expires_at", new Date().toISOString())
+          .limit(1);
 
-        if (formData.paidType === "business") {
-          paymentAmount = settings.business_listing.price || 100000;
-          durationDays = settings.business_listing.duration_days || 100;
-          planType = "business";
-        } else if (formData.paidType === "professional") {
-          paymentAmount = settings.professional_listing.price || 20000;
-          durationDays = settings.professional_listing.duration_days || 30;
-          planType = "professional";
-        } else {
-          paymentAmount = settings.featured_listing.price || 10000;
-          durationDays = settings.featured_listing.duration_days || 30;
-          planType = "featured";
-        }
-
-        try {
-          const { error: subError } = await supabase.rpc("purchase_subscription", {
-            _user_id: user.id,
-            _plan_type: planType,
-            _price: paymentAmount,
-            _duration_days: durationDays,
+        if (!activeSub || activeSub.length === 0) {
+          toast.error("يجب شراء الباقة أولاً قبل إضافة إعلان مميز", {
+            action: { label: "شراء باقة", onClick: () => { onClose(); navigate("/pricing"); } },
           });
-          if (subError) throw subError;
-          // Refresh wallet balance after purchase
-          refetchWallet();
-        } catch (err: any) {
-          if (err.message?.includes("Insufficient balance")) {
-            toast.error("رصيد المحفظة غير كافٍ! يرجى شحن المحفظة أولاً", {
-              action: { label: "شحن المحفظة", onClick: () => { onClose(); navigate("/wallet"); } },
-            });
-          } else {
-            toast.error("فشل في الدفع: " + (err.message || "خطأ غير معروف"));
-          }
           setLoading(false);
           return;
         }
@@ -797,44 +775,24 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   </table>
                 </div>
 
-                {/* Wallet balance info */}
+                {/* Plan price info */}
                 <Alert className="mt-2">
-                  <Wallet className="h-4 w-4" />
-                  <AlertDescription className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium">سعر الباقة: </span>
-                      <span>
-                        {formatPrice(
-                          formData.paidType === "business"
-                            ? (settings.business_listing.price || 100000)
-                            : formData.paidType === "professional"
-                            ? (settings.professional_listing.price || 20000)
-                            : (settings.featured_listing.price || 10000)
-                        )}
-                      </span>
-                      <span className="mx-2">|</span>
-                      <span className="font-medium">رصيدك: </span>
-                      <span className={
-                        wallet && wallet.balance >= (
-                          formData.paidType === "business"
-                            ? (settings.business_listing.price || 100000)
-                            : formData.paidType === "professional"
-                            ? (settings.professional_listing.price || 20000)
-                            : (settings.featured_listing.price || 10000)
-                        ) ? "text-green-600" : "text-destructive"
-                      }>
-                        {formatPrice(wallet?.balance || 0)}
-                      </span>
-                    </div>
-                    {wallet && wallet.balance < (
-                      formData.paidType === "professional"
-                        ? (settings.professional_listing.price || 20000)
-                        : (settings.featured_listing.price || 50000)
-                    ) && (
-                      <Button type="button" variant="link" size="sm" className="text-primary p-0" onClick={() => { onClose(); navigate("/wallet"); }}>
-                        شحن المحفظة
-                      </Button>
-                    )}
+                  <Star className="h-4 w-4" />
+                  <AlertDescription>
+                    <span className="font-medium">سعر الباقة: </span>
+                    <span>
+                      {formatPrice(
+                        formData.paidType === "business"
+                          ? (settings.business_listing.price || 100000)
+                          : formData.paidType === "professional"
+                          ? (settings.professional_listing.price || 20000)
+                          : (settings.featured_listing.price || 10000)
+                      )}
+                    </span>
+                    <span className="mx-2">|</span>
+                    <Button type="button" variant="link" size="sm" className="text-primary p-0" onClick={() => { onClose(); navigate("/pricing"); }}>
+                      شراء باقة من صفحة الأسعار
+                    </Button>
                   </AlertDescription>
                 </Alert>
               </div>

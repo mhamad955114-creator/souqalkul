@@ -36,6 +36,8 @@ interface TopUpRequest {
   created_at: string;
   reviewed_at: string | null;
   receipt_url: string | null;
+  plan_type: string | null;
+  duration_days: number | null;
   user_email?: string;
 }
 
@@ -125,8 +127,8 @@ const AdminWalletTab = () => {
             oscillator.stop(audioCtx.currentTime + 0.5);
           } catch {}
 
-          toast.info("طلب شحن جديد!", {
-            description: `مبلغ: ${(payload.new as any).amount} - رقم العملية: ${(payload.new as any).transaction_number}`,
+          toast.info("طلب دفع جديد!", {
+            description: `مبلغ: ${(payload.new as any).amount} - باقة: ${(payload.new as any).plan_type || 'شحن'} - رقم العملية: ${(payload.new as any).transaction_number}`,
             duration: 10000,
           });
           fetchRequests();
@@ -155,14 +157,23 @@ const AdminWalletTab = () => {
     setProcessing(true);
 
     try {
-      const { error: rpcError } = await supabase.rpc("admin_approve_topup", {
-        _request_id: request.id,
-        _admin_note: adminNote || null,
-      });
+      // Use subscription-specific RPC if plan_type exists
+      if (request.plan_type) {
+        const { error: rpcError } = await supabase.rpc("admin_approve_subscription_request" as any, {
+          _request_id: request.id,
+          _admin_note: adminNote || null,
+        });
+        if (rpcError) throw rpcError;
+        toast.success("تم قبول الطلب وتفعيل الاشتراك بنجاح");
+      } else {
+        const { error: rpcError } = await supabase.rpc("admin_approve_topup", {
+          _request_id: request.id,
+          _admin_note: adminNote || null,
+        });
+        if (rpcError) throw rpcError;
+        toast.success("تم قبول الطلب وإضافة الرصيد بنجاح");
+      }
 
-      if (rpcError) throw rpcError;
-
-      toast.success("تم قبول الطلب وإضافة الرصيد بنجاح");
       setSelectedRequest(null);
       setAdminNote("");
       fetchRequests();
@@ -190,9 +201,9 @@ const AdminWalletTab = () => {
 
       await supabase.from("notifications").insert({
         user_id: request.user_id,
-        title: "تم رفض طلب الشحن",
-        message: adminNote || "تم رفض طلب شحن المحفظة. يرجى التواصل مع الدعم.",
-        type: "wallet",
+        title: "تم رفض طلب الدفع",
+        message: adminNote || "تم رفض طلب الدفع. يرجى التواصل مع الدعم.",
+        type: "payment",
       });
 
       toast.success("تم رفض الطلب");
@@ -280,6 +291,7 @@ const AdminWalletTab = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>المستخدم</TableHead>
+                <TableHead>الباقة</TableHead>
                 <TableHead>المبلغ</TableHead>
                 <TableHead>رقم العملية</TableHead>
                 <TableHead>التاريخ</TableHead>
@@ -290,9 +302,11 @@ const AdminWalletTab = () => {
             <TableBody>
               {filtered.map((req) => {
                 const status = statusConfig[req.status] || statusConfig.pending;
+                const planNames: Record<string, string> = { featured: "مميزة", professional: "احترافية", business: "رجال أعمال" };
                 return (
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.user_email}</TableCell>
+                    <TableCell>{req.plan_type ? planNames[req.plan_type] || req.plan_type : "شحن"}</TableCell>
                     <TableCell>{formatPrice(req.amount)}</TableCell>
                     <TableCell className="font-mono text-sm">{req.transaction_number}</TableCell>
                     <TableCell className="text-sm">{formatDate(req.created_at)}</TableCell>
@@ -328,7 +342,7 @@ const AdminWalletTab = () => {
       <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>مراجعة طلب الشحن</DialogTitle>
+            <DialogTitle>مراجعة طلب الدفع</DialogTitle>
           </DialogHeader>
           {selectedRequest && (
             <div className="space-y-4">
@@ -406,7 +420,7 @@ const AdminWalletTab = () => {
                   disabled={processing}
                 >
                   {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                  قبول وإضافة الرصيد
+                  قبول وتفعيل
                 </Button>
               </DialogFooter>
             </div>

@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -10,7 +12,6 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { formatPrice } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useListingSettings } from "@/hooks/useListingSettings";
-
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -24,6 +25,19 @@ const Pricing = () => {
   
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [purchasing, setPurchasing] = useState(false);
+  const [transactionNumber, setTransactionNumber] = useState("");
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [shamcashAccount, setShamcashAccount] = useState("0999999999");
+
+  // Load shamcash account from settings
+  useState(() => {
+    supabase.from("listing_settings").select("setting_value").eq("setting_key", "shamcash_account").single().then(({ data }) => {
+      if (data?.setting_value) {
+        const val = typeof data.setting_value === "string" ? data.setting_value : String(data.setting_value);
+        if (val && val !== "{}") setShamcashAccount(val);
+      }
+    });
+  });
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
@@ -268,12 +282,12 @@ const Pricing = () => {
         </div>
 
         {/* Purchase Confirmation Dialog */}
-        <Dialog open={!!selectedPlan} onOpenChange={(open) => !open && setSelectedPlan(null)}>
+        <Dialog open={!!selectedPlan} onOpenChange={(open) => { if (!open) { setSelectedPlan(null); setTransactionNumber(""); setReceiptFile(null); } }}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>تأكيد شراء الباقة</DialogTitle>
+              <DialogTitle>شراء باقة {selectedPlan?.name}</DialogTitle>
               <DialogDescription>
-                هل تريد شراء باقة {selectedPlan?.name}؟
+                أرسل المبلغ عبر شام كاش ثم أدخل رقم العملية
               </DialogDescription>
             </DialogHeader>
             {selectedPlan && (
@@ -282,18 +296,45 @@ const Pricing = () => {
                   <span className="text-muted-foreground">سعر الباقة:</span>
                   <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">سعر الباقة:</span>
-                  <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
+                
+                {/* ShamCash Account */}
+                <div className="bg-muted/50 border border-border rounded-lg p-4 text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">أرسل المبلغ إلى حساب شام كاش:</p>
+                  <p className="text-xl font-bold font-mono tracking-widest text-primary" dir="ltr">{shamcashAccount}</p>
+                  <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(shamcashAccount); toast.success("تم نسخ الرقم"); }}>
+                    نسخ الرقم
+                  </Button>
+                </div>
+
+                {/* Transaction Number */}
+                <div className="space-y-2">
+                  <Label>رقم العملية (إلزامي)</Label>
+                  <Input
+                    value={transactionNumber}
+                    onChange={(e) => setTransactionNumber(e.target.value)}
+                    placeholder="أدخل رقم عملية التحويل"
+                    dir="ltr"
+                    className="font-mono"
+                  />
+                </div>
+
+                {/* Receipt Upload */}
+                <div className="space-y-2">
+                  <Label>صورة الإيصال (اختياري)</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                  />
                 </div>
               </div>
             )}
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setSelectedPlan(null)}>إلغاء</Button>
+              <Button variant="outline" onClick={() => { setSelectedPlan(null); setTransactionNumber(""); setReceiptFile(null); }}>إلغاء</Button>
               <Button
-                disabled={purchasing}
+                disabled={purchasing || !transactionNumber.trim()}
                 onClick={async () => {
-                  if (!selectedPlan || !user) return;
+                  if (!selectedPlan || !user || !transactionNumber.trim()) return;
                   setPurchasing(true);
                   try {
                     let durationDays: number;
@@ -309,39 +350,50 @@ const Pricing = () => {
                       planType = "professional";
                     }
 
-                    const { error: rpcError } = await supabase.rpc("purchase_subscription", {
-                      _user_id: user.id,
-                      _plan_type: planType,
-                      _price: selectedPlan.price,
-                      _duration_days: durationDays,
+                    // Upload receipt if provided
+                    let receiptUrl: string | null = null;
+                    if (receiptFile) {
+                      const ext = receiptFile.name.split('.').pop();
+                      const path = `${user.id}/${Date.now()}.${ext}`;
+                      const { error: uploadError } = await supabase.storage.from('receipts').upload(path, receiptFile);
+                      if (!uploadError) {
+                        receiptUrl = path;
+                      }
+                    }
+
+                    // Submit payment request
+                    const { error: insertError } = await supabase.from("top_up_requests").insert({
+                      user_id: user.id,
+                      amount: selectedPlan.price,
+                      transaction_number: transactionNumber.trim(),
+                      receipt_url: receiptUrl,
+                      plan_type: planType,
+                      duration_days: durationDays,
                     });
 
-                    if (rpcError) throw rpcError;
+                    if (insertError) throw insertError;
 
-                    toast.success(`تم شراء باقة ${selectedPlan.name} بنجاح! 🎉`);
-
-                    // Notify admins about the new subscription
+                    // Notify admins
                     notifyAdmins({
-                      title: "اشتراك جديد 🎉",
-                      message: `مستخدم قام بشراء باقة ${selectedPlan.name} بمبلغ ${selectedPlan.price.toLocaleString("en-US")} ل.س`,
-                      type: "subscription_purchase",
+                      title: "طلب اشتراك جديد 💳",
+                      message: `طلب شراء باقة ${selectedPlan.name} بمبلغ ${selectedPlan.price.toLocaleString("en-US")} ل.س - رقم العملية: ${transactionNumber}`,
+                      type: "subscription_request",
                       relatedId: user.id,
                     });
 
+                    toast.success("تم إرسال طلبك بنجاح! سيتم مراجعته وتفعيل الباقة قريباً 🎉");
                     setSelectedPlan(null);
+                    setTransactionNumber("");
+                    setReceiptFile(null);
                   } catch (err: any) {
-                    if (err.message?.includes("Insufficient balance")) {
-                      toast.error("رصيد المحفظة غير كافٍ!");
-                    } else {
-                      toast.error("فشل في الشراء: " + (err.message || "خطأ"));
-                    }
+                    toast.error("فشل في إرسال الطلب: " + (err.message || "خطأ"));
                   } finally {
                     setPurchasing(false);
                   }
                 }}
               >
-                {purchasing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Crown className="h-4 w-4 ml-2" />}
-                تأكيد الشراء
+                {purchasing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
+                إرسال طلب الاشتراك
               </Button>
             </DialogFooter>
           </DialogContent>
