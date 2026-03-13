@@ -291,6 +291,7 @@ const AdminWalletTab = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>المستخدم</TableHead>
+                <TableHead>الباقة</TableHead>
                 <TableHead>المبلغ</TableHead>
                 <TableHead>رقم العملية</TableHead>
                 <TableHead>التاريخ</TableHead>
@@ -301,9 +302,11 @@ const AdminWalletTab = () => {
             <TableBody>
               {filtered.map((req) => {
                 const status = statusConfig[req.status] || statusConfig.pending;
+                const planNames: Record<string, string> = { featured: "مميزة", professional: "احترافية", business: "رجال أعمال" };
                 return (
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.user_email}</TableCell>
+                    <TableCell>{req.plan_type ? planNames[req.plan_type] || req.plan_type : "شحن"}</TableCell>
                     <TableCell>{formatPrice(req.amount)}</TableCell>
                     <TableCell className="font-mono text-sm">{req.transaction_number}</TableCell>
                     <TableCell className="text-sm">{formatDate(req.created_at)}</TableCell>
