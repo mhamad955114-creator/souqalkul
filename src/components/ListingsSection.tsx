@@ -48,7 +48,7 @@ const fallbackListings = [
     id: "3",
     image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=375&fit=crop",
     title: "آيفون 15 برو ماكس - جديد بالكرتونة",
-    price: "٤٥,٠٠٠,٠٠٠ ل.س",
+    price: "45,000,000 ل.س",
     location: "اللاذقية",
     time: "منذ 5 ساعات",
     featured: false,
