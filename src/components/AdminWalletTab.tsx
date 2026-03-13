@@ -201,9 +201,9 @@ const AdminWalletTab = () => {
 
       await supabase.from("notifications").insert({
         user_id: request.user_id,
-        title: "تم رفض طلب الشحن",
-        message: adminNote || "تم رفض طلب شحن المحفظة. يرجى التواصل مع الدعم.",
-        type: "wallet",
+        title: "تم رفض طلب الدفع",
+        message: adminNote || "تم رفض طلب الدفع. يرجى التواصل مع الدعم.",
+        type: "payment",
       });
 
       toast.success("تم رفض الطلب");
