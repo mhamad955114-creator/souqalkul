@@ -36,6 +36,8 @@ interface TopUpRequest {
   created_at: string;
   reviewed_at: string | null;
   receipt_url: string | null;
+  plan_type: string | null;
+  duration_days: number | null;
   user_email?: string;
 }
 
