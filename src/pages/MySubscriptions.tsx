@@ -150,38 +150,46 @@ const MySubscriptions = () => {
   };
 
   const handleRenew = async () => {
-    if (!renewPlan || !user) return;
+    if (!renewPlan || !user || !transactionNumber.trim()) return;
     setRenewing(true);
     try {
       const { price, duration } = getPlanPriceAndDuration(renewPlan.planType);
 
-      const { error: rpcError } = await supabase.rpc("purchase_subscription", {
-        _user_id: user.id,
-        _plan_type: renewPlan.planType,
-        _price: price,
-        _duration_days: duration,
+      // Upload receipt if provided
+      let receiptUrl: string | null = null;
+      if (receiptFile) {
+        const ext = receiptFile.name.split('.').pop();
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from('receipts').upload(path, receiptFile);
+        if (!uploadError) receiptUrl = path;
+      }
+
+      // Submit payment request
+      const { error: insertError } = await supabase.from("top_up_requests").insert({
+        user_id: user.id,
+        amount: price,
+        transaction_number: transactionNumber.trim(),
+        receipt_url: receiptUrl,
+        plan_type: renewPlan.planType,
+        duration_days: duration,
       });
 
-      if (rpcError) throw rpcError;
+      if (insertError) throw insertError;
 
-      toast.success(`تم تجديد ${renewPlan.label} بنجاح! 🎉`);
-
-      // Notify admins about the subscription renewal
+      // Notify admins
       notifyAdmins({
-        title: "تجديد اشتراك 🔄",
-        message: `مستخدم قام بتجديد ${renewPlan.label} بمبلغ ${price.toLocaleString("ar-SY")} ل.س`,
+        title: "طلب تجديد اشتراك 🔄",
+        message: `طلب تجديد ${renewPlan.label} بمبلغ ${price.toLocaleString("ar-SY")} ل.س - رقم العملية: ${transactionNumber}`,
         type: "subscription_renewal",
         relatedId: user.id,
       });
 
+      toast.success("تم إرسال طلب التجديد بنجاح! سيتم مراجعته قريباً 🎉");
       setRenewPlan(null);
-      await Promise.all([fetchSubs(), refetchWallet()]);
+      setTransactionNumber("");
+      setReceiptFile(null);
     } catch (err: any) {
-      if (err.message?.includes("Insufficient balance")) {
-        toast.error("رصيد المحفظة غير كافٍ!");
-      } else {
-        toast.error("فشل في التجديد: " + (err.message || "خطأ"));
-      }
+      toast.error("فشل في إرسال الطلب: " + (err.message || "خطأ"));
     } finally {
       setRenewing(false);
     }
