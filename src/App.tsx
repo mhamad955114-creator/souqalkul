@@ -31,7 +31,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ContactUs from "./pages/ContactUs";
 import Install from "./pages/Install";
-import Wallet from "./pages/Wallet";
+
 import Auth from "./pages/Auth";
 import MySubscriptions from "./pages/MySubscriptions";
 import DeleteData from "./pages/DeleteData";
@@ -81,7 +81,7 @@ const AppContent = () => {
               <Route path="/terms" element={<Terms />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/install" element={<Install />} />
-              <Route path="/wallet" element={<Wallet />} />
+              
               <Route path="/my-subscriptions" element={<MySubscriptions />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/delete-data" element={<DeleteData />} />

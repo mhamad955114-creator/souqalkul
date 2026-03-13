@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Wallet } from "lucide-react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -10,7 +10,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { formatPrice } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useListingSettings } from "@/hooks/useListingSettings";
-import { useWallet } from "@/hooks/useWallet";
+
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -21,7 +21,7 @@ const Pricing = () => {
   const { t, dir } = useLanguage();
   const { settings, loading: settingsLoading } = useListingSettings();
   const { user } = useAuth();
-  const { wallet, payFromWallet } = useWallet();
+  
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [purchasing, setPurchasing] = useState(false);
 
@@ -283,25 +283,15 @@ const Pricing = () => {
                   <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">رصيد المحفظة:</span>
-                  <span className={`font-bold text-lg ${(wallet?.balance || 0) >= selectedPlan.price ? "text-green-600" : "text-red-600"}`}>
-                    {formatPrice(wallet?.balance || 0)}
-                  </span>
+                  <span className="text-muted-foreground">سعر الباقة:</span>
+                  <span className="font-bold text-lg">{formatPrice(selectedPlan.price)}</span>
                 </div>
-                {(wallet?.balance || 0) < selectedPlan.price && (
-                  <div className="bg-red-50 dark:bg-red-950/30 text-red-600 p-3 rounded-lg text-sm text-center">
-                    رصيدك غير كافٍ.{" "}
-                    <Button variant="link" className="p-0 h-auto text-red-600 underline" onClick={() => { setSelectedPlan(null); navigate("/wallet"); }}>
-                      شحن المحفظة
-                    </Button>
-                  </div>
-                )}
               </div>
             )}
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => setSelectedPlan(null)}>إلغاء</Button>
               <Button
-                disabled={purchasing || !wallet || (wallet.balance || 0) < (selectedPlan?.price || 0)}
+                disabled={purchasing}
                 onClick={async () => {
                   if (!selectedPlan || !user) return;
                   setPurchasing(true);
@@ -350,7 +340,7 @@ const Pricing = () => {
                   }
                 }}
               >
-                {purchasing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Wallet className="h-4 w-4 ml-2" />}
+                {purchasing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Crown className="h-4 w-4 ml-2" />}
                 تأكيد الشراء
               </Button>
             </DialogFooter>

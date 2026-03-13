@@ -1,4 +1,4 @@
-import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Wallet, Share2, Crown } from "lucide-react";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Share2, Crown } from "lucide-react";
 import { shareApp } from "@/lib/shareApp";
 import { useBrand } from "@/contexts/BrandContext";
 import NotificationsDropdown from "./NotificationsDropdown";
@@ -116,10 +116,6 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                           <ShoppingBag className="h-4 w-4" />
                           {t.nav.myOrders}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/wallet")} className="flex items-center gap-2">
-                          <Wallet className="h-4 w-4" />
-                          محفظتي
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/my-subscriptions")} className="flex items-center gap-2">
                           <Crown className="h-4 w-4" />
                           اشتراكاتي
@@ -215,10 +211,6 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                     <Button variant="outline" onClick={() => navigate("/my-account")}>
                       <FileText className="h-4 w-4" />
                       {t.nav.myListings}
-                    </Button>
-                    <Button variant="outline" onClick={() => navigate("/wallet")}>
-                      <Wallet className="h-4 w-4" />
-                      محفظتي
                     </Button>
                     <Button variant="outline" onClick={() => navigate("/my-orders")}>
                       <ShoppingBag className="h-4 w-4" />
