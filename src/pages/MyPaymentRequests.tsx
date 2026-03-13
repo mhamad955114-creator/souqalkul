@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -50,6 +51,37 @@ const MyPaymentRequests = () => {
       return;
     }
     fetchRequests();
+
+    // Realtime subscription for status updates
+    const channel = supabase
+      .channel('my-payment-requests')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'top_up_requests',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as PaymentRequest;
+          setRequests((prev) =>
+            prev.map((r) => (r.id === updated.id ? updated : r))
+          );
+          const config = statusConfig[updated.status];
+          if (config && updated.status !== 'pending') {
+            toast({
+              title: isRTL ? "تحديث طلب الدفع" : "Payment Request Update",
+              description: isRTL ? config.label : config.labelEn,
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const fetchRequests = async () => {
