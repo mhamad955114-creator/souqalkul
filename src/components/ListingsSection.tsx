@@ -57,7 +57,7 @@ const fallbackListings = [
     id: "4",
     image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=375&fit=crop",
     title: "طقم كنب حديث - 7 مقاعد",
-    price: "٣٢,٠٠٠,٠٠٠ ل.س",
+    price: "32,000,000 ل.س",
     location: "حمص",
     time: "منذ 6 ساعات",
     featured: false,
