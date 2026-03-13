@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EditListingModal from "@/components/EditListingModal";
+import AddListingModal from "@/components/AddListingModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AlertDialog,
@@ -97,6 +98,7 @@ const MyAccount = () => {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [listingTab, setListingTab] = useState("all");
   const [listingSearch, setListingSearch] = useState("");
+  const [addListingModalOpen, setAddListingModalOpen] = useState(false);
   const [businessStats, setBusinessStats] = useState<{
     totalViews: number;
     totalFavorites: number;
@@ -703,7 +705,7 @@ const MyAccount = () => {
                 <p className="text-muted-foreground mb-4">
                   {t.myAccount.noListingsDesc}
                 </p>
-                <Button onClick={() => navigate("/")}>
+                <Button onClick={() => setAddListingModalOpen(true)}>
                   {t.myAccount.addNewListing}
                 </Button>
               </div>
@@ -1111,7 +1113,17 @@ const MyAccount = () => {
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
+      {/* Add Listing Modal */}
+      <AddListingModal
+        isOpen={addListingModalOpen}
+        onClose={() => setAddListingModalOpen(false)}
+        onSuccess={() => {
+          setAddListingModalOpen(false);
+          fetchListings();
+        }}
+      />
+
+
       <AlertDialog open={!!deletingListing} onOpenChange={() => setDeletingListing(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
