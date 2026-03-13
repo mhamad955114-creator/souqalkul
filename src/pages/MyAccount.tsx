@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EditListingModal from "@/components/EditListingModal";
+import AddListingModal from "@/components/AddListingModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AlertDialog,
