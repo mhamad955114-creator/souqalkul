@@ -25,6 +25,19 @@ const Pricing = () => {
   
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [purchasing, setPurchasing] = useState(false);
+  const [transactionNumber, setTransactionNumber] = useState("");
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [shamcashAccount, setShamcashAccount] = useState("0999999999");
+
+  // Load shamcash account from settings
+  useState(() => {
+    supabase.from("listing_settings").select("setting_value").eq("setting_key", "shamcash_account").single().then(({ data }) => {
+      if (data?.setting_value) {
+        const val = typeof data.setting_value === "string" ? data.setting_value : String(data.setting_value);
+        if (val && val !== "{}") setShamcashAccount(val);
+      }
+    });
+  });
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
