@@ -443,7 +443,9 @@ export type Database = {
           admin_note: string | null
           amount: number
           created_at: string
+          duration_days: number | null
           id: string
+          plan_type: string | null
           receipt_url: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -455,7 +457,9 @@ export type Database = {
           admin_note?: string | null
           amount: number
           created_at?: string
+          duration_days?: number | null
           id?: string
+          plan_type?: string | null
           receipt_url?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -467,7 +471,9 @@ export type Database = {
           admin_note?: string | null
           amount?: number
           created_at?: string
+          duration_days?: number | null
           id?: string
+          plan_type?: string | null
           receipt_url?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -617,6 +623,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_subscription_request: {
+        Args: { _admin_note?: string; _request_id: string }
+        Returns: undefined
+      }
       admin_approve_topup: {
         Args: { _admin_note?: string; _request_id: string }
         Returns: undefined
