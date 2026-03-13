@@ -150,7 +150,10 @@ const MyPaymentRequests = () => {
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-base">{planLabel}</span>
-                          <Badge variant={config.variant} className="gap-1 text-xs">
+                          <Badge 
+                            variant={config.variant} 
+                            className={`gap-1 text-xs ${req.status === 'approved' ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' : ''}`}
+                          >
                             {config.icon}
                             {isRTL ? config.label : config.labelEn}
                           </Badge>
