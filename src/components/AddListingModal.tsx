@@ -775,44 +775,24 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   </table>
                 </div>
 
-                {/* Wallet balance info */}
+                {/* Plan price info */}
                 <Alert className="mt-2">
-                  <Wallet className="h-4 w-4" />
-                  <AlertDescription className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium">سعر الباقة: </span>
-                      <span>
-                        {formatPrice(
-                          formData.paidType === "business"
-                            ? (settings.business_listing.price || 100000)
-                            : formData.paidType === "professional"
-                            ? (settings.professional_listing.price || 20000)
-                            : (settings.featured_listing.price || 10000)
-                        )}
-                      </span>
-                      <span className="mx-2">|</span>
-                      <span className="font-medium">رصيدك: </span>
-                      <span className={
-                        wallet && wallet.balance >= (
-                          formData.paidType === "business"
-                            ? (settings.business_listing.price || 100000)
-                            : formData.paidType === "professional"
-                            ? (settings.professional_listing.price || 20000)
-                            : (settings.featured_listing.price || 10000)
-                        ) ? "text-green-600" : "text-destructive"
-                      }>
-                        {formatPrice(wallet?.balance || 0)}
-                      </span>
-                    </div>
-                    {wallet && wallet.balance < (
-                      formData.paidType === "professional"
-                        ? (settings.professional_listing.price || 20000)
-                        : (settings.featured_listing.price || 50000)
-                    ) && (
-                      <Button type="button" variant="link" size="sm" className="text-primary p-0" onClick={() => { onClose(); navigate("/wallet"); }}>
-                        شحن المحفظة
-                      </Button>
-                    )}
+                  <Star className="h-4 w-4" />
+                  <AlertDescription>
+                    <span className="font-medium">سعر الباقة: </span>
+                    <span>
+                      {formatPrice(
+                        formData.paidType === "business"
+                          ? (settings.business_listing.price || 100000)
+                          : formData.paidType === "professional"
+                          ? (settings.professional_listing.price || 20000)
+                          : (settings.featured_listing.price || 10000)
+                      )}
+                    </span>
+                    <span className="mx-2">|</span>
+                    <Button type="button" variant="link" size="sm" className="text-primary p-0" onClick={() => { onClose(); navigate("/pricing"); }}>
+                      شراء باقة من صفحة الأسعار
+                    </Button>
                   </AlertDescription>
                 </Alert>
               </div>
