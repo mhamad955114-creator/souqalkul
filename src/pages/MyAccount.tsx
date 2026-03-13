@@ -705,7 +705,7 @@ const MyAccount = () => {
                 <p className="text-muted-foreground mb-4">
                   {t.myAccount.noListingsDesc}
                 </p>
-                <Button onClick={() => navigate("/")}>
+                <Button onClick={() => setAddListingModalOpen(true)}>
                   {t.myAccount.addNewListing}
                 </Button>
               </div>
