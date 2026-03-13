@@ -808,7 +808,7 @@ const AdminReports = () => {
         )}
 
         {activeTab === "settings" && <AdminSettingsTab />}
-        {activeTab === "wallet" && <AdminWalletTab />}
+        
         {activeTab === "verification" && <AdminVerificationTab />}
       </main>
 

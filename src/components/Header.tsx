@@ -212,10 +212,6 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                       <FileText className="h-4 w-4" />
                       {t.nav.myListings}
                     </Button>
-                    <Button variant="outline" onClick={() => navigate("/wallet")}>
-                      <Wallet className="h-4 w-4" />
-                      محفظتي
-                    </Button>
                     <Button variant="outline" onClick={() => navigate("/my-orders")}>
                       <ShoppingBag className="h-4 w-4" />
                       {t.nav.myOrders}

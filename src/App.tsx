@@ -81,7 +81,7 @@ const AppContent = () => {
               <Route path="/terms" element={<Terms />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/install" element={<Install />} />
-              <Route path="/wallet" element={<Wallet />} />
+              
               <Route path="/my-subscriptions" element={<MySubscriptions />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/delete-data" element={<DeleteData />} />
