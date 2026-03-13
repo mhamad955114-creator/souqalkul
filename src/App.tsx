@@ -31,7 +31,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ContactUs from "./pages/ContactUs";
 import Install from "./pages/Install";
-import Wallet from "./pages/Wallet";
+
 import Auth from "./pages/Auth";
 import MySubscriptions from "./pages/MySubscriptions";
 import DeleteData from "./pages/DeleteData";
