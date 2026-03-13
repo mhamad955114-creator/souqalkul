@@ -468,7 +468,7 @@ export const sortOptions = [
 
 // Currency formatting - Syrian Pound
 export const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat("ar-SY", {
+  return new Intl.NumberFormat("en-US", {
     style: "decimal",
     maximumFractionDigits: 0,
   }).format(price) + " ل.س";
@@ -476,7 +476,7 @@ export const formatPrice = (price: number): string => {
 
 // Date formatting
 export const formatDate = (dateString: string): string => {
-  return new Intl.DateTimeFormat("ar-SY", {
+  return new Intl.DateTimeFormat("ar-SA-u-nu-latn", {
     year: "numeric",
     month: "long",
     day: "numeric",

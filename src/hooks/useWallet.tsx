@@ -112,7 +112,7 @@ export function useWallet() {
 
     notifyAdmins({
       title: "طلب شحن محفظة جديد 💰",
-      message: `${userName} يطلب شحن رصيد بمبلغ ${amount.toLocaleString("ar-SY")} ل.س — رقم العملية: ${transactionNumber}`,
+      message: `${userName} يطلب شحن رصيد بمبلغ ${amount.toLocaleString("en-US")} ل.س — رقم العملية: ${transactionNumber}`,
       type: "wallet_topup",
       relatedId: user.id,
     });

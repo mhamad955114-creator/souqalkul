@@ -333,7 +333,7 @@ const Pricing = () => {
                     // Notify admins about the new subscription
                     notifyAdmins({
                       title: "اشتراك جديد 🎉",
-                      message: `مستخدم قام بشراء باقة ${selectedPlan.name} بمبلغ ${selectedPlan.price.toLocaleString("ar-SY")} ل.س`,
+                      message: `مستخدم قام بشراء باقة ${selectedPlan.name} بمبلغ ${selectedPlan.price.toLocaleString("en-US")} ل.س`,
                       type: "subscription_purchase",
                       relatedId: user.id,
                     });
