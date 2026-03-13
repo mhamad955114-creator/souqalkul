@@ -45,8 +45,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, BadgeCheck, Bell } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, BadgeCheck, Bell, CreditCard } from "lucide-react";
 import AdminSettingsTab from "@/components/AdminSettingsTab";
+import AdminWalletTab from "@/components/AdminWalletTab";
 import AdminVerificationTab from "@/components/AdminVerificationTab";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
