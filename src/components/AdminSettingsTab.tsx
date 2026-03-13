@@ -791,6 +791,38 @@ const AdminSettingsTab = () => {
         </CardContent>
       </Card>
 
+      {/* Shamcash Account for Payments */}
+      <Card className="border-primary/30">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Briefcase className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">حساب شام كاش للدفع</h3>
+          </div>
+
+          <div className="space-y-2">
+            <Label>عنوان الحساب الذي يظهر للمستخدمين عند الدفع</Label>
+            <Input
+              value={shamcashAccount}
+              onChange={(e) => setShamcashAccount(e.target.value)}
+              placeholder="أدخل عنوان حساب شام كاش"
+              dir="ltr"
+              className="text-left font-mono text-sm"
+            />
+          </div>
+
+          <Button
+            className="w-full gap-2"
+            onClick={handleSaveShamcash}
+            disabled={savingShamcash}
+          >
+            {savingShamcash ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ عنوان الحساب
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card className="border-destructive/30">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-3 mb-2">
