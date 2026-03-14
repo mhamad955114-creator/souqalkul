@@ -7,8 +7,9 @@ import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { toast } from "sonner";
-import { Loader2, Search, Star, Crown, Gem, X } from "lucide-react";
+import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock } from "lucide-react";
 import { formatDate } from "@/lib/constants";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface ListingRow {
   id: string;
@@ -18,6 +19,8 @@ interface ListingRow {
   badge_type: string | null;
   created_at: string;
   user_email?: string;
+  category?: string;
+  price?: number;
 }
 
 const badgeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
@@ -28,30 +31,46 @@ const badgeConfig: Record<string, { label: string; icon: React.ReactNode; color:
 
 const AdminListingsTab = () => {
   const [listings, setListings] = useState<ListingRow[]>([]);
+  const [pendingListings, setPendingListings] = useState<ListingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [updating, setUpdating] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("pending");
 
   const fetchListings = async () => {
     setLoading(true);
+
+    // Fetch active/sold listings
     const { data, error } = await supabase
       .from("listings")
-      .select("id, title, user_id, status, badge_type, created_at")
+      .select("id, title, user_id, status, badge_type, created_at, category, price")
       .in("status", ["active", "sold"])
       .order("created_at", { ascending: false })
       .limit(200);
 
-    if (!error && data) {
-      const userIds = [...new Set(data.map((l) => l.user_id))];
+    // Fetch pending listings
+    const { data: pending, error: pendingError } = await supabase
+      .from("listings")
+      .select("id, title, user_id, status, badge_type, created_at, category, price")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    const allData = [...(data || []), ...(pending || [])];
+    const userIds = [...new Set(allData.map((l) => l.user_id))];
+
+    let profileMap = new Map<string, string>();
+    if (userIds.length > 0) {
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, full_name")
         .in("user_id", userIds);
-
-      const profileMap = new Map(
+      profileMap = new Map(
         (profiles || []).map((p) => [p.user_id, p.full_name || "بدون اسم"])
       );
+    }
 
+    if (!error && data) {
       setListings(
         data.map((l) => ({
           ...l,
@@ -60,6 +79,17 @@ const AdminListingsTab = () => {
         }))
       );
     }
+
+    if (!pendingError && pending) {
+      setPendingListings(
+        pending.map((l) => ({
+          ...l,
+          badge_type: (l as any).badge_type ?? null,
+          user_email: profileMap.get(l.user_id) || "بدون اسم",
+        }))
+      );
+    }
+
     setLoading(false);
   };
 
@@ -87,7 +117,60 @@ const AdminListingsTab = () => {
     setUpdating(null);
   };
 
+  const handleApproveListing = async (listing: ListingRow) => {
+    setUpdating(listing.id);
+    const { error } = await supabase
+      .from("listings")
+      .update({ status: "active" } as any)
+      .eq("id", listing.id);
+
+    if (error) {
+      toast.error("فشل قبول الإعلان");
+    } else {
+      toast.success(`تم قبول الإعلان "${listing.title}"`);
+      // Notify the user
+      await supabase.from("notifications").insert({
+        user_id: listing.user_id,
+        title: "تم قبول إعلانك ✅",
+        message: `تم قبول إعلانك "${listing.title}" وهو الآن مرئي للجميع`,
+        type: "listing_approved",
+      } as any);
+      setPendingListings((prev) => prev.filter((l) => l.id !== listing.id));
+      setListings((prev) => [{ ...listing, status: "active" }, ...prev]);
+    }
+    setUpdating(null);
+  };
+
+  const handleRejectListing = async (listing: ListingRow) => {
+    setUpdating(listing.id);
+    const { error } = await supabase
+      .from("listings")
+      .update({ status: "rejected" } as any)
+      .eq("id", listing.id);
+
+    if (error) {
+      toast.error("فشل رفض الإعلان");
+    } else {
+      toast.success(`تم رفض الإعلان "${listing.title}"`);
+      // Notify the user
+      await supabase.from("notifications").insert({
+        user_id: listing.user_id,
+        title: "تم رفض إعلانك ❌",
+        message: `تم رفض إعلانك "${listing.title}". يرجى التواصل مع الإدارة لمزيد من التفاصيل`,
+        type: "listing_rejected",
+      } as any);
+      setPendingListings((prev) => prev.filter((l) => l.id !== listing.id));
+    }
+    setUpdating(null);
+  };
+
   const filtered = listings.filter(
+    (l) =>
+      l.title.toLowerCase().includes(search.toLowerCase()) ||
+      l.user_email?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredPending = pendingListings.filter(
     (l) =>
       l.title.toLowerCase().includes(search.toLowerCase()) ||
       l.user_email?.toLowerCase().includes(search.toLowerCase())
@@ -104,11 +187,17 @@ const AdminListingsTab = () => {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-foreground">{listings.length}</p>
             <p className="text-sm text-muted-foreground">إجمالي الإعلانات</p>
+          </CardContent>
+        </Card>
+        <Card className={pendingListings.length > 0 ? "border-orange-500/50 bg-orange-500/5" : ""}>
+          <CardContent className="p-4 text-center">
+            <p className="text-2xl font-bold text-orange-600">{pendingListings.length}</p>
+            <p className="text-sm text-muted-foreground">بانتظار الموافقة</p>
           </CardContent>
         </Card>
         {Object.entries(badgeConfig).map(([key, config]) => (
@@ -134,74 +223,168 @@ const AdminListingsTab = () => {
         />
       </div>
 
-      {/* Table */}
-      <Card>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-right">العنوان</TableHead>
-                <TableHead className="text-right">المستخدم</TableHead>
-                <TableHead className="text-right">التاريخ</TableHead>
-                <TableHead className="text-right">التصنيف الحالي</TableHead>
-                <TableHead className="text-right">تعيين التصنيف</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    لا توجد إعلانات
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filtered.map((listing) => (
-                  <TableRow key={listing.id}>
-                    <TableCell className="font-medium max-w-[200px] truncate">
-                      {listing.title}
-                    </TableCell>
-                    <TableCell>{listing.user_email}</TableCell>
-                    <TableCell className="whitespace-nowrap">{formatDate(listing.created_at)}</TableCell>
-                    <TableCell>
-                      {listing.badge_type && badgeConfig[listing.badge_type] ? (
-                        <Badge variant="secondary" className={badgeConfig[listing.badge_type].color}>
-                          {badgeConfig[listing.badge_type].label}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">عادي</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Select
-                          value={listing.badge_type || "none"}
-                          onValueChange={(val) =>
-                            handleSetBadge(listing.id, val === "none" ? null : val)
-                          }
-                          disabled={updating === listing.id}
-                        >
-                          <SelectTrigger className="w-[140px] h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">عادي</SelectItem>
-                            <SelectItem value="featured">⭐ مميز</SelectItem>
-                            <SelectItem value="professional">👑 احترافي</SelectItem>
-                            <SelectItem value="business">💎 رجال أعمال</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {updating === listing.id && (
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        )}
-                      </div>
-                    </TableCell>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="w-full">
+          <TabsTrigger value="pending" className="flex-1 gap-2">
+            <Clock className="h-4 w-4" />
+            بانتظار الموافقة
+            {pendingListings.length > 0 && (
+              <Badge variant="destructive" className="text-xs px-1.5 py-0">
+                {pendingListings.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="active" className="flex-1 gap-2">
+            إدارة الإعلانات
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Pending Listings Tab */}
+        <TabsContent value="pending">
+          <Card>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-right">العنوان</TableHead>
+                    <TableHead className="text-right">المستخدم</TableHead>
+                    <TableHead className="text-right">الباقة</TableHead>
+                    <TableHead className="text-right">التاريخ</TableHead>
+                    <TableHead className="text-right">إجراء</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {filteredPending.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        لا توجد إعلانات بانتظار الموافقة 🎉
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredPending.map((listing) => (
+                      <TableRow key={listing.id}>
+                        <TableCell className="font-medium max-w-[200px] truncate">
+                          {listing.title}
+                        </TableCell>
+                        <TableCell>{listing.user_email}</TableCell>
+                        <TableCell>
+                          {listing.badge_type && badgeConfig[listing.badge_type] ? (
+                            <Badge variant="secondary" className={badgeConfig[listing.badge_type].color}>
+                              {badgeConfig[listing.badge_type].label}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">{formatDate(listing.created_at)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="gap-1 text-xs"
+                              onClick={() => handleApproveListing(listing)}
+                              disabled={updating === listing.id}
+                            >
+                              {updating === listing.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <CheckCircle className="h-3 w-3" />
+                              )}
+                              قبول
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="gap-1 text-xs"
+                              onClick={() => handleRejectListing(listing)}
+                              disabled={updating === listing.id}
+                            >
+                              <XCircle className="h-3 w-3" />
+                              رفض
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Active Listings Tab */}
+        <TabsContent value="active">
+          <Card>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-right">العنوان</TableHead>
+                    <TableHead className="text-right">المستخدم</TableHead>
+                    <TableHead className="text-right">التاريخ</TableHead>
+                    <TableHead className="text-right">التصنيف الحالي</TableHead>
+                    <TableHead className="text-right">تعيين التصنيف</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        لا توجد إعلانات
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filtered.map((listing) => (
+                      <TableRow key={listing.id}>
+                        <TableCell className="font-medium max-w-[200px] truncate">
+                          {listing.title}
+                        </TableCell>
+                        <TableCell>{listing.user_email}</TableCell>
+                        <TableCell className="whitespace-nowrap">{formatDate(listing.created_at)}</TableCell>
+                        <TableCell>
+                          {listing.badge_type && badgeConfig[listing.badge_type] ? (
+                            <Badge variant="secondary" className={badgeConfig[listing.badge_type].color}>
+                              {badgeConfig[listing.badge_type].label}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">عادي</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Select
+                              value={listing.badge_type || "none"}
+                              onValueChange={(val) =>
+                                handleSetBadge(listing.id, val === "none" ? null : val)
+                              }
+                              disabled={updating === listing.id}
+                            >
+                              <SelectTrigger className="w-[140px] h-8 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">عادي</SelectItem>
+                                <SelectItem value="featured">⭐ مميز</SelectItem>
+                                <SelectItem value="professional">👑 احترافي</SelectItem>
+                                <SelectItem value="business">💎 رجال أعمال</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            {updating === listing.id && (
+                              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
