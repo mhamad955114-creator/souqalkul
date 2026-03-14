@@ -243,7 +243,7 @@ const Settings = () => {
     const items: { key: "messages" | "updates" | "offers" | "admin_alerts"; label: string; desc: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
       { key: "messages", label: "الرسائل", desc: "إشعارات الرسائل الجديدة في المحادثات", icon: <MessageSquare className="h-4 w-4 text-muted-foreground" /> },
       { key: "updates", label: "التحديثات", desc: "إشعارات تحديثات الإعلانات وحالة البيع", icon: <RefreshCw className="h-4 w-4 text-muted-foreground" /> },
-      { key: "offers", label: "العروض", desc: "إشعارات العروض والباقات والمحفظة", icon: <Tag className="h-4 w-4 text-muted-foreground" /> },
+      { key: "offers", label: "العروض", desc: "إشعارات العروض والباقات", icon: <Tag className="h-4 w-4 text-muted-foreground" /> },
       { key: "admin_alerts", label: "تنبيهات الإدارة", desc: "إشعارات البلاغات ورسائل التواصل الجديدة", icon: <ShieldAlert className="h-4 w-4 text-muted-foreground" />, adminOnly: true },
     ];
 

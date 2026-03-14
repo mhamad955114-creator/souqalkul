@@ -111,7 +111,7 @@ const DeleteData = () => {
                 <li>• <strong>الرسائل:</strong> المحادثات بين المستخدمين</li>
                 <li>• <strong>المفضلة:</strong> قائمة الإعلانات المحفوظة</li>
                 <li>• <strong>التقييمات:</strong> التقييمات والمراجعات المقدمة</li>
-                <li>• <strong>المحفظة:</strong> سجل المعاملات المالية</li>
+                
               </ul>
             </CardContent>
           </Card>
@@ -130,7 +130,7 @@ const DeleteData = () => {
                 <li>• سيتم حذف جميع إعلاناتك وصورك</li>
                 <li>• سيتم حذف جميع محادثاتك ورسائلك</li>
                 <li>• سيتم حذف مفضلتك وتقييماتك</li>
-                <li>• سيتم حذف رصيد محفظتك وسجل المعاملات</li>
+                
                 <li>• <strong className="text-destructive">هذا الإجراء لا يمكن التراجع عنه</strong></li>
               </ul>
             </CardContent>
