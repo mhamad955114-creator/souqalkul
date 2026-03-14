@@ -49,8 +49,7 @@ interface Listing {
   created_at: string;
   status: string | null;
   user_id: string;
-  _isPro?: boolean;
-  _isBusiness?: boolean;
+  badge_type?: string | null;
   _avgRating?: number;
 }
 
