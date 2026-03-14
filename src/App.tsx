@@ -36,6 +36,7 @@ import Auth from "./pages/Auth";
 import MySubscriptions from "./pages/MySubscriptions";
 import MyPaymentRequests from "./pages/MyPaymentRequests";
 import DeleteData from "./pages/DeleteData";
+import Developers from "./pages/Developers";
 
 const queryClient = new QueryClient();
 
