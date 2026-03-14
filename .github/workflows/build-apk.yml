@@ -34,8 +34,19 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Sync Capacitor Android
-        run: npx cap sync android
+      - name: Sync Capacitor Android (with fallback)
+        run: |
+          set -e
+          if npx cap sync android; then
+            echo "Capacitor sync succeeded"
+          else
+            echo "Capacitor sync failed, using manual web assets fallback"
+            mkdir -p android/app/src/main/assets/public
+            cp -R dist/. android/app/src/main/assets/public/
+            cat > android/app/src/main/assets/capacitor.config.json <<'EOF'
+            {"appId":"app.lovable.ddb3d223b5b54708966b845064964fb6","appName":"سوق الكل","webDir":"dist","bundledWebRuntime":false,"plugins":{"SafeArea":{"enabled":true,"customColorsForSystemBars":true,"statusBarColor":"#00000000","statusBarOverlay":true,"navigationBarColor":"#00000000","navigationBarOverlay":true,"offset":0}}}
+            EOF
+          fi
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
