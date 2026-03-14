@@ -404,6 +404,47 @@ const AdminListingsTab = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Reject Reason Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>رفض الإعلان</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              هل تريد رفض الإعلان: <strong>{rejectingListing?.title}</strong>؟
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="reject-reason">سبب الرفض (اختياري)</Label>
+              <Textarea
+                id="reject-reason"
+                placeholder="اكتب سبب الرفض ليتم إرساله للمستخدم..."
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              إلغاء
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleRejectListing}
+              disabled={updating === rejectingListing?.id}
+            >
+              {updating === rejectingListing?.id ? (
+                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+              ) : (
+                <XCircle className="h-4 w-4 ml-2" />
+              )}
+              تأكيد الرفض
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
