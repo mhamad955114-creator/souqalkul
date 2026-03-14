@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Heart, MapPin, Clock, Star, Video, Image as ImageIcon } from "lucide-react";
+import { Heart, MapPin, Clock, Star, Video, Image as ImageIcon, ArrowUpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { useBrand } from "@/contexts/BrandContext";
-
+import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
+import { useAuth } from "@/hooks/useAuth";
 interface ListingCardProps {
   id?: string;
   image: string;
