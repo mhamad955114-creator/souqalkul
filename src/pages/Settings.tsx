@@ -732,7 +732,7 @@ const Settings = () => {
                   </div>
                   {dir === "rtl" ? <ArrowLeft className="h-4 w-4 text-muted-foreground" /> : <ArrowRight className="h-4 w-4 text-muted-foreground" />}
                 </button>
-                <Separator />
+                <div className="border-t border-border" />
                 <button
                   onClick={() => navigate("/terms")}
                   className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
