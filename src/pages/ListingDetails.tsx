@@ -134,12 +134,10 @@ const ListingDetails = () => {
 
         setSeller(profileData ? { ...profileData, phone: sellerPhone } : null);
 
-        // Check if listing owner has professional/business subscription
-        const { data: ownerSubs } = await supabase.rpc("get_active_subscription_types", {
-          _user_ids: [listingData.user_id],
-        });
-        setIsOwnerPro(!!(ownerSubs && ownerSubs.some((s: any) => s.plan_type === "professional")));
-        setIsOwnerBusiness(!!(ownerSubs && ownerSubs.some((s: any) => s.plan_type === "business")));
+        // Use badge_type from listing for professional/business display
+        const badgeType = (listingData as any).badge_type;
+        setIsOwnerPro(badgeType === "professional");
+        setIsOwnerBusiness(badgeType === "business");
 
       } finally {
         setLoading(false);
