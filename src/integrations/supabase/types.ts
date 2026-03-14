@@ -135,6 +135,7 @@ export type Database = {
       listings: {
         Row: {
           area: string | null
+          badge_type: string | null
           category: string
           city: string
           created_at: string
@@ -154,6 +155,7 @@ export type Database = {
         }
         Insert: {
           area?: string | null
+          badge_type?: string | null
           category: string
           city: string
           created_at?: string
@@ -173,6 +175,7 @@ export type Database = {
         }
         Update: {
           area?: string | null
+          badge_type?: string | null
           category?: string
           city?: string
           created_at?: string

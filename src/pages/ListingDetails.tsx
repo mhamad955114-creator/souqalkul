@@ -134,12 +134,10 @@ const ListingDetails = () => {
 
         setSeller(profileData ? { ...profileData, phone: sellerPhone } : null);
 
-        // Check if listing owner has professional/business subscription
-        const { data: ownerSubs } = await supabase.rpc("get_active_subscription_types", {
-          _user_ids: [listingData.user_id],
-        });
-        setIsOwnerPro(!!(ownerSubs && ownerSubs.some((s: any) => s.plan_type === "professional")));
-        setIsOwnerBusiness(!!(ownerSubs && ownerSubs.some((s: any) => s.plan_type === "business")));
+        // Use badge_type from listing for professional/business display
+        const badgeType = (listingData as any).badge_type;
+        setIsOwnerPro(badgeType === "professional");
+        setIsOwnerBusiness(badgeType === "business");
 
       } finally {
         setLoading(false);
@@ -370,7 +368,7 @@ const ListingDetails = () => {
                       👑 احترافي
                     </Badge>
                   )}
-                  {listing.is_featured && !isOwnerPro && !isOwnerBusiness && (
+                  {(listing.is_featured || (listing as any).badge_type === "featured") && !isOwnerPro && !isOwnerBusiness && (
                     <Badge className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
                       ⭐ {t.listings.featured}
                     </Badge>
