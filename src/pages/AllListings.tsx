@@ -643,9 +643,9 @@ const AllListings = () => {
                     price={formatPrice(listing.price)}
                     location={listing.city}
                     time={formatTime(listing.created_at)}
-                    featured={listing.is_featured}
-                    professional={listing._isPro}
-                    business={listing._isBusiness}
+                    featured={listing.badge_type === "featured" || listing.is_featured}
+                    professional={listing.badge_type === "professional"}
+                    business={listing.badge_type === "business"}
                     status={listing.status}
                     category={listing.category}
                     userId={listing.user_id}
