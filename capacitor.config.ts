@@ -8,9 +8,9 @@ const config: CapacitorConfig = {
     SafeArea: {
        enabled: true,
        customColorsForSystemBars: true,
-       statusBarColor: '#transparent',
+       statusBarColor: '#00000000',
        statusBarOverlay: true,
-       navigationBarColor: '#transparent',
+       navigationBarColor: '#00000000',
        navigationBarOverlay: true,
        offset: 0
     }
