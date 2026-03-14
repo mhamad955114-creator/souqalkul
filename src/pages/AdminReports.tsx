@@ -637,6 +637,15 @@ const AdminReports = () => {
               <BadgeCheck className="h-4 w-4" />
               توثيق
             </Button>
+            <Button
+              variant={activeTab === "listings" ? "default" : "outline"}
+              onClick={() => setActiveTab("listings")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <LayoutList className="h-4 w-4" />
+              إدارة الإعلانات
+            </Button>
           </div>
         </div>
 
