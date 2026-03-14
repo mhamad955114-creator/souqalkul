@@ -187,11 +187,11 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
             <span>{time}</span>
           </div>
         </div>
-        {user && userId && user.id === userId && !featured && !professional && !business && status !== "sold" && status !== "expired" && (
+        {!featured && !professional && !business && status !== "sold" && status !== "expired" && (
           <button
             onClick={(e) => {
               e.stopPropagation();
-              const msg = `مرحباً، أرغب في ترقية إعلاني: ${title}`;
+              const msg = `مرحباً، أرغب في ترقية الإعلان: ${title}`;
               window.open(buildWhatsAppUrl(contact.whatsapp, msg), "_blank");
             }}
             className="mt-3 w-full flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary text-sm font-semibold py-2 rounded-xl transition-colors"
