@@ -316,7 +316,7 @@ const AdminListingsTab = () => {
                               size="sm"
                               variant="destructive"
                               className="gap-1 text-xs"
-                              onClick={() => handleRejectListing(listing)}
+                              onClick={() => openRejectDialog(listing)}
                               disabled={updating === listing.id}
                             >
                               <XCircle className="h-3 w-3" />
