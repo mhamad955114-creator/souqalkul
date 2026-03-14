@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Heart, MapPin, Clock, Star, Video, Image as ImageIcon } from "lucide-react";
+import { Heart, MapPin, Clock, Star, Video, Image as ImageIcon, ArrowUpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { useBrand } from "@/contexts/BrandContext";
-
+import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
+import { useAuth } from "@/hooks/useAuth";
 interface ListingCardProps {
   id?: string;
   image: string;
@@ -31,6 +32,8 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
   const { t } = useLanguage();
   const { playBadgeSound } = useSoundEffects();
   const { logoUrl: appLogo } = useBrand();
+  const { contact } = useContactSettings();
+  const { user } = useAuth();
   const isListingFavorite = id ? isFavorite(id) : false;
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -184,6 +187,19 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
             <span>{time}</span>
           </div>
         </div>
+        {user && userId && user.id === userId && !featured && !professional && !business && status !== "sold" && status !== "expired" && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const msg = `مرحباً، أرغب في ترقية إعلاني: ${title}`;
+              window.open(buildWhatsAppUrl(contact.whatsapp, msg), "_blank");
+            }}
+            className="mt-3 w-full flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary text-sm font-semibold py-2 rounded-xl transition-colors"
+          >
+            <ArrowUpCircle className="h-4 w-4" />
+            <span>ترقية الإعلان - تواصل معنا</span>
+          </button>
+        )}
       </div>
     </div>
   );
