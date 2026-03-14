@@ -111,7 +111,7 @@ const DeleteData = () => {
                 <li>• <strong>الرسائل:</strong> المحادثات بين المستخدمين</li>
                 <li>• <strong>المفضلة:</strong> قائمة الإعلانات المحفوظة</li>
                 <li>• <strong>التقييمات:</strong> التقييمات والمراجعات المقدمة</li>
-                <li>• <strong>المحفظة:</strong> سجل المعاملات المالية</li>
+                
               </ul>
             </CardContent>
           </Card>
