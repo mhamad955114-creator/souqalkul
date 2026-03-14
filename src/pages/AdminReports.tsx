@@ -830,6 +830,7 @@ const AdminReports = () => {
         {activeTab === "settings" && <AdminSettingsTab />}
         {activeTab === "payments" && <AdminWalletTab />}
         {activeTab === "verification" && <AdminVerificationTab />}
+        {activeTab === "listings" && <AdminListingsTab />}
       </main>
 
       <Footer />
