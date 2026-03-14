@@ -20,8 +20,7 @@ interface Listing {
   status: string | null;
   category: string;
   user_id: string;
-  _isPro?: boolean;
-  _isBusiness?: boolean;
+  badge_type?: string | null;
   _avgRating?: number;
 }
 
