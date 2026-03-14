@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock, Bell, BellRing } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock, Bell, BellRing, Shield, FileText } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -716,6 +716,37 @@ const Settings = () => {
                 )}
               </Button>
             </div>
+
+            {/* Privacy & Terms Links */}
+            <Card>
+              <CardContent className="p-4 space-y-2">
+                <button
+                  onClick={() => navigate("/privacy")}
+                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Shield className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-foreground">
+                      {dir === "rtl" ? "سياسة الخصوصية" : "Privacy Policy"}
+                    </span>
+                  </div>
+                  {dir === "rtl" ? <ArrowLeft className="h-4 w-4 text-muted-foreground" /> : <ArrowRight className="h-4 w-4 text-muted-foreground" />}
+                </button>
+                <div className="border-t border-border" />
+                <button
+                  onClick={() => navigate("/terms")}
+                  className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-foreground">
+                      {dir === "rtl" ? "الشروط والأحكام" : "Terms & Conditions"}
+                    </span>
+                  </div>
+                  {dir === "rtl" ? <ArrowLeft className="h-4 w-4 text-muted-foreground" /> : <ArrowRight className="h-4 w-4 text-muted-foreground" />}
+                </button>
+              </CardContent>
+            </Card>
           </div>
         )}
       </main>
