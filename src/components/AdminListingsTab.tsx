@@ -147,7 +147,15 @@ const AdminListingsTab = () => {
     setUpdating(null);
   };
 
-  const handleRejectListing = async (listing: ListingRow) => {
+  const openRejectDialog = (listing: ListingRow) => {
+    setRejectingListing(listing);
+    setRejectReason("");
+    setRejectDialogOpen(true);
+  };
+
+  const handleRejectListing = async () => {
+    if (!rejectingListing) return;
+    const listing = rejectingListing;
     setUpdating(listing.id);
     const { error } = await supabase
       .from("listings")
@@ -158,16 +166,21 @@ const AdminListingsTab = () => {
       toast.error("فشل رفض الإعلان");
     } else {
       toast.success(`تم رفض الإعلان "${listing.title}"`);
-      // Notify the user
+      const reasonText = rejectReason.trim()
+        ? `\nسبب الرفض: ${rejectReason.trim()}`
+        : ". يرجى التواصل مع الإدارة لمزيد من التفاصيل";
       await supabase.from("notifications").insert({
         user_id: listing.user_id,
         title: "تم رفض إعلانك ❌",
-        message: `تم رفض إعلانك "${listing.title}". يرجى التواصل مع الإدارة لمزيد من التفاصيل`,
+        message: `تم رفض إعلانك "${listing.title}"${reasonText}`,
         type: "listing_rejected",
       } as any);
       setPendingListings((prev) => prev.filter((l) => l.id !== listing.id));
     }
     setUpdating(null);
+    setRejectDialogOpen(false);
+    setRejectingListing(null);
+    setRejectReason("");
   };
 
   const filtered = listings.filter(
