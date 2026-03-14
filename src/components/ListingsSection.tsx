@@ -87,9 +87,6 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
 
     if (!error && data) {
       const userIds = [...new Set(data.map((l) => l.user_id))];
-      const { data: subs } = await supabase.rpc("get_active_subscription_types", {
-        _user_ids: userIds,
-      });
       
       // Fetch average ratings for sellers
       const { data: ratingsData } = await supabase
@@ -104,21 +101,18 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
         ratingMap.set(r.seller_id, entry);
       });
 
-      const proUserIds = new Set((subs || []).filter((s) => s.plan_type === "professional").map((s) => s.user_id));
-      const bizUserIds = new Set((subs || []).filter((s) => s.plan_type === "business").map((s) => s.user_id));
       const enriched = data.map((l) => {
         const rEntry = ratingMap.get(l.user_id);
         return {
           ...l,
-          _isPro: proUserIds.has(l.user_id),
-          _isBusiness: bizUserIds.has(l.user_id),
+          badge_type: (l as any).badge_type ?? null,
           _avgRating: rEntry ? rEntry.sum / rEntry.count : undefined,
         };
       });
       // Pin business listings to top
       enriched.sort((a, b) => {
-        if (a._isBusiness && !b._isBusiness) return -1;
-        if (!a._isBusiness && b._isBusiness) return 1;
+        if (a.badge_type === "business" && b.badge_type !== "business") return -1;
+        if (a.badge_type !== "business" && b.badge_type === "business") return 1;
         return 0;
       });
       setListings(enriched);
