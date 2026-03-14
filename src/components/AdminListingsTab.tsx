@@ -39,6 +39,9 @@ const AdminListingsTab = () => {
   const [search, setSearch] = useState("");
   const [updating, setUpdating] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectingListing, setRejectingListing] = useState<ListingRow | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const fetchListings = async () => {
     setLoading(true);
