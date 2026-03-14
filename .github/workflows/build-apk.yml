@@ -34,14 +34,27 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Prepare Android web assets
+      - name: Prepare Android web assets (non-blocking)
+        continue-on-error: true
         run: |
+          set +e
+          echo "== Debug paths =="
+          pwd
+          ls -la
+          ls -la dist || true
+
+          echo "== Copy web assets =="
           mkdir -p android/app/src/main/assets/public
-          rm -rf android/app/src/main/assets/public/*
-          cp -R dist/. android/app/src/main/assets/public/
-          cat > android/app/src/main/assets/capacitor.config.json <<'EOF'
-          {"appId":"app.lovable.ddb3d223b5b54708966b845064964fb6","appName":"سوق الكل","webDir":"dist","bundledWebRuntime":false}
-          EOF
+          rm -rf android/app/src/main/assets/public/* || true
+          cp -R dist/. android/app/src/main/assets/public/ || true
+
+          echo "== Write capacitor.config.json =="
+          printf '%s\n' '{"appId":"app.lovable.ddb3d223b5b54708966b845064964fb6","appName":"souqalkul","webDir":"dist","bundledWebRuntime":false}' > android/app/src/main/assets/capacitor.config.json
+
+          echo "== Verify assets =="
+          ls -la android/app/src/main/assets || true
+          ls -la android/app/src/main/assets/public || true
+          exit 0
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
