@@ -28,6 +28,14 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
       - name: Install dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
 
@@ -61,7 +69,7 @@ jobs:
 
       - name: Build APK
         working-directory: android
-        run: ./gradlew assembleRelease --no-daemon
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
