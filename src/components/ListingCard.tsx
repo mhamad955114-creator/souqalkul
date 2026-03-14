@@ -32,6 +32,8 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
   const { t } = useLanguage();
   const { playBadgeSound } = useSoundEffects();
   const { logoUrl: appLogo } = useBrand();
+  const { contact } = useContactSettings();
+  const { user } = useAuth();
   const isListingFavorite = id ? isFavorite(id) : false;
   const [imageLoaded, setImageLoaded] = useState(false);
 
