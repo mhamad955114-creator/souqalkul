@@ -1,10 +1,6 @@
-import { useState } from "react";
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight, Loader2, Upload } from "lucide-react";
+import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -12,32 +8,13 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { formatPrice } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useListingSettings } from "@/hooks/useListingSettings";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { notifyAdmins } from "@/lib/notifyAdmins";
+import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 
 const Pricing = () => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
   const { settings, loading: settingsLoading } = useListingSettings();
-  const { user } = useAuth();
-  
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const [purchasing, setPurchasing] = useState(false);
-  const [transactionNumber, setTransactionNumber] = useState("");
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [shamcashAccount, setShamcashAccount] = useState("0999999999");
-
-  // Load shamcash account from settings
-  useState(() => {
-    supabase.from("listing_settings").select("setting_value").eq("setting_key", "shamcash_account").single().then(({ data }) => {
-      if (data?.setting_value) {
-        const val = typeof data.setting_value === "string" ? data.setting_value : String(data.setting_value);
-        if (val && val !== "{}") setShamcashAccount(val);
-      }
-    });
-  });
+  const { contact } = useContactSettings();
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
@@ -76,6 +53,7 @@ const Pricing = () => {
       borderColor: "border-amber-300",
       bgColor: "bg-amber-50",
       popular: true,
+      planType: "featured",
       features: [
         `نشر ${settings.featured_listing.max_active_listings === -1 ? 'غير محدود من' : settings.featured_listing.max_active_listings} إعلان`,
         `مدة الإعلان ${settings.featured_listing.duration_days} يوم`,
@@ -88,7 +66,7 @@ const Pricing = () => {
       notIncluded: [
         t.pricing.featuredNot1,
       ],
-      buttonText: t.pricing.subscribeNow,
+      buttonText: "تواصل معنا للاشتراك",
       buttonVariant: "default" as const,
     },
     {
@@ -100,6 +78,7 @@ const Pricing = () => {
       iconColor: "text-purple-500",
       borderColor: "border-purple-300",
       bgColor: "bg-purple-50",
+      planType: "professional",
       features: [
         `نشر ${settings.professional_listing.max_active_listings === -1 ? 'غير محدود من' : settings.professional_listing.max_active_listings} الإعلانات`,
         `مدة الإعلان ${settings.professional_listing.duration_days} يوم`,
@@ -112,7 +91,7 @@ const Pricing = () => {
         t.pricing.proFeature9,
       ],
       notIncluded: [],
-      buttonText: t.pricing.subscribeNow,
+      buttonText: "تواصل معنا للاشتراك",
       buttonVariant: "default" as const,
     },
     {
@@ -125,6 +104,7 @@ const Pricing = () => {
       iconColor: "text-blue-500",
       borderColor: "border-blue-300",
       bgColor: "bg-blue-50",
+      planType: "business",
       features: [
         `رفع حتى ${settings.business_listing.max_images} صورة`,
         `مدة ظهور ${settings.business_listing.duration_days} يوم`,
@@ -137,7 +117,7 @@ const Pricing = () => {
         "جميع مزايا الباقة الاحترافية",
       ],
       notIncluded: [],
-      buttonText: t.pricing.subscribeNow,
+      buttonText: "تواصل معنا للاشتراك",
       buttonVariant: "default" as const,
     },
   ];
@@ -234,10 +214,9 @@ const Pricing = () => {
                   onClick={() => {
                     if (plan.price === 0) {
                       navigate("/");
-                    } else if (!user) {
-                      toast.error("يرجى تسجيل الدخول أولاً");
                     } else {
-                      setSelectedPlan(plan);
+                      const msg = `مرحباً، أرغب في الاشتراك بـ ${plan.name} (${formatPrice(plan.price)} / ${plan.duration})`;
+                      window.open(buildWhatsAppUrl(contact.whatsapp, msg), "_blank");
                     }
                   }}
                 >
@@ -280,125 +259,6 @@ const Pricing = () => {
             </Card>
           </div>
         </div>
-
-        {/* Purchase Confirmation Dialog */}
-        <Dialog open={!!selectedPlan} onOpenChange={(open) => { if (!open) { setSelectedPlan(null); setTransactionNumber(""); setReceiptFile(null); } }}>
-          <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>شراء باقة {selectedPlan?.name}</DialogTitle>
-              <DialogDescription>
-                أرسل المبلغ عبر شام كاش ثم أدخل رقم العملية
-              </DialogDescription>
-            </DialogHeader>
-            {selectedPlan && (
-              <div className="space-y-3 py-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground text-sm">سعر الباقة:</span>
-                  <span className="font-bold">{formatPrice(selectedPlan.price)}</span>
-                </div>
-                
-                {/* ShamCash Account */}
-                <div className="bg-muted/50 border border-border rounded-lg p-3 text-center space-y-1.5">
-                  <p className="text-xs text-muted-foreground">أرسل المبلغ إلى حساب شام كاش:</p>
-                  <p className="text-sm font-bold font-mono tracking-wide text-primary break-all" dir="ltr">{shamcashAccount}</p>
-                  <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { navigator.clipboard.writeText(shamcashAccount); toast.success("تم نسخ الرقم"); }}>
-                    نسخ الرقم
-                  </Button>
-                </div>
-
-                {/* Transaction Number */}
-                <div className="space-y-1.5">
-                  <Label className="text-sm">رقم العملية (إلزامي)</Label>
-                  <Input
-                    value={transactionNumber}
-                    onChange={(e) => setTransactionNumber(e.target.value)}
-                    placeholder="أدخل رقم عملية التحويل"
-                    dir="ltr"
-                    className="font-mono text-sm"
-                  />
-                </div>
-
-                {/* Receipt Upload */}
-                <div className="space-y-1.5">
-                  <Label className="text-sm">صورة الإيصال (اختياري)</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                    className="text-sm"
-                  />
-                </div>
-              </div>
-            )}
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => { setSelectedPlan(null); setTransactionNumber(""); setReceiptFile(null); }}>إلغاء</Button>
-              <Button
-                disabled={purchasing || !transactionNumber.trim()}
-                onClick={async () => {
-                  if (!selectedPlan || !user || !transactionNumber.trim()) return;
-                  setPurchasing(true);
-                  try {
-                    let durationDays: number;
-                    let planType: string;
-                    if (selectedPlan.name === t.pricing.featured) {
-                      durationDays = settings.featured_listing.duration_days;
-                      planType = "featured";
-                    } else if (selectedPlan.name === "رجال الأعمال") {
-                      durationDays = settings.business_listing.duration_days;
-                      planType = "business";
-                    } else {
-                      durationDays = settings.professional_listing.duration_days;
-                      planType = "professional";
-                    }
-
-                    // Upload receipt if provided
-                    let receiptUrl: string | null = null;
-                    if (receiptFile) {
-                      const ext = receiptFile.name.split('.').pop();
-                      const path = `${user.id}/${Date.now()}.${ext}`;
-                      const { error: uploadError } = await supabase.storage.from('receipts').upload(path, receiptFile);
-                      if (!uploadError) {
-                        receiptUrl = path;
-                      }
-                    }
-
-                    // Submit payment request
-                    const { error: insertError } = await supabase.from("top_up_requests").insert({
-                      user_id: user.id,
-                      amount: selectedPlan.price,
-                      transaction_number: transactionNumber.trim(),
-                      receipt_url: receiptUrl,
-                      plan_type: planType,
-                      duration_days: durationDays,
-                    });
-
-                    if (insertError) throw insertError;
-
-                    // Notify admins
-                    notifyAdmins({
-                      title: "طلب اشتراك جديد 💳",
-                      message: `طلب شراء باقة ${selectedPlan.name} بمبلغ ${selectedPlan.price.toLocaleString("en-US")} ل.س - رقم العملية: ${transactionNumber}`,
-                      type: "subscription_request",
-                      relatedId: user.id,
-                    });
-
-                    toast.success("تم إرسال طلبك بنجاح! سيتم مراجعته وتفعيل الباقة قريباً 🎉");
-                    setSelectedPlan(null);
-                    setTransactionNumber("");
-                    setReceiptFile(null);
-                  } catch (err: any) {
-                    toast.error("فشل في إرسال الطلب: " + (err.message || "خطأ"));
-                  } finally {
-                    setPurchasing(false);
-                  }
-                }}
-              >
-                {purchasing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
-                إرسال طلب الاشتراك
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </main>
 
       <Footer />

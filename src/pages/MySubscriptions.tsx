@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useListingSettings } from "@/hooks/useListingSettings";
+import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -10,13 +11,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Crown, Star, Briefcase, ArrowRight, ArrowLeft, Clock, CalendarDays, Sparkles, ShieldCheck, AlertTriangle, RefreshCw, Upload, Loader2 } from "lucide-react";
+import { Crown, Star, Briefcase, ArrowRight, ArrowLeft, Clock, CalendarDays, Sparkles, ShieldCheck, AlertTriangle, RefreshCw, MessageCircle } from "lucide-react";
 import { formatPrice } from "@/lib/constants";
-import { toast } from "sonner";
-import { notifyAdmins } from "@/lib/notifyAdmins";
 
 interface Subscription {
   id: string;
@@ -81,22 +77,9 @@ const MySubscriptions = () => {
   const { dir } = useLanguage();
   const navigate = useNavigate();
   const { settings } = useListingSettings();
+  const { contact } = useContactSettings();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
-  const [renewPlan, setRenewPlan] = useState<{ planType: string; label: string } | null>(null);
-  const [renewing, setRenewing] = useState(false);
-  const [transactionNumber, setTransactionNumber] = useState("");
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [shamcashAccount, setShamcashAccount] = useState("0999999999");
-
-  useEffect(() => {
-    supabase.from("listing_settings").select("setting_value").eq("setting_key", "shamcash_account").single().then(({ data }) => {
-      if (data?.setting_value) {
-        const val = typeof data.setting_value === "string" ? data.setting_value : String(data.setting_value);
-        if (val && val !== "{}") setShamcashAccount(val);
-      }
-    });
-  }, []);
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
@@ -149,56 +132,14 @@ const MySubscriptions = () => {
     }
   };
 
-  const handleRenew = async () => {
-    if (!renewPlan || !user || !transactionNumber.trim()) return;
-    setRenewing(true);
-    try {
-      const { price, duration } = getPlanPriceAndDuration(renewPlan.planType);
-
-      // Upload receipt if provided
-      let receiptUrl: string | null = null;
-      if (receiptFile) {
-        const ext = receiptFile.name.split('.').pop();
-        const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from('receipts').upload(path, receiptFile);
-        if (!uploadError) receiptUrl = path;
-      }
-
-      // Submit payment request
-      const { error: insertError } = await supabase.from("top_up_requests").insert({
-        user_id: user.id,
-        amount: price,
-        transaction_number: transactionNumber.trim(),
-        receipt_url: receiptUrl,
-        plan_type: renewPlan.planType,
-        duration_days: duration,
-      });
-
-      if (insertError) throw insertError;
-
-      // Notify admins
-      notifyAdmins({
-        title: "طلب تجديد اشتراك 🔄",
-        message: `طلب تجديد ${renewPlan.label} بمبلغ ${price.toLocaleString("ar-SY")} ل.س - رقم العملية: ${transactionNumber}`,
-        type: "subscription_renewal",
-        relatedId: user.id,
-      });
-
-      toast.success("تم إرسال طلب التجديد بنجاح! سيتم مراجعته قريباً 🎉");
-      setRenewPlan(null);
-      setTransactionNumber("");
-      setReceiptFile(null);
-    } catch (err: any) {
-      toast.error("فشل في إرسال الطلب: " + (err.message || "خطأ"));
-    } finally {
-      setRenewing(false);
-    }
+  const handleContactForRenewal = (planType: string, label: string) => {
+    const { price, duration } = getPlanPriceAndDuration(planType);
+    const msg = `مرحباً، أرغب في تجديد ${label} (${formatPrice(price)} / ${duration} يوم)`;
+    window.open(buildWhatsAppUrl(contact.whatsapp, msg), "_blank");
   };
 
   const activeSubs = subscriptions.filter(isActive);
   const expiredSubs = subscriptions.filter((s) => !isActive(s));
-
-  const renewPlanDetails = renewPlan ? getPlanPriceAndDuration(renewPlan.planType) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -292,7 +233,7 @@ const MySubscriptions = () => {
                         {isExpiringSoon && (
                           <div className="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-lg px-3 py-2 text-sm">
                             <AlertTriangle className="h-4 w-4 shrink-0" />
-                            <span>باقتك على وشك الانتهاء! جدّدها للحفاظ على المزايا</span>
+                            <span>باقتك على وشك الانتهاء! تواصل معنا للتجديد</span>
                           </div>
                         )}
 
@@ -340,13 +281,13 @@ const MySubscriptions = () => {
                           </ul>
                         </div>
 
-                        {/* Renew button */}
+                        {/* Contact for renewal button */}
                         <Button
                           className={`w-full bg-gradient-to-r ${config.gradient} text-white hover:opacity-90`}
-                          onClick={() => setRenewPlan({ planType: sub.plan_type, label: config.label })}
+                          onClick={() => handleContactForRenewal(sub.plan_type, config.label)}
                         >
-                          <RefreshCw className="h-4 w-4 ml-2" />
-                          تجديد الباقة
+                          <MessageCircle className="h-4 w-4 ml-2" />
+                          تواصل معنا للتجديد
                         </Button>
                       </CardContent>
                     </Card>
@@ -381,11 +322,11 @@ const MySubscriptions = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setRenewPlan({ planType: sub.plan_type, label: config.label })}
+                          onClick={() => handleContactForRenewal(sub.plan_type, config.label)}
                           className="shrink-0"
                         >
-                          <RefreshCw className="h-3.5 w-3.5 ml-1" />
-                          إعادة الاشتراك
+                          <MessageCircle className="h-3.5 w-3.5 ml-1" />
+                          تواصل للتجديد
                         </Button>
                       </CardContent>
                     </Card>
@@ -410,71 +351,6 @@ const MySubscriptions = () => {
           </div>
         )}
       </div>
-
-      {/* Renewal confirmation dialog */}
-      <Dialog open={!!renewPlan} onOpenChange={(open) => { if (!open) { setRenewPlan(null); setTransactionNumber(""); setReceiptFile(null); } }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>تجديد {renewPlan?.label}</DialogTitle>
-            <DialogDescription>
-              أرسل المبلغ عبر شام كاش ثم أدخل رقم العملية
-            </DialogDescription>
-          </DialogHeader>
-          {renewPlan && renewPlanDetails && (
-            <div className="space-y-4 py-4">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">سعر التجديد:</span>
-                <span className="font-bold text-lg">{formatPrice(renewPlanDetails.price)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">المدة:</span>
-                <span className="font-bold">{renewPlanDetails.duration} يوم</span>
-              </div>
-
-              {/* ShamCash Account */}
-              <div className="bg-muted/50 border border-border rounded-lg p-4 text-center space-y-2">
-                <p className="text-sm text-muted-foreground">أرسل المبلغ إلى حساب شام كاش:</p>
-                <p className="text-xl font-bold font-mono tracking-widest text-primary" dir="ltr">{shamcashAccount}</p>
-                <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(shamcashAccount); toast.success("تم نسخ الرقم"); }}>
-                  نسخ الرقم
-                </Button>
-              </div>
-
-              {/* Transaction Number */}
-              <div className="space-y-2">
-                <Label>رقم العملية (إلزامي)</Label>
-                <Input
-                  value={transactionNumber}
-                  onChange={(e) => setTransactionNumber(e.target.value)}
-                  placeholder="أدخل رقم عملية التحويل"
-                  dir="ltr"
-                  className="font-mono"
-                />
-              </div>
-
-              {/* Receipt Upload */}
-              <div className="space-y-2">
-                <Label>صورة الإيصال (اختياري)</Label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => { setRenewPlan(null); setTransactionNumber(""); setReceiptFile(null); }}>إلغاء</Button>
-            <Button
-              disabled={renewing || !transactionNumber.trim()}
-              onClick={handleRenew}
-            >
-              {renewing ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Upload className="h-4 w-4 ml-2" />}
-              إرسال طلب التجديد
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <BottomNavigation />
     </div>
