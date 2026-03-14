@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock, Bell, BellRing } from "lucide-react";
+import { Loader2, ArrowRight, ArrowLeft, User, Camera, Phone, MapPin, Save, Moon, Sun, Lock, Bell, BellRing, Shield, FileText } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
