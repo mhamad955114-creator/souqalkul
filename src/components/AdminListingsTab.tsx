@@ -4,8 +4,11 @@ import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock } from "lucide-react";
 import { formatDate } from "@/lib/constants";
@@ -36,6 +39,9 @@ const AdminListingsTab = () => {
   const [search, setSearch] = useState("");
   const [updating, setUpdating] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectingListing, setRejectingListing] = useState<ListingRow | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const fetchListings = async () => {
     setLoading(true);
@@ -141,7 +147,15 @@ const AdminListingsTab = () => {
     setUpdating(null);
   };
 
-  const handleRejectListing = async (listing: ListingRow) => {
+  const openRejectDialog = (listing: ListingRow) => {
+    setRejectingListing(listing);
+    setRejectReason("");
+    setRejectDialogOpen(true);
+  };
+
+  const handleRejectListing = async () => {
+    if (!rejectingListing) return;
+    const listing = rejectingListing;
     setUpdating(listing.id);
     const { error } = await supabase
       .from("listings")
@@ -152,16 +166,21 @@ const AdminListingsTab = () => {
       toast.error("فشل رفض الإعلان");
     } else {
       toast.success(`تم رفض الإعلان "${listing.title}"`);
-      // Notify the user
+      const reasonText = rejectReason.trim()
+        ? `\nسبب الرفض: ${rejectReason.trim()}`
+        : ". يرجى التواصل مع الإدارة لمزيد من التفاصيل";
       await supabase.from("notifications").insert({
         user_id: listing.user_id,
         title: "تم رفض إعلانك ❌",
-        message: `تم رفض إعلانك "${listing.title}". يرجى التواصل مع الإدارة لمزيد من التفاصيل`,
+        message: `تم رفض إعلانك "${listing.title}"${reasonText}`,
         type: "listing_rejected",
       } as any);
       setPendingListings((prev) => prev.filter((l) => l.id !== listing.id));
     }
     setUpdating(null);
+    setRejectDialogOpen(false);
+    setRejectingListing(null);
+    setRejectReason("");
   };
 
   const filtered = listings.filter(
@@ -297,7 +316,7 @@ const AdminListingsTab = () => {
                               size="sm"
                               variant="destructive"
                               className="gap-1 text-xs"
-                              onClick={() => handleRejectListing(listing)}
+                              onClick={() => openRejectDialog(listing)}
                               disabled={updating === listing.id}
                             >
                               <XCircle className="h-3 w-3" />
@@ -385,6 +404,47 @@ const AdminListingsTab = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Reject Reason Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>رفض الإعلان</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              هل تريد رفض الإعلان: <strong>{rejectingListing?.title}</strong>؟
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="reject-reason">سبب الرفض (اختياري)</Label>
+              <Textarea
+                id="reject-reason"
+                placeholder="اكتب سبب الرفض ليتم إرساله للمستخدم..."
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              إلغاء
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleRejectListing}
+              disabled={updating === rejectingListing?.id}
+            >
+              {updating === rejectingListing?.id ? (
+                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+              ) : (
+                <XCircle className="h-4 w-4 ml-2" />
+              )}
+              تأكيد الرفض
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
