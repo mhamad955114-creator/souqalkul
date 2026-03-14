@@ -368,7 +368,7 @@ const ListingDetails = () => {
                       👑 احترافي
                     </Badge>
                   )}
-                  {listing.is_featured && !isOwnerPro && !isOwnerBusiness && (
+                  {(listing.is_featured || (listing as any).badge_type === "featured") && !isOwnerPro && !isOwnerBusiness && (
                     <Badge className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
                       ⭐ {t.listings.featured}
                     </Badge>
