@@ -16,19 +16,29 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    def isCiBuild = (System.getenv("CI") ?: "").toBoolean()
+    def releaseKeystoreFile = file('swkalkill-release.keystore')
+    def useReleaseSigning = releaseKeystoreFile.exists() && !isCiBuild
+
+    if (!useReleaseSigning) {
+        logger.lifecycle("Release keystore disabled (CI or missing keystore). Falling back to debug signing for CI artifact build.")
+    }
+
     signingConfigs {
         release {
-            storeFile file('swkalkill-release.keystore')
-            storePassword 'swkalkill123'
-            keyAlias 'swkalkill'
-            keyPassword 'swkalkill123'
+            if (useReleaseSigning) {
+                storeFile releaseKeystoreFile
+                storePassword (System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: 'swkalkill123')
+                keyAlias (System.getenv("ANDROID_KEY_ALIAS") ?: 'swkalkill')
+                keyPassword (System.getenv("ANDROID_KEY_PASSWORD") ?: 'swkalkill123')
+            }
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            signingConfig (useReleaseSigning ? signingConfigs.release : signingConfigs.debug)
         }
     }
 }
