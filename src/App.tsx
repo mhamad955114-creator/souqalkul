@@ -88,6 +88,7 @@ const AppContent = () => {
               <Route path="/my-payments" element={<MyPaymentRequests />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/delete-data" element={<DeleteData />} />
+              <Route path="/developers" element={<Developers />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
