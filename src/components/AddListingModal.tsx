@@ -785,10 +785,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                           : (settings.featured_listing.price || 10000)
                       )}
                     </span>
-                    <span className="mx-2">|</span>
-                    <Button type="button" variant="link" size="sm" className="text-primary p-0" onClick={() => { onClose(); navigate("/pricing"); }}>
-                      شراء باقة من صفحة الأسعار
-                    </Button>
                   </AlertDescription>
                 </Alert>
               </div>
