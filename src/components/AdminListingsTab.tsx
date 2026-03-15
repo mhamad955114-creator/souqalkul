@@ -58,7 +58,7 @@ const AdminListingsTab = () => {
     // Fetch active/sold listings
     const { data, error } = await supabase
       .from("listings")
-      .select("id, title, user_id, status, badge_type, created_at, category, price")
+      .select("id, title, user_id, status, badge_type, created_at, category, price, description, images, city, area, phone, metadata")
       .in("status", ["active", "sold"])
       .order("created_at", { ascending: false })
       .limit(200);
@@ -66,7 +66,7 @@ const AdminListingsTab = () => {
     // Fetch pending listings
     const { data: pending, error: pendingError } = await supabase
       .from("listings")
-      .select("id, title, user_id, status, badge_type, created_at, category, price")
+      .select("id, title, user_id, status, badge_type, created_at, category, price, description, images, city, area, phone, metadata")
       .eq("status", "pending")
       .order("created_at", { ascending: false })
       .limit(200);
