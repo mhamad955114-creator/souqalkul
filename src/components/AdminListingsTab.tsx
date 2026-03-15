@@ -309,6 +309,15 @@ const AdminListingsTab = () => {
                           <div className="flex items-center gap-2">
                             <Button
                               size="sm"
+                              variant="outline"
+                              className="gap-1 text-xs"
+                              onClick={() => { setPreviewListing(listing); setPreviewImageIndex(0); }}
+                            >
+                              <Eye className="h-3 w-3" />
+                              معاينة
+                            </Button>
+                            <Button
+                              size="sm"
                               variant="default"
                               className="gap-1 text-xs"
                               onClick={() => handleApproveListing(listing)}
