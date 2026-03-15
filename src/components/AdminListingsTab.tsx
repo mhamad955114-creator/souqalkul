@@ -10,9 +10,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
-import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatDate } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface ListingRow {
   id: string;
@@ -24,6 +25,12 @@ interface ListingRow {
   user_email?: string;
   category?: string;
   price?: number;
+  description?: string | null;
+  images?: string[] | null;
+  city?: string;
+  area?: string | null;
+  phone?: string | null;
+  metadata?: any;
 }
 
 const badgeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
@@ -42,6 +49,8 @@ const AdminListingsTab = () => {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectingListing, setRejectingListing] = useState<ListingRow | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [previewListing, setPreviewListing] = useState<ListingRow | null>(null);
+  const [previewImageIndex, setPreviewImageIndex] = useState(0);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -49,7 +58,7 @@ const AdminListingsTab = () => {
     // Fetch active/sold listings
     const { data, error } = await supabase
       .from("listings")
-      .select("id, title, user_id, status, badge_type, created_at, category, price")
+      .select("id, title, user_id, status, badge_type, created_at, category, price, description, images, city, area, phone, metadata")
       .in("status", ["active", "sold"])
       .order("created_at", { ascending: false })
       .limit(200);
@@ -57,7 +66,7 @@ const AdminListingsTab = () => {
     // Fetch pending listings
     const { data: pending, error: pendingError } = await supabase
       .from("listings")
-      .select("id, title, user_id, status, badge_type, created_at, category, price")
+      .select("id, title, user_id, status, badge_type, created_at, category, price, description, images, city, area, phone, metadata")
       .eq("status", "pending")
       .order("created_at", { ascending: false })
       .limit(200);
@@ -300,6 +309,15 @@ const AdminListingsTab = () => {
                           <div className="flex items-center gap-2">
                             <Button
                               size="sm"
+                              variant="outline"
+                              className="gap-1 text-xs"
+                              onClick={() => { setPreviewListing(listing); setPreviewImageIndex(0); }}
+                            >
+                              <Eye className="h-3 w-3" />
+                              معاينة
+                            </Button>
+                            <Button
+                              size="sm"
                               variant="default"
                               className="gap-1 text-xs"
                               onClick={() => handleApproveListing(listing)}
@@ -442,6 +460,172 @@ const AdminListingsTab = () => {
               )}
               تأكيد الرفض
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Listing Preview Dialog */}
+      <Dialog open={!!previewListing} onOpenChange={(open) => !open && setPreviewListing(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="text-right">معاينة الإعلان</DialogTitle>
+          </DialogHeader>
+          {previewListing && (
+            <ScrollArea className="max-h-[65vh]">
+              <div className="space-y-4 p-1">
+                {/* Images */}
+                {previewListing.images && previewListing.images.length > 0 && (
+                  <div className="relative">
+                    <div className="aspect-[4/3] rounded-lg overflow-hidden bg-muted">
+                      {previewListing.images[previewImageIndex]?.match(/\.(mp4|webm|mov)$/i) ? (
+                        <video
+                          src={previewListing.images[previewImageIndex]}
+                          controls
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <img
+                          src={previewListing.images[previewImageIndex]}
+                          alt={previewListing.title}
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
+                    {previewListing.images.length > 1 && (
+                      <>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="absolute top-1/2 right-2 -translate-y-1/2 h-8 w-8 rounded-full opacity-80"
+                          onClick={() => setPreviewImageIndex((i) => (i + 1) % previewListing.images!.length)}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="absolute top-1/2 left-2 -translate-y-1/2 h-8 w-8 rounded-full opacity-80"
+                          onClick={() => setPreviewImageIndex((i) => (i - 1 + previewListing.images!.length) % previewListing.images!.length)}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm rounded-full px-2 py-0.5 text-xs text-foreground">
+                          {previewImageIndex + 1} / {previewListing.images.length}
+                        </div>
+                      </>
+                    )}
+                    {/* Thumbnails */}
+                    {previewListing.images.length > 1 && (
+                      <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
+                        {previewListing.images.map((img, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setPreviewImageIndex(idx)}
+                            className={`flex-shrink-0 w-14 h-14 rounded-md overflow-hidden border-2 transition-colors ${
+                              idx === previewImageIndex ? "border-primary" : "border-transparent"
+                            }`}
+                          >
+                            {img.match(/\.(mp4|webm|mov)$/i) ? (
+                              <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">🎬</div>
+                            ) : (
+                              <img src={img} alt="" className="w-full h-full object-cover" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Info Table */}
+                <div className="border rounded-lg divide-y">
+                  <div className="flex justify-between p-3">
+                    <span className="text-muted-foreground text-sm">العنوان</span>
+                    <span className="font-medium text-sm">{previewListing.title}</span>
+                  </div>
+                  <div className="flex justify-between p-3">
+                    <span className="text-muted-foreground text-sm">السعر</span>
+                    <span className="font-bold text-primary text-sm">{previewListing.price?.toLocaleString()} ل.س</span>
+                  </div>
+                  <div className="flex justify-between p-3">
+                    <span className="text-muted-foreground text-sm">التصنيف</span>
+                    <span className="text-sm">{previewListing.category}</span>
+                  </div>
+                  <div className="flex justify-between p-3">
+                    <span className="text-muted-foreground text-sm">المدينة</span>
+                    <span className="text-sm">{previewListing.city}{previewListing.area ? ` - ${previewListing.area}` : ""}</span>
+                  </div>
+                  {previewListing.phone && (
+                    <div className="flex justify-between p-3">
+                      <span className="text-muted-foreground text-sm">رقم الهاتف</span>
+                      <span className="text-sm" dir="ltr">{previewListing.phone}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between p-3">
+                    <span className="text-muted-foreground text-sm">المستخدم</span>
+                    <span className="text-sm">{previewListing.user_email}</span>
+                  </div>
+                  {previewListing.badge_type && badgeConfig[previewListing.badge_type] && (
+                    <div className="flex justify-between p-3 items-center">
+                      <span className="text-muted-foreground text-sm">الباقة</span>
+                      <Badge variant="secondary" className={badgeConfig[previewListing.badge_type].color}>
+                        {badgeConfig[previewListing.badge_type].label}
+                      </Badge>
+                    </div>
+                  )}
+                  <div className="flex justify-between p-3">
+                    <span className="text-muted-foreground text-sm">تاريخ النشر</span>
+                    <span className="text-sm">{formatDate(previewListing.created_at)}</span>
+                  </div>
+                </div>
+
+                {/* Metadata */}
+                {previewListing.metadata && typeof previewListing.metadata === "object" && Object.keys(previewListing.metadata).length > 0 && (
+                  <div className="border rounded-lg divide-y">
+                    {Object.entries(previewListing.metadata).map(([key, value]) => (
+                      <div key={key} className="flex justify-between p-3">
+                        <span className="text-muted-foreground text-sm">{key}</span>
+                        <span className="text-sm">{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Description */}
+                {previewListing.description && (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">الوصف</p>
+                    <p className="text-sm whitespace-pre-wrap bg-muted/50 rounded-lg p-3">{previewListing.description}</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setPreviewListing(null)}>
+              إغلاق
+            </Button>
+            {previewListing?.status === "pending" && (
+              <>
+                <Button
+                  variant="default"
+                  className="gap-1"
+                  onClick={() => { handleApproveListing(previewListing); setPreviewListing(null); }}
+                  disabled={updating === previewListing?.id}
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  قبول
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="gap-1"
+                  onClick={() => { setPreviewListing(null); openRejectDialog(previewListing); }}
+                >
+                  <XCircle className="h-4 w-4" />
+                  رفض
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
