@@ -30,7 +30,7 @@ interface ListingRow {
   city?: string;
   area?: string | null;
   phone?: string | null;
-  metadata?: Record<string, string> | null;
+  metadata?: any;
 }
 
 const badgeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
