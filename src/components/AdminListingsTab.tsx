@@ -49,6 +49,8 @@ const AdminListingsTab = () => {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectingListing, setRejectingListing] = useState<ListingRow | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [previewListing, setPreviewListing] = useState<ListingRow | null>(null);
+  const [previewImageIndex, setPreviewImageIndex] = useState(0);
 
   const fetchListings = async () => {
     setLoading(true);
