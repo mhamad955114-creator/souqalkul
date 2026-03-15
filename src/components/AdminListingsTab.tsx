@@ -10,9 +10,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
-import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatDate } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface ListingRow {
   id: string;
@@ -24,6 +25,12 @@ interface ListingRow {
   user_email?: string;
   category?: string;
   price?: number;
+  description?: string | null;
+  images?: string[] | null;
+  city?: string;
+  area?: string | null;
+  phone?: string | null;
+  metadata?: Record<string, string> | null;
 }
 
 const badgeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
