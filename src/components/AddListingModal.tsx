@@ -771,20 +771,18 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   </table>
                 </div>
 
-                {/* Plan price info */}
-                <Alert className="mt-2">
-                  <Star className="h-4 w-4" />
-                  <AlertDescription>
-                    <span className="font-medium">سعر الباقة: </span>
-                    <span>
-                      {formatPrice(
-                        formData.paidType === "business"
-                          ? (settings.business_listing.price || 100000)
-                          : formData.paidType === "professional"
-                          ? (settings.professional_listing.price || 20000)
-                          : (settings.featured_listing.price || 10000)
-                      )}
-                    </span>
+                {/* Subscription info */}
+                <Alert className="mt-2 border-primary/30 bg-primary/5">
+                  <Star className="h-4 w-4 text-primary" />
+                  <AlertDescription className="space-y-1">
+                    <p className="font-medium text-foreground">للاشتراك في هذه الباقة:</p>
+                    <p className="text-sm text-muted-foreground">
+                      تواصل معنا عبر واتساب على الرقم{" "}
+                      <a href="https://wa.me/905350348850" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline">
+                        +905350348850
+                      </a>
+                      {" "}لتفعيل اشتراكك وبدء نشر إعلاناتك المدفوعة.
+                    </p>
                   </AlertDescription>
                 </Alert>
               </div>
