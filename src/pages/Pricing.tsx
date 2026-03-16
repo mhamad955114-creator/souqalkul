@@ -91,7 +91,7 @@ const Pricing = () => {
         t.pricing.proFeature9,
       ],
       notIncluded: [],
-      buttonText: "تواصل معنا للاشتراك",
+      buttonText: t.pricing.contactWhatsApp,
       buttonVariant: "default" as const,
     },
     {
