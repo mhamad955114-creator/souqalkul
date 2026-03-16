@@ -482,6 +482,10 @@ export interface Translations {
     faqA2: string;
     faqQ3: string;
     faqA3: string;
+    subscribeMessage: string;
+    contactWhatsApp: string;
+    subscribeTitle: string;
+    subscribeDesc: string;
   };
 
   // About Us
@@ -1026,6 +1030,10 @@ export const ar: Translations = {
     faqA2: "نعم، يمكنك إلغاء الاشتراك في أي وقت بالتواصل معنا. ستبقى باقتك فعالة حتى انتهاء مدتها.",
     faqQ3: "ما الفرق بين الإعلان المجاني والمدفوع؟",
     faqA3: "الإعلانات المدفوعة تظهر دائماً في أعلى نتائج البحث، وتحصل على شارة ذهبية مميزة، مما يزيد من فرص مشاهدتها والتواصل معك.",
+    subscribeMessage: "للاشتراك في هذه الباقة، تواصل معنا عبر واتساب وسنقوم بتفعيلها لك فوراً",
+    contactWhatsApp: "تواصل عبر واتساب 💬",
+    subscribeTitle: "للاشتراك في هذه الباقة:",
+    subscribeDesc: "تواصل معنا عبر واتساب على الرقم",
   },
   aboutUs: {
     title: "من نحن",
@@ -1563,6 +1571,10 @@ export const en: Translations = {
     faqA2: "Yes, you can cancel anytime by contacting us. Your plan will remain active until its expiration date.",
     faqQ3: "What's the difference between free and paid listings?",
     faqA3: "Paid listings always appear at the top of search results and get a gold badge, increasing visibility and contact opportunities.",
+    subscribeMessage: "To subscribe to this plan, contact us via WhatsApp and we'll activate it for you immediately",
+    contactWhatsApp: "Contact via WhatsApp 💬",
+    subscribeTitle: "To subscribe to this plan:",
+    subscribeDesc: "Contact us via WhatsApp at",
   },
   aboutUs: {
     title: "About Us",
@@ -2100,6 +2112,10 @@ export const tr: Translations = {
     faqA2: "Evet, bizimle iletişime geçerek istediğiniz zaman iptal edebilirsiniz. Planınız sona erme tarihine kadar aktif kalacaktır.",
     faqQ3: "Ücretsiz ve ücretli ilan arasındaki fark nedir?",
     faqA3: "Ücretli ilanlar her zaman arama sonuçlarının başında görünür ve altın rozet alır, bu da görünürlüğü ve iletişim fırsatlarını artırır.",
+    subscribeMessage: "Bu plana abone olmak için WhatsApp üzerinden bizimle iletişime geçin, hemen aktifleştireceğiz",
+    contactWhatsApp: "WhatsApp ile iletişime geçin 💬",
+    subscribeTitle: "Bu plana abone olmak için:",
+    subscribeDesc: "WhatsApp üzerinden bizimle iletişime geçin",
   },
   aboutUs: {
     title: "Hakkımızda",
