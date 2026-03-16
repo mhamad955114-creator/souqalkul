@@ -117,7 +117,7 @@ const Pricing = () => {
         "جميع مزايا الباقة الاحترافية",
       ],
       notIncluded: [],
-      buttonText: "تواصل معنا للاشتراك",
+      buttonText: t.pricing.contactWhatsApp,
       buttonVariant: "default" as const,
     },
   ];
