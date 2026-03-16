@@ -1571,6 +1571,10 @@ export const en: Translations = {
     faqA2: "Yes, you can cancel anytime by contacting us. Your plan will remain active until its expiration date.",
     faqQ3: "What's the difference between free and paid listings?",
     faqA3: "Paid listings always appear at the top of search results and get a gold badge, increasing visibility and contact opportunities.",
+    subscribeMessage: "To subscribe to this plan, contact us via WhatsApp and we'll activate it for you immediately",
+    contactWhatsApp: "Contact via WhatsApp 💬",
+    subscribeTitle: "To subscribe to this plan:",
+    subscribeDesc: "Contact us via WhatsApp at",
   },
   aboutUs: {
     title: "About Us",
