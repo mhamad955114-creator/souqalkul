@@ -66,7 +66,7 @@ const Pricing = () => {
       notIncluded: [
         t.pricing.featuredNot1,
       ],
-      buttonText: "تواصل معنا للاشتراك",
+      buttonText: t.pricing.contactWhatsApp,
       buttonVariant: "default" as const,
     },
     {
