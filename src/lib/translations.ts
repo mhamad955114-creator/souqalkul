@@ -2112,6 +2112,10 @@ export const tr: Translations = {
     faqA2: "Evet, bizimle iletişime geçerek istediğiniz zaman iptal edebilirsiniz. Planınız sona erme tarihine kadar aktif kalacaktır.",
     faqQ3: "Ücretsiz ve ücretli ilan arasındaki fark nedir?",
     faqA3: "Ücretli ilanlar her zaman arama sonuçlarının başında görünür ve altın rozet alır, bu da görünürlüğü ve iletişim fırsatlarını artırır.",
+    subscribeMessage: "Bu plana abone olmak için WhatsApp üzerinden bizimle iletişime geçin, hemen aktifleştireceğiz",
+    contactWhatsApp: "WhatsApp ile iletişime geçin 💬",
+    subscribeTitle: "Bu plana abone olmak için:",
+    subscribeDesc: "WhatsApp üzerinden bizimle iletişime geçin",
   },
   aboutUs: {
     title: "Hakkımızda",
