@@ -215,15 +215,15 @@ const Pricing = () => {
                 ) : (
                   <div className="w-full rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 p-3 text-center space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      للاشتراك في هذه الباقة، تواصل معنا عبر واتساب وسنقوم بتفعيلها لك فوراً
+                      {t.pricing.subscribeMessage}
                     </p>
                     <a
-                      href={buildWhatsAppUrl(contact.whatsapp, `مرحباً، أرغب في الاشتراك بـ ${plan.name} (${formatPrice(plan.price)} / ${plan.duration})`)}
+                      href={buildWhatsAppUrl(contact.whatsapp, `${plan.name} (${formatPrice(plan.price)} / ${plan.duration})`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-medium text-sm"
                     >
-                      تواصل عبر واتساب 💬
+                      {t.pricing.contactWhatsApp}
                     </a>
                   </div>
                 )}

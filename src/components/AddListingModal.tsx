@@ -775,13 +775,12 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 <Alert className="mt-2 border-primary/30 bg-primary/5">
                   <Star className="h-4 w-4 text-primary" />
                   <AlertDescription className="space-y-1">
-                    <p className="font-medium text-foreground">للاشتراك في هذه الباقة:</p>
+                    <p className="font-medium text-foreground">{t.pricing.subscribeTitle}</p>
                     <p className="text-sm text-muted-foreground">
-                      تواصل معنا عبر واتساب على الرقم{" "}
+                      {t.pricing.subscribeDesc}{" "}
                       <a href="https://wa.me/905350348850" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline">
                         +905350348850
                       </a>
-                      {" "}لتفعيل اشتراكك وبدء نشر إعلاناتك المدفوعة.
                     </p>
                   </AlertDescription>
                 </Alert>
