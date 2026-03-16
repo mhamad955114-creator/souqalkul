@@ -482,6 +482,10 @@ export interface Translations {
     faqA2: string;
     faqQ3: string;
     faqA3: string;
+    subscribeMessage: string;
+    contactWhatsApp: string;
+    subscribeTitle: string;
+    subscribeDesc: string;
   };
 
   // About Us
