@@ -203,25 +203,30 @@ const Pricing = () => {
                 </div>
               </CardContent>
 
-              <CardFooter>
-                <Button
-                  variant={plan.buttonVariant}
-                  className={`w-full ${
-                    plan.popular
-                      ? "bg-amber-500 hover:bg-amber-600 text-white"
-                      : ""
-                  }`}
-                  onClick={() => {
-                    if (plan.price === 0) {
-                      navigate("/");
-                    } else {
-                      const msg = `مرحباً، أرغب في الاشتراك بـ ${plan.name} (${formatPrice(plan.price)} / ${plan.duration})`;
-                      window.open(buildWhatsAppUrl(contact.whatsapp, msg), "_blank");
-                    }
-                  }}
-                >
-                  {plan.buttonText}
-                </Button>
+              <CardFooter className="flex-col gap-3">
+                {plan.price === 0 ? (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => navigate("/")}
+                  >
+                    {plan.buttonText}
+                  </Button>
+                ) : (
+                  <div className="w-full rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 p-3 text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      للاشتراك في هذه الباقة، تواصل معنا عبر واتساب وسنقوم بتفعيلها لك فوراً
+                    </p>
+                    <a
+                      href={buildWhatsAppUrl(contact.whatsapp, `مرحباً، أرغب في الاشتراك بـ ${plan.name} (${formatPrice(plan.price)} / ${plan.duration})`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-medium text-sm"
+                    >
+                      تواصل عبر واتساب 💬
+                    </a>
+                  </div>
+                )}
               </CardFooter>
             </Card>
           ))}
