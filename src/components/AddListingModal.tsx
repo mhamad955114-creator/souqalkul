@@ -280,6 +280,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       return;
     }
 
+    if (formData.title.trim().length < 3) {
+      toast.error("عنوان الإعلان يجب أن يكون 3 أحرف على الأقل");
+      return;
+    }
+
+    if (formData.title.trim().length > 200) {
+      toast.error("عنوان الإعلان يجب أن يكون أقل من 200 حرف");
+      return;
+    }
+
     // Check active listings limit based on user's plan
     try {
       // Get user's active subscription
