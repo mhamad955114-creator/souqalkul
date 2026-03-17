@@ -20,7 +20,7 @@ import MyAccount from "./pages/MyAccount";
 import ListingDetails from "./pages/ListingDetails";
 import AllListings from "./pages/AllListings";
 import Pricing from "./pages/Pricing";
-import MyOrders from "./pages/MyOrders";
+
 import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
@@ -34,7 +34,7 @@ import Install from "./pages/Install";
 
 import Auth from "./pages/Auth";
 import MySubscriptions from "./pages/MySubscriptions";
-import MyPaymentRequests from "./pages/MyPaymentRequests";
+
 import DeleteData from "./pages/DeleteData";
 import Developers from "./pages/Developers";
 
@@ -73,7 +73,7 @@ const AppContent = () => {
               <Route path="/listing/:id" element={<ListingDetails />} />
               <Route path="/listings" element={<AllListings />} />
               <Route path="/pricing" element={<Pricing />} />
-              <Route path="/my-orders" element={<MyOrders />} />
+              
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/settings" element={<Settings />} />
@@ -85,7 +85,7 @@ const AppContent = () => {
               <Route path="/install" element={<Install />} />
               
               <Route path="/my-subscriptions" element={<MySubscriptions />} />
-              <Route path="/my-payments" element={<MyPaymentRequests />} />
+              
               <Route path="/auth" element={<Auth />} />
               <Route path="/delete-data" element={<DeleteData />} />
               <Route path="/developers" element={<Developers />} />

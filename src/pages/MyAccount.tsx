@@ -932,21 +932,6 @@ const MyAccount = () => {
           </Card>
         )}
 
-        {/* Payment Requests Quick Link */}
-        <Card className="mb-8 cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate("/my-payments")}>
-          <CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 rounded-full p-2">
-                <Package className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{dir === "rtl" ? "طلبات الدفع" : "Payment Requests"}</h3>
-                <p className="text-sm text-muted-foreground">{dir === "rtl" ? "تابع حالة طلباتك" : "Track your request status"}</p>
-              </div>
-            </div>
-            {dir === "rtl" ? <ArrowLeft className="h-5 w-5 text-muted-foreground" /> : <ArrowRight className="h-5 w-5 text-muted-foreground" />}
-          </CardContent>
-        </Card>
 
         {businessStats && (
           <Card className="mb-8 border-blue-500/30">

@@ -47,7 +47,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, BadgeCheck, Bell, CreditCard, LayoutList } from "lucide-react";
 import AdminSettingsTab from "@/components/AdminSettingsTab";
-import AdminWalletTab from "@/components/AdminWalletTab";
+
 import AdminVerificationTab from "@/components/AdminVerificationTab";
 import AdminListingsTab from "@/components/AdminListingsTab";
 import { toast } from "sonner";
@@ -103,7 +103,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "payments" | "verification" | "listings">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -620,15 +620,6 @@ const AdminReports = () => {
               إعدادات
             </Button>
             <Button
-              variant={activeTab === "payments" ? "default" : "outline"}
-              onClick={() => setActiveTab("payments")}
-              className="gap-1.5 text-xs sm:text-sm shrink-0"
-              size="sm"
-            >
-              <CreditCard className="h-4 w-4" />
-              طلبات الدفع
-            </Button>
-            <Button
               variant={activeTab === "verification" ? "default" : "outline"}
               onClick={() => setActiveTab("verification")}
               className="gap-1.5 text-xs sm:text-sm shrink-0"
@@ -828,7 +819,7 @@ const AdminReports = () => {
         )}
 
         {activeTab === "settings" && <AdminSettingsTab />}
-        {activeTab === "payments" && <AdminWalletTab />}
+        
         {activeTab === "verification" && <AdminVerificationTab />}
         {activeTab === "listings" && <AdminListingsTab />}
       </main>
