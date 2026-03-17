@@ -434,46 +434,24 @@ export interface Translations {
     title: string;
     subtitle: string;
     back: string;
-    free: string;
-    forever: string;
-    forNewUsers: string;
-    featured: string;
-    monthly: string;
-    mostPopular: string;
-    professional: string;
-    forProfessionals: string;
-    subscribeNow: string;
-    startFree: string;
-    freeText: string;
-    // Free plan features
-    freeFeature1: string;
-    freeFeature2: string;
-    freeFeature3: string;
-    freeFeature4: string;
-    freeFeature5: string;
-    // Free plan not included
-    freeNot1: string;
-    freeNot2: string;
-    freeNot3: string;
-    // Featured plan features
-    featuredFeature1: string;
-    featuredFeature2: string;
-    featuredFeature3: string;
-    featuredFeature4: string;
-    featuredFeature5: string;
-    featuredFeature6: string;
-    featuredFeature7: string;
-    featuredNot1: string;
-    // Pro plan features
-    proFeature1: string;
-    proFeature2: string;
-    proFeature3: string;
-    proFeature4: string;
-    proFeature5: string;
-    proFeature6: string;
-    proFeature7: string;
-    proFeature8: string;
-    proFeature9: string;
+    requestPlan: string;
+    // Featured plan
+    featuredName: string;
+    featuredF1: string;
+    featuredF2: string;
+    featuredF3: string;
+    // Professional plan
+    professionalName: string;
+    proF1: string;
+    proF2: string;
+    proF3: string;
+    proF4: string;
+    // Business plan
+    businessName: string;
+    bizF1: string;
+    bizF2: string;
+    bizF3: string;
+    bizF4: string;
     // FAQ
     faq: string;
     faqQ1: string;
@@ -482,10 +460,6 @@ export interface Translations {
     faqA2: string;
     faqQ3: string;
     faqA3: string;
-    subscribeMessage: string;
-    contactWhatsApp: string;
-    subscribeTitle: string;
-    subscribeDesc: string;
   };
 
   // About Us
