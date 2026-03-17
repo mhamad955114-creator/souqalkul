@@ -620,15 +620,6 @@ const AdminReports = () => {
               إعدادات
             </Button>
             <Button
-              variant={activeTab === "payments" ? "default" : "outline"}
-              onClick={() => setActiveTab("payments")}
-              className="gap-1.5 text-xs sm:text-sm shrink-0"
-              size="sm"
-            >
-              <CreditCard className="h-4 w-4" />
-              طلبات الدفع
-            </Button>
-            <Button
               variant={activeTab === "verification" ? "default" : "outline"}
               onClick={() => setActiveTab("verification")}
               className="gap-1.5 text-xs sm:text-sm shrink-0"
