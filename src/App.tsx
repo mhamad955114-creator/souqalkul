@@ -20,7 +20,7 @@ import MyAccount from "./pages/MyAccount";
 import ListingDetails from "./pages/ListingDetails";
 import AllListings from "./pages/AllListings";
 import Pricing from "./pages/Pricing";
-import MyOrders from "./pages/MyOrders";
+
 import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
