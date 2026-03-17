@@ -1,124 +1,44 @@
-import { Check, Star, Zap, Crown, ArrowLeft, ArrowRight } from "lucide-react";
+import { Check, Star, Crown, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
-import { formatPrice } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useListingSettings } from "@/hooks/useListingSettings";
 import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 
 const Pricing = () => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
-  const { settings, loading: settingsLoading } = useListingSettings();
   const { contact } = useContactSettings();
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
-  const pricingPlans = [
+  const plans = [
     {
-      name: t.pricing.free,
-      price: 0,
-      duration: t.pricing.forever,
-      description: t.pricing.forNewUsers,
-      icon: Zap,
-      iconColor: "text-green-500",
-      borderColor: "border-green-200",
-      bgColor: "bg-green-50",
-      features: [
-        `نشر ${settings.free_listing.max_active_listings} إعلان`,
-        `مدة الإعلان ${settings.free_listing.duration_days} يوم`,
-        t.pricing.freeFeature3,
-        `حتى ${settings.free_listing.max_images} صور للإعلان`,
-        t.pricing.freeFeature5,
-      ],
-      notIncluded: [
-        t.pricing.freeNot1,
-        t.pricing.freeNot2,
-        t.pricing.freeNot3,
-      ],
-      buttonText: t.pricing.startFree,
-      buttonVariant: "outline" as const,
-    },
-    {
-      name: t.pricing.featured,
-      price: settings.featured_listing.price || 10000,
-      duration: `${settings.featured_listing.duration_days} يوم`,
-      description: t.pricing.mostPopular,
+      name: t.pricing.featuredName,
       icon: Star,
       iconColor: "text-amber-500",
-      borderColor: "border-amber-300",
       bgColor: "bg-amber-50",
-      popular: true,
-      planType: "featured",
-      features: [
-        `نشر ${settings.featured_listing.max_active_listings === -1 ? 'غير محدود من' : settings.featured_listing.max_active_listings} إعلان`,
-        `مدة الإعلان ${settings.featured_listing.duration_days} يوم`,
-        t.pricing.featuredFeature3,
-        t.pricing.featuredFeature4,
-        `حتى ${settings.featured_listing.max_images} صور للإعلان`,
-        t.pricing.featuredFeature6,
-        t.pricing.featuredFeature7,
-      ],
-      notIncluded: [
-        t.pricing.featuredNot1,
-      ],
-      buttonText: t.pricing.contactWhatsApp,
-      buttonVariant: "default" as const,
+      borderColor: "border-amber-300",
+      features: [t.pricing.featuredF1, t.pricing.featuredF2, t.pricing.featuredF3],
     },
     {
-      name: t.pricing.professional,
-      price: settings.professional_listing.price || 20000,
-      duration: `${settings.professional_listing.duration_days} يوم`,
-      description: t.pricing.forProfessionals,
+      name: t.pricing.professionalName,
       icon: Crown,
       iconColor: "text-purple-500",
-      borderColor: "border-purple-300",
       bgColor: "bg-purple-50",
-      planType: "professional",
-      features: [
-        `نشر ${settings.professional_listing.max_active_listings === -1 ? 'غير محدود من' : settings.professional_listing.max_active_listings} الإعلانات`,
-        `مدة الإعلان ${settings.professional_listing.duration_days} يوم`,
-        t.pricing.proFeature3,
-        t.pricing.proFeature4,
-        `حتى ${settings.professional_listing.max_images} صورة للإعلان`,
-        t.pricing.proFeature6,
-        t.pricing.proFeature7,
-        t.pricing.proFeature8,
-        t.pricing.proFeature9,
-      ],
-      notIncluded: [],
-      buttonText: t.pricing.contactWhatsApp,
-      buttonVariant: "default" as const,
+      borderColor: "border-purple-300",
+      features: [t.pricing.proF1, t.pricing.proF2, t.pricing.proF3, t.pricing.proF4],
     },
     {
-      name: "رجال الأعمال",
-      price: settings.business_listing.price || 100000,
-      duration: `${settings.business_listing.duration_days} يوم`,
-      description: "للشركات والمؤسسات",
-      icon: null,
+      name: t.pricing.businessName,
       customIcon: true,
-      iconColor: "text-blue-500",
-      borderColor: "border-blue-300",
-      bgColor: "bg-blue-50",
-      planType: "business",
-      features: [
-        `رفع حتى ${settings.business_listing.max_images} صورة`,
-        `مدة ظهور ${settings.business_listing.duration_days} يوم`,
-        `${settings.business_listing.max_active_listings === -1 ? 'إعلانات غير محدودة' : `حتى ${settings.business_listing.max_active_listings} إعلان`}`,
-        "أولوية قصوى في نتائج البحث",
-        "شارة رجال أعمال مميزة 💎",
-        "دعم فني مخصص",
-        "ظهور في القسم المميز",
-        "إحصائيات متقدمة",
-        "جميع مزايا الباقة الاحترافية",
-      ],
-      notIncluded: [],
-      buttonText: t.pricing.contactWhatsApp,
-      buttonVariant: "default" as const,
+      iconColor: "text-red-500",
+      bgColor: "bg-red-50",
+      borderColor: "border-red-300",
+      features: [t.pricing.bizF1, t.pricing.bizF2, t.pricing.bizF3, t.pricing.bizF4],
     },
   ];
 
@@ -145,88 +65,45 @@ const Pricing = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {pricingPlans.map((plan) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {plans.map((plan, idx) => (
             <Card
-              key={plan.name}
-              className={`relative overflow-hidden transition-all hover:shadow-lg ${plan.borderColor} ${
-                plan.popular ? "border-2 scale-105 shadow-lg" : ""
-              }`}
+              key={idx}
+              className={`relative overflow-hidden transition-all hover:shadow-lg ${plan.borderColor}`}
             >
-              {plan.popular && (
-                <div className="absolute top-0 left-0 right-0 bg-amber-500 text-white text-center text-sm py-1 font-medium">
-                  {t.pricing.mostPopular}
-                </div>
-              )}
-              
-              <CardHeader className={`text-center ${plan.popular ? "pt-10" : "pt-6"}`}>
+              <CardHeader className="text-center pt-6">
                 <div className={`w-16 h-16 mx-auto rounded-full ${plan.bgColor} flex items-center justify-center mb-4`}>
-                  {(plan as any).customIcon ? (
+                  {plan.customIcon ? (
                     <span className="text-4xl inline-block animate-diamond-spin">💎</span>
                   ) : (
                     <plan.icon className={`h-8 w-8 ${plan.iconColor}`} />
                   )}
                 </div>
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">
-                    {plan.price === 0 ? t.pricing.freeText : formatPrice(plan.price)}
-                  </span>
-                  {plan.price > 0 && (
-                    <span className="text-muted-foreground text-sm mx-1">
-                      / {plan.duration}
-                    </span>
-                  )}
-                </div>
               </CardHeader>
 
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <Check className="h-3 w-3 text-green-600" />
-                      </div>
-                      <span className="text-sm">{feature}</span>
+              <CardContent className="space-y-3">
+                {plan.features.map((feature, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <Check className="h-3 w-3 text-green-600" />
                     </div>
-                  ))}
-                  
-                  {plan.notIncluded.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-3 opacity-50">
-                      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs">✕</span>
-                      </div>
-                      <span className="text-sm line-through">{feature}</span>
-                    </div>
-                  ))}
-                </div>
+                    <span className="text-sm">{feature}</span>
+                  </div>
+                ))}
               </CardContent>
 
-              <CardFooter className="flex-col gap-3">
-                {plan.price === 0 ? (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => navigate("/")}
-                  >
-                    {plan.buttonText}
+              <CardFooter>
+                <a
+                  href={buildWhatsAppUrl(contact.whatsapp, plan.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <Button variant="outline" className="w-full">
+                    {t.pricing.requestPlan}
                   </Button>
-                ) : (
-                  <div className="w-full rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 p-3 text-center space-y-2">
-                    <p className="text-sm text-muted-foreground">
-                      {t.pricing.subscribeMessage}
-                    </p>
-                    <a
-                      href={buildWhatsAppUrl(contact.whatsapp, `${plan.name} (${formatPrice(plan.price)} / ${plan.duration})`)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-medium text-sm"
-                    >
-                      {t.pricing.contactWhatsApp}
-                    </a>
-                  </div>
-                )}
+                </a>
               </CardFooter>
             </Card>
           ))}

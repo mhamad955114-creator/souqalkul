@@ -434,46 +434,24 @@ export interface Translations {
     title: string;
     subtitle: string;
     back: string;
-    free: string;
-    forever: string;
-    forNewUsers: string;
-    featured: string;
-    monthly: string;
-    mostPopular: string;
-    professional: string;
-    forProfessionals: string;
-    subscribeNow: string;
-    startFree: string;
-    freeText: string;
-    // Free plan features
-    freeFeature1: string;
-    freeFeature2: string;
-    freeFeature3: string;
-    freeFeature4: string;
-    freeFeature5: string;
-    // Free plan not included
-    freeNot1: string;
-    freeNot2: string;
-    freeNot3: string;
-    // Featured plan features
-    featuredFeature1: string;
-    featuredFeature2: string;
-    featuredFeature3: string;
-    featuredFeature4: string;
-    featuredFeature5: string;
-    featuredFeature6: string;
-    featuredFeature7: string;
-    featuredNot1: string;
-    // Pro plan features
-    proFeature1: string;
-    proFeature2: string;
-    proFeature3: string;
-    proFeature4: string;
-    proFeature5: string;
-    proFeature6: string;
-    proFeature7: string;
-    proFeature8: string;
-    proFeature9: string;
+    requestPlan: string;
+    // Featured plan
+    featuredName: string;
+    featuredF1: string;
+    featuredF2: string;
+    featuredF3: string;
+    // Professional plan
+    professionalName: string;
+    proF1: string;
+    proF2: string;
+    proF3: string;
+    proF4: string;
+    // Business plan
+    businessName: string;
+    bizF1: string;
+    bizF2: string;
+    bizF3: string;
+    bizF4: string;
     // FAQ
     faq: string;
     faqQ1: string;
@@ -482,10 +460,6 @@ export interface Translations {
     faqA2: string;
     faqQ3: string;
     faqA3: string;
-    subscribeMessage: string;
-    contactWhatsApp: string;
-    subscribeTitle: string;
-    subscribeDesc: string;
   };
 
   // About Us
@@ -984,56 +958,31 @@ export const ar: Translations = {
     editError: "فشل تحديث الإعلان",
   },
   pricing: {
-    title: "أسعار الإعلانات المدفوعة",
-    subtitle: "اختر الخطة المناسبة لك واحصل على مميزات حصرية لإعلاناتك",
+    title: "باقات الإعلانات",
+    subtitle: "اختر الباقة المناسبة لك وتواصل معنا لتفعيلها",
     back: "رجوع",
-    free: "مجاني",
-    forever: "دائم",
-    forNewUsers: "للمستخدمين الجدد",
-    featured: "مميز",
-    monthly: "شهرياً",
-    mostPopular: "الأكثر شعبية",
-    professional: "احترافي",
-    forProfessionals: "للمحترفين والشركات",
-    subscribeNow: "اشترك الآن",
-    startFree: "ابدأ مجاناً",
-    freeText: "مجاني",
-    freeFeature1: "نشر إعلان واحد",
-    freeFeature2: "مدة الإعلان 30 يوم",
-    freeFeature3: "يظهر بعد الإعلانات المدفوعة",
-    freeFeature4: "صورة واحدة للإعلان",
-    freeFeature5: "دعم فني أساسي",
-    freeNot1: "التثبيت في أعلى القائمة",
-    freeNot2: "الشارة الذهبية",
-    freeNot3: "إحصائيات المشاهدات",
-    featuredFeature1: "نشر 5 إعلانات",
-    featuredFeature2: "مدة الإعلان 60 يوم",
-    featuredFeature3: "التثبيت في أعلى القائمة",
-    featuredFeature4: "الشارة الذهبية المميزة",
-    featuredFeature5: "حتى 10 صور للإعلان",
-    featuredFeature6: "إحصائيات المشاهدات",
-    featuredFeature7: "دعم فني متقدم",
-    featuredNot1: "أولوية في نتائج البحث",
-    proFeature1: "نشر غير محدود للإعلانات",
-    proFeature2: "مدة الإعلان 90 يوم",
-    proFeature3: "التثبيت في أعلى القائمة",
-    proFeature4: "الشارة الذهبية المميزة",
-    proFeature5: "حتى 20 صور للإعلان",
-    proFeature6: "إحصائيات مفصلة",
-    proFeature7: "أولوية في نتائج البحث",
-    proFeature8: "دعم فني على مدار الساعة",
-    proFeature9: "شارة تاجر موثوق",
+    requestPlan: "طلب الباقة",
+    featuredName: "باقة مميزة",
+    featuredF1: "ظهور أفضل من العادي",
+    featuredF2: "مدة أطول للإعلان",
+    featuredF3: "دعم أساسي",
+    professionalName: "باقة احترافية",
+    proF1: "تثبيت الإعلان أعلى النتائج",
+    proF2: "عدد صور أكبر",
+    proF3: "أولوية في البحث",
+    proF4: "إحصائيات",
+    businessName: "باقة رجال الأعمال",
+    bizF1: "كل مميزات الاحترافي",
+    bizF2: "شارة موثوق",
+    bizF3: "دعم فوري",
+    bizF4: "ترويج أقوى",
     faq: "الأسئلة الشائعة",
     faqQ1: "كيف يمكنني الاشتراك في باقة؟",
     faqA1: "يمكنك التواصل معنا عبر واتساب لاختيار الباقة المناسبة لك. سيقوم فريقنا بمساعدتك في تفعيل الباقة خلال 24 ساعة.",
     faqQ2: "هل يمكنني إلغاء الاشتراك؟",
     faqA2: "نعم، يمكنك إلغاء الاشتراك في أي وقت بالتواصل معنا. ستبقى باقتك فعالة حتى انتهاء مدتها.",
-    faqQ3: "ما الفرق بين الإعلان المجاني والمدفوع؟",
-    faqA3: "الإعلانات المدفوعة تظهر دائماً في أعلى نتائج البحث، وتحصل على شارة ذهبية مميزة، مما يزيد من فرص مشاهدتها والتواصل معك.",
-    subscribeMessage: "للاشتراك في هذه الباقة، تواصل معنا عبر واتساب وسنقوم بتفعيلها لك فوراً",
-    contactWhatsApp: "تواصل عبر واتساب 💬",
-    subscribeTitle: "للاشتراك في هذه الباقة:",
-    subscribeDesc: "تواصل معنا عبر واتساب على الرقم",
+    faqQ3: "ما الفرق بين الباقات؟",
+    faqA3: "كل باقة توفر مميزات إضافية مثل ظهور أفضل، صور أكثر، ودعم متقدم. تواصل معنا لمعرفة التفاصيل.",
   },
   aboutUs: {
     title: "من نحن",
@@ -1525,56 +1474,31 @@ export const en: Translations = {
     editError: "Failed to update listing",
   },
   pricing: {
-    title: "Paid Listing Prices",
-    subtitle: "Choose the right plan and get exclusive features for your listings",
+    title: "Listing Plans",
+    subtitle: "Choose the right plan and contact us to activate it",
     back: "Back",
-    free: "Free",
-    forever: "Forever",
-    forNewUsers: "For new users",
-    featured: "Featured",
-    monthly: "Monthly",
-    mostPopular: "Most Popular",
-    professional: "Professional",
-    forProfessionals: "For professionals & businesses",
-    subscribeNow: "Subscribe Now",
-    startFree: "Start Free",
-    freeText: "Free",
-    freeFeature1: "Post 1 listing",
-    freeFeature2: "Listing duration 30 days",
-    freeFeature3: "Appears after paid listings",
-    freeFeature4: "1 image per listing",
-    freeFeature5: "Basic support",
-    freeNot1: "Pin to top of list",
-    freeNot2: "Gold badge",
-    freeNot3: "View statistics",
-    featuredFeature1: "Post 5 listings",
-    featuredFeature2: "Listing duration 60 days",
-    featuredFeature3: "Pin to top of list",
-    featuredFeature4: "Gold featured badge",
-    featuredFeature5: "Up to 10 images per listing",
-    featuredFeature6: "View statistics",
-    featuredFeature7: "Advanced support",
-    featuredNot1: "Priority in search results",
-    proFeature1: "Unlimited listings",
-    proFeature2: "Listing duration 90 days",
-    proFeature3: "Pin to top of list",
-    proFeature4: "Gold featured badge",
-    proFeature5: "Up to 20 images per listing",
-    proFeature6: "Detailed statistics",
-    proFeature7: "Priority in search results",
-    proFeature8: "24/7 support",
-    proFeature9: "Trusted dealer badge",
+    requestPlan: "Request Plan",
+    featuredName: "Featured Plan",
+    featuredF1: "Better visibility than regular",
+    featuredF2: "Longer listing duration",
+    featuredF3: "Basic support",
+    professionalName: "Professional Plan",
+    proF1: "Pin listing to top of results",
+    proF2: "More images allowed",
+    proF3: "Priority in search",
+    proF4: "Statistics",
+    businessName: "Business Plan",
+    bizF1: "All Professional features",
+    bizF2: "Trusted badge",
+    bizF3: "Instant support",
+    bizF4: "Stronger promotion",
     faq: "Frequently Asked Questions",
     faqQ1: "How can I subscribe to a plan?",
     faqA1: "You can contact us via WhatsApp to choose the right plan for you. Our team will help you activate it within 24 hours.",
     faqQ2: "Can I cancel my subscription?",
     faqA2: "Yes, you can cancel anytime by contacting us. Your plan will remain active until its expiration date.",
-    faqQ3: "What's the difference between free and paid listings?",
-    faqA3: "Paid listings always appear at the top of search results and get a gold badge, increasing visibility and contact opportunities.",
-    subscribeMessage: "To subscribe to this plan, contact us via WhatsApp and we'll activate it for you immediately",
-    contactWhatsApp: "Contact via WhatsApp 💬",
-    subscribeTitle: "To subscribe to this plan:",
-    subscribeDesc: "Contact us via WhatsApp at",
+    faqQ3: "What's the difference between plans?",
+    faqA3: "Each plan offers additional features like better visibility, more images, and advanced support. Contact us for details.",
   },
   aboutUs: {
     title: "About Us",
@@ -2066,56 +1990,31 @@ export const tr: Translations = {
     editError: "İlan güncellenemedi",
   },
   pricing: {
-    title: "Ücretli İlan Fiyatları",
-    subtitle: "Size uygun planı seçin ve ilanlarınız için özel özellikler kazanın",
+    title: "İlan Paketleri",
+    subtitle: "Size uygun paketi seçin ve aktifleştirmek için bizimle iletişime geçin",
     back: "Geri",
-    free: "Ücretsiz",
-    forever: "Süresiz",
-    forNewUsers: "Yeni kullanıcılar için",
-    featured: "Öne Çıkan",
-    monthly: "Aylık",
-    mostPopular: "En Popüler",
-    professional: "Profesyonel",
-    forProfessionals: "Profesyoneller ve şirketler için",
-    subscribeNow: "Şimdi Abone Ol",
-    startFree: "Ücretsiz Başla",
-    freeText: "Ücretsiz",
-    freeFeature1: "1 ilan yayınla",
-    freeFeature2: "İlan süresi 30 gün",
-    freeFeature3: "Ücretli ilanlardan sonra görünür",
-    freeFeature4: "İlan başına 1 görsel",
-    freeFeature5: "Temel destek",
-    freeNot1: "Listenin başına sabitle",
-    freeNot2: "Altın rozet",
-    freeNot3: "Görüntüleme istatistikleri",
-    featuredFeature1: "5 ilan yayınla",
-    featuredFeature2: "İlan süresi 60 gün",
-    featuredFeature3: "Listenin başına sabitle",
-    featuredFeature4: "Altın öne çıkan rozeti",
-    featuredFeature5: "İlan başına 10 görsele kadar",
-    featuredFeature6: "Görüntüleme istatistikleri",
-    featuredFeature7: "Gelişmiş destek",
-    featuredNot1: "Arama sonuçlarında öncelik",
-    proFeature1: "Sınırsız ilan",
-    proFeature2: "İlan süresi 90 gün",
-    proFeature3: "Listenin başına sabitle",
-    proFeature4: "Altın öne çıkan rozeti",
-    proFeature5: "İlan başına 20 görsele kadar",
-    proFeature6: "Detaylı istatistikler",
-    proFeature7: "Arama sonuçlarında öncelik",
-    proFeature8: "7/24 destek",
-    proFeature9: "Güvenilir satıcı rozeti",
+    requestPlan: "Paket Talep Et",
+    featuredName: "Öne Çıkan Paket",
+    featuredF1: "Normalden daha iyi görünürlük",
+    featuredF2: "Daha uzun ilan süresi",
+    featuredF3: "Temel destek",
+    professionalName: "Profesyonel Paket",
+    proF1: "İlanı sonuçların başına sabitle",
+    proF2: "Daha fazla görsel",
+    proF3: "Aramada öncelik",
+    proF4: "İstatistikler",
+    businessName: "İş Paketi",
+    bizF1: "Tüm Profesyonel özellikler",
+    bizF2: "Güvenilir rozeti",
+    bizF3: "Anında destek",
+    bizF4: "Daha güçlü tanıtım",
     faq: "Sıkça Sorulan Sorular",
-    faqQ1: "Bir plana nasıl abone olabilirim?",
-    faqA1: "Sizin için doğru planı seçmek üzere WhatsApp üzerinden bizimle iletişime geçebilirsiniz. Ekibimiz 24 saat içinde aktivasyon konusunda size yardımcı olacaktır.",
+    faqQ1: "Bir pakete nasıl abone olabilirim?",
+    faqA1: "Sizin için doğru paketi seçmek üzere WhatsApp üzerinden bizimle iletişime geçebilirsiniz. Ekibimiz 24 saat içinde aktivasyon konusunda size yardımcı olacaktır.",
     faqQ2: "Aboneliğimi iptal edebilir miyim?",
-    faqA2: "Evet, bizimle iletişime geçerek istediğiniz zaman iptal edebilirsiniz. Planınız sona erme tarihine kadar aktif kalacaktır.",
-    faqQ3: "Ücretsiz ve ücretli ilan arasındaki fark nedir?",
-    faqA3: "Ücretli ilanlar her zaman arama sonuçlarının başında görünür ve altın rozet alır, bu da görünürlüğü ve iletişim fırsatlarını artırır.",
-    subscribeMessage: "Bu plana abone olmak için WhatsApp üzerinden bizimle iletişime geçin, hemen aktifleştireceğiz",
-    contactWhatsApp: "WhatsApp ile iletişime geçin 💬",
-    subscribeTitle: "Bu plana abone olmak için:",
-    subscribeDesc: "WhatsApp üzerinden bizimle iletişime geçin",
+    faqA2: "Evet, bizimle iletişime geçerek istediğiniz zaman iptal edebilirsiniz. Paketiniz sona erme tarihine kadar aktif kalacaktır.",
+    faqQ3: "Paketler arasındaki fark nedir?",
+    faqA3: "Her paket daha iyi görünürlük, daha fazla görsel ve gelişmiş destek gibi ek özellikler sunar. Detaylar için bizimle iletişime geçin.",
   },
   aboutUs: {
     title: "Hakkımızda",
