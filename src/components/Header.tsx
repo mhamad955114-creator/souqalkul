@@ -112,18 +112,6 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                           <FileText className="h-4 w-4" />
                           {t.nav.myListings}
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/my-orders")} className="flex items-center gap-2">
-                          <ShoppingBag className="h-4 w-4" />
-                          {t.nav.myOrders}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/my-subscriptions")} className="flex items-center gap-2">
-                          <Crown className="h-4 w-4" />
-                          {dir === "rtl" ? "اشتراكاتي" : "My Subscriptions"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate("/my-payments")} className="flex items-center gap-2">
-                          <Receipt className="h-4 w-4" />
-                          {dir === "rtl" ? "طلبات الدفع" : "Payment Requests"}
-                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate("/favorites")} className="flex items-center gap-2">
                           <Heart className="h-4 w-4" />
                           {t.nav.favorites}
