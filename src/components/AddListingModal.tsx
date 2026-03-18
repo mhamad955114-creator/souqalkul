@@ -5,12 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
-import { cities, categories, areasByCity, formatPrice, categoryMetadataFields } from "@/lib/constants";
+import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
+import { cities, categories, areasByCity, categoryMetadataFields } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -43,8 +42,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     city: "",
     area: "",
     phone: "",
-    is_featured: false,
-    paidType: "" as "" | "featured" | "professional" | "business",
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
@@ -128,17 +125,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const isVideoFile = (file: File) => file.type.startsWith("video/");
   const isVideoUrl = (url: string) => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
 
-  // Determine max images allowed based on selected plan
-  const getMaxImages = () => {
-    if (formData.is_featured) {
-      if (formData.paidType === "business") return settings.business_listing.max_images || 30;
-      if (formData.paidType === "professional") return settings.professional_listing.max_images || 20;
-      return settings.featured_listing.max_images || 10;
-    }
-    return settings.free_listing.max_images || 5;
-  };
-
-  const maxImages = getMaxImages();
+  // Max images for free plan
+  const maxImages = settings.free_listing.max_images || 5;
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return;
@@ -351,9 +339,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setLoading(true);
 
     try {
-      const isPaidListing = formData.is_featured;
-      const listingStatus = isPaidListing ? "pending" : "active";
-
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
@@ -364,29 +349,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         area: formData.area || null,
         phone: formData.phone,
         images: images,
-        is_featured: formData.is_featured,
-        status: listingStatus,
-        badge_type: isPaidListing ? (formData.paidType || "featured") : null,
+        is_featured: false,
+        status: "active",
+        badge_type: null,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
       } as any);
 
       if (error) {
         toast.error(t.listingForm.addError + ": " + error.message);
       } else {
-        if (isPaidListing) {
-          toast.success("تم إرسال الإعلان للمراجعة. سيتم نشره بعد موافقة الإدارة ✅");
-          // Notify admins
-          try {
-            const { notifyAdmins } = await import("@/lib/notifyAdmins");
-            await notifyAdmins({
-              title: "إعلان مدفوع جديد بانتظار الموافقة",
-              message: `إعلان "${formData.title.trim()}" (${formData.paidType || "featured"}) بانتظار موافقتك`,
-              type: "pending_listing",
-            });
-          } catch {}
-        } else {
-          toast.success(t.listingForm.addSuccess);
-        }
+        toast.success(t.listingForm.addSuccess);
         resetForm();
         onSuccess();
         onClose();
@@ -405,8 +377,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       city: "",
       area: "",
       phone: "",
-      is_featured: false,
-      paidType: "",
     });
     setImages([]);
     setMetadata({});
@@ -626,176 +596,24 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
           )}
 
-          {/* Ad Type Section */}
-          <div className="space-y-3">
-            <Label>{t.listingForm.adType} *</Label>
-            <RadioGroup
-              value={formData.is_featured ? "paid" : "free"}
-              onValueChange={(value) => setFormData({ ...formData, is_featured: value === "paid", paidType: value === "paid" ? "featured" : "" })}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div className="relative">
-                <RadioGroupItem value="free" id="free" className="peer sr-only" />
-                <label
-                  htmlFor="free"
-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
+          {/* Upgrade Ad - Contact Us */}
+          <Alert className="border-amber-500/30 bg-amber-500/5">
+            <Star className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="space-y-1">
+              <p className="font-medium text-foreground">ترقية الإعلان ⭐</p>
+              <p className="text-sm text-muted-foreground">
+                هل تريد تمييز إعلانك وإظهاره في المقدمة؟{" "}
+                <a 
+                  href="https://wa.me/905350348850?text=%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%AA%D8%B1%D9%82%D9%8A%D8%A9%20%D8%A5%D8%B9%D9%84%D8%A7%D9%86%D9%8A" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-primary font-semibold underline"
                 >
-                  <Gift className="h-8 w-8 text-green-500" />
-                  <span className="font-semibold">{t.listingForm.freeAd}</span>
-                  <span className="text-xs text-muted-foreground text-center">
-                    حتى {settings.free_listing.max_images} صور • {settings.free_listing.duration_days} يوم • {settings.free_listing.max_active_listings} إعلان
-                  </span>
-                  <span className="text-xs text-muted-foreground text-center">{t.listingForm.freeAdDesc}</span>
-                </label>
-              </div>
-              <div className="relative">
-                <RadioGroupItem value="paid" id="paid" className="peer sr-only" />
-                <label
-                  htmlFor="paid"
-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-amber-500 peer-data-[state=checked]:bg-amber-500/5 cursor-pointer transition-all"
-                >
-                  <Star className="h-8 w-8 text-amber-500" />
-                  <span className="font-semibold">{t.listingForm.paidAd}</span>
-                  <span className="text-xs text-muted-foreground text-center">{t.listingForm.paidAdDesc}</span>
-                </label>
-              </div>
-            </RadioGroup>
-
-            {/* Sub-selection for paid type: Featured vs Professional */}
-            {formData.is_featured && (
-              <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
-                <Label className="text-sm text-muted-foreground">اختر نوع الباقة:</Label>
-                <RadioGroup
-                  value={formData.paidType}
-                  onValueChange={(value) => setFormData({ ...formData, paidType: value as "featured" | "professional" | "business" })}
-                  className="grid grid-cols-3 gap-3"
-                >
-                  <div className="relative">
-                    <RadioGroupItem value="featured" id="featured-type" className="peer sr-only" />
-                    <label
-                      htmlFor="featured-type"
-                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-amber-500 peer-data-[state=checked]:bg-amber-500/5 cursor-pointer transition-all"
-                    >
-                      <Star className="h-6 w-6 text-amber-500" />
-                      <span className="font-semibold text-sm">مميز ⭐</span>
-                      <ul className="text-[11px] text-muted-foreground text-right space-y-1 w-full mt-1">
-                        <li>• يظهر دائماً في المقدمة</li>
-                        <li>• شارة ذهبية مميزة</li>
-                        <li>• حتى {settings.featured_listing.max_images || 10} صور</li>
-                        <li>• مدة {settings.featured_listing.duration_days || 30} يوم</li>
-                      </ul>
-                      <span className="text-xs font-bold text-amber-600 mt-1">
-                        {formatPrice(settings.featured_listing.price || 10000)}
-                      </span>
-                    </label>
-                  </div>
-                  <div className="relative">
-                    <RadioGroupItem value="professional" id="professional-type" className="peer sr-only" />
-                    <label
-                      htmlFor="professional-type"
-                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-purple-500 peer-data-[state=checked]:bg-purple-500/5 cursor-pointer transition-all"
-                    >
-                      <Sparkles className="h-6 w-6 text-purple-500" />
-                      <span className="font-semibold text-sm">احترافي 👑</span>
-                      <ul className="text-[11px] text-muted-foreground text-right space-y-1 w-full mt-1">
-                        <li>• كل مميزات الباقة المميزة</li>
-                        <li>• شارة احترافية بنفسجية</li>
-                        <li>• حتى {settings.professional_listing.max_images || 20} صورة</li>
-                        <li>• مدة {settings.professional_listing.duration_days || 60} يوم</li>
-                      </ul>
-                      <span className="text-xs font-bold text-purple-600 mt-1">
-                        {formatPrice(settings.professional_listing.price || 20000)}
-                      </span>
-                    </label>
-                  </div>
-                  <div className="relative">
-                    <RadioGroupItem value="business" id="business-type" className="peer sr-only" />
-                    <label
-                      htmlFor="business-type"
-                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-blue-500 peer-data-[state=checked]:bg-blue-500/5 cursor-pointer transition-all"
-                    >
-                      <span className="text-2xl animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]">💎</span>
-                      <span className="font-semibold text-sm">رجال أعمال 💎</span>
-                      <ul className="text-[11px] text-muted-foreground text-right space-y-1 w-full mt-1">
-                        <li>• جميع مزايا الاحترافي</li>
-                        <li>• شارة 💎 مثبت</li>
-                        <li>• حتى {settings.business_listing.max_images || 30} صورة</li>
-                        <li>• مدة {settings.business_listing.duration_days || 100} يوم</li>
-                      </ul>
-                      <span className="text-xs font-bold text-blue-600 mt-1">
-                        {formatPrice(settings.business_listing.price || 100000)}
-                      </span>
-                    </label>
-                  </div>
-                </RadioGroup>
-
-                {/* Comparison table */}
-                <div className="rounded-xl border border-border overflow-hidden text-xs mt-3">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-muted/50">
-                        <th className="p-2 text-right font-medium text-muted-foreground">الميزة</th>
-                        <th className="p-2 text-center font-medium text-amber-600">مميز ⭐</th>
-                        <th className="p-2 text-center font-medium text-purple-600">احترافي 👑</th>
-                        <th className="p-2 text-center font-medium text-blue-600">أعمال 💎</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      <tr>
-                        <td className="p-2 text-right text-muted-foreground">الظهور في المقدمة</td>
-                        <td className="p-2 text-center text-green-600">✓</td>
-                        <td className="p-2 text-center text-green-600">✓</td>
-                        <td className="p-2 text-center text-green-600">✓</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2 text-right text-muted-foreground">شارة مميزة</td>
-                        <td className="p-2 text-center text-green-600">✓ ذهبية</td>
-                        <td className="p-2 text-center text-green-600">✓ بنفسجية</td>
-                        <td className="p-2 text-center text-green-600">✓ 💎</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2 text-right text-muted-foreground">عدد الصور</td>
-                        <td className="p-2 text-center">{settings.featured_listing.max_images || 10}</td>
-                        <td className="p-2 text-center">{settings.professional_listing.max_images || 20}</td>
-                        <td className="p-2 text-center font-medium">{settings.business_listing.max_images || 30}</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2 text-right text-muted-foreground">مدة الإعلان</td>
-                        <td className="p-2 text-center">{settings.featured_listing.duration_days || 30} يوم</td>
-                        <td className="p-2 text-center">{settings.professional_listing.duration_days || 30} يوم</td>
-                        <td className="p-2 text-center font-medium">{settings.business_listing.duration_days || 100} يوم</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2 text-right text-muted-foreground">تثبيت أعلى</td>
-                        <td className="p-2 text-center text-destructive">✗</td>
-                        <td className="p-2 text-center text-destructive">✗</td>
-                        <td className="p-2 text-center text-green-600">✓</td>
-                      </tr>
-                      <tr>
-                        <td className="p-2 text-right text-muted-foreground">أولوية في البحث</td>
-                        <td className="p-2 text-center text-destructive">✗</td>
-                        <td className="p-2 text-center text-green-600">✓</td>
-                        <td className="p-2 text-center text-green-600">✓</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Subscription info */}
-                <Alert className="mt-2 border-primary/30 bg-primary/5">
-                  <Star className="h-4 w-4 text-primary" />
-                  <AlertDescription className="space-y-1">
-                    <p className="font-medium text-foreground">{t.pricing.requestPlan}</p>
-                    <p className="text-sm text-muted-foreground">
-                      <a href="https://wa.me/905350348850" target="_blank" rel="noopener noreferrer" className="text-primary font-semibold underline">
-                        +905350348850
-                      </a>
-                    </p>
-                  </AlertDescription>
-                </Alert>
-              </div>
-            )}
-          </div>
+                  تواصل معنا عبر واتساب
+                </a>
+              </p>
+            </AlertDescription>
+          </Alert>
 
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
