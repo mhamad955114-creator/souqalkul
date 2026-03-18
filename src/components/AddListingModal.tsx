@@ -351,9 +351,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setLoading(true);
 
     try {
-      const isPaidListing = formData.is_featured;
-      const listingStatus = isPaidListing ? "pending" : "active";
-
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
@@ -364,29 +361,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         area: formData.area || null,
         phone: formData.phone,
         images: images,
-        is_featured: formData.is_featured,
-        status: listingStatus,
-        badge_type: isPaidListing ? (formData.paidType || "featured") : null,
+        is_featured: false,
+        status: "active",
+        badge_type: null,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
       } as any);
 
       if (error) {
         toast.error(t.listingForm.addError + ": " + error.message);
       } else {
-        if (isPaidListing) {
-          toast.success("تم إرسال الإعلان للمراجعة. سيتم نشره بعد موافقة الإدارة ✅");
-          // Notify admins
-          try {
-            const { notifyAdmins } = await import("@/lib/notifyAdmins");
-            await notifyAdmins({
-              title: "إعلان مدفوع جديد بانتظار الموافقة",
-              message: `إعلان "${formData.title.trim()}" (${formData.paidType || "featured"}) بانتظار موافقتك`,
-              type: "pending_listing",
-            });
-          } catch {}
-        } else {
-          toast.success(t.listingForm.addSuccess);
-        }
+        toast.success(t.listingForm.addSuccess);
         resetForm();
         onSuccess();
         onClose();
