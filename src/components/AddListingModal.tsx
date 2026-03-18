@@ -126,17 +126,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const isVideoFile = (file: File) => file.type.startsWith("video/");
   const isVideoUrl = (url: string) => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
 
-  // Determine max images allowed based on selected plan
-  const getMaxImages = () => {
-    if (formData.is_featured) {
-      if (formData.paidType === "business") return settings.business_listing.max_images || 30;
-      if (formData.paidType === "professional") return settings.professional_listing.max_images || 20;
-      return settings.featured_listing.max_images || 10;
-    }
-    return settings.free_listing.max_images || 5;
-  };
-
-  const maxImages = getMaxImages();
+  // Max images for free plan
+  const maxImages = settings.free_listing.max_images || 5;
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return;
