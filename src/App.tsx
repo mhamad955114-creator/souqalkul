@@ -33,7 +33,7 @@ import ContactUs from "./pages/ContactUs";
 import Install from "./pages/Install";
 
 import Auth from "./pages/Auth";
-import MySubscriptions from "./pages/MySubscriptions";
+
 
 import DeleteData from "./pages/DeleteData";
 import Developers from "./pages/Developers";
@@ -84,7 +84,7 @@ const AppContent = () => {
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/install" element={<Install />} />
               
-              <Route path="/my-subscriptions" element={<MySubscriptions />} />
+              
               
               <Route path="/auth" element={<Auth />} />
               <Route path="/delete-data" element={<DeleteData />} />
