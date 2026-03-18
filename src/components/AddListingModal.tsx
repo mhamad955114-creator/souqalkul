@@ -387,8 +387,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       city: "",
       area: "",
       phone: "",
-      is_featured: false,
-      paidType: "",
     });
     setImages([]);
     setMetadata({});
