@@ -33,7 +33,7 @@ import ContactUs from "./pages/ContactUs";
 import Install from "./pages/Install";
 
 import Auth from "./pages/Auth";
-import MySubscriptions from "./pages/MySubscriptions";
+
 
 import DeleteData from "./pages/DeleteData";
 import Developers from "./pages/Developers";
