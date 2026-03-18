@@ -150,9 +150,6 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
           {/* Animated background shimmer */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
           
-          <div className="absolute top-2 left-2 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
-            إعلان مدفوع
-          </div>
           <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
             <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
               <span className="text-4xl md:text-5xl animate-pulse drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] [filter:drop-shadow(0_0_8px_rgba(6,182,212,0.7))_drop-shadow(0_0_24px_rgba(59,130,246,0.6))]">💎</span>
@@ -180,13 +177,15 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
               </div>
             </div>
             <div className="flex-shrink-0 text-center">
-              <p className="text-3xl font-bold mb-1">{formatPrice(settings.business_listing.price || 200000)}</p>
-              <Button
-                onClick={() => navigate("/pricing")}
-                className="bg-white text-blue-600 hover:bg-white/90 font-bold mt-2 hover-scale"
+              <a
+                href="https://wa.me/905350348850?text=%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%A8%D8%A7%D9%82%D8%A9%20%D8%B1%D8%AC%D8%A7%D9%84%20%D8%A7%D9%84%D8%A3%D8%B9%D9%85%D8%A7%D9%84"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                اشترك الآن
-              </Button>
+                <Button className="bg-white text-blue-600 hover:bg-white/90 font-bold mt-2 hover-scale">
+                  تواصل معنا
+                </Button>
+              </a>
             </div>
           </div>
         </div>
