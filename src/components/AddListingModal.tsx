@@ -8,9 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, Gift, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
-import { cities, categories, areasByCity, formatPrice, categoryMetadataFields } from "@/lib/constants";
-import { useGeolocation } from "@/hooks/useGeolocation";
+import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
+import { cities, categories, areasByCity, categoryMetadataFields } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
