@@ -43,8 +43,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     city: "",
     area: "",
     phone: "",
-    is_featured: false,
-    paidType: "" as "" | "featured" | "professional" | "business",
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
