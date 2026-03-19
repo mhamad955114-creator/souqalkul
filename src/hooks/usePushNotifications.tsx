@@ -8,6 +8,24 @@ declare global {
   }
 }
 
+const PUSH_SW_URL = "/push-sw.js";
+const PUSH_SCOPE = "/push/";
+
+const getRegistrationScriptUrl = (registration: ServiceWorkerRegistration) =>
+  registration.active?.scriptURL || registration.waiting?.scriptURL || registration.installing?.scriptURL || "";
+
+const getPushRegistration = async () => {
+  const scopedRegistration = await navigator.serviceWorker.getRegistration(PUSH_SCOPE);
+  if (scopedRegistration) return scopedRegistration;
+
+  const legacyRootRegistration = await navigator.serviceWorker.getRegistration("/");
+  if (legacyRootRegistration && getRegistrationScriptUrl(legacyRootRegistration).includes(PUSH_SW_URL)) {
+    return legacyRootRegistration;
+  }
+
+  return null;
+};
+
 export const usePushNotifications = () => {
   const { user } = useAuth();
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -22,7 +40,6 @@ export const usePushNotifications = () => {
     const iosPWA = isIOS && isStandalone;
     setIsIOSPWA(iosPWA);
 
-    // iOS 16.4+ supports push in PWA mode
     const supported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
     setIsSupported(supported);
     if (supported) {
@@ -30,13 +47,12 @@ export const usePushNotifications = () => {
     }
   }, []);
 
-  // Check if already subscribed
   useEffect(() => {
     if (!user || !isSupported) return;
 
     const checkSubscription = async () => {
       try {
-        const registration = await navigator.serviceWorker.getRegistration("/push-sw.js");
+        const registration = await getPushRegistration();
         if (registration) {
           const subscription = await registration.pushManager.getSubscription();
           setIsSubscribed(!!subscription);
@@ -54,7 +70,6 @@ export const usePushNotifications = () => {
 
     setLoading(true);
     try {
-      // Request permission
       const perm = await Notification.requestPermission();
       setPermission(perm);
 
@@ -63,11 +78,14 @@ export const usePushNotifications = () => {
         return false;
       }
 
-      // Register push service worker
-      const registration = await navigator.serviceWorker.register("/push-sw.js", { scope: "/" });
+      const legacyRootRegistration = await navigator.serviceWorker.getRegistration("/");
+      if (legacyRootRegistration && getRegistrationScriptUrl(legacyRootRegistration).includes(PUSH_SW_URL)) {
+        await legacyRootRegistration.unregister();
+      }
+
+      const registration = await navigator.serviceWorker.register(PUSH_SW_URL, { scope: PUSH_SCOPE });
       await navigator.serviceWorker.ready;
 
-      // Get VAPID public key from edge function
       let vapidPublicKey: string | null = null;
       try {
         const { data } = await supabase.functions.invoke("get-vapid-key");
@@ -79,14 +97,12 @@ export const usePushNotifications = () => {
       let subscription: PushSubscription | null = null;
 
       if (vapidPublicKey) {
-        // Convert VAPID key
         const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey,
         });
       } else {
-        // Subscribe without applicationServerKey (limited support)
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
         });
@@ -108,12 +124,11 @@ export const usePushNotifications = () => {
       const p256dh = arrayBufferToBase64(key);
       const authKey = arrayBufferToBase64(auth);
 
-      // Save to database
       const { error } = await supabase.from("push_subscriptions").upsert(
         {
           user_id: user.id,
           endpoint: subscription.endpoint,
-          p256dh: p256dh,
+          p256dh,
           auth: authKey,
         },
         { onConflict: "user_id,endpoint" }
@@ -140,13 +155,12 @@ export const usePushNotifications = () => {
 
     setLoading(true);
     try {
-      const registration = await navigator.serviceWorker.getRegistration("/push-sw.js");
+      const registration = await getPushRegistration();
       if (registration) {
         const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
           await subscription.unsubscribe();
 
-          // Remove from database
           await supabase
             .from("push_subscriptions")
             .delete()
