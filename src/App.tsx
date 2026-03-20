@@ -1,4 +1,4 @@
-import { useState, useCallback, lazy, Suspense, useEffect } from "react";
+import { useState, useCallback, lazy, Suspense, useEffect, Component, type ErrorInfo, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,7 +20,6 @@ import MyAccount from "./pages/MyAccount";
 import ListingDetails from "./pages/ListingDetails";
 import AllListings from "./pages/AllListings";
 import Pricing from "./pages/Pricing";
-
 import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
@@ -31,14 +30,66 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ContactUs from "./pages/ContactUs";
 import Install from "./pages/Install";
-
 import Auth from "./pages/Auth";
-
-
 import DeleteData from "./pages/DeleteData";
 import Developers from "./pages/Developers";
 
 const queryClient = new QueryClient();
+
+type RootBoundaryState = {
+  hasError: boolean;
+};
+
+class RootErrorBoundary extends Component<{ children: ReactNode }, RootBoundaryState> {
+  state: RootBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown, info: ErrorInfo) {
+    console.error("Root render error:", error, info);
+  }
+
+  handleRetry = async () => {
+    try {
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+      }
+
+      if ("caches" in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
+      }
+    } catch {
+      // ignore cache cleanup failures
+    }
+
+    window.location.reload();
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center space-y-3 shadow-card">
+            <h1 className="text-xl font-bold">تعذر تحميل الصفحة</h1>
+            <p className="text-sm text-muted-foreground">تم اكتشاف خطأ أثناء تشغيل التطبيق. اضغط الزر لإعادة المحاولة.</p>
+            <button
+              onClick={this.handleRetry}
+              className="w-full rounded-xl bg-primary text-primary-foreground py-2.5 font-semibold hover:opacity-90 transition-opacity"
+            >
+              إعادة المحاولة
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const AppContent = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -46,13 +97,13 @@ const AppContent = () => {
   const { maintenance, loading } = useMaintenanceMode();
 
   useEffect(() => {
-    import('@capacitor-community/safe-area').then(({ SafeArea }) => {
-      // For modern capacitor plugins, edge-to-edge is typically enabled via config
-      console.log('SafeArea initialized');
-    }).catch(console.error);
+    import("@capacitor-community/safe-area")
+      .then(() => {
+        console.log("SafeArea initialized");
+      })
+      .catch(console.error);
   }, []);
 
-  // Handle Android hardware back button with haptic feedback
   useBackButton();
 
   if (!loading && maintenance.enabled) {
@@ -73,7 +124,6 @@ const AppContent = () => {
               <Route path="/listing/:id" element={<ListingDetails />} />
               <Route path="/listings" element={<AllListings />} />
               <Route path="/pricing" element={<Pricing />} />
-              
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/settings" element={<Settings />} />
@@ -83,13 +133,9 @@ const AppContent = () => {
               <Route path="/terms" element={<Terms />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/install" element={<Install />} />
-              
-              
-              
               <Route path="/auth" element={<Auth />} />
               <Route path="/delete-data" element={<DeleteData />} />
               <Route path="/developers" element={<Developers />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
@@ -101,23 +147,25 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <LanguageProvider>
-          <BrandProvider>
-            <AuthProvider>
-              <FavoritesProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <AppContent />
-                </TooltipProvider>
-              </FavoritesProvider>
-            </AuthProvider>
-          </BrandProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <RootErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <LanguageProvider>
+            <BrandProvider>
+              <AuthProvider>
+                <FavoritesProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <AppContent />
+                  </TooltipProvider>
+                </FavoritesProvider>
+              </AuthProvider>
+            </BrandProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </RootErrorBoundary>
   );
 };
 
