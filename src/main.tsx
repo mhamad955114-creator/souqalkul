@@ -69,7 +69,7 @@ if ("serviceWorker" in navigator) {
       registrations.forEach((registration) => registration.unregister());
     });
   } else {
-    unregisterLegacyPushWorker();
+    unregisterRootScopeWorkers();
 
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!updateReady) {
