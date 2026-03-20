@@ -13,17 +13,14 @@ const CHUNK_ERROR_PATTERNS = [
 const getRegistrationScriptUrl = (registration: ServiceWorkerRegistration) =>
   registration.active?.scriptURL || registration.waiting?.scriptURL || registration.installing?.scriptURL || "";
 
-const unregisterLegacyPushWorker = async () => {
+const unregisterRootScopeWorkers = async () => {
   if (!("serviceWorker" in navigator)) return;
 
   try {
     const registrations = await navigator.serviceWorker.getRegistrations();
     await Promise.all(
       registrations
-        .filter((registration) => {
-          const scriptUrl = getRegistrationScriptUrl(registration);
-          return scriptUrl.includes("/push-sw.js") && registration.scope.endsWith("/");
-        })
+        .filter((registration) => registration.scope === `${window.location.origin}/`)
         .map((registration) => registration.unregister())
     );
   } catch {
