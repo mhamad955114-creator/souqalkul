@@ -199,6 +199,11 @@ window.addEventListener("unhandledrejection", (event) => {
   }
 });
 
+window.addEventListener("vite:preloadError", (event) => {
+  event.preventDefault();
+  void recoverFromStaleClient("vite_preload_error");
+});
+
 const mountApp = async () => {
   ensureStorageAccess();
 
