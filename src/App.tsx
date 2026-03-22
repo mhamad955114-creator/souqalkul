@@ -10,29 +10,30 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { BrandProvider } from "@/contexts/BrandContext";
 import SplashScreen from "@/components/SplashScreen";
+import PageSkeleton from "@/components/PageSkeleton";
 import UpdateNotification from "@/components/UpdateNotification";
 import InAppNotificationBanner from "@/components/InAppNotificationBanner";
 import MaintenancePage from "@/components/MaintenancePage";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import { useBackButton } from "@/hooks/useBackButton";
-import Index from "./pages/Index";
-import MyAccount from "./pages/MyAccount";
-import ListingDetails from "./pages/ListingDetails";
-import AllListings from "./pages/AllListings";
-import Pricing from "./pages/Pricing";
-import Favorites from "./pages/Favorites";
-import Messages from "./pages/Messages";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
+const Index = lazy(() => import("./pages/Index"));
+const MyAccount = lazy(() => import("./pages/MyAccount"));
+const ListingDetails = lazy(() => import("./pages/ListingDetails"));
+const AllListings = lazy(() => import("./pages/AllListings"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const Messages = lazy(() => import("./pages/Messages"));
+const Settings = lazy(() => import("./pages/Settings"));
 const AdminReports = lazy(() => import("./pages/AdminReports"));
-import AboutUs from "./pages/AboutUs";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import ContactUs from "./pages/ContactUs";
-import Install from "./pages/Install";
-import Auth from "./pages/Auth";
-import DeleteData from "./pages/DeleteData";
-import Developers from "./pages/Developers";
+const AboutUs = lazy(() => import("./pages/AboutUs"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const ContactUs = lazy(() => import("./pages/ContactUs"));
+const Install = lazy(() => import("./pages/Install"));
+const Auth = lazy(() => import("./pages/Auth"));
+const DeleteData = lazy(() => import("./pages/DeleteData"));
+const Developers = lazy(() => import("./pages/Developers"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -112,35 +113,33 @@ const AppContent = () => {
 
   return (
     <>
+      <UpdateNotification />
+      <BrowserRouter>
+        <InAppNotificationBanner />
+        <Suspense fallback={<PageSkeleton />}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/my-account" element={<MyAccount />} />
+            <Route path="/listing/:id" element={<ListingDetails />} />
+            <Route path="/listings" element={<AllListings />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/install" element={<Install />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/delete-data" element={<DeleteData />} />
+            <Route path="/developers" element={<Developers />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
       {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
-      {!showSplash && (
-        <>
-          <UpdateNotification />
-          <BrowserRouter>
-            <InAppNotificationBanner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/my-account" element={<MyAccount />} />
-              <Route path="/listing/:id" element={<ListingDetails />} />
-              <Route path="/listings" element={<AllListings />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/admin/reports" element={<Suspense fallback={null}><AdminReports /></Suspense>} />
-              <Route path="/about" element={<AboutUs />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/contact" element={<ContactUs />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/delete-data" element={<DeleteData />} />
-              <Route path="/developers" element={<Developers />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </>
-      )}
     </>
   );
 };

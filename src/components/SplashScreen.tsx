@@ -46,17 +46,19 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
     const showTimer = setTimeout(() => setShowContent(true), 50);
     const fadeTimer = setTimeout(() => setFadeOut(true), 1200);
     const removeTimer = setTimeout(() => onFinish(), 1600);
+    const hardStopTimer = setTimeout(() => onFinish(), 4500);
     return () => {
       clearTimeout(showTimer);
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
+      clearTimeout(hardStopTimer);
     };
   }, [onFinish]);
 
   return (
     <div
       className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background overflow-hidden transition-opacity duration-500 ${
-        fadeOut ? "opacity-0" : "opacity-100"
+        fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
       {/* Particles */}
