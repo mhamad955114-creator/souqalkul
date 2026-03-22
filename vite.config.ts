@@ -20,5 +20,12 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: "es2017",
+    rollupOptions: {
+      output: {
+        entryFileNames: "assets/[name].js",
+        chunkFileNames: "assets/[name].js",
+        assetFileNames: "assets/[name][extname]",
+      },
+    },
   },
 }));
