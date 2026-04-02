@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK & AAB
 
 on:
   workflow_dispatch:
@@ -71,20 +71,35 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon --stacktrace
 
+      - name: Build AAB
+        working-directory: android
+        run: ./gradlew bundleRelease --no-daemon --stacktrace
+
       - name: Rename APK
         run: cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/souqalkul.apk
+
+      - name: Rename AAB
+        run: cp android/app/build/outputs/bundle/release/app-release.aab android/app/build/outputs/bundle/release/souqalkul.aab
 
       - name: Upload APK as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: app-release-apk
           path: android/app/build/outputs/apk/release/souqalkul.apk
+
+      - name: Upload AAB as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: android/app/build/outputs/bundle/release/souqalkul.aab
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: "إصدار APK رقم ${{ github.run_number }}"
-          files: android/app/build/outputs/apk/release/souqalkul.apk
+          name: "إصدار رقم ${{ github.run_number }}"
+          files: |
+            android/app/build/outputs/apk/release/souqalkul.apk
+            android/app/build/outputs/bundle/release/souqalkul.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
