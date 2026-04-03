@@ -194,7 +194,42 @@ const AdminListingsTab = () => {
     setRejectReason("");
   };
 
-  const filtered = listings.filter(
+  const handleDeleteImages = async (listing: ListingRow) => {
+    if (!listing.images || listing.images.length === 0) {
+      toast.info("لا توجد صور لحذفها");
+      return;
+    }
+    setUpdating(listing.id);
+    try {
+      const paths = listing.images
+        .map((url) => {
+          const match = url.match(/\/storage\/v1\/object\/public\/listings\/(.+)/);
+          return match ? decodeURIComponent(match[1]) : null;
+        })
+        .filter((p): p is string => p !== null);
+
+      if (paths.length > 0) {
+        const { error: delError } = await supabase.storage.from("listings").remove(paths);
+        if (delError) throw delError;
+      }
+
+      await supabase.from("listings").update({ images: [] } as any).eq("id", listing.id);
+
+      toast.success(`تم حذف ${paths.length} صورة من "${listing.title}"`);
+      setListings((prev) =>
+        prev.map((l) => (l.id === listing.id ? { ...l, images: [] } : l))
+      );
+      setPendingListings((prev) =>
+        prev.map((l) => (l.id === listing.id ? { ...l, images: [] } : l))
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("فشل حذف الصور");
+    }
+    setUpdating(null);
+    setDeleteImagesListing(null);
+  };
+
     (l) =>
       l.title.toLowerCase().includes(search.toLowerCase()) ||
       l.user_email?.toLowerCase().includes(search.toLowerCase())
