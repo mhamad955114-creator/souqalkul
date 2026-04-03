@@ -52,6 +52,7 @@ const AdminListingsTab = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [previewListing, setPreviewListing] = useState<ListingRow | null>(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
+  const [deleteImagesListing, setDeleteImagesListing] = useState<ListingRow | null>(null);
 
   const fetchListings = async () => {
     setLoading(true);
