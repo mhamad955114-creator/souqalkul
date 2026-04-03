@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/imageCompression";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
 import { cities, categories, areasByCity, categoryMetadataFields } from "@/lib/constants";
@@ -150,7 +151,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     const rejected: { url: string; reason: string }[] = [];
 
     try {
-      for (const file of Array.from(e.target.files)) {
+      for (let file of Array.from(e.target.files)) {
+        // Compress images client-side before upload
+        if (!isVideoFile(file)) {
+          file = await compressImage(file);
+        }
         const fileExt = file.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 

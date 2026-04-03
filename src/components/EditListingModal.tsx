@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/imageCompression";
 import { toast } from "sonner";
 import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -117,7 +118,9 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     const rejected: { url: string; reason: string }[] = [];
 
     try {
-      for (const file of Array.from(e.target.files)) {
+      for (let file of Array.from(e.target.files)) {
+        // Compress images client-side before upload
+        file = await compressImage(file);
         const fileExt = file.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
