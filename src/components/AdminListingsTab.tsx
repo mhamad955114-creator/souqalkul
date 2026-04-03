@@ -686,6 +686,29 @@ const AdminListingsTab = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Delete Images Confirmation */}
+      <AlertDialog open={!!deleteImagesListing} onOpenChange={(open) => !open && setDeleteImagesListing(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف صور الإعلان نهائياً</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف جميع صور الإعلان "{deleteImagesListing?.title}" نهائياً من التخزين؟ لا يمكن التراجع عن هذا الإجراء.
+              <br />
+              <span className="font-medium">عدد الصور: {deleteImagesListing?.images?.length || 0}</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteImagesListing && handleDeleteImages(deleteImagesListing)}
+            >
+              <Trash2 className="h-4 w-4 ml-2" />
+              حذف نهائي
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
