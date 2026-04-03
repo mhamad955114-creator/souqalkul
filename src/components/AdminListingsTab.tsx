@@ -401,6 +401,7 @@ const AdminListingsTab = () => {
                     <TableHead className="text-right">التاريخ</TableHead>
                     <TableHead className="text-right">التصنيف الحالي</TableHead>
                     <TableHead className="text-right">تعيين التصنيف</TableHead>
+                    <TableHead className="text-right">الصور</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
