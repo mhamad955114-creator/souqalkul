@@ -230,6 +230,7 @@ const AdminListingsTab = () => {
     setDeleteImagesListing(null);
   };
 
+  const filtered = listings.filter(
     (l) =>
       l.title.toLowerCase().includes(search.toLowerCase()) ||
       l.user_email?.toLowerCase().includes(search.toLowerCase())
