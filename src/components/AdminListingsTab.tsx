@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
-import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight, Trash2, ImageOff } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { formatDate } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ScrollArea } from "./ui/scroll-area";
