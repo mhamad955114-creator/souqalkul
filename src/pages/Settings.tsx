@@ -113,7 +113,7 @@ const Settings = () => {
 
       const { error: uploadError } = await supabase.storage
         .from("listings")
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, compressedFile, { upsert: true });
 
       if (uploadError) {
         throw uploadError;
