@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/imageCompression";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
 import { cities, categories, areasByCity, categoryMetadataFields } from "@/lib/constants";
