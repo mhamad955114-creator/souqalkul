@@ -105,7 +105,9 @@ const Settings = () => {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
+      // Compress avatar before upload
+      const compressedFile = await compressImage(file);
+      const fileExt = compressedFile.name.split(".").pop();
       const fileName = `${user.id}/avatar.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage

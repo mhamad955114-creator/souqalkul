@@ -150,7 +150,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     const rejected: { url: string; reason: string }[] = [];
 
     try {
-      for (const file of Array.from(e.target.files)) {
+      for (let file of Array.from(e.target.files)) {
+        // Compress images client-side before upload
+        if (!isVideoFile(file)) {
+          file = await compressImage(file);
+        }
         const fileExt = file.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
