@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
-import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight, Trash2, ImageOff } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { formatDate } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ScrollArea } from "./ui/scroll-area";
@@ -51,6 +52,7 @@ const AdminListingsTab = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [previewListing, setPreviewListing] = useState<ListingRow | null>(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
+  const [deleteImagesListing, setDeleteImagesListing] = useState<ListingRow | null>(null);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -190,6 +192,42 @@ const AdminListingsTab = () => {
     setRejectDialogOpen(false);
     setRejectingListing(null);
     setRejectReason("");
+  };
+
+  const handleDeleteImages = async (listing: ListingRow) => {
+    if (!listing.images || listing.images.length === 0) {
+      toast.info("لا توجد صور لحذفها");
+      return;
+    }
+    setUpdating(listing.id);
+    try {
+      const paths = listing.images
+        .map((url) => {
+          const match = url.match(/\/storage\/v1\/object\/public\/listings\/(.+)/);
+          return match ? decodeURIComponent(match[1]) : null;
+        })
+        .filter((p): p is string => p !== null);
+
+      if (paths.length > 0) {
+        const { error: delError } = await supabase.storage.from("listings").remove(paths);
+        if (delError) throw delError;
+      }
+
+      await supabase.from("listings").update({ images: [] } as any).eq("id", listing.id);
+
+      toast.success(`تم حذف ${paths.length} صورة من "${listing.title}"`);
+      setListings((prev) =>
+        prev.map((l) => (l.id === listing.id ? { ...l, images: [] } : l))
+      );
+      setPendingListings((prev) =>
+        prev.map((l) => (l.id === listing.id ? { ...l, images: [] } : l))
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("فشل حذف الصور");
+    }
+    setUpdating(null);
+    setDeleteImagesListing(null);
   };
 
   const filtered = listings.filter(
@@ -363,12 +401,13 @@ const AdminListingsTab = () => {
                     <TableHead className="text-right">التاريخ</TableHead>
                     <TableHead className="text-right">التصنيف الحالي</TableHead>
                     <TableHead className="text-right">تعيين التصنيف</TableHead>
+                    <TableHead className="text-right">الصور</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                         لا توجد إعلانات
                       </TableCell>
                     </TableRow>
@@ -412,6 +451,24 @@ const AdminListingsTab = () => {
                               <Loader2 className="h-4 w-4 animate-spin text-primary" />
                             )}
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          {listing.images && listing.images.length > 0 ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="gap-1 text-xs text-destructive hover:text-destructive"
+                              onClick={() => setDeleteImagesListing(listing)}
+                              disabled={updating === listing.id}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              {listing.images.length} صور
+                            </Button>
+                          ) : (
+                            <span className="text-muted-foreground text-xs flex items-center gap-1">
+                              <ImageOff className="h-3 w-3" /> لا صور
+                            </span>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -629,6 +686,29 @@ const AdminListingsTab = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Delete Images Confirmation */}
+      <AlertDialog open={!!deleteImagesListing} onOpenChange={(open) => !open && setDeleteImagesListing(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف صور الإعلان نهائياً</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف جميع صور الإعلان "{deleteImagesListing?.title}" نهائياً من التخزين؟ لا يمكن التراجع عن هذا الإجراء.
+              <br />
+              <span className="font-medium">عدد الصور: {deleteImagesListing?.images?.length || 0}</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteImagesListing && handleDeleteImages(deleteImagesListing)}
+            >
+              <Trash2 className="h-4 w-4 ml-2" />
+              حذف نهائي
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
