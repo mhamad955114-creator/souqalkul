@@ -452,6 +452,24 @@ const AdminListingsTab = () => {
                             )}
                           </div>
                         </TableCell>
+                        <TableCell>
+                          {listing.images && listing.images.length > 0 ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="gap-1 text-xs text-destructive hover:text-destructive"
+                              onClick={() => setDeleteImagesListing(listing)}
+                              disabled={updating === listing.id}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              {listing.images.length} صور
+                            </Button>
+                          ) : (
+                            <span className="text-muted-foreground text-xs flex items-center gap-1">
+                              <ImageOff className="h-3 w-3" /> لا صور
+                            </span>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
