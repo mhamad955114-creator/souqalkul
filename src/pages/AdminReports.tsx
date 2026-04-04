@@ -832,6 +832,7 @@ const AdminReports = () => {
         
         {activeTab === "verification" && <AdminVerificationTab />}
         {activeTab === "listings" && <AdminListingsTab />}
+        {activeTab === "storage" && <AdminStorageStats />}
       </main>
 
       <Footer />
