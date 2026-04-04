@@ -45,11 +45,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, BadgeCheck, Bell, CreditCard, LayoutList } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, BadgeCheck, Bell, CreditCard, LayoutList, HardDrive } from "lucide-react";
 import AdminSettingsTab from "@/components/AdminSettingsTab";
 
 import AdminVerificationTab from "@/components/AdminVerificationTab";
 import AdminListingsTab from "@/components/AdminListingsTab";
+import AdminStorageStats from "@/components/AdminStorageStats";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
@@ -103,7 +104,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -637,6 +638,15 @@ const AdminReports = () => {
               <LayoutList className="h-4 w-4" />
               إدارة الإعلانات
             </Button>
+            <Button
+              variant={activeTab === "storage" ? "default" : "outline"}
+              onClick={() => setActiveTab("storage")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <HardDrive className="h-4 w-4" />
+              التخزين
+            </Button>
           </div>
         </div>
 
@@ -822,6 +832,7 @@ const AdminReports = () => {
         
         {activeTab === "verification" && <AdminVerificationTab />}
         {activeTab === "listings" && <AdminListingsTab />}
+        {activeTab === "storage" && <AdminStorageStats />}
       </main>
 
       <Footer />
