@@ -50,6 +50,7 @@ import AdminSettingsTab from "@/components/AdminSettingsTab";
 
 import AdminVerificationTab from "@/components/AdminVerificationTab";
 import AdminListingsTab from "@/components/AdminListingsTab";
+import AdminStorageStats from "@/components/AdminStorageStats";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
