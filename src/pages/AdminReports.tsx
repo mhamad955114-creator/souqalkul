@@ -638,6 +638,15 @@ const AdminReports = () => {
               <LayoutList className="h-4 w-4" />
               إدارة الإعلانات
             </Button>
+            <Button
+              variant={activeTab === "storage" ? "default" : "outline"}
+              onClick={() => setActiveTab("storage")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <HardDrive className="h-4 w-4" />
+              التخزين
+            </Button>
           </div>
         </div>
 
