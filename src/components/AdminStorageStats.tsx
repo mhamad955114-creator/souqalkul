@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
-import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database } from "lucide-react";
+import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { toast } from "sonner";
 
 interface StorageStats {
@@ -14,7 +15,7 @@ interface StorageStats {
   by_badge: Record<string, { count: number; images: number }>;
 }
 
-const STORAGE_LIMIT_MB = 1024; // 1 GB default
+const STORAGE_LIMIT_MB = 1024;
 
 const badgeLabels: Record<string, string> = {
   free: "مجاني",
@@ -30,9 +31,17 @@ const badgeColors: Record<string, string> = {
   business: "bg-blue-500/10 text-blue-600",
 };
 
+function extractStoragePath(url: string): string | null {
+  const match = url.match(/\/storage\/v1\/object\/public\/listings\/(.+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 const AdminStorageStats = () => {
   const [stats, setStats] = useState<StorageStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [expiredCount, setExpiredCount] = useState(0);
 
   const fetchStats = async () => {
     setLoading(true);
@@ -62,9 +71,85 @@ const AdminStorageStats = () => {
     }
   };
 
+  const fetchExpiredWithImages = async () => {
+    const { count } = await supabase
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["expired", "rejected"])
+      .not("images", "eq", "{}");
+    setExpiredCount(count || 0);
+  };
+
   useEffect(() => {
     fetchStats();
+    fetchExpiredWithImages();
   }, []);
+
+  const handleBulkDeleteExpiredImages = async () => {
+    setBulkDeleting(true);
+    setShowBulkDeleteConfirm(false);
+    try {
+      // Fetch expired listings that still have images
+      const { data: expiredListings, error } = await supabase
+        .from("listings")
+        .select("id, images, user_id")
+        .in("status", ["expired", "rejected"])
+        .not("images", "eq", "{}");
+
+      if (error) throw error;
+      if (!expiredListings || expiredListings.length === 0) {
+        toast.info("لا توجد صور منتهية لحذفها");
+        setBulkDeleting(false);
+        return;
+      }
+
+      let totalDeleted = 0;
+      let totalFailed = 0;
+
+      for (const listing of expiredListings) {
+        const images = listing.images || [];
+        if (images.length === 0) continue;
+
+        const paths = images
+          .map((url: string) => extractStoragePath(url))
+          .filter(Boolean) as string[];
+
+        if (paths.length > 0) {
+          const { error: removeError } = await supabase.storage
+            .from("listings")
+            .remove(paths);
+
+          if (removeError) {
+            totalFailed += paths.length;
+            console.error(`Failed to delete images for listing ${listing.id}:`, removeError);
+          } else {
+            totalDeleted += paths.length;
+          }
+        }
+
+        // Clear images array in DB
+        await supabase
+          .from("listings")
+          .update({ images: [] })
+          .eq("id", listing.id);
+      }
+
+      if (totalDeleted > 0) {
+        toast.success(`تم حذف ${totalDeleted} صورة من ${expiredListings.length} إعلان منتهي`);
+      }
+      if (totalFailed > 0) {
+        toast.warning(`فشل حذف ${totalFailed} ملف`);
+      }
+
+      // Refresh stats
+      await Promise.all([fetchStats(), fetchExpiredWithImages()]);
+    } catch (err: any) {
+      toast.error("فشل في حذف الصور: " + (err.message || "خطأ غير معروف"));
+      console.error(err);
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -188,6 +273,38 @@ const AdminStorageStats = () => {
         </CardContent>
       </Card>
 
+      {/* Bulk Delete Expired Images */}
+      <Card className={expiredCount > 0 ? "border-destructive/30" : ""}>
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <Trash2 className="h-5 w-5 text-destructive" />
+                حذف صور الإعلانات المنتهية
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {expiredCount > 0
+                  ? `يوجد ${expiredCount} إعلان منتهي/مرفوض يحتوي على صور يمكن حذفها لتوفير المساحة`
+                  : "لا توجد إعلانات منتهية تحتوي على صور"}
+              </p>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={() => setShowBulkDeleteConfirm(true)}
+              disabled={bulkDeleting || expiredCount === 0}
+              className="shrink-0"
+            >
+              {bulkDeleting ? (
+                <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4 ml-2" />
+              )}
+              {bulkDeleting ? "جاري الحذف..." : "حذف جماعي"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* By Badge Type */}
       <Card>
         <CardContent className="p-6">
@@ -206,6 +323,28 @@ const AdminStorageStats = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد الحذف الجماعي</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم حذف جميع صور {expiredCount} إعلان منتهي/مرفوض نهائياً من التخزين.
+              هذا الإجراء لا يمكن التراجع عنه.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleBulkDeleteExpiredImages}
+            >
+              حذف الكل نهائياً
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
