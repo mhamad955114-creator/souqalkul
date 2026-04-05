@@ -152,21 +152,25 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Fetch configurable storage limit from listing_settings
+    // Fetch configurable storage limit and alert threshold from listing_settings
     let storageLimitMb = 1024;
-    const { data: limitSetting } = await adminClient
+    let alertThreshold = 80;
+    const { data: settings } = await adminClient
       .from("listing_settings")
-      .select("setting_value")
-      .eq("setting_key", "storage_limit_mb")
-      .maybeSingle();
-    if (limitSetting?.setting_value) {
-      const val = Number(limitSetting.setting_value);
-      if (!isNaN(val) && val > 0) storageLimitMb = val;
+      .select("setting_key, setting_value")
+      .in("setting_key", ["storage_limit_mb", "storage_alert_threshold"]);
+    if (settings) {
+      for (const s of settings) {
+        const val = Number(s.setting_value);
+        if (isNaN(val) || val <= 0) continue;
+        if (s.setting_key === "storage_limit_mb") storageLimitMb = val;
+        if (s.setting_key === "storage_alert_threshold") alertThreshold = val;
+      }
     }
     const usagePercent = ((totalSizeBytes + receiptsSizeBytes) / (storageLimitMb * 1024 * 1024)) * 100;
 
-    // Auto-alert admins if usage > 80%
-    if (usagePercent >= 80) {
+    // Auto-alert admins if usage exceeds threshold
+    if (usagePercent >= alertThreshold) {
       const alertTitle = usagePercent >= 95
         ? "⚠️ تحذير: التخزين شبه ممتلئ!"
         : "⚠️ تنبيه: استخدام التخزين مرتفع";
