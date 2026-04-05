@@ -173,7 +173,7 @@ const AdminStorageStats = () => {
   };
 
   useEffect(() => {
-    fetchStorageLimit();
+    fetchStorageSettings();
     fetchStats();
     fetchExpiredWithImages();
   }, []);
