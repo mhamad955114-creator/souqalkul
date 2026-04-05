@@ -152,7 +152,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    const storageLimitMb = 1024;
+    // Fetch configurable storage limit from listing_settings
+    let storageLimitMb = 1024;
+    const { data: limitSetting } = await adminClient
+      .from("listing_settings")
+      .select("setting_value")
+      .eq("setting_key", "storage_limit_mb")
+      .maybeSingle();
+    if (limitSetting?.setting_value) {
+      const val = Number(limitSetting.setting_value);
+      if (!isNaN(val) && val > 0) storageLimitMb = val;
+    }
     const usagePercent = ((totalSizeBytes + receiptsSizeBytes) / (storageLimitMb * 1024 * 1024)) * 100;
 
     // Auto-alert admins if usage > 80%
