@@ -43,6 +43,56 @@ const AdminStorageStats = () => {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [expiredCount, setExpiredCount] = useState(0);
+  const [storageLimitMb, setStorageLimitMb] = useState(DEFAULT_STORAGE_LIMIT_MB);
+  const [editingLimit, setEditingLimit] = useState(false);
+  const [newLimit, setNewLimit] = useState("");
+  const [savingLimit, setSavingLimit] = useState(false);
+
+  const fetchStorageLimit = async () => {
+    const { data } = await supabase
+      .from("listing_settings")
+      .select("setting_value")
+      .eq("setting_key", "storage_limit_mb")
+      .maybeSingle();
+    if (data?.setting_value) {
+      const val = typeof data.setting_value === "number" ? data.setting_value : Number(data.setting_value);
+      if (!isNaN(val) && val > 0) setStorageLimitMb(val);
+    }
+  };
+
+  const saveStorageLimit = async () => {
+    const val = Number(newLimit);
+    if (isNaN(val) || val <= 0) {
+      toast.error("يرجى إدخال قيمة صحيحة");
+      return;
+    }
+    setSavingLimit(true);
+    try {
+      const { data: existing } = await supabase
+        .from("listing_settings")
+        .select("id")
+        .eq("setting_key", "storage_limit_mb")
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from("listing_settings")
+          .update({ setting_value: val as unknown as import("@/integrations/supabase/types").Json })
+          .eq("setting_key", "storage_limit_mb");
+      } else {
+        await supabase
+          .from("listing_settings")
+          .insert({ setting_key: "storage_limit_mb", setting_value: val as unknown as import("@/integrations/supabase/types").Json });
+      }
+      setStorageLimitMb(val);
+      setEditingLimit(false);
+      toast.success("تم تحديث الحد الأقصى للتخزين");
+    } catch {
+      toast.error("فشل في حفظ الإعداد");
+    } finally {
+      setSavingLimit(false);
+    }
+  };
 
   const fetchStats = async () => {
     setLoading(true);
@@ -82,6 +132,7 @@ const AdminStorageStats = () => {
   };
 
   useEffect(() => {
+    fetchStorageLimit();
     fetchStats();
     fetchExpiredWithImages();
   }, []);
