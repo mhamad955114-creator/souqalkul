@@ -270,9 +270,34 @@ const AdminStorageStats = () => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-foreground">الاستخدام الإجمالي</span>
-            <span className="text-sm text-muted-foreground">
-              {formatSize(stats.total.total_size_mb)} / {formatSize(STORAGE_LIMIT_MB)}
-            </span>
+            <div className="flex items-center gap-2">
+              {editingLimit ? (
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    value={newLimit}
+                    onChange={(e) => setNewLimit(e.target.value)}
+                    className="w-24 h-7 text-xs"
+                    placeholder="MB"
+                    min={1}
+                  />
+                  <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={saveStorageLimit} disabled={savingLimit}>
+                    {savingLimit ? <Loader2 className="h-3 w-3 animate-spin" /> : "حفظ"}
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setEditingLimit(false)}>
+                    إلغاء
+                  </Button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setNewLimit(String(storageLimitMb)); setEditingLimit(true); }}
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {formatSize(stats.total.total_size_mb)} / {formatSize(storageLimitMb)}
+                  <Settings2 className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
           </div>
           <Progress value={usagePercent} className="h-3 mb-2" />
           <p className="text-xs text-muted-foreground text-left">{usagePercent.toFixed(1)}%</p>
