@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
-import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2, AlertTriangle } from "lucide-react";
+import { Input } from "./ui/input";
+import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2, AlertTriangle, Settings2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -15,7 +16,7 @@ interface StorageStats {
   by_badge: Record<string, { count: number; images: number }>;
 }
 
-const STORAGE_LIMIT_MB = 1024;
+const DEFAULT_STORAGE_LIMIT_MB = 1024;
 
 const badgeLabels: Record<string, string> = {
   free: "مجاني",
@@ -42,6 +43,56 @@ const AdminStorageStats = () => {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [expiredCount, setExpiredCount] = useState(0);
+  const [storageLimitMb, setStorageLimitMb] = useState(DEFAULT_STORAGE_LIMIT_MB);
+  const [editingLimit, setEditingLimit] = useState(false);
+  const [newLimit, setNewLimit] = useState("");
+  const [savingLimit, setSavingLimit] = useState(false);
+
+  const fetchStorageLimit = async () => {
+    const { data } = await supabase
+      .from("listing_settings")
+      .select("setting_value")
+      .eq("setting_key", "storage_limit_mb")
+      .maybeSingle();
+    if (data?.setting_value) {
+      const val = typeof data.setting_value === "number" ? data.setting_value : Number(data.setting_value);
+      if (!isNaN(val) && val > 0) setStorageLimitMb(val);
+    }
+  };
+
+  const saveStorageLimit = async () => {
+    const val = Number(newLimit);
+    if (isNaN(val) || val <= 0) {
+      toast.error("يرجى إدخال قيمة صحيحة");
+      return;
+    }
+    setSavingLimit(true);
+    try {
+      const { data: existing } = await supabase
+        .from("listing_settings")
+        .select("id")
+        .eq("setting_key", "storage_limit_mb")
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from("listing_settings")
+          .update({ setting_value: val as unknown as import("@/integrations/supabase/types").Json })
+          .eq("setting_key", "storage_limit_mb");
+      } else {
+        await supabase
+          .from("listing_settings")
+          .insert({ setting_key: "storage_limit_mb", setting_value: val as unknown as import("@/integrations/supabase/types").Json });
+      }
+      setStorageLimitMb(val);
+      setEditingLimit(false);
+      toast.success("تم تحديث الحد الأقصى للتخزين");
+    } catch {
+      toast.error("فشل في حفظ الإعداد");
+    } finally {
+      setSavingLimit(false);
+    }
+  };
 
   const fetchStats = async () => {
     setLoading(true);
@@ -81,6 +132,7 @@ const AdminStorageStats = () => {
   };
 
   useEffect(() => {
+    fetchStorageLimit();
     fetchStats();
     fetchExpiredWithImages();
   }, []);
@@ -174,7 +226,7 @@ const AdminStorageStats = () => {
     );
   }
 
-  const usagePercent = Math.min((stats.total.total_size_mb / STORAGE_LIMIT_MB) * 100, 100);
+  const usagePercent = Math.min((stats.total.total_size_mb / storageLimitMb) * 100, 100);
 
   const formatSize = (mb: number) => {
     if (mb >= 1024) return `${(mb / 1024).toFixed(2)} GB`;
@@ -218,9 +270,34 @@ const AdminStorageStats = () => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-foreground">الاستخدام الإجمالي</span>
-            <span className="text-sm text-muted-foreground">
-              {formatSize(stats.total.total_size_mb)} / {formatSize(STORAGE_LIMIT_MB)}
-            </span>
+            <div className="flex items-center gap-2">
+              {editingLimit ? (
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    value={newLimit}
+                    onChange={(e) => setNewLimit(e.target.value)}
+                    className="w-24 h-7 text-xs"
+                    placeholder="MB"
+                    min={1}
+                  />
+                  <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={saveStorageLimit} disabled={savingLimit}>
+                    {savingLimit ? <Loader2 className="h-3 w-3 animate-spin" /> : "حفظ"}
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-7 text-xs px-2" onClick={() => setEditingLimit(false)}>
+                    إلغاء
+                  </Button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setNewLimit(String(storageLimitMb)); setEditingLimit(true); }}
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {formatSize(stats.total.total_size_mb)} / {formatSize(storageLimitMb)}
+                  <Settings2 className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
           </div>
           <Progress value={usagePercent} className="h-3 mb-2" />
           <p className="text-xs text-muted-foreground text-left">{usagePercent.toFixed(1)}%</p>
