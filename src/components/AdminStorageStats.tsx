@@ -290,7 +290,7 @@ const AdminStorageStats = () => {
       </div>
 
       {/* Storage Alert Banner */}
-      {usagePercent >= 80 && (
+      {usagePercent >= alertThreshold && (
         <Card className={usagePercent >= 95 ? "border-destructive bg-destructive/5" : "border-amber-500 bg-amber-500/5"}>
           <CardContent className="p-4 flex items-start gap-3">
             <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${usagePercent >= 95 ? "text-destructive" : "text-amber-500"}`} />
