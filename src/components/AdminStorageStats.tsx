@@ -226,7 +226,7 @@ const AdminStorageStats = () => {
     );
   }
 
-  const usagePercent = Math.min((stats.total.total_size_mb / STORAGE_LIMIT_MB) * 100, 100);
+  const usagePercent = Math.min((stats.total.total_size_mb / storageLimitMb) * 100, 100);
 
   const formatSize = (mb: number) => {
     if (mb >= 1024) return `${(mb / 1024).toFixed(2)} GB`;
