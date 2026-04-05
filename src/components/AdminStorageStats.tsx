@@ -44,19 +44,26 @@ const AdminStorageStats = () => {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [expiredCount, setExpiredCount] = useState(0);
   const [storageLimitMb, setStorageLimitMb] = useState(DEFAULT_STORAGE_LIMIT_MB);
+  const [alertThreshold, setAlertThreshold] = useState(80);
   const [editingLimit, setEditingLimit] = useState(false);
+  const [editingThreshold, setEditingThreshold] = useState(false);
   const [newLimit, setNewLimit] = useState("");
+  const [newThreshold, setNewThreshold] = useState("");
   const [savingLimit, setSavingLimit] = useState(false);
+  const [savingThreshold, setSavingThreshold] = useState(false);
 
-  const fetchStorageLimit = async () => {
+  const fetchStorageSettings = async () => {
     const { data } = await supabase
       .from("listing_settings")
-      .select("setting_value")
-      .eq("setting_key", "storage_limit_mb")
-      .maybeSingle();
-    if (data?.setting_value) {
-      const val = typeof data.setting_value === "number" ? data.setting_value : Number(data.setting_value);
-      if (!isNaN(val) && val > 0) setStorageLimitMb(val);
+      .select("setting_key, setting_value")
+      .in("setting_key", ["storage_limit_mb", "storage_alert_threshold"]);
+    if (data) {
+      for (const row of data) {
+        const val = typeof row.setting_value === "number" ? row.setting_value : Number(row.setting_value);
+        if (isNaN(val) || val <= 0) continue;
+        if (row.setting_key === "storage_limit_mb") setStorageLimitMb(val);
+        if (row.setting_key === "storage_alert_threshold") setAlertThreshold(val);
+      }
     }
   };
 
@@ -91,6 +98,40 @@ const AdminStorageStats = () => {
       toast.error("فشل في حفظ الإعداد");
     } finally {
       setSavingLimit(false);
+    }
+  };
+
+  const saveAlertThreshold = async () => {
+    const val = Number(newThreshold);
+    if (isNaN(val) || val < 1 || val > 100) {
+      toast.error("يرجى إدخال نسبة بين 1 و 100");
+      return;
+    }
+    setSavingThreshold(true);
+    try {
+      const { data: existing } = await supabase
+        .from("listing_settings")
+        .select("id")
+        .eq("setting_key", "storage_alert_threshold")
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from("listing_settings")
+          .update({ setting_value: val as unknown as import("@/integrations/supabase/types").Json })
+          .eq("setting_key", "storage_alert_threshold");
+      } else {
+        await supabase
+          .from("listing_settings")
+          .insert({ setting_key: "storage_alert_threshold", setting_value: val as unknown as import("@/integrations/supabase/types").Json });
+      }
+      setAlertThreshold(val);
+      setEditingThreshold(false);
+      toast.success("تم تحديث نسبة التنبيه");
+    } catch {
+      toast.error("فشل في حفظ الإعداد");
+    } finally {
+      setSavingThreshold(false);
     }
   };
 
@@ -132,7 +173,7 @@ const AdminStorageStats = () => {
   };
 
   useEffect(() => {
-    fetchStorageLimit();
+    fetchStorageSettings();
     fetchStats();
     fetchExpiredWithImages();
   }, []);
@@ -249,7 +290,7 @@ const AdminStorageStats = () => {
       </div>
 
       {/* Storage Alert Banner */}
-      {usagePercent >= 80 && (
+      {usagePercent >= alertThreshold && (
         <Card className={usagePercent >= 95 ? "border-destructive bg-destructive/5" : "border-amber-500 bg-amber-500/5"}>
           <CardContent className="p-4 flex items-start gap-3">
             <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${usagePercent >= 95 ? "text-destructive" : "text-amber-500"}`} />
@@ -300,7 +341,37 @@ const AdminStorageStats = () => {
             </div>
           </div>
           <Progress value={usagePercent} className="h-3 mb-2" />
-          <p className="text-xs text-muted-foreground text-left">{usagePercent.toFixed(1)}%</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">{usagePercent.toFixed(1)}%</p>
+            <div className="flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3 text-muted-foreground" />
+              {editingThreshold ? (
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    value={newThreshold}
+                    onChange={(e) => setNewThreshold(e.target.value)}
+                    className="w-16 h-6 text-xs"
+                    placeholder="%"
+                    min={1}
+                    max={100}
+                  />
+                  <Button size="sm" variant="outline" className="h-6 text-xs px-1.5" onClick={saveAlertThreshold} disabled={savingThreshold}>
+                    {savingThreshold ? <Loader2 className="h-3 w-3 animate-spin" /> : "حفظ"}
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-6 text-xs px-1.5" onClick={() => setEditingThreshold(false)}>✕</Button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setNewThreshold(String(alertThreshold)); setEditingThreshold(true); }}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-0.5"
+                >
+                  تنبيه عند {alertThreshold}%
+                  <Settings2 className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
