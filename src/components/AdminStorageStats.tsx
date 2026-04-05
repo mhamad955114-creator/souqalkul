@@ -341,7 +341,37 @@ const AdminStorageStats = () => {
             </div>
           </div>
           <Progress value={usagePercent} className="h-3 mb-2" />
-          <p className="text-xs text-muted-foreground text-left">{usagePercent.toFixed(1)}%</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">{usagePercent.toFixed(1)}%</p>
+            <div className="flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3 text-muted-foreground" />
+              {editingThreshold ? (
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    value={newThreshold}
+                    onChange={(e) => setNewThreshold(e.target.value)}
+                    className="w-16 h-6 text-xs"
+                    placeholder="%"
+                    min={1}
+                    max={100}
+                  />
+                  <Button size="sm" variant="outline" className="h-6 text-xs px-1.5" onClick={saveAlertThreshold} disabled={savingThreshold}>
+                    {savingThreshold ? <Loader2 className="h-3 w-3 animate-spin" /> : "حفظ"}
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-6 text-xs px-1.5" onClick={() => setEditingThreshold(false)}>✕</Button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setNewThreshold(String(alertThreshold)); setEditingThreshold(true); }}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-0.5"
+                >
+                  تنبيه عند {alertThreshold}%
+                  <Settings2 className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
