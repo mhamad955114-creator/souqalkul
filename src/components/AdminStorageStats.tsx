@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
-import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2 } from "lucide-react";
+import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2, AlertTriangle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { toast } from "sonner";
 
