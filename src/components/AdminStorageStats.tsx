@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
-import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2, AlertTriangle } from "lucide-react";
+import { Input } from "./ui/input";
+import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2, AlertTriangle, Settings2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -15,7 +16,7 @@ interface StorageStats {
   by_badge: Record<string, { count: number; images: number }>;
 }
 
-const STORAGE_LIMIT_MB = 1024;
+const DEFAULT_STORAGE_LIMIT_MB = 1024;
 
 const badgeLabels: Record<string, string> = {
   free: "مجاني",
