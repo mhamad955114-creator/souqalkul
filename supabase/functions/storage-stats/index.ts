@@ -152,6 +152,44 @@ Deno.serve(async (req) => {
       }
     }
 
+    const storageLimitMb = 1024;
+    const usagePercent = ((totalSizeBytes + receiptsSizeBytes) / (storageLimitMb * 1024 * 1024)) * 100;
+
+    // Auto-alert admins if usage > 80%
+    if (usagePercent >= 80) {
+      const alertTitle = usagePercent >= 95
+        ? "⚠️ تحذير: التخزين شبه ممتلئ!"
+        : "⚠️ تنبيه: استخدام التخزين مرتفع";
+      const alertMessage = `استخدام التخزين وصل إلى ${usagePercent.toFixed(1)}% (${+((totalSizeBytes + receiptsSizeBytes) / (1024 * 1024)).toFixed(2)} MB من ${storageLimitMb} MB). يرجى تنظيف الصور المنتهية.`;
+
+      // Check if we already sent an alert today to avoid spam
+      const today = new Date().toISOString().split("T")[0];
+      const { data: existingAlert } = await adminClient
+        .from("notifications")
+        .select("id")
+        .eq("type", "storage_alert")
+        .gte("created_at", today + "T00:00:00Z")
+        .limit(1);
+
+      if (!existingAlert || existingAlert.length === 0) {
+        // Get all admin IDs
+        const { data: admins } = await adminClient
+          .from("user_roles")
+          .select("user_id")
+          .eq("role", "admin");
+
+        if (admins && admins.length > 0) {
+          const alertRows = admins.map((a) => ({
+            user_id: a.user_id,
+            title: alertTitle,
+            message: alertMessage,
+            type: "storage_alert",
+          }));
+          await adminClient.from("notifications").insert(alertRows);
+        }
+      }
+    }
+
     const result = {
       listings_bucket: {
         total_size_bytes: totalSizeBytes,
@@ -174,6 +212,7 @@ Deno.serve(async (req) => {
         expired_images: expiredImages,
       },
       by_badge: byBadge,
+      usage_percent: +usagePercent.toFixed(1),
     };
 
     return new Response(JSON.stringify(result), {

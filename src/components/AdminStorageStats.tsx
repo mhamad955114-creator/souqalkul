@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
-import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2 } from "lucide-react";
+import { Loader2, HardDrive, Image, FileArchive, RefreshCw, Database, Trash2, AlertTriangle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -195,6 +195,23 @@ const AdminStorageStats = () => {
           تحديث
         </Button>
       </div>
+
+      {/* Storage Alert Banner */}
+      {usagePercent >= 80 && (
+        <Card className={usagePercent >= 95 ? "border-destructive bg-destructive/5" : "border-amber-500 bg-amber-500/5"}>
+          <CardContent className="p-4 flex items-start gap-3">
+            <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${usagePercent >= 95 ? "text-destructive" : "text-amber-500"}`} />
+            <div>
+              <p className={`font-semibold ${usagePercent >= 95 ? "text-destructive" : "text-amber-600"}`}>
+                {usagePercent >= 95 ? "تحذير: التخزين شبه ممتلئ!" : "تنبيه: استخدام التخزين مرتفع"}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                استخدام التخزين وصل إلى {usagePercent.toFixed(1)}%. يرجى حذف الصور المنتهية لتوفير المساحة.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Overall Usage */}
       <Card>
