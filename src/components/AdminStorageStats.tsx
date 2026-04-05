@@ -101,6 +101,40 @@ const AdminStorageStats = () => {
     }
   };
 
+  const saveAlertThreshold = async () => {
+    const val = Number(newThreshold);
+    if (isNaN(val) || val < 1 || val > 100) {
+      toast.error("يرجى إدخال نسبة بين 1 و 100");
+      return;
+    }
+    setSavingThreshold(true);
+    try {
+      const { data: existing } = await supabase
+        .from("listing_settings")
+        .select("id")
+        .eq("setting_key", "storage_alert_threshold")
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from("listing_settings")
+          .update({ setting_value: val as unknown as import("@/integrations/supabase/types").Json })
+          .eq("setting_key", "storage_alert_threshold");
+      } else {
+        await supabase
+          .from("listing_settings")
+          .insert({ setting_key: "storage_alert_threshold", setting_value: val as unknown as import("@/integrations/supabase/types").Json });
+      }
+      setAlertThreshold(val);
+      setEditingThreshold(false);
+      toast.success("تم تحديث نسبة التنبيه");
+    } catch {
+      toast.error("فشل في حفظ الإعداد");
+    } finally {
+      setSavingThreshold(false);
+    }
+  };
+
   const fetchStats = async () => {
     setLoading(true);
     try {
