@@ -44,19 +44,26 @@ const AdminStorageStats = () => {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [expiredCount, setExpiredCount] = useState(0);
   const [storageLimitMb, setStorageLimitMb] = useState(DEFAULT_STORAGE_LIMIT_MB);
+  const [alertThreshold, setAlertThreshold] = useState(80);
   const [editingLimit, setEditingLimit] = useState(false);
+  const [editingThreshold, setEditingThreshold] = useState(false);
   const [newLimit, setNewLimit] = useState("");
+  const [newThreshold, setNewThreshold] = useState("");
   const [savingLimit, setSavingLimit] = useState(false);
+  const [savingThreshold, setSavingThreshold] = useState(false);
 
-  const fetchStorageLimit = async () => {
+  const fetchStorageSettings = async () => {
     const { data } = await supabase
       .from("listing_settings")
-      .select("setting_value")
-      .eq("setting_key", "storage_limit_mb")
-      .maybeSingle();
-    if (data?.setting_value) {
-      const val = typeof data.setting_value === "number" ? data.setting_value : Number(data.setting_value);
-      if (!isNaN(val) && val > 0) setStorageLimitMb(val);
+      .select("setting_key, setting_value")
+      .in("setting_key", ["storage_limit_mb", "storage_alert_threshold"]);
+    if (data) {
+      for (const row of data) {
+        const val = typeof row.setting_value === "number" ? row.setting_value : Number(row.setting_value);
+        if (isNaN(val) || val <= 0) continue;
+        if (row.setting_key === "storage_limit_mb") setStorageLimitMb(val);
+        if (row.setting_key === "storage_alert_threshold") setAlertThreshold(val);
+      }
     }
   };
 
