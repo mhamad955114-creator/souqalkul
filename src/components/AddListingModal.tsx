@@ -159,9 +159,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         const fileExt = file.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-        // Video size limit: 50MB
-        if (isVideoFile(file) && file.size > 50 * 1024 * 1024) {
-          toast.error("حجم الفيديو يجب أن لا يتجاوز 50 ميجابايت");
+        // Video size limit: 15MB
+        if (isVideoFile(file) && file.size > 15 * 1024 * 1024) {
+          toast.error("حجم الفيديو يجب أن لا يتجاوز 15 ميجابايت");
           continue;
         }
 
