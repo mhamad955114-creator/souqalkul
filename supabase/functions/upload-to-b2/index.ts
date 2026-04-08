@@ -1,4 +1,7 @@
-import { corsHeaders } from '@supabase/supabase-js/cors'
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 import { S3Client, PutObjectCommand } from "npm:@aws-sdk/client-s3@3.700.0";
 
 const B2_KEY_ID = Deno.env.get("B2_KEY_ID")!;
