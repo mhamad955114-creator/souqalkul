@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/imageCompression";
+import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
 import { cities, categories, areasByCity, categoryMetadataFields } from "@/lib/constants";
@@ -156,32 +157,23 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         if (!isVideoFile(file)) {
           file = await compressImage(file);
         }
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-
         // Video size limit: 15MB
         if (isVideoFile(file) && file.size > 15 * 1024 * 1024) {
           toast.error("حجم الفيديو يجب أن لا يتجاوز 15 ميجابايت");
           continue;
         }
 
-        const { error: uploadError } = await supabase.storage
-          .from("listings")
-          .upload(fileName, file);
+        try {
+          const publicUrl = await uploadToB2(file, `listings/${user.id}`, file.name);
 
-        if (uploadError) {
-          toast.error(t.listingForm.uploadFailed + ": " + uploadError.message);
+          if (isVideoFile(file)) {
+            uploadedVideoUrls.push(publicUrl);
+          } else {
+            uploadedUrls.push(publicUrl);
+          }
+        } catch (uploadError: any) {
+          toast.error(t.listingForm.uploadFailed + ": " + (uploadError.message || "Upload failed"));
           continue;
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("listings")
-          .getPublicUrl(fileName);
-
-        if (isVideoFile(file)) {
-          uploadedVideoUrls.push(publicUrl);
-        } else {
-          uploadedUrls.push(publicUrl);
         }
       }
 
@@ -197,10 +189,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             toast.success("تم قبول الفيديو ✅");
           } else {
             rejected.push({ url, reason: result.reason || "محتوى الفيديو مخالف" });
-            const path = url.split('/listings/')[1];
-            if (path) {
-              await supabase.storage.from('listings').remove([path]);
-            }
           }
         }
 
@@ -227,10 +215,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             }
           } else {
             rejected.push({ url, reason: result.reason });
-            const path = url.split('/listings/')[1];
-            if (path) {
-              await supabase.storage.from('listings').remove([path]);
-            }
           }
         }
 

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadToB2 } from "@/lib/b2Upload";
 import { useBrand } from "@/contexts/BrandContext";
 
 const planConfig = [
@@ -388,14 +389,7 @@ const AdminSettingsTab = () => {
       const fileName = `logo-${Date.now()}.${fileExt}`;
       const filePath = `brand/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("listings")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage.from("listings").getPublicUrl(filePath);
-      const publicUrl = urlData.publicUrl;
+      const publicUrl = await uploadToB2(file, "brand", fileName);
 
       // Save to settings
       await upsertSetting("brand_logo_url", publicUrl);

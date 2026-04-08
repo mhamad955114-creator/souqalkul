@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/imageCompression";
+import { uploadToB2 } from "@/lib/b2Upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -111,17 +112,7 @@ const Settings = () => {
       const fileExt = compressedFile.name.split(".").pop();
       const fileName = `${user.id}/avatar.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("listings")
-        .upload(fileName, compressedFile, { upsert: true });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("listings")
-        .getPublicUrl(fileName);
+      const publicUrl = await uploadToB2(compressedFile, `avatars`, `${user.id}-avatar.${fileExt}`);
 
       setAvatarUrl(publicUrl);
       toast.success(t.settings.uploadSuccess);
