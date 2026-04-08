@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadToB2 } from "@/lib/b2Upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -372,24 +373,16 @@ const MyAccount = () => {
     setUploadingAvatar(true);
     try {
       const fileExt = file.name.split(".").pop();
-      const filePath = `avatars/${user.id}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("listings")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage.from("listings").getPublicUrl(filePath);
+      const publicUrl = await uploadToB2(file, `avatars`, `${user.id}-avatar.${fileExt}`);
 
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ avatar_url: urlData.publicUrl })
+        .update({ avatar_url: publicUrl })
         .eq("user_id", user.id);
 
       if (updateError) throw updateError;
 
-      setProfile((prev) => prev ? { ...prev, avatar_url: urlData.publicUrl } : prev);
+      setProfile((prev) => prev ? { ...prev, avatar_url: publicUrl } : prev);
       toast.success("تم تحديث الصورة بنجاح");
     } catch (error) {
       console.error(error);
