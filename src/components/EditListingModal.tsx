@@ -148,10 +148,6 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
             }
           } else {
             rejected.push({ url, reason: result.reason });
-            const path = url.split('/listings/')[1];
-            if (path) {
-              await supabase.storage.from('listings').remove([path]);
-            }
           }
         }
 

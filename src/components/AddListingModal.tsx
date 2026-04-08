@@ -189,10 +189,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             toast.success("تم قبول الفيديو ✅");
           } else {
             rejected.push({ url, reason: result.reason || "محتوى الفيديو مخالف" });
-            const path = url.split('/listings/')[1];
-            if (path) {
-              await supabase.storage.from('listings').remove([path]);
-            }
           }
         }
 
@@ -219,10 +215,6 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             }
           } else {
             rejected.push({ url, reason: result.reason });
-            const path = url.split('/listings/')[1];
-            if (path) {
-              await supabase.storage.from('listings').remove([path]);
-            }
           }
         }
 
