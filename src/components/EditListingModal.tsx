@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/imageCompression";
+import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
 import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -121,23 +122,13 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
       for (let file of Array.from(e.target.files)) {
         // Compress images client-side before upload
         file = await compressImage(file);
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("listings")
-          .upload(fileName, file);
-
-        if (uploadError) {
-          toast.error(t.listingForm.uploadFailed + ": " + uploadError.message);
+        try {
+          const publicUrl = await uploadToB2(file, `listings/${user.id}`, file.name);
+          uploadedUrls.push(publicUrl);
+        } catch (uploadError: any) {
+          toast.error(t.listingForm.uploadFailed + ": " + (uploadError.message || "Upload failed"));
           continue;
         }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("listings")
-          .getPublicUrl(fileName);
-
-        uploadedUrls.push(publicUrl);
       }
 
       if (uploadedUrls.length > 0) {
