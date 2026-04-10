@@ -190,13 +190,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         toast.success(`تم رفع ${uploadedVideoUrls.length} فيديو، جاري فحص المحتوى...`);
         setModeratingImages(true);
 
-        for (const url of uploadedVideoUrls) {
-          const result = await moderateVideo(url);
-          if (result.approved) {
-            setImages((prev) => [...prev, url]);
-            toast.success("تم قبول الفيديو ✅");
-          } else {
-            rejected.push({ url, reason: result.reason || "محتوى الفيديو مخالف" });
+        const videoResults = await Promise.allSettled(
+          uploadedVideoUrls.map(async (url) => {
+            const result = await moderateVideo(url);
+            return { url, result };
+          })
+        );
+
+        for (const r of videoResults) {
+          if (r.status === 'fulfilled') {
+            if (r.value.result.approved) {
+              setImages((prev) => [...prev, r.value.url]);
+              toast.success("تم قبول الفيديو ✅");
+            } else {
+              rejected.push({ url: r.value.url, reason: r.value.result.reason || "محتوى الفيديو مخالف" });
+            }
           }
         }
 
@@ -214,15 +222,23 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         const approvedUrls: string[] = [];
         let detectedCategory: string | null = null;
         
-        for (const url of uploadedUrls) {
-          const result = await moderateImage(url);
-          if (result.approved) {
-            approvedUrls.push(url);
-            if (!detectedCategory && result.suggestedCategory) {
-              detectedCategory = result.suggestedCategory;
+        const imageResults = await Promise.allSettled(
+          uploadedUrls.map(async (url) => {
+            const result = await moderateImage(url);
+            return { url, result };
+          })
+        );
+
+        for (const r of imageResults) {
+          if (r.status === 'fulfilled') {
+            if (r.value.result.approved) {
+              approvedUrls.push(r.value.url);
+              if (!detectedCategory && r.value.result.suggestedCategory) {
+                detectedCategory = r.value.result.suggestedCategory;
+              }
+            } else {
+              rejected.push({ url: r.value.url, reason: r.value.result.reason });
             }
-          } else {
-            rejected.push({ url, reason: result.reason });
           }
         }
 
