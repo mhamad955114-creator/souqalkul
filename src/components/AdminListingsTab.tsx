@@ -201,21 +201,16 @@ const AdminListingsTab = () => {
     }
     setUpdating(listing.id);
     try {
-      const paths = listing.images
-        .map((url) => {
-          const match = url.match(/\/storage\/v1\/object\/public\/listings\/(.+)/);
-          return match ? decodeURIComponent(match[1]) : null;
-        })
-        .filter((p): p is string => p !== null);
-
-      if (paths.length > 0) {
-        const { error: delError } = await supabase.storage.from("listings").remove(paths);
-        if (delError) throw delError;
+      // Delete from B2
+      const urls = listing.images.filter((u) => !!u);
+      if (urls.length > 0) {
+        const { deleteFromB2 } = await import("@/lib/b2Delete");
+        await deleteFromB2({ urls });
       }
 
       await supabase.from("listings").update({ images: [] } as any).eq("id", listing.id);
 
-      toast.success(`تم حذف ${paths.length} صورة من "${listing.title}"`);
+      toast.success(`تم حذف ${urls.length} صورة من "${listing.title}"`);
       setListings((prev) =>
         prev.map((l) => (l.id === listing.id ? { ...l, images: [] } : l))
       );

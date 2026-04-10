@@ -207,16 +207,14 @@ const AdminStorageStats = () => {
           .map((url: string) => extractStoragePath(url))
           .filter(Boolean) as string[];
 
-        if (paths.length > 0) {
-          const { error: removeError } = await supabase.storage
-            .from("listings")
-            .remove(paths);
-
-          if (removeError) {
-            totalFailed += paths.length;
+        if (images.length > 0) {
+          try {
+            const { deleteFromB2 } = await import("@/lib/b2Delete");
+            await deleteFromB2({ urls: images });
+            totalDeleted += images.length;
+          } catch (removeError) {
+            totalFailed += images.length;
             console.error(`Failed to delete images for listing ${listing.id}:`, removeError);
-          } else {
-            totalDeleted += paths.length;
           }
         }
 
