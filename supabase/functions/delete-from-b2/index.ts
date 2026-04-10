@@ -6,7 +6,8 @@ import { S3Client, DeleteObjectCommand, DeleteObjectsCommand } from "npm:@aws-sd
 
 const B2_KEY_ID = Deno.env.get("B2_KEY_ID")!;
 const B2_APP_KEY = Deno.env.get("B2_APP_KEY")!;
-const B2_ENDPOINT = Deno.env.get("B2_ENDPOINT")!;
+const B2_ENDPOINT_RAW = Deno.env.get("B2_ENDPOINT")!;
+const B2_ENDPOINT = B2_ENDPOINT_RAW.startsWith("http") ? B2_ENDPOINT_RAW : `https://${B2_ENDPOINT_RAW}`;
 const B2_BUCKET_NAME = Deno.env.get("B2_BUCKET_NAME")!;
 
 const s3 = new S3Client({
