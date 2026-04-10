@@ -152,28 +152,36 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     const rejected: { url: string; reason: string }[] = [];
 
     try {
+      // Prepare files: compress images and validate videos
+      const preparedFiles: File[] = [];
       for (let file of Array.from(e.target.files)) {
-        // Compress images client-side before upload
         if (!isVideoFile(file)) {
           file = await compressImage(file);
         }
-        // Video size limit: 15MB
         if (isVideoFile(file) && file.size > 15 * 1024 * 1024) {
           toast.error("حجم الفيديو يجب أن لا يتجاوز 15 ميجابايت");
           continue;
         }
+        preparedFiles.push(file);
+      }
 
-        try {
+      // Upload all files in parallel for speed
+      const uploadResults = await Promise.allSettled(
+        preparedFiles.map(async (file) => {
           const publicUrl = await uploadToB2(file, `listings/${user.id}`, file.name);
+          return { url: publicUrl, isVideo: isVideoFile(file) };
+        })
+      );
 
-          if (isVideoFile(file)) {
-            uploadedVideoUrls.push(publicUrl);
+      for (const result of uploadResults) {
+        if (result.status === 'fulfilled') {
+          if (result.value.isVideo) {
+            uploadedVideoUrls.push(result.value.url);
           } else {
-            uploadedUrls.push(publicUrl);
+            uploadedUrls.push(result.value.url);
           }
-        } catch (uploadError: any) {
-          toast.error(t.listingForm.uploadFailed + ": " + (uploadError.message || "Upload failed"));
-          continue;
+        } else {
+          toast.error(t.listingForm.uploadFailed + ": " + (result.reason?.message || "Upload failed"));
         }
       }
 
@@ -182,13 +190,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         toast.success(`تم رفع ${uploadedVideoUrls.length} فيديو، جاري فحص المحتوى...`);
         setModeratingImages(true);
 
-        for (const url of uploadedVideoUrls) {
-          const result = await moderateVideo(url);
-          if (result.approved) {
-            setImages((prev) => [...prev, url]);
-            toast.success("تم قبول الفيديو ✅");
-          } else {
-            rejected.push({ url, reason: result.reason || "محتوى الفيديو مخالف" });
+        const videoResults = await Promise.allSettled(
+          uploadedVideoUrls.map(async (url) => {
+            const result = await moderateVideo(url);
+            return { url, result };
+          })
+        );
+
+        for (const r of videoResults) {
+          if (r.status === 'fulfilled') {
+            if (r.value.result.approved) {
+              setImages((prev) => [...prev, r.value.url]);
+              toast.success("تم قبول الفيديو ✅");
+            } else {
+              rejected.push({ url: r.value.url, reason: r.value.result.reason || "محتوى الفيديو مخالف" });
+            }
           }
         }
 
@@ -206,15 +222,23 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         const approvedUrls: string[] = [];
         let detectedCategory: string | null = null;
         
-        for (const url of uploadedUrls) {
-          const result = await moderateImage(url);
-          if (result.approved) {
-            approvedUrls.push(url);
-            if (!detectedCategory && result.suggestedCategory) {
-              detectedCategory = result.suggestedCategory;
+        const imageResults = await Promise.allSettled(
+          uploadedUrls.map(async (url) => {
+            const result = await moderateImage(url);
+            return { url, result };
+          })
+        );
+
+        for (const r of imageResults) {
+          if (r.status === 'fulfilled') {
+            if (r.value.result.approved) {
+              approvedUrls.push(r.value.url);
+              if (!detectedCategory && r.value.result.suggestedCategory) {
+                detectedCategory = r.value.result.suggestedCategory;
+              }
+            } else {
+              rejected.push({ url: r.value.url, reason: r.value.result.reason });
             }
-          } else {
-            rejected.push({ url, reason: result.reason });
           }
         }
 
