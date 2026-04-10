@@ -152,28 +152,36 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     const rejected: { url: string; reason: string }[] = [];
 
     try {
+      // Prepare files: compress images and validate videos
+      const preparedFiles: File[] = [];
       for (let file of Array.from(e.target.files)) {
-        // Compress images client-side before upload
         if (!isVideoFile(file)) {
           file = await compressImage(file);
         }
-        // Video size limit: 15MB
         if (isVideoFile(file) && file.size > 15 * 1024 * 1024) {
           toast.error("حجم الفيديو يجب أن لا يتجاوز 15 ميجابايت");
           continue;
         }
+        preparedFiles.push(file);
+      }
 
-        try {
+      // Upload all files in parallel for speed
+      const uploadResults = await Promise.allSettled(
+        preparedFiles.map(async (file) => {
           const publicUrl = await uploadToB2(file, `listings/${user.id}`, file.name);
+          return { url: publicUrl, isVideo: isVideoFile(file) };
+        })
+      );
 
-          if (isVideoFile(file)) {
-            uploadedVideoUrls.push(publicUrl);
+      for (const result of uploadResults) {
+        if (result.status === 'fulfilled') {
+          if (result.value.isVideo) {
+            uploadedVideoUrls.push(result.value.url);
           } else {
-            uploadedUrls.push(publicUrl);
+            uploadedUrls.push(result.value.url);
           }
-        } catch (uploadError: any) {
-          toast.error(t.listingForm.uploadFailed + ": " + (uploadError.message || "Upload failed"));
-          continue;
+        } else {
+          toast.error(t.listingForm.uploadFailed + ": " + (result.reason?.message || "Upload failed"));
         }
       }
 
