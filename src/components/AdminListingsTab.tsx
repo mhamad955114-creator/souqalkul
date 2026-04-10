@@ -210,7 +210,7 @@ const AdminListingsTab = () => {
 
       await supabase.from("listings").update({ images: [] } as any).eq("id", listing.id);
 
-      toast.success(`تم حذف ${paths.length} صورة من "${listing.title}"`);
+      toast.success(`تم حذف ${urls.length} صورة من "${listing.title}"`);
       setListings((prev) =>
         prev.map((l) => (l.id === listing.id ? { ...l, images: [] } : l))
       );
