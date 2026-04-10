@@ -157,8 +157,17 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Cairo', sans-serif;
     font-weight: 700;
+    line-height: 1.6;
+  }
+
+  p, li, span, a, label, input, textarea, select, button {
+    line-height: 1.8;
+  }
+
+  footer, nav, .bottom-navigation {
+    line-height: 1.9;
   }
 }
 
