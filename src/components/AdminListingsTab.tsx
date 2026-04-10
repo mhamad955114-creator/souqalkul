@@ -225,16 +225,19 @@ const AdminListingsTab = () => {
     setDeleteImagesListing(null);
   };
 
+  const searchLower = search.toLowerCase();
   const filtered = listings.filter(
     (l) =>
-      l.title.toLowerCase().includes(search.toLowerCase()) ||
-      l.user_email?.toLowerCase().includes(search.toLowerCase())
+      l.title.toLowerCase().includes(searchLower) ||
+      l.user_email?.toLowerCase().includes(searchLower) ||
+      l.id.toLowerCase().includes(searchLower)
   );
 
   const filteredPending = pendingListings.filter(
     (l) =>
-      l.title.toLowerCase().includes(search.toLowerCase()) ||
-      l.user_email?.toLowerCase().includes(search.toLowerCase())
+      l.title.toLowerCase().includes(searchLower) ||
+      l.user_email?.toLowerCase().includes(searchLower) ||
+      l.id.toLowerCase().includes(searchLower)
   );
 
   if (loading) {
@@ -277,7 +280,7 @@ const AdminListingsTab = () => {
       <div className="relative">
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="البحث بعنوان الإعلان أو اسم المستخدم..."
+          placeholder="البحث بعنوان الإعلان أو رقم الإعلان أو اسم المستخدم..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pr-10"
