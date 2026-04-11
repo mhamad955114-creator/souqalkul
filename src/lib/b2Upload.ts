@@ -4,11 +4,24 @@ const EDGE_UPLOAD_TIMEOUT_MS = 15000;
 const STORAGE_BUCKET = "listings";
 
 function normalizeFolder(folder: string): string {
-  return folder.replace(/^\/+|\/+$/g, "").replace(/^listings\//, "");
+  return folder
+    .replace(/^\/+|\/+$/g, "")
+    .replace(/^listings\//, "")
+    .split("/")
+    .map((segment) => segment.trim().replace(/[^a-zA-Z0-9_-]+/g, "-"))
+    .filter(Boolean)
+    .join("/");
 }
 
 function sanitizeFileName(name: string): string {
-  return name.replace(/[^\p{L}\p{N}._-]+/gu, "-").replace(/-+/g, "-");
+  const cleaned = name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[-.]+|[-.]+$/g, "");
+
+  return cleaned || `file-${Date.now()}`;
 }
 
 function resolveFileName(file: File, explicitName?: string): string {
@@ -16,7 +29,7 @@ function resolveFileName(file: File, explicitName?: string): string {
   const fallbackName = file.name || `file-${Date.now()}.${typeExt}`;
   const rawName = explicitName || fallbackName;
   const safeName = sanitizeFileName(rawName);
-  return safeName || `file-${Date.now()}.${typeExt}`;
+  return safeName.includes(".") ? safeName : `${safeName}.${typeExt}`;
 }
 
 function addUniqueSuffix(fileName: string): string {
