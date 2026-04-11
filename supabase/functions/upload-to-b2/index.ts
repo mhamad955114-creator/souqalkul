@@ -81,6 +81,8 @@ Deno.serve(async (req) => {
 
     const arrayBuffer = await file.arrayBuffer();
 
+    console.log("Uploading to B2:", { bucket: B2_BUCKET_NAME, key, contentType: file.type, size: file.size });
+
     await s3.send(
       new PutObjectCommand({
         Bucket: B2_BUCKET_NAME,
@@ -92,6 +94,7 @@ Deno.serve(async (req) => {
 
     // Build public download URL
     const publicUrl = buildPublicUrl(key);
+    console.log("Upload success, public URL:", publicUrl);
 
     return new Response(
       JSON.stringify({ url: publicUrl, key }),
