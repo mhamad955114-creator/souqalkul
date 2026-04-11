@@ -36,7 +36,10 @@ export async function uploadToB2(
   );
 
   if (!response.ok) {
-    const err = await response.json().catch(() => ({ error: "Upload failed" }));
+    const errText = await response.text();
+    console.error("B2 upload failed:", response.status, errText);
+    let err = { error: "Upload failed" };
+    try { err = JSON.parse(errText); } catch {}
     throw new Error(err.error || "Upload failed");
   }
 
