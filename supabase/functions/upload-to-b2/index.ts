@@ -90,9 +90,8 @@ Deno.serve(async (req) => {
       })
     );
 
-    // Build public URL - strip protocol from endpoint for path-style URL
-    const endpointClean = B2_ENDPOINT.replace(/\/$/, "");
-    const publicUrl = `${endpointClean}/file/${B2_BUCKET_NAME}/${key}`;
+    // Build public download URL
+    const publicUrl = buildPublicUrl(key);
 
     return new Response(
       JSON.stringify({ url: publicUrl, key }),
