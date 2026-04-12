@@ -462,6 +462,17 @@ const AllListings = () => {
           </div>
 
           <div className="hidden lg:flex gap-4">
+            <Select value={country} onValueChange={handleCountryFilterChange}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {countries.map((c) => (
+                  <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="w-40">
                 <SelectValue />
