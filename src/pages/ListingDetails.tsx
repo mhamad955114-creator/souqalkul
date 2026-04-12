@@ -378,7 +378,7 @@ const ListingDetails = () => {
 
                 {/* Price Row */}
                 <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-2xl font-bold text-primary">{formatPrice(listing.price)}</span>
+                  <span className="text-2xl font-bold text-primary">{formatPrice(listing.price, (listing as any).country ? getCountryByName((listing as any).country).currencySymbol : undefined)}</span>
                   <span className="text-lg font-semibold text-foreground">السعر</span>
                 </div>
 
