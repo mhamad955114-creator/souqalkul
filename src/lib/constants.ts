@@ -1,20 +1,148 @@
-// Syrian cities
-export const cities = [
-  "دمشق",
-  "حلب",
-  "حمص",
-  "حماة",
-  "اللاذقية",
-  "طرطوس",
-  "دير الزور",
-  "الرقة",
-  "الحسكة",
-  "درعا",
-  "السويداء",
-  "إدلب",
-  "القنيطرة",
-  "ريف دمشق",
+// Country definitions with cities, currency, and phone info
+export interface CountryInfo {
+  code: string;
+  name: string;
+  currency: string;
+  currencySymbol: string;
+  currencyCode: string;
+  phoneCode: string;
+  phonePattern: RegExp;
+  phonePlaceholder: string;
+  cities: string[];
+}
+
+export const countries: CountryInfo[] = [
+  {
+    code: "SY", name: "سوريا", currency: "ليرة سورية", currencySymbol: "ل.س", currencyCode: "SYP",
+    phoneCode: "+963", phonePattern: /^09\d{8}$/, phonePlaceholder: "09xxxxxxxx",
+    cities: ["دمشق", "حلب", "حمص", "حماة", "اللاذقية", "طرطوس", "دير الزور", "الرقة", "الحسكة", "درعا", "السويداء", "إدلب", "القنيطرة", "ريف دمشق"],
+  },
+  {
+    code: "TR", name: "تركيا", currency: "ليرة تركية", currencySymbol: "₺", currencyCode: "TRY",
+    phoneCode: "+90", phonePattern: /^05\d{9}$/, phonePlaceholder: "05xxxxxxxxx",
+    cities: ["إسطنبول", "أنقرة", "إزمير", "بورصة", "أنطاليا", "غازي عنتاب", "قونية", "أضنة", "مرسين", "ديار بكر", "قيصري", "إسكي شهير", "طرابزون", "أورفة", "ملاطية", "سامسون", "دنيزلي", "هاتاي", "كيليس", "ماردين"],
+  },
+  {
+    code: "SA", name: "السعودية", currency: "ريال سعودي", currencySymbol: "ر.س", currencyCode: "SAR",
+    phoneCode: "+966", phonePattern: /^05\d{8}$/, phonePlaceholder: "05xxxxxxxx",
+    cities: ["الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام", "الخبر", "الطائف", "تبوك", "بريدة", "خميس مشيط", "حائل", "نجران", "جازان", "أبها", "ينبع"],
+  },
+  {
+    code: "AE", name: "الإمارات", currency: "درهم إماراتي", currencySymbol: "د.إ", currencyCode: "AED",
+    phoneCode: "+971", phonePattern: /^05\d{8}$/, phonePlaceholder: "05xxxxxxxx",
+    cities: ["دبي", "أبوظبي", "الشارقة", "عجمان", "رأس الخيمة", "الفجيرة", "أم القيوين", "العين"],
+  },
+  {
+    code: "EG", name: "مصر", currency: "جنيه مصري", currencySymbol: "ج.م", currencyCode: "EGP",
+    phoneCode: "+20", phonePattern: /^01[0125]\d{8}$/, phonePlaceholder: "01xxxxxxxxx",
+    cities: ["القاهرة", "الإسكندرية", "الجيزة", "شرم الشيخ", "الأقصر", "أسوان", "المنصورة", "طنطا", "الزقازيق", "بورسعيد", "السويس", "الإسماعيلية", "دمياط", "المنيا", "سوهاج"],
+  },
+  {
+    code: "IQ", name: "العراق", currency: "دينار عراقي", currencySymbol: "د.ع", currencyCode: "IQD",
+    phoneCode: "+964", phonePattern: /^07\d{9}$/, phonePlaceholder: "07xxxxxxxxx",
+    cities: ["بغداد", "البصرة", "أربيل", "الموصل", "النجف", "كربلاء", "السليمانية", "كركوك", "الحلة", "الناصرية", "الديوانية", "العمارة", "سامراء", "تكريت", "دهوك"],
+  },
+  {
+    code: "JO", name: "الأردن", currency: "دينار أردني", currencySymbol: "د.أ", currencyCode: "JOD",
+    phoneCode: "+962", phonePattern: /^07[789]\d{7}$/, phonePlaceholder: "07xxxxxxxx",
+    cities: ["عمّان", "إربد", "الزرقاء", "العقبة", "المفرق", "جرش", "مادبا", "الكرك", "الطفيلة", "السلط", "عجلون"],
+  },
+  {
+    code: "LB", name: "لبنان", currency: "ليرة لبنانية", currencySymbol: "ل.ل", currencyCode: "LBP",
+    phoneCode: "+961", phonePattern: /^(03|70|71|76|78|79|81)\d{6}$/, phonePlaceholder: "0xxxxxxx",
+    cities: ["بيروت", "طرابلس", "صيدا", "صور", "جونيه", "زحلة", "بعلبك", "جبيل", "النبطية"],
+  },
+  {
+    code: "KW", name: "الكويت", currency: "دينار كويتي", currencySymbol: "د.ك", currencyCode: "KWD",
+    phoneCode: "+965", phonePattern: /^[569]\d{7}$/, phonePlaceholder: "xxxxxxxx",
+    cities: ["مدينة الكويت", "حولي", "السالمية", "الفروانية", "الجهراء", "الأحمدي", "مبارك الكبير"],
+  },
+  {
+    code: "QA", name: "قطر", currency: "ريال قطري", currencySymbol: "ر.ق", currencyCode: "QAR",
+    phoneCode: "+974", phonePattern: /^[3567]\d{7}$/, phonePlaceholder: "xxxxxxxx",
+    cities: ["الدوحة", "الوكرة", "الخور", "الريان", "أم صلال", "الشمال"],
+  },
+  {
+    code: "BH", name: "البحرين", currency: "دينار بحريني", currencySymbol: "د.ب", currencyCode: "BHD",
+    phoneCode: "+973", phonePattern: /^3\d{7}$/, phonePlaceholder: "3xxxxxxx",
+    cities: ["المنامة", "المحرق", "الرفاع", "مدينة عيسى", "مدينة حمد", "سترة"],
+  },
+  {
+    code: "OM", name: "عُمان", currency: "ريال عماني", currencySymbol: "ر.ع", currencyCode: "OMR",
+    phoneCode: "+968", phonePattern: /^[79]\d{7}$/, phonePlaceholder: "xxxxxxxx",
+    cities: ["مسقط", "صلالة", "صحار", "نزوى", "صور", "البريمي", "الرستاق", "عبري"],
+  },
+  {
+    code: "YE", name: "اليمن", currency: "ريال يمني", currencySymbol: "ر.ي", currencyCode: "YER",
+    phoneCode: "+967", phonePattern: /^7[0-9]\d{7}$/, phonePlaceholder: "7xxxxxxxx",
+    cities: ["صنعاء", "عدن", "تعز", "الحديدة", "إب", "المكلا", "ذمار", "حجة", "صعدة"],
+  },
+  {
+    code: "LY", name: "ليبيا", currency: "دينار ليبي", currencySymbol: "د.ل", currencyCode: "LYD",
+    phoneCode: "+218", phonePattern: /^09\d{8}$/, phonePlaceholder: "09xxxxxxxx",
+    cities: ["طرابلس", "بنغازي", "مصراتة", "الزاوية", "زليتن", "البيضاء", "سبها", "درنة"],
+  },
+  {
+    code: "TN", name: "تونس", currency: "دينار تونسي", currencySymbol: "د.ت", currencyCode: "TND",
+    phoneCode: "+216", phonePattern: /^[2-9]\d{7}$/, phonePlaceholder: "xxxxxxxx",
+    cities: ["تونس", "صفاقس", "سوسة", "القيروان", "بنزرت", "قابس", "المنستير", "نابل"],
+  },
+  {
+    code: "DZ", name: "الجزائر", currency: "دينار جزائري", currencySymbol: "د.ج", currencyCode: "DZD",
+    phoneCode: "+213", phonePattern: /^0[567]\d{8}$/, phonePlaceholder: "0xxxxxxxxx",
+    cities: ["الجزائر", "وهران", "قسنطينة", "عنابة", "باتنة", "سطيف", "بجاية", "تلمسان", "بسكرة", "الشلف"],
+  },
+  {
+    code: "MA", name: "المغرب", currency: "درهم مغربي", currencySymbol: "د.م", currencyCode: "MAD",
+    phoneCode: "+212", phonePattern: /^0[6-7]\d{8}$/, phonePlaceholder: "06xxxxxxxx",
+    cities: ["الدار البيضاء", "الرباط", "فاس", "مراكش", "طنجة", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة"],
+  },
+  {
+    code: "SD", name: "السودان", currency: "جنيه سوداني", currencySymbol: "ج.س", currencyCode: "SDG",
+    phoneCode: "+249", phonePattern: /^09\d{8}$/, phonePlaceholder: "09xxxxxxxx",
+    cities: ["الخرطوم", "أم درمان", "بورتسودان", "كسلا", "الأبيض", "ود مدني", "القضارف", "نيالا"],
+  },
+  {
+    code: "MR", name: "موريتانيا", currency: "أوقية موريتانية", currencySymbol: "أ.م", currencyCode: "MRU",
+    phoneCode: "+222", phonePattern: /^[234]\d{7}$/, phonePlaceholder: "xxxxxxxx",
+    cities: ["نواكشوط", "نواذيبو", "كيفة", "روصو", "أطار"],
+  },
+  {
+    code: "PS", name: "فلسطين", currency: "شيكل", currencySymbol: "₪", currencyCode: "ILS",
+    phoneCode: "+970", phonePattern: /^05\d{8}$/, phonePlaceholder: "05xxxxxxxx",
+    cities: ["القدس", "غزة", "رام الله", "الخليل", "نابلس", "بيت لحم", "جنين", "طولكرم", "قلقيلية"],
+  },
+  {
+    code: "SO", name: "الصومال", currency: "شلن صومالي", currencySymbol: "Sh", currencyCode: "SOS",
+    phoneCode: "+252", phonePattern: /^[67]\d{8}$/, phonePlaceholder: "xxxxxxxxx",
+    cities: ["مقديشو", "هرجيسا", "كيسمايو", "بيدوا", "غالكعيو"],
+  },
+  {
+    code: "DJ", name: "جيبوتي", currency: "فرنك جيبوتي", currencySymbol: "Fdj", currencyCode: "DJF",
+    phoneCode: "+253", phonePattern: /^77\d{6}$/, phonePlaceholder: "77xxxxxx",
+    cities: ["جيبوتي", "علي صبيح", "تاجورة", "أوبوك", "دخيل"],
+  },
+  {
+    code: "KM", name: "جزر القمر", currency: "فرنك قمري", currencySymbol: "CF", currencyCode: "KMF",
+    phoneCode: "+269", phonePattern: /^3\d{6}$/, phonePlaceholder: "3xxxxxx",
+    cities: ["موروني", "موتسامودو", "فومبوني", "دوموني"],
+  },
 ];
+
+export const getCountryByCode = (code: string): CountryInfo =>
+  countries.find(c => c.code === code) || countries[0];
+
+export const getCountryByName = (name: string): CountryInfo =>
+  countries.find(c => c.name === name) || countries[0];
+
+// Get cities for a specific country
+export const getCitiesByCountry = (countryName: string): string[] => {
+  const country = getCountryByName(countryName);
+  return country ? country.cities : countries[0].cities;
+};
+
+// Legacy: Syrian cities (default)
+export const cities = countries[0].cities;
 
 export const citiesWithAll = [
   { value: "all", label: "جميع المدن" },
@@ -466,12 +594,19 @@ export const sortOptions = [
   { value: "price_desc", label: "السعر: من الأعلى للأقل" },
 ];
 
-// Currency formatting - Syrian Pound
-export const formatPrice = (price: number): string => {
+// Currency formatting - supports multiple currencies
+export const formatPrice = (price: number, currencySymbol?: string): string => {
+  const symbol = currencySymbol || "ل.س";
   return new Intl.NumberFormat("en-US", {
     style: "decimal",
     maximumFractionDigits: 0,
-  }).format(price) + " ل.س";
+  }).format(price) + " " + symbol;
+};
+
+// Format price by country name
+export const formatPriceByCountry = (price: number, countryName: string): string => {
+  const country = getCountryByName(countryName);
+  return formatPrice(price, country.currencySymbol);
 };
 
 // Date formatting

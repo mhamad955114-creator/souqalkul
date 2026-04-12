@@ -26,15 +26,18 @@ import {
 } from "@/components/ui/sheet";
 import { 
   categoriesWithAll, 
-  citiesWithAll, 
   sortOptions, 
   formatPrice, 
   formatTime,
   areasByCity,
   subcategoriesByCategory,
+  countries,
+  getCitiesByCountry,
+  getCountryByName,
 } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
+import { useCountry } from "@/contexts/CountryContext";
 
 interface Listing {
   id: string;
@@ -51,6 +54,8 @@ interface Listing {
   user_id: string;
   badge_type?: string | null;
   _avgRating?: number;
+  country?: string;
+  currency?: string;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -68,6 +73,7 @@ const AllListings = () => {
   const currentPageRef = useRef(1);
   const { t, dir } = useLanguage();
   const { isOnline, onlineCount: realOnlineCount } = usePresence();
+  const { currentCountry } = useCountry();
   const [onlineCount, setOnlineCount] = useState(0);
   const baseCount = useMemo(() => Math.floor(Math.random() * 30) + 15, []);
 
@@ -82,6 +88,7 @@ const AllListings = () => {
   // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [category, setCategory] = useState(searchParams.get("category") || "all");
+  const [country, setCountryFilter] = useState(searchParams.get("country") || currentCountry.name);
   const [city, setCity] = useState(searchParams.get("city") || "all");
   const [area, setArea] = useState(searchParams.get("area") || "all");
   const [subcategory, setSubcategory] = useState("all");
@@ -94,7 +101,8 @@ const AllListings = () => {
 
   const availableSubcategories = category && category !== "all" ? subcategoriesByCategory[category] || [] : [];
   
-  
+  const countryCities = getCitiesByCountry(country);
+  const selectedCountryInfo = getCountryByName(country);
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
 
   const fetchListings = useCallback(async (page: number, append = false) => {
@@ -110,10 +118,10 @@ const AllListings = () => {
     let query = supabase
       .from("listings")
       .select("*", { count: "exact" })
-      .eq("status", "active");
+      .eq("status", "active")
+      .eq("country", country as any);
 
     if (searchQuery) {
-      // Check if search query looks like a UUID (listing ID)
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (uuidRegex.test(searchQuery.trim())) {
         query = query.eq("id", searchQuery.trim());
@@ -193,7 +201,7 @@ const AllListings = () => {
     }
     setLoading(false);
     setLoadingMore(false);
-  }, [searchQuery, category, city, area, sortBy, priceRange]);
+  }, [searchQuery, category, city, area, sortBy, priceRange, country]);
 
   useEffect(() => {
     currentPageRef.current = 1;
@@ -300,27 +308,35 @@ const AllListings = () => {
     { value: "أخرى", label: t.categories.other },
   ];
 
-  // Translated cities
+  // Dynamic cities based on selected country
   const translatedCitiesWithAll = [
     { value: "all", label: t.cities.allCities },
-    { value: "دمشق", label: t.cities.damascus },
-    { value: "حلب", label: t.cities.aleppo },
-    { value: "حمص", label: t.cities.homs },
-    { value: "حماة", label: t.cities.hama },
-    { value: "اللاذقية", label: t.cities.latakia },
-    { value: "طرطوس", label: t.cities.tartus },
-    { value: "دير الزور", label: t.cities.deirEzZor },
-    { value: "الرقة", label: t.cities.raqqa },
-    { value: "الحسكة", label: t.cities.hasaka },
-    { value: "درعا", label: t.cities.daraa },
-    { value: "السويداء", label: t.cities.sweida },
-    { value: "إدلب", label: t.cities.idlib },
-    { value: "القنيطرة", label: t.cities.quneitra },
-    { value: "ريف دمشق", label: t.cities.rifDimashq },
+    ...countryCities.map(c => ({ value: c, label: c })),
   ];
+
+  const handleCountryFilterChange = (val: string) => {
+    setCountryFilter(val);
+    setCity("all");
+    setArea("all");
+  };
 
   const FilterContent = () => (
     <div className="space-y-6">
+      {/* Country filter */}
+      <div className="space-y-2">
+        <Label>الدولة</Label>
+        <Select value={country} onValueChange={handleCountryFilterChange}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {countries.map((c) => (
+              <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="space-y-2">
         <Label>{t.listings.category}</Label>
         <Select value={category} onValueChange={setCategory}>
@@ -384,8 +400,8 @@ const AllListings = () => {
           />
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>{formatPrice(priceRange[0])}</span>
-          <span>{formatPrice(priceRange[1])}</span>
+          <span>{formatPrice(priceRange[0], selectedCountryInfo.currencySymbol)}</span>
+          <span>{formatPrice(priceRange[1], selectedCountryInfo.currencySymbol)}</span>
         </div>
       </div>
 
@@ -446,6 +462,17 @@ const AllListings = () => {
           </div>
 
           <div className="hidden lg:flex gap-4">
+            <Select value={country} onValueChange={handleCountryFilterChange}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {countries.map((c) => (
+                  <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="w-40">
                 <SelectValue />
@@ -569,7 +596,7 @@ const AllListings = () => {
             )}
             {(priceRange[0] > 0 || priceRange[1] < 500000000) && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+                {formatPrice(priceRange[0], selectedCountryInfo.currencySymbol)} - {formatPrice(priceRange[1], selectedCountryInfo.currencySymbol)}
                 <button onClick={() => setPriceRange([0, 500000000])}>
                   <X className="h-3 w-3" />
                 </button>
@@ -646,7 +673,7 @@ const AllListings = () => {
                       "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"
                     }
                     title={listing.title}
-                    price={formatPrice(listing.price)}
+                    price={formatPrice(listing.price, listing.country ? getCountryByName(listing.country as string).currencySymbol : selectedCountryInfo.currencySymbol)}
                     location={listing.city}
                     time={formatTime(listing.created_at)}
                     featured={listing.badge_type === "featured" || listing.is_featured}

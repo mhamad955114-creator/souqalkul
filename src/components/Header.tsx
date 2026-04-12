@@ -10,6 +10,8 @@ import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useCountry } from "@/contexts/CountryContext";
+import { countries } from "@/lib/constants";
 import AddListingModal from "./AddListingModal";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {
@@ -34,6 +36,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { t, dir } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const { logoUrl } = useBrand();
+  const { currentCountry, setCountry } = useCountry();
 
   const handleAddListing = () => {
     if (user) {
@@ -81,6 +84,26 @@ const Header = ({ onListingAdded }: HeaderProps) => {
               </Button>
 
               <LanguageSwitcher />
+
+              {/* Country Switcher */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-xs gap-1 px-2">
+                    🌍 {currentCountry.name}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="max-h-64 overflow-y-auto">
+                  {countries.map((c) => (
+                    <DropdownMenuItem
+                      key={c.code}
+                      onClick={() => setCountry(c.name)}
+                      className={currentCountry.code === c.code ? "bg-primary/10 font-bold" : ""}
+                    >
+                      {c.name} ({c.currencySymbol})
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {user && <NotificationsDropdown />}
 

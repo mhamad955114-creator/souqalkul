@@ -11,9 +11,10 @@ import { compressImage } from "@/lib/imageCompression";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
-import { cities, categories, areasByCity, categoryMetadataFields } from "@/lib/constants";
+import { categories, areasByCity, categoryMetadataFields, countries, getCitiesByCountry, getCountryByName } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCountry } from "@/contexts/CountryContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { useListingSettings } from "@/hooks/useListingSettings";
@@ -29,6 +30,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const { settings } = useListingSettings();
+  const { currentCountry } = useCountry();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -36,6 +38,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
   const [remainingListings, setRemainingListings] = useState<{ remaining: number; max: number; planName: string } | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState(currentCountry.name);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -335,9 +338,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       console.error("Error checking active listings limit:", err);
     }
 
-    const phoneRegex = /^09\d{8}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      toast.error(t.listingForm.invalidPhone);
+    const countryInfo = getCountryByName(selectedCountry);
+    if (!countryInfo.phonePattern.test(formData.phone)) {
+      toast.error(`رقم الهاتف غير صالح لـ ${selectedCountry}. الصيغة: ${countryInfo.phonePlaceholder}`);
       return;
     }
 
@@ -352,6 +355,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setLoading(true);
 
     try {
+      const countryInfo = getCountryByName(selectedCountry);
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
@@ -366,6 +370,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         status: "active",
         badge_type: null,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
+        country: selectedCountry,
+        currency: countryInfo.currencyCode,
       } as any);
 
       if (error) {
@@ -399,7 +405,14 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
 
+  const countryCities = getCitiesByCountry(selectedCountry);
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
+  const countryInfo = getCountryByName(selectedCountry);
+
+  const handleCountryChange = (name: string) => {
+    setSelectedCountry(name);
+    setFormData(prev => ({ ...prev, city: "", area: "" }));
+  };
 
   const handleCityChange = (city: string) => {
     setFormData({ ...formData, city, area: "" });
@@ -501,6 +514,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
           </div>
 
+          {/* Country selector */}
+          <div className="space-y-2">
+            <Label>الدولة *</Label>
+            <Select value={selectedCountry} onValueChange={handleCountryChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="اختر الدولة" />
+              </SelectTrigger>
+              <SelectContent>
+                {countries.map((c) => (
+                  <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -529,7 +557,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   <SelectValue placeholder={t.listingForm.selectCity} />
                 </SelectTrigger>
                 <SelectContent>
-                  {cities.map((city) => (
+                  {countryCities.map((city) => (
                     <SelectItem key={city} value={city}>
                       {city}
                     </SelectItem>
@@ -560,11 +588,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">{t.listingForm.phone} *</Label>
+            <Label htmlFor="phone">{t.listingForm.phone} * <span className="text-xs text-muted-foreground">({countryInfo.phoneCode})</span></Label>
             <Input
               id="phone"
               type="tel"
-              placeholder="09xxxxxxxx"
+              placeholder={countryInfo.phonePlaceholder}
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required

@@ -4,10 +4,11 @@ import ListingCard from "./ListingCard";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPrice, formatTime } from "@/lib/constants";
+import { formatPrice, formatTime, getCountryByName } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
 import { useListingSettings } from "@/hooks/useListingSettings";
+import { useCountry } from "@/contexts/CountryContext";
 interface Listing {
   id: string;
   title: string;
@@ -74,12 +75,14 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   const { t, dir } = useLanguage();
   const { isOnline } = usePresence();
   const { settings } = useListingSettings();
+  const { currentCountry } = useCountry();
 
   const fetchListings = async () => {
     const { data, error } = await supabase
       .from("listings")
       .select("*")
       .eq("status", "active")
+      .eq("country", currentCountry.name as any)
       
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
@@ -122,7 +125,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
 
   useEffect(() => {
     fetchListings();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, currentCountry.name]);
 
   const hasDbListings = listings.length > 0;
   const ViewAllArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
@@ -220,7 +223,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       id={listing.id}
                       image={listing.images?.[0] || "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"}
                       title={listing.title}
-                      price={formatPrice(listing.price)}
+                      price={formatPrice(listing.price, currentCountry.currencySymbol)}
                       location={listing.city}
                       time={formatTime(listing.created_at)}
                       featured={listing.badge_type === "featured" || listing.is_featured}

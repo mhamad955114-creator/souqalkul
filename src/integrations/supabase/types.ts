@@ -138,7 +138,9 @@ export type Database = {
           badge_type: string | null
           category: string
           city: string
+          country: string
           created_at: string
+          currency: string
           description: string | null
           id: string
           images: string[] | null
@@ -158,7 +160,9 @@ export type Database = {
           badge_type?: string | null
           category: string
           city: string
+          country?: string
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           images?: string[] | null
@@ -178,7 +182,9 @@ export type Database = {
           badge_type?: string | null
           category?: string
           city?: string
+          country?: string
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           images?: string[] | null
@@ -300,6 +306,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           city: string | null
+          country: string | null
           created_at: string
           full_name: string | null
           id: string
@@ -311,6 +318,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           city?: string | null
+          country?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -322,6 +330,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           city?: string | null
+          country?: string | null
           created_at?: string
           full_name?: string | null
           id?: string

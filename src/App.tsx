@@ -9,6 +9,7 @@ import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { BrandProvider } from "@/contexts/BrandContext";
+import { CountryProvider } from "@/contexts/CountryContext";
 import SplashScreen from "@/components/SplashScreen";
 import PageSkeleton from "@/components/PageSkeleton";
 import UpdateNotification from "@/components/UpdateNotification";
@@ -151,15 +152,17 @@ const App = () => {
         <ThemeProvider>
           <LanguageProvider>
             <BrandProvider>
-              <AuthProvider>
-                <FavoritesProvider>
-                  <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
-                    <AppContent />
-                  </TooltipProvider>
-                </FavoritesProvider>
-              </AuthProvider>
+              <CountryProvider>
+                <AuthProvider>
+                  <FavoritesProvider>
+                    <TooltipProvider>
+                      <Toaster />
+                      <Sonner />
+                      <AppContent />
+                    </TooltipProvider>
+                  </FavoritesProvider>
+                </AuthProvider>
+              </CountryProvider>
             </BrandProvider>
           </LanguageProvider>
         </ThemeProvider>

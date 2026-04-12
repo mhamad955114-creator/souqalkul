@@ -40,7 +40,7 @@ import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatPrice, formatDate, categoryLabels, categoryMetadataFields } from "@/lib/constants";
+import { formatPrice, formatDate, categoryLabels, categoryMetadataFields, getCountryByName } from "@/lib/constants";
 
 interface Listing {
   id: string;
@@ -378,7 +378,7 @@ const ListingDetails = () => {
 
                 {/* Price Row */}
                 <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-2xl font-bold text-primary">{formatPrice(listing.price)}</span>
+                  <span className="text-2xl font-bold text-primary">{formatPrice(listing.price, (listing as any).country ? getCountryByName((listing as any).country).currencySymbol : undefined)}</span>
                   <span className="text-lg font-semibold text-foreground">السعر</span>
                 </div>
 
