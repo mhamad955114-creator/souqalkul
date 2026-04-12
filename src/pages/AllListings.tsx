@@ -400,8 +400,8 @@ const AllListings = () => {
           />
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>{formatPrice(priceRange[0])}</span>
-          <span>{formatPrice(priceRange[1])}</span>
+          <span>{formatPrice(priceRange[0], selectedCountryInfo.currencySymbol)}</span>
+          <span>{formatPrice(priceRange[1], selectedCountryInfo.currencySymbol)}</span>
         </div>
       </div>
 
