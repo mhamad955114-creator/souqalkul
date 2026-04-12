@@ -338,9 +338,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       console.error("Error checking active listings limit:", err);
     }
 
-    const phoneRegex = /^09\d{8}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      toast.error(t.listingForm.invalidPhone);
+    const countryInfo = getCountryByName(selectedCountry);
+    if (!countryInfo.phonePattern.test(formData.phone)) {
+      toast.error(`رقم الهاتف غير صالح لـ ${selectedCountry}. الصيغة: ${countryInfo.phonePlaceholder}`);
       return;
     }
 
@@ -355,6 +355,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setLoading(true);
 
     try {
+      const countryInfo = getCountryByName(selectedCountry);
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
@@ -369,6 +370,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         status: "active",
         badge_type: null,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
+        country: selectedCountry,
+        currency: countryInfo.currencyCode,
       } as any);
 
       if (error) {
