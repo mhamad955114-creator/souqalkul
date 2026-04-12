@@ -24,7 +24,8 @@ import {
   MessageSquare,
   Flag,
   Hash,
-  ZoomIn
+  ZoomIn,
+  Copy
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -403,9 +404,18 @@ const ListingDetails = () => {
                   <span className="font-medium text-foreground">تاريخ الإعلان</span>
                 </div>
 
-                {/* Listing ID */}
+                {/* Listing ID - Copyable */}
                 <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-muted-foreground font-mono">{listing.id.split("-")[0].toUpperCase()}</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(listing.id);
+                      toast.success("تم نسخ رقم الإعلان");
+                    }}
+                    className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    <span className="font-mono text-sm">{listing.id.split("-")[0].toUpperCase()}</span>
+                  </button>
                   <span className="font-medium text-foreground">رقم الإعلان</span>
                 </div>
 
