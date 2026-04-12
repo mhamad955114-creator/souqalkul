@@ -4,10 +4,11 @@ import ListingCard from "./ListingCard";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPrice, formatTime } from "@/lib/constants";
+import { formatPrice, formatTime, getCountryByName } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
 import { useListingSettings } from "@/hooks/useListingSettings";
+import { useCountry } from "@/contexts/CountryContext";
 interface Listing {
   id: string;
   title: string;
@@ -74,12 +75,14 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   const { t, dir } = useLanguage();
   const { isOnline } = usePresence();
   const { settings } = useListingSettings();
+  const { currentCountry } = useCountry();
 
   const fetchListings = async () => {
     const { data, error } = await supabase
       .from("listings")
       .select("*")
       .eq("status", "active")
+      .eq("country", currentCountry.name as any)
       
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
