@@ -26,15 +26,18 @@ import {
 } from "@/components/ui/sheet";
 import { 
   categoriesWithAll, 
-  citiesWithAll, 
   sortOptions, 
   formatPrice, 
   formatTime,
   areasByCity,
   subcategoriesByCategory,
+  countries,
+  getCitiesByCountry,
+  getCountryByName,
 } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
+import { useCountry } from "@/contexts/CountryContext";
 
 interface Listing {
   id: string;
