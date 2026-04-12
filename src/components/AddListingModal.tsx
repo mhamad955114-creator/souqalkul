@@ -514,6 +514,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
           </div>
 
+          {/* Country selector */}
+          <div className="space-y-2">
+            <Label>الدولة *</Label>
+            <Select value={selectedCountry} onValueChange={handleCountryChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="اختر الدولة" />
+              </SelectTrigger>
+              <SelectContent>
+                {countries.map((c) => (
+                  <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -542,7 +557,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   <SelectValue placeholder={t.listingForm.selectCity} />
                 </SelectTrigger>
                 <SelectContent>
-                  {cities.map((city) => (
+                  {countryCities.map((city) => (
                     <SelectItem key={city} value={city}>
                       {city}
                     </SelectItem>
@@ -573,11 +588,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">{t.listingForm.phone} *</Label>
+            <Label htmlFor="phone">{t.listingForm.phone} * <span className="text-xs text-muted-foreground">({countryInfo.phoneCode})</span></Label>
             <Input
               id="phone"
               type="tel"
-              placeholder="09xxxxxxxx"
+              placeholder={countryInfo.phonePlaceholder}
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
