@@ -73,6 +73,7 @@ const AllListings = () => {
   const currentPageRef = useRef(1);
   const { t, dir } = useLanguage();
   const { isOnline, onlineCount: realOnlineCount } = usePresence();
+  const { currentCountry } = useCountry();
   const [onlineCount, setOnlineCount] = useState(0);
   const baseCount = useMemo(() => Math.floor(Math.random() * 30) + 15, []);
 
@@ -87,6 +88,7 @@ const AllListings = () => {
   // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [category, setCategory] = useState(searchParams.get("category") || "all");
+  const [country, setCountryFilter] = useState(searchParams.get("country") || currentCountry.name);
   const [city, setCity] = useState(searchParams.get("city") || "all");
   const [area, setArea] = useState(searchParams.get("area") || "all");
   const [subcategory, setSubcategory] = useState("all");
@@ -99,7 +101,8 @@ const AllListings = () => {
 
   const availableSubcategories = category && category !== "all" ? subcategoriesByCategory[category] || [] : [];
   
-  
+  const countryCities = getCitiesByCountry(country);
+  const selectedCountryInfo = getCountryByName(country);
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
 
   const fetchListings = useCallback(async (page: number, append = false) => {
