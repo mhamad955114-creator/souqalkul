@@ -54,6 +54,8 @@ interface Listing {
   user_id: string;
   badge_type?: string | null;
   _avgRating?: number;
+  country?: string;
+  currency?: string;
 }
 
 const ITEMS_PER_PAGE = 20;
