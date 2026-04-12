@@ -30,6 +30,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const { settings } = useListingSettings();
+  const { currentCountry } = useCountry();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -37,6 +38,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
   const [remainingListings, setRemainingListings] = useState<{ remaining: number; max: number; planName: string } | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState(currentCountry.name);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
