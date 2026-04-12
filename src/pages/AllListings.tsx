@@ -119,8 +119,9 @@ const AllListings = () => {
       .from("listings")
       .select("*", { count: "exact" })
       .eq("status", "active")
-      .eq("country", country);
-      // Check if search query looks like a UUID (listing ID)
+      .eq("country", country as any);
+
+    if (searchQuery) {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (uuidRegex.test(searchQuery.trim())) {
         query = query.eq("id", searchQuery.trim());
