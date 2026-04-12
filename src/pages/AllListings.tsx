@@ -596,7 +596,7 @@ const AllListings = () => {
             )}
             {(priceRange[0] > 0 || priceRange[1] < 500000000) && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+                {formatPrice(priceRange[0], selectedCountryInfo.currencySymbol)} - {formatPrice(priceRange[1], selectedCountryInfo.currencySymbol)}
                 <button onClick={() => setPriceRange([0, 500000000])}>
                   <X className="h-3 w-3" />
                 </button>
