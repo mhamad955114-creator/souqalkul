@@ -201,7 +201,7 @@ const AllListings = () => {
     }
     setLoading(false);
     setLoadingMore(false);
-  }, [searchQuery, category, city, area, sortBy, priceRange]);
+  }, [searchQuery, category, city, area, sortBy, priceRange, country]);
 
   useEffect(() => {
     currentPageRef.current = 1;
