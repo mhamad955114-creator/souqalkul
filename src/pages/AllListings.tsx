@@ -113,7 +113,13 @@ const AllListings = () => {
       .eq("status", "active");
 
     if (searchQuery) {
-      query = query.ilike("title", `%${searchQuery}%`);
+      // Check if search query looks like a UUID (listing ID)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(searchQuery.trim())) {
+        query = query.eq("id", searchQuery.trim());
+      } else {
+        query = query.ilike("title", `%${searchQuery}%`);
+      }
     }
     if (category && category !== "all") {
       query = query.eq("category", category);
