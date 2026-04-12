@@ -594,12 +594,19 @@ export const sortOptions = [
   { value: "price_desc", label: "السعر: من الأعلى للأقل" },
 ];
 
-// Currency formatting - Syrian Pound
-export const formatPrice = (price: number): string => {
+// Currency formatting - supports multiple currencies
+export const formatPrice = (price: number, currencySymbol?: string): string => {
+  const symbol = currencySymbol || "ل.س";
   return new Intl.NumberFormat("en-US", {
     style: "decimal",
     maximumFractionDigits: 0,
-  }).format(price) + " ل.س";
+  }).format(price) + " " + symbol;
+};
+
+// Format price by country name
+export const formatPriceByCountry = (price: number, countryName: string): string => {
+  const country = getCountryByName(countryName);
+  return formatPrice(price, country.currencySymbol);
 };
 
 // Date formatting
