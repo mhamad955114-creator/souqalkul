@@ -10,6 +10,8 @@ import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useCountry } from "@/contexts/CountryContext";
+import { countries } from "@/lib/constants";
 import AddListingModal from "./AddListingModal";
 import LanguageSwitcher from "./LanguageSwitcher";
 import {
@@ -34,6 +36,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { t, dir } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const { logoUrl } = useBrand();
+  const { currentCountry, setCountry } = useCountry();
 
   const handleAddListing = () => {
     if (user) {
