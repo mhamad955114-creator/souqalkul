@@ -308,27 +308,35 @@ const AllListings = () => {
     { value: "أخرى", label: t.categories.other },
   ];
 
-  // Translated cities
+  // Dynamic cities based on selected country
   const translatedCitiesWithAll = [
     { value: "all", label: t.cities.allCities },
-    { value: "دمشق", label: t.cities.damascus },
-    { value: "حلب", label: t.cities.aleppo },
-    { value: "حمص", label: t.cities.homs },
-    { value: "حماة", label: t.cities.hama },
-    { value: "اللاذقية", label: t.cities.latakia },
-    { value: "طرطوس", label: t.cities.tartus },
-    { value: "دير الزور", label: t.cities.deirEzZor },
-    { value: "الرقة", label: t.cities.raqqa },
-    { value: "الحسكة", label: t.cities.hasaka },
-    { value: "درعا", label: t.cities.daraa },
-    { value: "السويداء", label: t.cities.sweida },
-    { value: "إدلب", label: t.cities.idlib },
-    { value: "القنيطرة", label: t.cities.quneitra },
-    { value: "ريف دمشق", label: t.cities.rifDimashq },
+    ...countryCities.map(c => ({ value: c, label: c })),
   ];
+
+  const handleCountryFilterChange = (val: string) => {
+    setCountryFilter(val);
+    setCity("all");
+    setArea("all");
+  };
 
   const FilterContent = () => (
     <div className="space-y-6">
+      {/* Country filter */}
+      <div className="space-y-2">
+        <Label>الدولة</Label>
+        <Select value={country} onValueChange={handleCountryFilterChange}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {countries.map((c) => (
+              <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="space-y-2">
         <Label>{t.listings.category}</Label>
         <Select value={category} onValueChange={setCategory}>
