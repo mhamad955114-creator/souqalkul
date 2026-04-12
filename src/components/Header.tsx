@@ -85,6 +85,26 @@ const Header = ({ onListingAdded }: HeaderProps) => {
 
               <LanguageSwitcher />
 
+              {/* Country Switcher */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-xs gap-1 px-2">
+                    🌍 {currentCountry.name}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="max-h-64 overflow-y-auto">
+                  {countries.map((c) => (
+                    <DropdownMenuItem
+                      key={c.code}
+                      onClick={() => setCountry(c.name)}
+                      className={currentCountry.code === c.code ? "bg-primary/10 font-bold" : ""}
+                    >
+                      {c.name} ({c.currencySymbol})
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {user && <NotificationsDropdown />}
 
               <Button variant="ghost" size="icon" className="hidden md:flex">
