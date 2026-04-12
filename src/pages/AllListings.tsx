@@ -662,7 +662,7 @@ const AllListings = () => {
                       "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"
                     }
                     title={listing.title}
-                    price={formatPrice(listing.price)}
+                    price={formatPrice(listing.price, listing.country ? getCountryByName(listing.country as string).currencySymbol : selectedCountryInfo.currencySymbol)}
                     location={listing.city}
                     time={formatTime(listing.created_at)}
                     featured={listing.badge_type === "featured" || listing.is_featured}
