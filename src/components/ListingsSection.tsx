@@ -125,7 +125,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
 
   useEffect(() => {
     fetchListings();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, currentCountry.name]);
 
   const hasDbListings = listings.length > 0;
   const ViewAllArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
