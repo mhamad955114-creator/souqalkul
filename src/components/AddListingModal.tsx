@@ -405,7 +405,14 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
 
+  const countryCities = getCitiesByCountry(selectedCountry);
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
+  const countryInfo = getCountryByName(selectedCountry);
+
+  const handleCountryChange = (name: string) => {
+    setSelectedCountry(name);
+    setFormData(prev => ({ ...prev, city: "", area: "" }));
+  };
 
   const handleCityChange = (city: string) => {
     setFormData({ ...formData, city, area: "" });
