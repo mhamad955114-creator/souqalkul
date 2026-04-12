@@ -118,9 +118,8 @@ const AllListings = () => {
     let query = supabase
       .from("listings")
       .select("*", { count: "exact" })
-      .eq("status", "active");
-
-    if (searchQuery) {
+      .eq("status", "active")
+      .eq("country", country);
       // Check if search query looks like a UUID (listing ID)
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (uuidRegex.test(searchQuery.trim())) {
