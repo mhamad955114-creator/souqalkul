@@ -32,6 +32,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
   const [confirmationEmail, setConfirmationEmail] = useState("");
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword } = useAuth();
   const { t, dir } = useLanguage();
+  const { currentCountry } = useCountry();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

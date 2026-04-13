@@ -28,6 +28,7 @@ const Auth = () => {
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, user } = useAuth();
   const { t, dir } = useLanguage();
   const { logoUrl } = useBrand();
+  const { currentCountry } = useCountry();
   const navigate = useNavigate();
 
   useEffect(() => {
