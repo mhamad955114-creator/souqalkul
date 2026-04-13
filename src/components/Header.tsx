@@ -88,8 +88,9 @@ const Header = ({ onListingAdded }: HeaderProps) => {
               {/* Country Switcher */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-xs gap-1 px-2">
-                    🌍 {currentCountry.name}
+                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-auto sm:px-2 text-xs gap-1">
+                    <span>🌍</span>
+                    <span className="hidden sm:inline">{currentCountry.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="max-h-64 overflow-y-auto">
