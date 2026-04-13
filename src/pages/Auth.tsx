@@ -9,6 +9,7 @@ import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Sparkles, CheckCircle2, Inbox } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBrand } from "@/contexts/BrandContext";
+import { useCountry } from "@/contexts/CountryContext";
 
 type AuthMode = "login" | "signup" | "forgot";
 type AuthMethod = "email" | "phone";
@@ -27,6 +28,7 @@ const Auth = () => {
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, user } = useAuth();
   const { t, dir } = useLanguage();
   const { logoUrl } = useBrand();
+  const { currentCountry } = useCountry();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -90,9 +92,10 @@ const Auth = () => {
 
   const formatPhone = (value: string): string => {
     let cleaned = value.replace(/[^0-9+]/g, "");
-    if (cleaned.startsWith("09")) cleaned = "+963" + cleaned.slice(1);
-    else if (cleaned.startsWith("9") && !cleaned.startsWith("+")) cleaned = "+963" + cleaned;
-    if (!cleaned.startsWith("+")) cleaned = "+" + cleaned;
+    const phoneCode = currentCountry.phoneCode;
+    // If starts with 0, replace leading 0 with country code
+    if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
+    else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
     return cleaned;
   };
 
@@ -291,7 +294,7 @@ const Auth = () => {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="09XXXXXXXX"
+                        placeholder={currentCountry.phonePlaceholder}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         className={`${inputPadding} h-12`}
@@ -299,7 +302,7 @@ const Auth = () => {
                         required
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">أدخل رقم هاتفك السوري (مثال: 0912345678)</p>
+                    <p className="text-xs text-muted-foreground">أدخل رقم هاتفك ({currentCountry.name}) (مثال: {currentCountry.phonePlaceholder})</p>
                   </div>
                 )}
 

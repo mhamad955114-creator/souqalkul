@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, CheckCircle2, Inbox } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCountry } from "@/contexts/CountryContext";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
   const [confirmationEmail, setConfirmationEmail] = useState("");
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword } = useAuth();
   const { t, dir } = useLanguage();
+  const { currentCountry } = useCountry();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,14 +107,9 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
 
   const formatPhone = (value: string): string => {
     let cleaned = value.replace(/[^0-9+]/g, "");
-    if (cleaned.startsWith("09")) {
-      cleaned = "+963" + cleaned.slice(1);
-    } else if (cleaned.startsWith("9") && !cleaned.startsWith("+")) {
-      cleaned = "+963" + cleaned;
-    }
-    if (!cleaned.startsWith("+")) {
-      cleaned = "+" + cleaned;
-    }
+    const phoneCode = currentCountry.phoneCode;
+    if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
+    else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
     return cleaned;
   };
 
@@ -294,7 +291,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="09XXXXXXXX"
+                      placeholder={currentCountry.phonePlaceholder}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       className={inputPadding}
@@ -303,7 +300,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    أدخل رقم هاتفك السوري (مثال: 0912345678)
+                    أدخل رقم هاتفك ({currentCountry.name}) (مثال: {currentCountry.phonePlaceholder})
                   </p>
                 </div>
               )}
