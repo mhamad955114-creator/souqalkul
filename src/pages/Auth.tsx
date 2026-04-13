@@ -92,9 +92,10 @@ const Auth = () => {
 
   const formatPhone = (value: string): string => {
     let cleaned = value.replace(/[^0-9+]/g, "");
-    if (cleaned.startsWith("09")) cleaned = "+963" + cleaned.slice(1);
-    else if (cleaned.startsWith("9") && !cleaned.startsWith("+")) cleaned = "+963" + cleaned;
-    if (!cleaned.startsWith("+")) cleaned = "+" + cleaned;
+    const phoneCode = currentCountry.phoneCode;
+    // If starts with 0, replace leading 0 with country code
+    if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
+    else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
     return cleaned;
   };
 
