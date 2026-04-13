@@ -78,8 +78,8 @@ const Header = ({ onListingAdded }: HeaderProps) => {
             </nav>
 
             {/* Actions */}
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={toggleTheme} title={t.settings.theme}>
+            <div className="flex items-center gap-1 sm:gap-3">
+              <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={toggleTheme} title={t.settings.theme}>
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
 
@@ -88,8 +88,9 @@ const Header = ({ onListingAdded }: HeaderProps) => {
               {/* Country Switcher */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-xs gap-1 px-2">
-                    🌍 {currentCountry.name}
+                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-auto sm:px-2 text-xs gap-1">
+                    <span>🌍</span>
+                    <span className="hidden sm:inline">{currentCountry.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="max-h-64 overflow-y-auto">

@@ -493,19 +493,19 @@ const MyAccount = () => {
       
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{t.myAccount.title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t.myAccount.title}</h1>
             <p className="text-muted-foreground mt-1">
               {t.myAccount.subtitle}
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => navigate("/settings")} variant="outline">
+          <div className="flex gap-2 flex-shrink-0">
+            <Button onClick={() => navigate("/settings")} variant="outline" size="sm">
               <Settings className="h-4 w-4" />
               {t.myAccount.settingsBtn}
             </Button>
-            <Button onClick={() => navigate("/")} variant="outline">
+            <Button onClick={() => navigate("/")} variant="outline" size="sm">
               <BackArrow className="h-4 w-4" />
               {t.myAccount.backToHome}
             </Button>
