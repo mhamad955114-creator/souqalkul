@@ -9,6 +9,7 @@ import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Sparkles, CheckCircle2, Inbox } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBrand } from "@/contexts/BrandContext";
+import { useCountry } from "@/contexts/CountryContext";
 
 type AuthMode = "login" | "signup" | "forgot";
 type AuthMethod = "email" | "phone";

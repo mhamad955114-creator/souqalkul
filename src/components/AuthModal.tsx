@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, CheckCircle2, Inbox } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCountry } from "@/contexts/CountryContext";
 
 interface AuthModalProps {
   isOpen: boolean;
