@@ -291,7 +291,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="09XXXXXXXX"
+                      placeholder={currentCountry.phonePlaceholder}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       className={inputPadding}
@@ -300,7 +300,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    أدخل رقم هاتفك السوري (مثال: 0912345678)
+                    أدخل رقم هاتفك ({currentCountry.name}) (مثال: {currentCountry.phonePlaceholder})
                   </p>
                 </div>
               )}

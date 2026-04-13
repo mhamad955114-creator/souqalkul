@@ -294,7 +294,7 @@ const Auth = () => {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="09XXXXXXXX"
+                        placeholder={currentCountry.phonePlaceholder}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         className={`${inputPadding} h-12`}
@@ -302,7 +302,7 @@ const Auth = () => {
                         required
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">أدخل رقم هاتفك السوري (مثال: 0912345678)</p>
+                    <p className="text-xs text-muted-foreground">أدخل رقم هاتفك ({currentCountry.name}) (مثال: {currentCountry.phonePlaceholder})</p>
                   </div>
                 )}
 
