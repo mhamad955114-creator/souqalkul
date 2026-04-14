@@ -78,7 +78,7 @@ export async function shareApp(): Promise<void> {
 
   // --- Last resort: clipboard ---
   try {
-    await navigator.clipboard.writeText(APP_URL);
+    await navigator.clipboard.writeText(PLAY_STORE_URL);
     toast.success("تم نسخ رابط التطبيق");
   } catch {
     toast.error("تعذر مشاركة التطبيق");
