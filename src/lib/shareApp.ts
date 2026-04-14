@@ -67,8 +67,8 @@ export async function shareApp(): Promise<void> {
     try {
       await navigator.share({
         title: "سوق الكل",
-        text: "تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء",
-        url: APP_URL,
+        text: SHARE_TEXT,
+        url: PLAY_STORE_URL,
       });
       return;
     } catch {
