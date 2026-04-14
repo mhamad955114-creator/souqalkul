@@ -3,6 +3,8 @@ import { Share } from "@capacitor/share";
 import { toast } from "sonner";
 
 const APP_URL = "https://souqalkul.lovable.app";
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=app.souqalkul";
+const SHARE_TEXT = `حمّل تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء!\n\n📲 Google Play:\n${PLAY_STORE_URL}\n\n🌐 الموقع:\n${APP_URL}`;
 
 /**
  * Typed interface for our custom native ShareApk plugin.
@@ -34,8 +36,8 @@ export async function shareApp(): Promise<void> {
       try {
         await Share.share({
           title: "سوق الكل",
-          text: "حمّل تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء!\n\nحمّل التطبيق من هنا:",
-          url: APP_URL,
+          text: SHARE_TEXT,
+          url: PLAY_STORE_URL,
           dialogTitle: "مشاركة تطبيق سوق الكل",
         });
         return;
@@ -50,8 +52,8 @@ export async function shareApp(): Promise<void> {
     try {
       await Share.share({
         title: "سوق الكل",
-        text: "حمّل تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء!",
-        url: APP_URL,
+        text: SHARE_TEXT,
+        url: PLAY_STORE_URL,
         dialogTitle: "مشاركة تطبيق سوق الكل",
       });
       return;
@@ -65,8 +67,8 @@ export async function shareApp(): Promise<void> {
     try {
       await navigator.share({
         title: "سوق الكل",
-        text: "تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء",
-        url: APP_URL,
+        text: SHARE_TEXT,
+        url: PLAY_STORE_URL,
       });
       return;
     } catch {
@@ -76,7 +78,7 @@ export async function shareApp(): Promise<void> {
 
   // --- Last resort: clipboard ---
   try {
-    await navigator.clipboard.writeText(APP_URL);
+    await navigator.clipboard.writeText(PLAY_STORE_URL);
     toast.success("تم نسخ رابط التطبيق");
   } catch {
     toast.error("تعذر مشاركة التطبيق");
