@@ -242,7 +242,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[85dvh] overflow-y-auto" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{t.listingForm.editTitle}</DialogTitle>
         </DialogHeader>
