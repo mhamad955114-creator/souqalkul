@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { useBrand } from "@/contexts/BrandContext";
 
 const APP_URL = "https://souqalkul.lovable.app";
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=app.souqalkul";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -108,12 +109,23 @@ const Install = () => {
 
             {/* Install CTA */}
             {isInstalled ? (
-              <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6 space-y-2">
+              <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6 space-y-3">
                 <div className="w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
                   <Check className="h-7 w-7 text-primary" />
                 </div>
                 <p className="font-bold text-lg text-foreground">التطبيق مثبّت بالفعل! 🎉</p>
                 <p className="text-sm text-muted-foreground">يمكنك فتحه من الشاشة الرئيسية</p>
+                <a
+                  href={PLAY_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 w-full justify-center h-12 rounded-2xl border-2 border-border bg-card text-foreground font-semibold hover:border-primary/30 transition-all"
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                    <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 2.302a1 1 0 0 1 0 1.38l-2.302 2.302L15.396 12l2.302-3.492zM5.864 3.458L16.8 9.79l-2.302 2.302L5.864 3.458z"/>
+                  </svg>
+                  حمّل من Google Play
+                </a>
               </div>
             ) : deferredPrompt ? (
               <div className="space-y-3">
@@ -126,6 +138,17 @@ const Install = () => {
                   تثبيت التطبيق الآن
                 </Button>
                 <p className="text-xs text-muted-foreground">مجاني • لا يحتاج متجر تطبيقات</p>
+                <a
+                  href={PLAY_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 w-full justify-center h-12 rounded-2xl border-2 border-border bg-card text-foreground font-semibold hover:border-primary/30 transition-all"
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                    <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 2.302a1 1 0 0 1 0 1.38l-2.302 2.302L15.396 12l2.302-3.492zM5.864 3.458L16.8 9.79l-2.302 2.302L5.864 3.458z"/>
+                  </svg>
+                  حمّل من Google Play
+                </a>
               </div>
             ) : null}
           </div>
