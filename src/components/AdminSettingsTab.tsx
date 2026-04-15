@@ -842,7 +842,41 @@ const AdminSettingsTab = () => {
         </CardContent>
       </Card>
 
-      <Card className="border-destructive/30">
+      {/* Marquee Ticker */}
+      <Card>
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Type className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">الشريط المتحرك</h3>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label>تفعيل الشريط المتحرك</Label>
+            <Switch checked={marqueeEnabled} onCheckedChange={setMarqueeEnabled} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>نص الشريط</Label>
+            <Input
+              value={marqueeText}
+              onChange={(e) => setMarqueeText(e.target.value)}
+              placeholder="سوق الكل - إعلانك مجاناً معنا!"
+            />
+          </div>
+
+          <Button
+            className="w-full gap-2"
+            onClick={handleSaveMarquee}
+            disabled={savingMarquee}
+          >
+            {savingMarquee ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ إعدادات الشريط
+          </Button>
+        </CardContent>
+      </Card>
+
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
