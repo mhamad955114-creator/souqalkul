@@ -1,5 +1,5 @@
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, Share2, MessageCircle } from "lucide-react";
-import { shareApp } from "@/lib/shareApp";
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, MessageCircle } from "lucide-react";
+import ShareButtons from "./ShareButtons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 import { useBrand } from "@/contexts/BrandContext";
@@ -74,13 +74,13 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <button
-                  onClick={() => shareApp()}
-                  className="text-background/70 hover:text-primary transition-colors flex items-center gap-1"
-                >
-                  <Share2 className="h-4 w-4" />
-                  مشاركة التطبيق
-                </button>
+                <ShareButtons
+                  url="https://play.google.com/store/apps/details?id=app.souqalkul"
+                  title="سوق الكل - أفضل سوق إلكتروني"
+                  description="حمّل تطبيق سوق الكل للبيع والشراء"
+                  variant="full"
+                  className="text-background/70 hover:text-primary transition-colors"
+                />
               </li>
             </ul>
           </div>
