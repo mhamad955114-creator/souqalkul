@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette, RotateCcw, Image, Upload, Trash2 } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette, RotateCcw, Image, Upload, Trash2, Type } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
