@@ -84,6 +84,11 @@ const AdminSettingsTab = () => {
   const [removingLogo, setRemovingLogo] = useState(false);
   const { logoUrl, setLogoUrl, isDefaultLogo } = useBrand();
 
+  // Marquee ticker
+  const [marqueeText, setMarqueeText] = useState("سوق الكل - إعلانك مجاناً معنا! 🎉");
+  const [marqueeEnabled, setMarqueeEnabled] = useState(true);
+  const [savingMarquee, setSavingMarquee] = useState(false);
+
   // Default theme colors
   const DEFAULT_COLORS = {
     primary: "#ff6b35",
