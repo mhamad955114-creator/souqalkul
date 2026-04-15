@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import MarqueeTicker from "@/components/MarqueeTicker";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ListingsSection from "@/components/ListingsSection";
@@ -29,6 +30,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0 animate-fade-in" dir={dir}>
       <Header onListingAdded={handleListingAdded} />
+      <MarqueeTicker />
       <main>
         <HeroSection />
         <CategoriesSection />

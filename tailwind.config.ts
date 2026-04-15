@@ -112,6 +112,10 @@ export default {
           "0%, 100%": { boxShadow: "0 0 8px 2px rgba(59,130,246,0.3), 0 0 16px 4px rgba(139,92,246,0.15)" },
           "50%": { boxShadow: "0 0 16px 6px rgba(59,130,246,0.5), 0 0 32px 8px rgba(139,92,246,0.3)" },
         },
+        "marquee": {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -123,6 +127,7 @@ export default {
         "shrink-width": "shrink-width linear forwards",
         "diamond-spin": "diamond-spin 3s cubic-bezier(0.4, 0, 0.2, 1) infinite",
         "diamond-glow-ring": "diamond-glow-ring 2s ease-in-out infinite",
+        "marquee": "marquee 20s linear infinite",
       },
     },
   },
