@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette, RotateCcw, Image, Upload, Trash2 } from "lucide-react";
+import { Loader2, Save, Gift, Star, Crown, Heart, Construction, Briefcase, Phone, Share2, Facebook, Instagram, Twitter, Youtube, Palette, RotateCcw, Image, Upload, Trash2, Type } from "lucide-react";
 import { toast } from "sonner";
 import { useListingSettings, ListingPlan } from "@/hooks/useListingSettings";
 import { formatPrice } from "@/lib/constants";
@@ -84,6 +84,11 @@ const AdminSettingsTab = () => {
   const [removingLogo, setRemovingLogo] = useState(false);
   const { logoUrl, setLogoUrl, isDefaultLogo } = useBrand();
 
+  // Marquee ticker
+  const [marqueeText, setMarqueeText] = useState("سوق الكل - إعلانك مجاناً معنا! 🎉");
+  const [marqueeEnabled, setMarqueeEnabled] = useState(true);
+  const [savingMarquee, setSavingMarquee] = useState(false);
+
   // Default theme colors
   const DEFAULT_COLORS = {
     primary: "#ff6b35",
@@ -137,6 +142,7 @@ const AdminSettingsTab = () => {
           "theme_primary",
           "theme_secondary", 
           "theme_accent",
+          "marquee_ticker",
         ]);
 
       if (data) {
@@ -170,6 +176,11 @@ const AdminSettingsTab = () => {
           if (row.setting_key === "theme_primary") setPrimaryColor(normalizeText(row.setting_value, "#ff6b35"));
           if (row.setting_key === "theme_secondary") setSecondaryColor(normalizeText(row.setting_value, "#f5f5f5"));
           if (row.setting_key === "theme_accent") setAccentColor(normalizeText(row.setting_value, "#2d8f78"));
+          if (row.setting_key === "marquee_ticker") {
+            const val = row.setting_value as any;
+            if (val.text) setMarqueeText(val.text);
+            if (val.enabled === false) setMarqueeEnabled(false);
+          }
         });
       }
     };
@@ -230,6 +241,20 @@ const AdminSettingsTab = () => {
       toast.error("فشل حفظ إعدادات الصيانة");
     }
     setSavingMaintenance(false);
+  };
+
+  const handleSaveMarquee = async () => {
+    setSavingMarquee(true);
+    const { error } = await upsertSetting(
+      "marquee_ticker",
+      { enabled: marqueeEnabled, text: marqueeText } as any
+    );
+    if (!error) {
+      toast.success("تم حفظ إعدادات الشريط المتحرك");
+    } else {
+      toast.error("فشل حفظ إعدادات الشريط المتحرك");
+    }
+    setSavingMarquee(false);
   };
 
   const handleSaveShamcash = async () => {
@@ -813,6 +838,41 @@ const AdminSettingsTab = () => {
           >
             {savingShamcash ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             حفظ عنوان الحساب
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Marquee Ticker */}
+      <Card>
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Type className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">الشريط المتحرك</h3>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label>تفعيل الشريط المتحرك</Label>
+            <Switch checked={marqueeEnabled} onCheckedChange={setMarqueeEnabled} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>نص الشريط</Label>
+            <Input
+              value={marqueeText}
+              onChange={(e) => setMarqueeText(e.target.value)}
+              placeholder="سوق الكل - إعلانك مجاناً معنا!"
+            />
+          </div>
+
+          <Button
+            className="w-full gap-2"
+            onClick={handleSaveMarquee}
+            disabled={savingMarquee}
+          >
+            {savingMarquee ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            حفظ إعدادات الشريط
           </Button>
         </CardContent>
       </Card>
