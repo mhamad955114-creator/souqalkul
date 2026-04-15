@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { useBrand } from "@/contexts/BrandContext";
 
 const APP_URL = "https://souqalkul.lovable.app";
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=app.souqalkul";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
