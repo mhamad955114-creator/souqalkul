@@ -1,5 +1,5 @@
-import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Share2, Crown, Receipt } from "lucide-react";
-import { shareApp } from "@/lib/shareApp";
+import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Crown, Receipt } from "lucide-react";
+import ShareButtons from "./ShareButtons";
 import { useBrand } from "@/contexts/BrandContext";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
@@ -183,14 +183,14 @@ const Header = ({ onListingAdded }: HeaderProps) => {
               </Button>
 
               {/* Mobile Share App Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={() => shareApp()}
-              >
-                <Share2 className="h-5 w-5" />
-              </Button>
+              <div className="md:hidden">
+                <ShareButtons
+                  url="https://play.google.com/store/apps/details?id=app.souqalkul"
+                  title="سوق الكل - أفضل سوق إلكتروني"
+                  description="حمّل تطبيق سوق الكل للبيع والشراء"
+                  variant="icon"
+                />
+              </div>
 
               <Button
                 variant="ghost"
