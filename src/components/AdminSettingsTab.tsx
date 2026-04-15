@@ -877,6 +877,7 @@ const AdminSettingsTab = () => {
         </CardContent>
       </Card>
 
+      <Card className="border-destructive/30">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
