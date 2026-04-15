@@ -243,6 +243,20 @@ const AdminSettingsTab = () => {
     setSavingMaintenance(false);
   };
 
+  const handleSaveMarquee = async () => {
+    setSavingMarquee(true);
+    const { error } = await upsertSetting(
+      "marquee_ticker",
+      { enabled: marqueeEnabled, text: marqueeText } as any
+    );
+    if (!error) {
+      toast.success("تم حفظ إعدادات الشريط المتحرك");
+    } else {
+      toast.error("فشل حفظ إعدادات الشريط المتحرك");
+    }
+    setSavingMarquee(false);
+  };
+
   const handleSaveShamcash = async () => {
     setSavingShamcash(true);
     const { error } = await upsertSetting("shamcash_account", shamcashAccount as any);
