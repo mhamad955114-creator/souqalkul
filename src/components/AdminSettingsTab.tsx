@@ -87,6 +87,8 @@ const AdminSettingsTab = () => {
   // Marquee ticker
   const [marqueeText, setMarqueeText] = useState("سوق الكل - إعلانك مجاناً معنا! 🎉");
   const [marqueeEnabled, setMarqueeEnabled] = useState(true);
+  const [marqueeGradient, setMarqueeGradient] = useState("primary");
+  const [marqueeSpeed, setMarqueeSpeed] = useState(20);
   const [savingMarquee, setSavingMarquee] = useState(false);
 
   // Default theme colors
