@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const DEFAULT_TEXT = "سوق الكل - إعلانك مجاناً معنا! 🎉";
+const SEPARATOR = " ✦ ";
 
 const GRADIENT_PRESETS: Record<string, string> = {
   orange: "bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600",
@@ -16,7 +17,7 @@ const GRADIENT_PRESETS: Record<string, string> = {
 };
 
 const MarqueeTicker = () => {
-  const [text, setText] = useState(DEFAULT_TEXT);
+  const [texts, setTexts] = useState<string[]>([DEFAULT_TEXT]);
   const [enabled, setEnabled] = useState(true);
   const [gradient, setGradient] = useState("primary");
   const [speed, setSpeed] = useState(20);
@@ -32,7 +33,12 @@ const MarqueeTicker = () => {
 
       if (data?.setting_value) {
         const val = data.setting_value as any;
-        if (val.text) setText(val.text);
+        // Support both old single text and new texts array
+        if (val.texts && Array.isArray(val.texts) && val.texts.length > 0) {
+          setTexts(val.texts);
+        } else if (val.text) {
+          setTexts([val.text]);
+        }
         if (val.enabled === false) setEnabled(false);
         if (val.gradient) setGradient(val.gradient);
         if (val.speed) setSpeed(val.speed);
@@ -44,18 +50,18 @@ const MarqueeTicker = () => {
   if (!enabled) return null;
 
   const gradientClass = GRADIENT_PRESETS[gradient] || GRADIENT_PRESETS.primary;
+  const combinedText = texts.join(SEPARATOR);
 
   return (
     <div className={`${gradientClass} text-white overflow-hidden whitespace-nowrap py-1.5 shadow-md relative`}>
-      {/* Shimmer overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
       <div
         className="inline-block animate-marquee"
         style={{ animationDuration: `${speed}s` }}
       >
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 4 }).map((_, i) => (
           <span key={i} className="mx-8 text-sm font-bold drop-shadow-sm">
-            {text}
+            {combinedText}
           </span>
         ))}
       </div>
