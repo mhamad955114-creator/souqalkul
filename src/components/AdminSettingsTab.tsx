@@ -85,11 +85,12 @@ const AdminSettingsTab = () => {
   const { logoUrl, setLogoUrl, isDefaultLogo } = useBrand();
 
   // Marquee ticker
-  const [marqueeText, setMarqueeText] = useState("سوق الكل - إعلانك مجاناً معنا! 🎉");
+  const [marqueeTexts, setMarqueeTexts] = useState<string[]>(["سوق الكل - إعلانك مجاناً معنا! 🎉"]);
   const [marqueeEnabled, setMarqueeEnabled] = useState(true);
   const [marqueeGradient, setMarqueeGradient] = useState("primary");
   const [marqueeSpeed, setMarqueeSpeed] = useState(20);
   const [savingMarquee, setSavingMarquee] = useState(false);
+
 
   // Default theme colors
   const DEFAULT_COLORS = {
@@ -180,7 +181,8 @@ const AdminSettingsTab = () => {
           if (row.setting_key === "theme_accent") setAccentColor(normalizeText(row.setting_value, "#2d8f78"));
           if (row.setting_key === "marquee_ticker") {
             const val = row.setting_value as any;
-            if (val.text) setMarqueeText(val.text);
+            if (val.texts && Array.isArray(val.texts)) setMarqueeTexts(val.texts);
+            else if (val.text) setMarqueeTexts([val.text]);
             if (val.enabled === false) setMarqueeEnabled(false);
             if (val.gradient) setMarqueeGradient(val.gradient);
             if (val.speed) setMarqueeSpeed(val.speed);
@@ -249,9 +251,10 @@ const AdminSettingsTab = () => {
 
   const handleSaveMarquee = async () => {
     setSavingMarquee(true);
+    const validTexts = marqueeTexts.filter(t => t.trim());
     const { error } = await upsertSetting(
       "marquee_ticker",
-      { enabled: marqueeEnabled, text: marqueeText, gradient: marqueeGradient, speed: marqueeSpeed } as any
+      { enabled: marqueeEnabled, texts: validTexts, gradient: marqueeGradient, speed: marqueeSpeed } as any
     );
     if (!error) {
       toast.success("تم حفظ إعدادات الشريط المتحرك");
@@ -862,12 +865,39 @@ const AdminSettingsTab = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>نص الشريط</Label>
-            <Input
-              value={marqueeText}
-              onChange={(e) => setMarqueeText(e.target.value)}
-              placeholder="سوق الكل - إعلانك مجاناً معنا!"
-            />
+            <Label>نصوص الشريط (كل سطر = نص منفصل)</Label>
+            {marqueeTexts.map((text, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Input
+                  value={text}
+                  onChange={(e) => {
+                    const updated = [...marqueeTexts];
+                    updated[index] = e.target.value;
+                    setMarqueeTexts(updated);
+                  }}
+                  placeholder={`النص ${index + 1}`}
+                />
+                {marqueeTexts.length > 1 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 text-destructive hover:text-destructive"
+                    onClick={() => setMarqueeTexts(marqueeTexts.filter((_, i) => i !== index))}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => setMarqueeTexts([...marqueeTexts, ""])}
+            >
+              + إضافة نص جديد
+            </Button>
+            <p className="text-xs text-muted-foreground">الفاصل بين النصوص: ✦</p>
           </div>
 
           <div className="space-y-2">
