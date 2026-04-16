@@ -473,7 +473,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">{t.listingForm.price} *</Label>
+              <Label htmlFor="price">{t.listingForm.price.split("(")[0]}({countryInfo.currencySymbol}) *</Label>
               <Input
                 id="price"
                 type="number"
