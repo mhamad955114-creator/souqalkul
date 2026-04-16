@@ -182,6 +182,8 @@ const AdminSettingsTab = () => {
             const val = row.setting_value as any;
             if (val.text) setMarqueeText(val.text);
             if (val.enabled === false) setMarqueeEnabled(false);
+            if (val.gradient) setMarqueeGradient(val.gradient);
+            if (val.speed) setMarqueeSpeed(val.speed);
           }
         });
       }
@@ -249,7 +251,7 @@ const AdminSettingsTab = () => {
     setSavingMarquee(true);
     const { error } = await upsertSetting(
       "marquee_ticker",
-      { enabled: marqueeEnabled, text: marqueeText } as any
+      { enabled: marqueeEnabled, text: marqueeText, gradient: marqueeGradient, speed: marqueeSpeed } as any
     );
     if (!error) {
       toast.success("تم حفظ إعدادات الشريط المتحرك");
@@ -866,6 +868,50 @@ const AdminSettingsTab = () => {
               onChange={(e) => setMarqueeText(e.target.value)}
               placeholder="سوق الكل - إعلانك مجاناً معنا!"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>لون الشريط</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { key: "primary", label: "أساسي", color: "bg-primary" },
+                { key: "orange", label: "برتقالي", color: "bg-gradient-to-r from-orange-500 to-amber-500" },
+                { key: "blue", label: "أزرق", color: "bg-gradient-to-r from-blue-600 to-cyan-500" },
+                { key: "purple", label: "بنفسجي", color: "bg-gradient-to-r from-purple-600 to-pink-500" },
+                { key: "green", label: "أخضر", color: "bg-gradient-to-r from-emerald-600 to-teal-500" },
+                { key: "red", label: "أحمر", color: "bg-gradient-to-r from-red-600 to-rose-500" },
+                { key: "gold", label: "ذهبي", color: "bg-gradient-to-r from-yellow-600 to-amber-400" },
+                { key: "rainbow", label: "قوس قزح", color: "bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500" },
+                { key: "dark", label: "داكن", color: "bg-gradient-to-r from-gray-900 to-gray-700" },
+              ].map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => setMarqueeGradient(item.key)}
+                  className={`rounded-lg p-2 text-xs font-bold text-white transition-all ${item.color} ${
+                    marqueeGradient === item.key ? "ring-2 ring-foreground ring-offset-2 scale-105" : "opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>سرعة الشريط: {marqueeSpeed} ثانية</Label>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">سريع</span>
+              <input
+                type="range"
+                min={5}
+                max={60}
+                step={1}
+                value={marqueeSpeed}
+                onChange={(e) => setMarqueeSpeed(Number(e.target.value))}
+                className="w-full accent-primary"
+              />
+              <span className="text-xs text-muted-foreground">بطيء</span>
+            </div>
           </div>
 
           <Button
