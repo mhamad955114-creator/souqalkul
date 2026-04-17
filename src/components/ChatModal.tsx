@@ -8,7 +8,7 @@ import { Loader2, Send, ArrowRight, ArrowLeft, User } from "lucide-react";
 import { useChat, useChatMessages } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatPrice } from "@/lib/constants";
+import { formatPrice, getCountryByName } from "@/lib/constants";
 
 interface ChatModalProps {
   open: boolean;
@@ -231,7 +231,7 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
         {conversation?.listing && (
           <div className={dir === "rtl" ? "text-left" : "text-right"}>
             <span className="text-sm font-medium text-primary">
-              {formatPrice(conversation.listing.price)}
+              {formatPrice(conversation.listing.price, conversation.listing.country ? getCountryByName(conversation.listing.country).currencySymbol : undefined)}
             </span>
           </div>
         )}

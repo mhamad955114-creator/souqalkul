@@ -23,6 +23,7 @@ interface Conversation {
     title: string;
     images: string[] | null;
     price: number;
+    country?: string | null;
   };
   other_user?: {
     full_name: string | null;
@@ -61,7 +62,7 @@ export const useChat = () => {
           // Get listing info
           const { data: listingData } = await supabase
             .from("listings")
-            .select("id, title, images, price")
+            .select("id, title, images, price, country")
             .eq("id", conv.listing_id)
             .maybeSingle();
 
