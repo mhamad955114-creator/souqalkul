@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCountry } from "@/contexts/CountryContext";
 import { cities, categories, statuses, areasByCity, categoryMetadataFields } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -39,6 +40,7 @@ interface EditListingModalProps {
 const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingModalProps) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
+  const { currentCountry } = useCountry();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
@@ -273,7 +275,9 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">{t.listingForm.price} *</Label>
+              <Label htmlFor="price">
+                {t.listingForm.price.split("(")[0]}({currentCountry.currencySymbol}) *
+              </Label>
               <Input
                 id="price"
                 type="number"
