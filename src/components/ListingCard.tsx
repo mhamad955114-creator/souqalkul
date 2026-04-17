@@ -13,6 +13,7 @@ interface ListingCardProps {
   title: string;
   price: string;
   location: string;
+  country?: string;
   time: string;
   featured?: boolean;
   professional?: boolean;
@@ -26,7 +27,7 @@ interface ListingCardProps {
   images?: string[];
 }
 
-const ListingCard = ({ id, image, title, price, location, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, location, country, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -178,9 +179,9 @@ const ListingCard = ({ id, image, title, price, location, time, featured, profes
         </div>
         <div className="text-xl font-bold text-primary mb-3">{price}</div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4" />
-            <span>{location}</span>
+          <div className="flex items-center gap-1 min-w-0">
+            <MapPin className="h-4 w-4 shrink-0" />
+            <span className="truncate">{country ? `${location}، ${country}` : location}</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
