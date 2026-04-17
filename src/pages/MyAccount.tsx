@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { formatPrice, formatDate, categoryLabels, statusLabels } from "@/lib/constants";
+import { formatPrice, formatDate, categoryLabels, statusLabels, getCountryByName } from "@/lib/constants";
 import { useListingSettings } from "@/hooks/useListingSettings";
 
 interface Listing {
@@ -43,6 +43,7 @@ interface Listing {
   is_featured: boolean | null;
   views_count: number | null;
   created_at: string;
+  country?: string | null;
 }
 
 interface Profile {
@@ -773,7 +774,7 @@ const MyAccount = () => {
                         <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
                           <div>
                             <span className="text-xl font-bold text-primary">
-                              {formatPrice(listing.price)}
+                              {formatPrice(listing.price, listing.country ? getCountryByName(listing.country).currencySymbol : undefined)}
                             </span>
                             <span className="text-xs text-muted-foreground block">
                               {formatDate(listing.created_at)}

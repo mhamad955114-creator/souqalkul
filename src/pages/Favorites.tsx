@@ -10,6 +10,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import ListingCard from "@/components/ListingCard";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
+import { formatPrice, getCountryByName } from "@/lib/constants";
 
 interface Listing {
   id: string;
@@ -22,6 +23,7 @@ interface Listing {
   is_featured: boolean | null;
   status: string | null;
   category: string;
+  country?: string | null;
 }
 
 const Favorites = () => {
@@ -42,7 +44,7 @@ const Favorites = () => {
       try {
         const { data, error } = await supabase
           .from("listings")
-          .select("id, title, description, price, city, images, created_at, is_featured, status, category")
+          .select("id, title, description, price, city, images, created_at, is_featured, status, category, country")
           .in("id", favorites);
 
         if (error) throw error;
@@ -121,7 +123,7 @@ const Favorites = () => {
                   id={listing.id}
                   image={listing.images?.[0] || "/placeholder.svg"}
                   title={listing.title}
-                  price={`${listing.price.toLocaleString()} ر.س`}
+                  price={formatPrice(listing.price, listing.country ? getCountryByName(listing.country).currencySymbol : undefined)}
                   location={listing.city}
                   time={formatTimeAgo(listing.created_at)}
                   featured={listing.is_featured || false}
