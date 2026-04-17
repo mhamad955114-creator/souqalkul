@@ -101,8 +101,8 @@ const AllListings = () => {
 
   const availableSubcategories = category && category !== "all" ? subcategoriesByCategory[category] || [] : [];
   
-  const countryCities = getCitiesByCountry(country);
-  const selectedCountryInfo = getCountryByName(country);
+  const countryCities = country === "all" ? [] : getCitiesByCountry(country);
+  const selectedCountryInfo = country === "all" ? currentCountry : getCountryByName(country);
   const availableAreas = city && city !== "all" ? areasByCity[city] || [] : [];
 
   const fetchListings = useCallback(async (page: number, append = false) => {
@@ -118,8 +118,11 @@ const AllListings = () => {
     let query = supabase
       .from("listings")
       .select("*", { count: "exact" })
-      .eq("status", "active")
-      .eq("country", country as any);
+      .eq("status", "active");
+
+    if (country && country !== "all") {
+      query = query.eq("country", country as any);
+    }
 
     if (searchQuery) {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -330,6 +333,7 @@ const AllListings = () => {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">جميع الدول</SelectItem>
             {countries.map((c) => (
               <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
             ))}
@@ -467,6 +471,7 @@ const AllListings = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">جميع الدول</SelectItem>
                 {countries.map((c) => (
                   <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
                 ))}
