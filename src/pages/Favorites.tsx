@@ -125,6 +125,7 @@ const Favorites = () => {
                   title={listing.title}
                   price={formatPrice(listing.price, listing.country ? getCountryByName(listing.country).currencySymbol : undefined)}
                   location={listing.city}
+                  country={listing.country || undefined}
                   time={formatTimeAgo(listing.created_at)}
                   featured={listing.is_featured || false}
                   status={listing.status}

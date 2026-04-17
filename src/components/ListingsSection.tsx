@@ -225,6 +225,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       title={listing.title}
                       price={formatPrice(listing.price, currentCountry.currencySymbol)}
                       location={listing.city}
+                      country={currentCountry.name}
                       time={formatTime(listing.created_at)}
                       featured={listing.badge_type === "featured" || listing.is_featured}
                       professional={listing.badge_type === "professional"}

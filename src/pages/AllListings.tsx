@@ -675,6 +675,7 @@ const AllListings = () => {
                     title={listing.title}
                     price={formatPrice(listing.price, listing.country ? getCountryByName(listing.country as string).currencySymbol : selectedCountryInfo.currencySymbol)}
                     location={listing.city}
+                    country={(listing.country as string) || undefined}
                     time={formatTime(listing.created_at)}
                     featured={listing.badge_type === "featured" || listing.is_featured}
                     professional={listing.badge_type === "professional"}
