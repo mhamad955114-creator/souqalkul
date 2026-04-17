@@ -188,19 +188,6 @@ const ListingCard = ({ id, image, title, price, location, country, time, feature
             <span>{time}</span>
           </div>
         </div>
-        {!featured && !professional && !business && status !== "sold" && status !== "expired" && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              const msg = `مرحباً، أرغب في ترقية الإعلان: ${title}`;
-              window.open(buildWhatsAppUrl(contact.whatsapp, msg), "_blank");
-            }}
-            className="mt-3 w-full flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary text-sm font-semibold py-2 rounded-xl transition-colors"
-          >
-            <ArrowUpCircle className="h-4 w-4" />
-            <span>ترقية الإعلان - تواصل معنا</span>
-          </button>
-        )}
       </div>
     </div>
   );
