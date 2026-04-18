@@ -138,26 +138,15 @@ const AdminStorageStats = () => {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
-
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const res = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/storage-stats`,
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to fetch storage stats");
-      const data = await res.json();
-      setStats(data);
+      const { data, error } = await supabase.functions.invoke("storage-stats");
+      if (error) throw error;
+      if (!data) throw new Error("لم يتم استلام بيانات");
+      if ((data as any).error) throw new Error((data as any).error);
+      setStats(data as StorageStats);
     } catch (err: any) {
-      toast.error("فشل في تحميل إحصائيات التخزين");
-      console.error(err);
+      const msg = err?.message || "خطأ غير معروف";
+      toast.error("فشل في تحميل إحصائيات التخزين: " + msg);
+      console.error("storage-stats error:", err);
     } finally {
       setLoading(false);
     }
