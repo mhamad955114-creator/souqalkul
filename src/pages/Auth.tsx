@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Sparkles, CheckCircle2, Inbox } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBrand } from "@/contexts/BrandContext";
 import { useCountry } from "@/contexts/CountryContext";
@@ -25,7 +26,10 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
-  const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, user } = useAuth();
+  const [otpCode, setOtpCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+  const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, verifyEmailOtp, resendEmailOtp, user } = useAuth();
   const { t, dir } = useLanguage();
   const { logoUrl } = useBrand();
   const { currentCountry } = useCountry();
@@ -97,6 +101,38 @@ const Auth = () => {
     if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
     else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
     return cleaned;
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otpCode.length !== 6) {
+      toast.error("يرجى إدخال الرمز كاملاً (6 أرقام)");
+      return;
+    }
+    setVerifying(true);
+    try {
+      const { error } = await verifyEmailOtp(confirmationEmail, otpCode);
+      if (error) {
+        toast.error("رمز غير صحيح أو منتهي الصلاحية");
+      } else {
+        toast.success("تم تفعيل حسابك بنجاح!");
+        setShowEmailConfirmation(false);
+        setOtpCode("");
+        navigate("/");
+      }
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResending(true);
+    try {
+      const { error } = await resendEmailOtp(confirmationEmail);
+      if (error) toast.error("فشل إعادة الإرسال: " + error.message);
+      else toast.success("تم إرسال رمز جديد إلى بريدك");
+    } finally {
+      setResending(false);
+    }
   };
 
   const iconSide = dir === "rtl" ? "right-3" : "left-3";
