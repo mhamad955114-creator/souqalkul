@@ -34,12 +34,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = safeGet("theme");
     if (saved === "dark" || saved === "light") return saved;
-
-    try {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    } catch {
-      return "light";
-    }
+    // Always default to light to avoid mismatch with native shell (Capacitor/Android)
+    // where system dark mode could make text invisible on light backgrounds.
+    return "light";
   });
 
   useEffect(() => {
