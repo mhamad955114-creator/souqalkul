@@ -11,6 +11,8 @@ interface AuthContextType {
   signInWithPhone: (phone: string, password: string) => Promise<{ error: Error | null }>;
   signUpWithPhone: (phone: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
+  verifyEmailOtp: (email: string, token: string) => Promise<{ error: Error | null }>;
+  resendEmailOtp: (email: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -40,13 +42,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
+    // No emailRedirectTo → Supabase sends a 6-digit OTP code instead of a magic link
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
         data: { full_name: fullName },
       },
+    });
+    return { error };
+  };
+
+  const verifyEmailOtp = async (email: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: "signup",
+    });
+    return { error };
+  };
+
+  const resendEmailOtp = async (email: string) => {
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
     });
     return { error };
   };
@@ -90,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signInWithPhone, signUpWithPhone, resetPassword, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signInWithPhone, signUpWithPhone, resetPassword, verifyEmailOtp, resendEmailOtp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

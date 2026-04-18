@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag, Sparkles, CheckCircle2, Inbox } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBrand } from "@/contexts/BrandContext";
 import { useCountry } from "@/contexts/CountryContext";
@@ -25,7 +26,10 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
-  const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, user } = useAuth();
+  const [otpCode, setOtpCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
+  const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, verifyEmailOtp, resendEmailOtp, user } = useAuth();
   const { t, dir } = useLanguage();
   const { logoUrl } = useBrand();
   const { currentCountry } = useCountry();
@@ -99,6 +103,38 @@ const Auth = () => {
     return cleaned;
   };
 
+  const handleVerifyOtp = async () => {
+    if (otpCode.length !== 6) {
+      toast.error("يرجى إدخال الرمز كاملاً (6 أرقام)");
+      return;
+    }
+    setVerifying(true);
+    try {
+      const { error } = await verifyEmailOtp(confirmationEmail, otpCode);
+      if (error) {
+        toast.error("رمز غير صحيح أو منتهي الصلاحية");
+      } else {
+        toast.success("تم تفعيل حسابك بنجاح!");
+        setShowEmailConfirmation(false);
+        setOtpCode("");
+        navigate("/");
+      }
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResending(true);
+    try {
+      const { error } = await resendEmailOtp(confirmationEmail);
+      if (error) toast.error("فشل إعادة الإرسال: " + error.message);
+      else toast.success("تم إرسال رمز جديد إلى بريدك");
+    } finally {
+      setResending(false);
+    }
+  };
+
   const iconSide = dir === "rtl" ? "right-3" : "left-3";
   const inputPadding = dir === "rtl" ? "pr-10" : "pl-10";
   const eyeSide = dir === "rtl" ? "left-3" : "right-3";
@@ -113,33 +149,74 @@ const Auth = () => {
               <Inbox className="h-10 w-10 text-primary" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">تحقق من بريدك الإلكتروني</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                تم إرسال رابط التأكيد إلى
+              <h2 className="text-2xl font-bold text-foreground">أدخل رمز التحقق</h2>
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                أرسلنا رمزاً مكوناً من 6 أرقام إلى
               </p>
-              <p className="font-semibold text-primary text-lg" dir="ltr">{confirmationEmail}</p>
+              <p className="font-semibold text-primary text-base break-all" dir="ltr">{confirmationEmail}</p>
             </div>
-            <div className="bg-muted/50 rounded-xl p-4 space-y-3">
-              <div className="flex items-start gap-3 text-start">
-                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-muted-foreground">افتح بريدك الإلكتروني واضغط على رابط التأكيد لتفعيل حسابك</p>
-              </div>
-              <div className="flex items-start gap-3 text-start">
-                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-muted-foreground">إذا لم تجد الرسالة، تحقق من مجلد الرسائل غير المرغوب فيها (Spam)</p>
+
+            <div className="flex justify-center" dir="ltr">
+              <InputOTP
+                maxLength={6}
+                value={otpCode}
+                onChange={(val) => setOtpCode(val)}
+                onComplete={(val) => {
+                  setOtpCode(val);
+                }}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+
+            <div className="bg-muted/50 rounded-xl p-3">
+              <div className="flex items-start gap-2 text-start">
+                <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <p className="text-xs text-muted-foreground">إذا لم تجد الرسالة، تحقق من مجلد الرسائل غير المرغوب فيها (Spam)</p>
               </div>
             </div>
+
             <Button
-              onClick={() => {
-                setShowEmailConfirmation(false);
-                setMode("login");
-              }}
+              onClick={handleVerifyOtp}
               className="w-full h-12 text-base shadow-button"
               size="lg"
+              disabled={verifying || otpCode.length !== 6}
             >
-              <Mail className="h-5 w-5" />
-              العودة لتسجيل الدخول
+              {verifying ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> جاري التحقق...</>
+              ) : (
+                <><CheckCircle2 className="h-5 w-5" /> تأكيد وتفعيل الحساب</>
+              )}
             </Button>
+
+            <div className="flex items-center justify-between text-sm">
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={resending}
+                className="text-primary hover:underline disabled:opacity-50"
+              >
+                {resending ? "جاري الإرسال..." : "إعادة إرسال الرمز"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEmailConfirmation(false);
+                  setOtpCode("");
+                  setMode("login");
+                }}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                إلغاء
+              </button>
+            </div>
           </div>
         </div>
       )}
