@@ -149,33 +149,74 @@ const Auth = () => {
               <Inbox className="h-10 w-10 text-primary" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">تحقق من بريدك الإلكتروني</h2>
-              <p className="text-muted-foreground leading-relaxed">
-                تم إرسال رابط التأكيد إلى
+              <h2 className="text-2xl font-bold text-foreground">أدخل رمز التحقق</h2>
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                أرسلنا رمزاً مكوناً من 6 أرقام إلى
               </p>
-              <p className="font-semibold text-primary text-lg" dir="ltr">{confirmationEmail}</p>
+              <p className="font-semibold text-primary text-base break-all" dir="ltr">{confirmationEmail}</p>
             </div>
-            <div className="bg-muted/50 rounded-xl p-4 space-y-3">
-              <div className="flex items-start gap-3 text-start">
-                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-muted-foreground">افتح بريدك الإلكتروني واضغط على رابط التأكيد لتفعيل حسابك</p>
-              </div>
-              <div className="flex items-start gap-3 text-start">
-                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-muted-foreground">إذا لم تجد الرسالة، تحقق من مجلد الرسائل غير المرغوب فيها (Spam)</p>
+
+            <div className="flex justify-center" dir="ltr">
+              <InputOTP
+                maxLength={6}
+                value={otpCode}
+                onChange={(val) => setOtpCode(val)}
+                onComplete={(val) => {
+                  setOtpCode(val);
+                }}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+
+            <div className="bg-muted/50 rounded-xl p-3">
+              <div className="flex items-start gap-2 text-start">
+                <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <p className="text-xs text-muted-foreground">إذا لم تجد الرسالة، تحقق من مجلد الرسائل غير المرغوب فيها (Spam)</p>
               </div>
             </div>
+
             <Button
-              onClick={() => {
-                setShowEmailConfirmation(false);
-                setMode("login");
-              }}
+              onClick={handleVerifyOtp}
               className="w-full h-12 text-base shadow-button"
               size="lg"
+              disabled={verifying || otpCode.length !== 6}
             >
-              <Mail className="h-5 w-5" />
-              العودة لتسجيل الدخول
+              {verifying ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> جاري التحقق...</>
+              ) : (
+                <><CheckCircle2 className="h-5 w-5" /> تأكيد وتفعيل الحساب</>
+              )}
             </Button>
+
+            <div className="flex items-center justify-between text-sm">
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={resending}
+                className="text-primary hover:underline disabled:opacity-50"
+              >
+                {resending ? "جاري الإرسال..." : "إعادة إرسال الرمز"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEmailConfirmation(false);
+                  setOtpCode("");
+                  setMode("login");
+                }}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                إلغاء
+              </button>
+            </div>
           </div>
         </div>
       )}
