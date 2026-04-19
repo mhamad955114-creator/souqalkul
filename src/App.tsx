@@ -16,6 +16,7 @@ import UpdateNotification from "@/components/UpdateNotification";
 import InAppNotificationBanner from "@/components/InAppNotificationBanner";
 import MaintenancePage from "@/components/MaintenancePage";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
+import { useCountryStatus } from "@/hooks/useCountryStatus";
 import { useBackButton } from "@/hooks/useBackButton";
 const Index = lazy(() => import("./pages/Index"));
 const MyAccount = lazy(() => import("./pages/MyAccount"));
@@ -97,6 +98,7 @@ const AppContent = () => {
   const [showSplash, setShowSplash] = useState(true);
   const handleSplashFinish = useCallback(() => setShowSplash(false), []);
   const { maintenance, loading } = useMaintenanceMode();
+  const { status: countryStatus, loading: countryLoading, countryName } = useCountryStatus();
 
   useEffect(() => {
     import("@capacitor-community/safe-area")
@@ -110,6 +112,15 @@ const AppContent = () => {
 
   if (!loading && maintenance.enabled) {
     return <MaintenancePage message={maintenance.message} />;
+  }
+
+  if (!countryLoading && !countryStatus.enabled) {
+    return (
+      <MaintenancePage
+        title={`الخدمة غير متوفرة في ${countryName}`}
+        message={countryStatus.message || `عذراً، التطبيق غير متاح حالياً في ${countryName}. يرجى المحاولة لاحقاً أو اختيار دولة أخرى.`}
+      />
+    );
   }
 
   return (
