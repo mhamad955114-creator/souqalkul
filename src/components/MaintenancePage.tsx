@@ -3,9 +3,13 @@ import { useBrand } from "@/contexts/BrandContext";
 
 interface MaintenancePageProps {
   message?: string;
+  title?: string;
 }
 
-const MaintenancePage = ({ message = "الموقع تحت الصيانة حالياً، سنعود قريباً!" }: MaintenancePageProps) => {
+const MaintenancePage = ({
+  message = "الموقع تحت الصيانة حالياً، سنعود قريباً!",
+  title = "جاري الصيانة",
+}: MaintenancePageProps) => {
   const { logoUrl } = useBrand();
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center" dir="rtl">
@@ -35,7 +39,7 @@ const MaintenancePage = ({ message = "الموقع تحت الصيانة حال�
 
         {/* Text */}
         <div className="space-y-3">
-          <h1 className="text-3xl font-bold text-foreground">جاري الصيانة</h1>
+          <h1 className="text-3xl font-bold text-foreground">{title}</h1>
           <p className="text-muted-foreground text-lg leading-relaxed">{message}</p>
         </div>
 

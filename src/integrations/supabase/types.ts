@@ -79,6 +79,36 @@ export type Database = {
           },
         ]
       }
+      country_status: {
+        Row: {
+          country_name: string
+          created_at: string
+          disabled_message: string | null
+          id: string
+          is_enabled: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          country_name: string
+          created_at?: string
+          disabled_message?: string | null
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          country_name?: string
+          created_at?: string
+          disabled_message?: string | null
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
