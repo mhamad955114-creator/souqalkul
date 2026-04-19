@@ -156,6 +156,7 @@ const AdminCountriesTab = () => {
           const row = statuses[country.name];
           if (!row) return null;
           const isSaving = savingCountry === country.name;
+          const countryStats = stats[country.name] || { listings: 0, users: 0 };
           return (
             <Card key={country.name} className={!row.is_enabled ? "border-destructive/40 bg-destructive/5" : ""}>
               <CardContent className="p-4 space-y-3">
@@ -176,6 +177,23 @@ const AdminCountriesTab = () => {
                       checked={row.is_enabled}
                       onCheckedChange={(v) => handleToggle(country.name, v)}
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
+                    <FileText className="h-4 w-4 text-primary shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-muted-foreground leading-none mb-0.5">إعلانات نشطة</p>
+                      <p className="text-sm font-bold">{countryStats.listings}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
+                    <Users className="h-4 w-4 text-primary shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-muted-foreground leading-none mb-0.5">المستخدمون</p>
+                      <p className="text-sm font-bold">{countryStats.users}</p>
+                    </div>
                   </div>
                 </div>
 
