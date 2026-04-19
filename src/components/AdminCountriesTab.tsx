@@ -23,32 +23,50 @@ interface CountryStats {
 
 const AdminCountriesTab = () => {
   const [statuses, setStatuses] = useState<Record<string, CountryStatusRow>>({});
+  const [stats, setStats] = useState<Record<string, CountryStats>>({});
   const [loading, setLoading] = useState(true);
   const [savingCountry, setSavingCountry] = useState<string | null>(null);
 
   const fetchStatuses = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("country_status")
-        .select("country_name, is_enabled, disabled_message");
+      const [statusRes, listingsRes, profilesRes] = await Promise.all([
+        supabase.from("country_status").select("country_name, is_enabled, disabled_message"),
+        supabase.from("listings").select("country").eq("status", "active"),
+        supabase.from("profiles").select("country"),
+      ]);
 
-      if (error) throw error;
+      if (statusRes.error) throw statusRes.error;
 
-      const map: Record<string, CountryStatusRow> = {};
-      // Default everything to enabled
+      const statusMap: Record<string, CountryStatusRow> = {};
       countries.forEach((c) => {
-        map[c.name] = { country_name: c.name, is_enabled: true, disabled_message: "" };
+        statusMap[c.name] = { country_name: c.name, is_enabled: true, disabled_message: "" };
       });
-      // Overlay DB rows
-      (data || []).forEach((row) => {
-        map[row.country_name] = {
+      (statusRes.data || []).forEach((row) => {
+        statusMap[row.country_name] = {
           country_name: row.country_name,
           is_enabled: row.is_enabled,
           disabled_message: row.disabled_message ?? "",
         };
       });
-      setStatuses(map);
+      setStatuses(statusMap);
+
+      // Aggregate stats per country
+      const statsMap: Record<string, CountryStats> = {};
+      countries.forEach((c) => {
+        statsMap[c.name] = { listings: 0, users: 0 };
+      });
+      (listingsRes.data || []).forEach((l: any) => {
+        const name = l.country || "سوريا";
+        if (!statsMap[name]) statsMap[name] = { listings: 0, users: 0 };
+        statsMap[name].listings += 1;
+      });
+      (profilesRes.data || []).forEach((p: any) => {
+        const name = p.country || "سوريا";
+        if (!statsMap[name]) statsMap[name] = { listings: 0, users: 0 };
+        statsMap[name].users += 1;
+      });
+      setStats(statsMap);
     } catch (e: any) {
       toast.error("فشل في تحميل حالات الدول: " + (e?.message || ""));
     } finally {
