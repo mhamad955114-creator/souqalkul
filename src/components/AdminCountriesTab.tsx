@@ -7,13 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Globe, Save, Power, PowerOff } from "lucide-react";
+import { Loader2, Globe, Save, Power, PowerOff, FileText, Users } from "lucide-react";
 import { toast } from "sonner";
 
 interface CountryStatusRow {
   country_name: string;
   is_enabled: boolean;
   disabled_message: string | null;
+}
+
+interface CountryStats {
+  listings: number;
+  users: number;
 }
 
 const AdminCountriesTab = () => {
