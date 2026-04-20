@@ -24,18 +24,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const checkBanAndSet = async (newSession: Session | null) => {
+      if (newSession?.user) {
+        // Check if user is banned (defer to avoid deadlocks inside auth callback)
+        setTimeout(async () => {
+          const { data: isBanned } = await supabase.rpc("is_banned", {
+            _user_id: newSession.user.id,
+          });
+          if (isBanned) {
+            const { data: ban } = await supabase
+              .from("banned_users")
+              .select("reason")
+              .eq("user_id", newSession.user.id)
+              .maybeSingle();
+            await supabase.auth.signOut();
+            const { toast } = await import("sonner");
+            toast.error(
+              ban?.reason
+                ? `حسابك معلّق. السبب: ${ban.reason}`
+                : "حسابك معلّق من قبل الإدارة"
+            );
+            setSession(null);
+            setUser(null);
+          }
+        }, 0);
+      }
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
+      setLoading(false);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+        checkBanAndSet(session);
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      checkBanAndSet(session);
     });
 
     return () => subscription.unsubscribe();
