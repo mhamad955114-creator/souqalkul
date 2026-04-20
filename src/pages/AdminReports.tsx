@@ -52,6 +52,7 @@ import AdminVerificationTab from "@/components/AdminVerificationTab";
 import AdminListingsTab from "@/components/AdminListingsTab";
 import AdminStorageStats from "@/components/AdminStorageStats";
 import AdminCountriesTab from "@/components/AdminCountriesTab";
+import AdminUsersTab from "@/components/AdminUsersTab";
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
@@ -105,7 +106,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries" | "users">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -657,6 +658,15 @@ const AdminReports = () => {
               <Globe className="h-4 w-4" />
               الدول
             </Button>
+            <Button
+              variant={activeTab === "users" ? "default" : "outline"}
+              onClick={() => setActiveTab("users")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <Users className="h-4 w-4" />
+              المستخدمون
+            </Button>
           </div>
         </div>
 
@@ -844,6 +854,7 @@ const AdminReports = () => {
         {activeTab === "listings" && <AdminListingsTab />}
         {activeTab === "storage" && <AdminStorageStats />}
         {activeTab === "countries" && <AdminCountriesTab />}
+        {activeTab === "users" && <AdminUsersTab />}
       </main>
 
       <Footer />
