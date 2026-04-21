@@ -586,6 +586,28 @@ export const subcategoriesByCategory: Record<string, string[]> = {
     "رمل وحصى",
     "أخرى",
   ],
+  "مواد غذائية": [
+    "حبوب وبقوليات",
+    "زيوت وسمن",
+    "معلبات",
+    "بهارات وتوابل",
+    "مشروبات",
+    "ألبان وأجبان",
+    "حلويات",
+    "أغذية مجمدة",
+    "أخرى",
+  ],
+  "مطاعم": [
+    "وجبات سريعة",
+    "مشاوي",
+    "بيتزا ومعجنات",
+    "حلويات ومقاهي",
+    "مأكولات شرقية",
+    "مأكولات غربية",
+    "مأكولات بحرية",
+    "عصائر ومشروبات",
+    "أخرى",
+  ],
 };
 
 // Category-specific metadata fields
@@ -739,6 +761,20 @@ export const categoryMetadataFields: Record<string, MetadataField[]> = {
     { key: "condition", label: "الحالة", type: "select", options: ["جديد", "مستعمل - ممتاز", "مستعمل - جيد", "مستعمل - مقبول"] },
     { key: "brand", label: "الماركة", type: "text" },
     { key: "quantity", label: "الكمية", type: "text" },
+  ],
+  "مواد غذائية": [
+    { key: "food_type", label: "نوع المنتج", type: "select", options: ["حبوب وبقوليات", "زيوت وسمن", "معلبات", "بهارات", "مشروبات", "ألبان وأجبان", "حلويات", "أغذية مجمدة", "أخرى"] },
+    { key: "brand", label: "الماركة", type: "text" },
+    { key: "weight", label: "الوزن / الحجم", type: "text" },
+    { key: "origin", label: "بلد المنشأ", type: "select", options: ["سوري", "تركي", "لبناني", "سعودي", "مصري", "أخرى"] },
+    { key: "expiry_date", label: "تاريخ الانتهاء", type: "text" },
+  ],
+  "مطاعم": [
+    { key: "cuisine_type", label: "نوع المأكولات", type: "select", options: ["وجبات سريعة", "مشاوي", "بيتزا ومعجنات", "حلويات", "مأكولات شرقية", "مأكولات غربية", "مأكولات بحرية", "عصائر ومشروبات", "أخرى"] },
+    { key: "price_range", label: "نطاق السعر", type: "select", options: ["رخيص $", "متوسط $$", "مرتفع $$$"] },
+    { key: "delivery", label: "خدمة التوصيل", type: "select", options: ["متوفرة", "غير متوفرة"] },
+    { key: "working_hours", label: "ساعات العمل", type: "text" },
+    { key: "seating", label: "جلسات داخلية", type: "select", options: ["متوفرة", "غير متوفرة", "داخلية وخارجية"] },
   ],
 };
 
