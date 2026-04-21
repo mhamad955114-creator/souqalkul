@@ -4,6 +4,7 @@ import MarqueeTicker from "@/components/MarqueeTicker";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import ListingsSection from "@/components/ListingsSection";
+import RestaurantsSection from "@/components/RestaurantsSection";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
 import PageSkeleton from "@/components/PageSkeleton";
@@ -34,6 +35,7 @@ const Index = () => {
       <main>
         <HeroSection />
         <CategoriesSection />
+        <RestaurantsSection />
         <ListingsSection refreshTrigger={refreshTrigger} />
       </main>
       <Footer />
