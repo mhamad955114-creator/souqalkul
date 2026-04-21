@@ -128,7 +128,7 @@ const RestaurantsSection = () => {
                 key={listing.id}
                 id={listing.id}
                 title={listing.title}
-                price={listing.price}
+                price={String(listing.price)}
                 city={listing.city}
                 image={listing.images[0] || ""}
                 images={listing.images}
