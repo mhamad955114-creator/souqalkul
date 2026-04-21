@@ -759,6 +759,7 @@ export const categories = [
   { value: "معدات صناعية", label: "معدات صناعية" },
   { value: "معدات زراعية", label: "معدات زراعية" },
   { value: "مواد بناء", label: "مواد بناء" },
+  { value: "مواد غذائية", label: "مواد غذائية" },
   { value: "أخرى", label: "أخرى" },
 ];
 
@@ -780,6 +781,7 @@ export const categoryLabels: Record<string, string> = {
   ألعاب: "ألعاب",
   أخرى: "أخرى",
   "مواد بناء": "مواد بناء",
+  "مواد غذائية": "مواد غذائية",
   // Legacy English values
   cars: "سيارات",
   real_estate: "عقارات",

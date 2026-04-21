@@ -57,6 +57,7 @@ export interface Translations {
     industrial: string;
     agricultural: string;
     buildingMaterials: string;
+    food: string;
     other: string;
     allCategories: string;
     ad: string;
@@ -616,6 +617,7 @@ export const ar: Translations = {
     industrial: "معدات صناعية",
     agricultural: "معدات زراعية",
     buildingMaterials: "مواد بناء",
+    food: "مواد غذائية",
     other: "أخرى",
     allCategories: "جميع التصنيفات",
     ad: "إعلان",
@@ -1132,6 +1134,7 @@ export const en: Translations = {
     industrial: "Industrial Equipment",
     agricultural: "Agricultural Equipment",
     buildingMaterials: "Building Materials",
+    food: "Food & Groceries",
     other: "Other",
     allCategories: "All Categories",
     ad: "ad",
@@ -1648,6 +1651,7 @@ export const tr: Translations = {
     industrial: "Endüstriyel Ekipman",
     agricultural: "Tarım Ekipmanı",
     buildingMaterials: "İnşaat Malzemeleri",
+    food: "Gıda Ürünleri",
     other: "Diğer",
     allCategories: "Tüm Kategoriler",
     ad: "ilan",
