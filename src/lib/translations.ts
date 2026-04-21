@@ -1655,6 +1655,7 @@ export const tr: Translations = {
     agricultural: "Tarım Ekipmanı",
     buildingMaterials: "İnşaat Malzemeleri",
     food: "Gıda Ürünleri",
+    restaurants: "Restoranlar",
     other: "Diğer",
     allCategories: "Tüm Kategoriler",
     ad: "ilan",
