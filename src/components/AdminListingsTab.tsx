@@ -240,7 +240,6 @@ const AdminListingsTab = () => {
   };
   const filtered = listings.filter(filterFn);
   const filteredPending = pendingListings.filter(filterFn);
-  );
 
   if (loading) {
     return (
