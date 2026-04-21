@@ -1,36 +1,70 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 const CHANNEL_NAME = "online-presence";
 
+// Singleton state shared across all hook instances
+let sharedChannel: RealtimeChannel | null = null;
+let subscriberCount = 0;
+let sharedOnlineUsers = new Set<string>();
+const listeners = new Set<(users: Set<string>) => void>();
+
+function notifyListeners() {
+  listeners.forEach((fn) => fn(new Set(sharedOnlineUsers)));
+}
+
+function ensureChannel(userId: string) {
+  subscriberCount++;
+  if (sharedChannel) return;
+
+  const channel = supabase.channel(CHANNEL_NAME, {
+    config: { presence: { key: userId } },
+  });
+
+  channel
+    .on("presence", { event: "sync" }, () => {
+      const state = channel.presenceState();
+      sharedOnlineUsers = new Set(Object.keys(state));
+      notifyListeners();
+    })
+    .subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        await channel.track({ user_id: userId });
+      }
+    });
+
+  sharedChannel = channel;
+}
+
+function releaseChannel() {
+  subscriberCount--;
+  if (subscriberCount <= 0 && sharedChannel) {
+    sharedChannel.untrack();
+    supabase.removeChannel(sharedChannel);
+    sharedChannel = null;
+    subscriberCount = 0;
+    sharedOnlineUsers = new Set();
+  }
+}
+
 export const usePresence = () => {
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(sharedOnlineUsers);
   const { user } = useAuth();
 
   useEffect(() => {
     if (!user) return;
 
-    const channel = supabase.channel(CHANNEL_NAME, {
-      config: { presence: { key: user.id } },
-    });
+    listeners.add(setOnlineUsers);
+    ensureChannel(user.id);
 
-    channel
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState();
-        const ids = new Set<string>();
-        Object.keys(state).forEach((key) => ids.add(key));
-        setOnlineUsers(ids);
-      })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await channel.track({ user_id: user.id });
-        }
-      });
+    // Sync initial state
+    setOnlineUsers(new Set(sharedOnlineUsers));
 
     return () => {
-      channel.untrack();
-      supabase.removeChannel(channel);
+      listeners.delete(setOnlineUsers);
+      releaseChannel();
     };
   }, [user]);
 
