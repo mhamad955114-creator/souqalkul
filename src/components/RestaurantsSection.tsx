@@ -129,15 +129,16 @@ const RestaurantsSection = () => {
                 id={listing.id}
                 title={listing.title}
                 price={String(listing.price)}
-                city={listing.city}
+                location={listing.city}
                 image={listing.images[0] || ""}
                 images={listing.images}
-                isFeatured={listing.is_featured}
-                createdAt={listing.created_at}
+                featured={listing.is_featured}
+                time={listing.created_at}
                 category={listing.category}
                 userId={listing.user_id}
                 isOwnerOnline={isOnline(listing.user_id)}
-                badgeType={listing.badge_type}
+                business={listing.badge_type === "business"}
+                professional={listing.badge_type === "professional"}
                 averageRating={listing._avgRating}
               />
             ))}
