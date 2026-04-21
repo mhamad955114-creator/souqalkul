@@ -45,6 +45,7 @@ const AdminListingsTab = () => {
   const [pendingListings, setPendingListings] = useState<ListingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [searchById, setSearchById] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -225,20 +226,20 @@ const AdminListingsTab = () => {
     setDeleteImagesListing(null);
   };
 
-  const searchLower = search.toLowerCase();
-  const filtered = listings.filter(
-    (l) =>
+  const searchLower = search.toLowerCase().trim();
+  const filterFn = (l: ListingRow) => {
+    if (!searchLower) return true;
+    if (searchById) {
+      return l.id.toLowerCase() === searchLower;
+    }
+    return (
       l.title.toLowerCase().includes(searchLower) ||
       l.user_email?.toLowerCase().includes(searchLower) ||
       l.id.toLowerCase().includes(searchLower)
-  );
-
-  const filteredPending = pendingListings.filter(
-    (l) =>
-      l.title.toLowerCase().includes(searchLower) ||
-      l.user_email?.toLowerCase().includes(searchLower) ||
-      l.id.toLowerCase().includes(searchLower)
-  );
+    );
+  };
+  const filtered = listings.filter(filterFn);
+  const filteredPending = pendingListings.filter(filterFn);
 
   if (loading) {
     return (
@@ -277,14 +278,32 @@ const AdminListingsTab = () => {
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="البحث بعنوان الإعلان أو رقم الإعلان أو اسم المستخدم..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pr-10"
-        />
+      <div className="space-y-2">
+        <div className="flex gap-2 items-center">
+          <Button
+            variant={searchById ? "default" : "outline"}
+            size="sm"
+            onClick={() => { setSearchById(!searchById); setSearch(""); }}
+            className="whitespace-nowrap text-xs"
+          >
+            🔢 بحث برقم الإعلان
+          </Button>
+          {searchById && (
+            <span className="text-xs text-muted-foreground">
+              الصق رقم الإعلان (UUID) مثل: <code className="bg-muted px-1 rounded text-[10px]">a1b2c3d4-e5f6-...</code>
+            </span>
+          )}
+        </div>
+        <div className="relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={searchById ? "الصق رقم الإعلان (UUID) هنا..." : "البحث بعنوان الإعلان أو رقم الإعلان أو اسم المستخدم..."}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pr-10"
+            dir="ltr"
+          />
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
