@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -163,6 +163,64 @@ const MyAccount = () => {
     }
   };
 
+  const fetchSubscriptions = useCallback(async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("user_subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (!data) return;
+
+    setSubscriptions(data);
+
+    const hasBusinessSub = data.some(
+      (s) => s.plan_type === "business" && s.status === "active" && new Date(s.expires_at) > new Date()
+    );
+
+    if (!hasBusinessSub) {
+      setBusinessStats(null);
+      return;
+    }
+
+    const listingsRes = await supabase
+      .from("listings")
+      .select("id, title, views_count, status")
+      .eq("user_id", user.id);
+
+    const userListings = listingsRes.data || [];
+    const listingIds = userListings.map((l) => l.id);
+
+    let totalFavoritesCount = 0;
+    if (listingIds.length > 0) {
+      const { count } = await supabase
+        .from("favorites")
+        .select("id", { count: "exact", head: true })
+        .in("listing_id", listingIds);
+      totalFavoritesCount = count || 0;
+    }
+
+    const totalViews = userListings.reduce((sum, l) => sum + (l.views_count || 0), 0);
+    const activeCount = userListings.filter((l) => l.status === "active").length;
+    const soldCount = userListings.filter((l) => l.status === "sold").length;
+    const topListings = [...userListings]
+      .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+      .slice(0, 5)
+      .map((l) => ({ id: l.id, title: l.title, views: l.views_count || 0 }));
+
+    setBusinessStats({
+      totalViews,
+      totalFavorites: totalFavoritesCount,
+      totalListings: userListings.length,
+      activeListings: activeCount,
+      soldListings: soldCount,
+      avgViewsPerListing: userListings.length > 0 ? Math.round(totalViews / userListings.length) : 0,
+      topListings,
+    });
+  }, [user]);
+
   useEffect(() => {
     if (user) {
       fetchListings();
@@ -177,60 +235,30 @@ const MyAccount = () => {
           if (data) setProfile(data);
         });
 
-      // Fetch subscriptions
-      supabase
-        .from("user_subscriptions")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .then(async ({ data }) => {
-          if (data) {
-            setSubscriptions(data);
-            // Check for active business subscription
-            const hasBusinessSub = data.some(
-              (s) => s.plan_type === "business" && s.status === "active" && new Date(s.expires_at) > new Date()
-            );
-            if (hasBusinessSub) {
-              // Fetch advanced stats
-              const listingsRes = await supabase
-                .from("listings")
-                .select("id, title, views_count, status")
-                .eq("user_id", user.id);
+      fetchSubscriptions();
 
-              const userListings = listingsRes.data || [];
-              const listingIds = userListings.map((l) => l.id);
-              
-              let totalFavoritesCount = 0;
-              if (listingIds.length > 0) {
-                const { count } = await supabase
-                  .from("favorites")
-                  .select("id", { count: "exact", head: true })
-                  .in("listing_id", listingIds);
-                totalFavoritesCount = count || 0;
-              }
-
-              const totalViews = userListings.reduce((sum, l) => sum + (l.views_count || 0), 0);
-              const activeCount = userListings.filter((l) => l.status === "active").length;
-              const soldCount = userListings.filter((l) => l.status === "sold").length;
-              const topListings = [...userListings]
-                .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
-                .slice(0, 5)
-                .map((l) => ({ id: l.id, title: l.title, views: l.views_count || 0 }));
-
-              setBusinessStats({
-                totalViews,
-                totalFavorites: totalFavoritesCount,
-                totalListings: userListings.length,
-                activeListings: activeCount,
-                soldListings: soldCount,
-                avgViewsPerListing: userListings.length > 0 ? Math.round(totalViews / userListings.length) : 0,
-                topListings,
-              });
-            }
+      const channel = supabase
+        .channel(`my-account-subscriptions-${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "user_subscriptions",
+            filter: `user_id=eq.${user.id}`,
+          },
+          async () => {
+            await fetchSubscriptions();
+            await fetchListings();
           }
-        });
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
-  }, [user]);
+  }, [user, fetchSubscriptions]);
 
   // ... keep existing code (handleDelete, handleToggleSold, handleRenewListing, loading/auth checks)
 
