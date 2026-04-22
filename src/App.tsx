@@ -35,6 +35,7 @@ const Install = lazy(() => import("./pages/Install"));
 const Auth = lazy(() => import("./pages/Auth"));
 const DeleteData = lazy(() => import("./pages/DeleteData"));
 const Developers = lazy(() => import("./pages/Developers"));
+const BadgeAuditLog = lazy(() => import("./pages/BadgeAuditLog"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
