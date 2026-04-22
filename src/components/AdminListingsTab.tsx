@@ -15,6 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { formatDate } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ScrollArea } from "./ui/scroll-area";
+import { useListingSettings } from "@/hooks/useListingSettings";
 
 interface ListingRow {
   id: string;
@@ -41,6 +42,7 @@ const badgeConfig: Record<string, { label: string; icon: React.ReactNode; color:
 };
 
 const AdminListingsTab = () => {
+  const { settings } = useListingSettings();
   const [listings, setListings] = useState<ListingRow[]>([]);
   const [pendingListings, setPendingListings] = useState<ListingRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,22 +117,76 @@ const AdminListingsTab = () => {
     fetchListings();
   }, []);
 
-  const handleSetBadge = async (listingId: string, badgeType: string | null) => {
-    setUpdating(listingId);
-    const { error } = await supabase
-      .from("listings")
-      .update({ badge_type: badgeType, is_featured: badgeType === "featured" } as any)
-      .eq("id", listingId);
+  const handleSetBadge = async (listing: ListingRow, badgeType: string | null) => {
+    setUpdating(listing.id);
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ badge_type: badgeType, is_featured: badgeType === "featured" } as any)
+        .eq("id", listing.id);
 
-    if (error) {
-      toast.error("فشل تحديث نوع الإعلان");
-    } else {
+      if (error) throw error;
+
+      if (badgeType && ["featured", "professional", "business"].includes(badgeType)) {
+        const nowIso = new Date().toISOString();
+        const { data: activeSubscriptions, error: subscriptionsError } = await supabase
+          .from("user_subscriptions")
+          .select("id, expires_at")
+          .eq("user_id", listing.user_id)
+          .eq("status", "active")
+          .gte("expires_at", nowIso)
+          .order("expires_at", { ascending: false });
+
+        if (subscriptionsError) throw subscriptionsError;
+
+        const fallbackDays = badgeType === "business"
+          ? settings.business_listing.duration_days
+          : badgeType === "professional"
+            ? settings.professional_listing.duration_days
+            : settings.featured_listing.duration_days;
+
+        const expiresAt = activeSubscriptions?.[0]?.expires_at || new Date(Date.now() + fallbackDays * 24 * 60 * 60 * 1000).toISOString();
+
+        if (activeSubscriptions && activeSubscriptions.length > 0) {
+          const { error: deactivateError } = await supabase
+            .from("user_subscriptions")
+            .update({ status: "inactive" } as any)
+            .eq("user_id", listing.user_id)
+            .eq("status", "active")
+            .gte("expires_at", nowIso);
+
+          if (deactivateError) throw deactivateError;
+        }
+
+        const { error: insertError } = await supabase
+          .from("user_subscriptions")
+          .insert({
+            user_id: listing.user_id,
+            plan_type: badgeType,
+            starts_at: nowIso,
+            expires_at: expiresAt,
+            status: "active",
+          } as any);
+
+        if (insertError) throw insertError;
+
+        await supabase.from("notifications").insert({
+          user_id: listing.user_id,
+          title: "تم تحديث باقتك",
+          message: `تم تغيير باقتك إلى ${badgeConfig[badgeType]?.label || badgeType}`,
+          type: "subscription",
+        } as any);
+      }
+
       toast.success(badgeType ? `تم تعيين الإعلان كـ ${badgeConfig[badgeType]?.label}` : "تم إزالة التصنيف");
       setListings((prev) =>
         prev.map((l) =>
-          l.id === listingId ? { ...l, badge_type: badgeType } : l
+          l.id === listing.id ? { ...l, badge_type: badgeType } : l
         )
       );
+    } catch (error) {
+      console.error(error);
+      toast.error("فشل تحديث نوع الإعلان");
     }
     setUpdating(null);
   };
@@ -449,9 +505,9 @@ const AdminListingsTab = () => {
                           <div className="flex items-center gap-2">
                             <Select
                               value={listing.badge_type || "none"}
-                              onValueChange={(val) =>
-                                handleSetBadge(listing.id, val === "none" ? null : val)
-                              }
+                                onValueChange={(val) =>
+                                  handleSetBadge(listing, val === "none" ? null : val)
+                                }
                               disabled={updating === listing.id}
                             >
                               <SelectTrigger className="w-[140px] h-8 text-xs">
