@@ -1,4 +1,5 @@
-import { Check, Star, Crown, ArrowLeft, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { Check, Star, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -7,40 +8,88 @@ import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
+import { useAuth } from "@/hooks/useAuth";
+import { useListingSettings } from "@/hooks/useListingSettings";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Pricing = () => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
   const { contact } = useContactSettings();
+  const { user } = useAuth();
+  const { settings } = useListingSettings();
+  const [submittingPlan, setSubmittingPlan] = useState<string | null>(null);
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   const plans = [
     {
+      key: "featured",
       name: t.pricing.featuredName,
       icon: Star,
       iconColor: "text-amber-500",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-300",
       features: [t.pricing.featuredF1, t.pricing.featuredF2, t.pricing.featuredF3],
+      price: settings.featured_listing.price ?? 0,
+      durationDays: settings.featured_listing.duration_days,
     },
     {
+      key: "professional",
       name: t.pricing.professionalName,
       icon: Crown,
       iconColor: "text-purple-500",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-300",
       features: [t.pricing.proF1, t.pricing.proF2, t.pricing.proF3, t.pricing.proF4],
+      price: settings.professional_listing.price ?? 0,
+      durationDays: settings.professional_listing.duration_days,
     },
     {
+      key: "business",
       name: t.pricing.businessName,
       customIcon: true,
       iconColor: "text-red-500",
       bgColor: "bg-red-50",
       borderColor: "border-red-300",
       features: [t.pricing.bizF1, t.pricing.bizF2, t.pricing.bizF3, t.pricing.bizF4],
+      price: settings.business_listing.price ?? 0,
+      durationDays: settings.business_listing.duration_days,
     },
   ];
+
+  const handlePlanRequest = async (plan: typeof plans[number]) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
+    const transactionNumber = `REQ-${Date.now()}`;
+    const message = `مرحباً، أريد طلب ${plan.name}. رقم الطلب: ${transactionNumber}`;
+
+    try {
+      setSubmittingPlan(plan.key);
+
+      const { error } = await supabase.from("top_up_requests").insert({
+        user_id: user.id,
+        amount: plan.price,
+        plan_type: plan.key,
+        duration_days: plan.durationDays,
+        transaction_number: transactionNumber,
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      toast.success("تم إرسال طلب الترقية وسيظهر في لوحة التحكم");
+      window.open(buildWhatsAppUrl(contact.whatsapp, message), "_blank", "noopener,noreferrer");
+    } catch {
+      toast.error("تعذر إرسال طلب الترقية، حاول مرة أخرى");
+    } finally {
+      setSubmittingPlan(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col" dir={dir}>
@@ -94,16 +143,15 @@ const Pricing = () => {
               </CardContent>
 
               <CardFooter>
-                <a
-                  href={buildWhatsAppUrl(contact.whatsapp, plan.name)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Button
+                  variant="outline"
                   className="w-full"
+                  onClick={() => handlePlanRequest(plan)}
+                  disabled={submittingPlan === plan.key}
                 >
-                  <Button variant="outline" className="w-full">
-                    {t.pricing.requestPlan}
-                  </Button>
-                </a>
+                  {submittingPlan === plan.key ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {t.pricing.requestPlan}
+                </Button>
               </CardFooter>
             </Card>
           ))}
