@@ -41,7 +41,7 @@ const badgeLabels: Record<string, { label: string; color: string }> = {
 };
 
 const BadgeAuditLog = () => {
-  const { isAdmin, isLoading: adminLoading } = useAdminRole();
+  const { isAdmin, loading: adminLoading } = useAdminRole();
   const navigate = useNavigate();
 
   const [entries, setEntries] = useState<AuditEntry[]>([]);
