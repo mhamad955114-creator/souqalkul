@@ -514,14 +514,30 @@ const MyAccount = () => {
   const currentSubscription = getEffectiveActiveSubscription(subscriptions);
   const effectivePlan = getHigherPriorityPlan(currentSubscription?.plan_type, highestListingPlan);
 
+  const effectivePlanDurationDays = effectivePlan === "business"
+    ? settings.business_listing.duration_days
+    : effectivePlan === "professional"
+      ? settings.professional_listing.duration_days
+      : effectivePlan === "featured"
+        ? settings.featured_listing.duration_days
+        : settings.free_listing.duration_days;
+
+  const effectiveSubscriptionMatchesRecord = currentSubscription?.plan_type === effectivePlan;
+
   const activeSubscriptions = effectivePlan !== "free"
     ? [{
         id: currentSubscription?.id || `effective-plan-${effectivePlan}`,
         plan_type: effectivePlan,
         status: "active",
-        starts_at: currentSubscription?.starts_at || currentSubscription?.created_at || new Date().toISOString(),
-        expires_at: currentSubscription?.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        created_at: currentSubscription?.created_at || new Date().toISOString(),
+        starts_at: effectiveSubscriptionMatchesRecord
+          ? currentSubscription?.starts_at || currentSubscription?.created_at || new Date().toISOString()
+          : new Date().toISOString(),
+        expires_at: effectiveSubscriptionMatchesRecord
+          ? currentSubscription?.expires_at || new Date(Date.now() + effectivePlanDurationDays * 24 * 60 * 60 * 1000).toISOString()
+          : new Date(Date.now() + effectivePlanDurationDays * 24 * 60 * 60 * 1000).toISOString(),
+        created_at: effectiveSubscriptionMatchesRecord
+          ? currentSubscription?.created_at || new Date().toISOString()
+          : new Date().toISOString(),
       }]
     : [];
   const expiredSubscriptions = subscriptions.filter(
