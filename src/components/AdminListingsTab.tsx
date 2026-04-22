@@ -145,7 +145,7 @@ const AdminListingsTab = () => {
             ? settings.professional_listing.duration_days
             : settings.featured_listing.duration_days;
 
-        const expiresAt = activeSubscriptions?.[0]?.expires_at || new Date(Date.now() + fallbackDays * 24 * 60 * 60 * 1000).toISOString();
+        const expiresAt = new Date(Date.now() + fallbackDays * 24 * 60 * 60 * 1000).toISOString();
 
         if (activeSubscriptions && activeSubscriptions.length > 0) {
           const { error: deactivateError } = await supabase
