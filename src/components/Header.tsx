@@ -54,11 +54,11 @@ const Header = ({ onListingAdded }: HeaderProps) => {
     <>
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-              <img src={logoUrl} alt={t.appName} className="h-10 w-10 rounded-xl object-contain" />
-              <span className="text-lg font-bold text-foreground">{t.appName}</span>
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
+              <img src={logoUrl} alt={t.appName} className="h-14 w-14 rounded-xl object-contain sm:h-16 sm:w-16" />
+              <span className="text-xl font-bold text-foreground sm:text-2xl">{t.appName}</span>
             </div>
 
             {/* Desktop Navigation */}
