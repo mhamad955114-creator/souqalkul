@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      badge_audit_log: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          new_badge_type: string | null
+          new_is_featured: boolean | null
+          old_badge_type: string | null
+          old_is_featured: boolean | null
+          subscription_id: string | null
+          trigger_source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          new_badge_type?: string | null
+          new_is_featured?: boolean | null
+          old_badge_type?: string | null
+          old_is_featured?: boolean | null
+          subscription_id?: string | null
+          trigger_source?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          new_badge_type?: string | null
+          new_is_featured?: boolean | null
+          old_badge_type?: string | null
+          old_is_featured?: boolean | null
+          subscription_id?: string | null
+          trigger_source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       banned_users: {
         Row: {
           banned_at: string
