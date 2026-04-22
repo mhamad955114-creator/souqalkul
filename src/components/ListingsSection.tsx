@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, formatTime, getCountryByName } from "@/lib/constants";
+import { sortListingsByPromotionPriority } from "@/lib/listingPriority";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
 import { useListingSettings } from "@/hooks/useListingSettings";
@@ -112,13 +113,8 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
           _avgRating: rEntry ? rEntry.sum / rEntry.count : undefined,
         };
       });
-      // Pin business listings to top
-      enriched.sort((a, b) => {
-        if (a.badge_type === "business" && b.badge_type !== "business") return -1;
-        if (a.badge_type !== "business" && b.badge_type === "business") return 1;
-        return 0;
-      });
-      setListings(enriched);
+
+      setListings(sortListingsByPromotionPriority(enriched));
     }
     setLoading(false);
   };

@@ -35,6 +35,7 @@ import {
   getCitiesByCountry,
   getCountryByName,
 } from "@/lib/constants";
+import { sortListingsByPromotionPriority } from "@/lib/listingPriority";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
 import { useCountry } from "@/contexts/CountryContext";
@@ -187,17 +188,12 @@ const AllListings = () => {
           _avgRating: rEntry ? rEntry.sum / rEntry.count : undefined,
         };
       });
-      // Pin business listings to top
-      enriched.sort((a, b) => {
-        if (a.badge_type === "business" && b.badge_type !== "business") return -1;
-        if (a.badge_type !== "business" && b.badge_type === "business") return 1;
-        return 0;
-      });
+      const sortedListings = sortListingsByPromotionPriority(enriched);
 
       if (append) {
-        setListings(prev => [...prev, ...enriched]);
+        setListings(prev => sortListingsByPromotionPriority([...prev, ...sortedListings]));
       } else {
-        setListings(enriched);
+        setListings(sortedListings);
       }
       setTotalCount(count || 0);
       setHasMore(from + data.length < (count || 0));
