@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatPrice, formatDate, categoryLabels, statusLabels, getCountryByName } from "@/lib/constants";
 import { useListingSettings } from "@/hooks/useListingSettings";
-import { getEffectiveActiveSubscription, isSubscriptionActive, sortSubscriptionsByPriority } from "@/lib/subscriptions";
+import { getEffectiveActiveSubscription, getHigherPriorityPlan, getHighestActiveListingPlan, getSubscriptionPriority, isSubscriptionActive, sortSubscriptionsByPriority } from "@/lib/subscriptions";
 
 interface Listing {
   id: string;
@@ -178,20 +178,20 @@ const MyAccount = () => {
     const orderedSubscriptions = sortSubscriptionsByPriority(data);
     setSubscriptions(orderedSubscriptions);
 
-    const currentSubscription = getEffectiveActiveSubscription(orderedSubscriptions);
-    const hasBusinessSub = currentSubscription?.plan_type === "business";
-
-    if (!hasBusinessSub) {
-      setBusinessStats(null);
-      return;
-    }
-
     const listingsRes = await supabase
       .from("listings")
-      .select("id, title, views_count, status")
+      .select("id, title, views_count, status, badge_type, created_at")
       .eq("user_id", user.id);
 
     const userListings = listingsRes.data || [];
+    const currentSubscription = getEffectiveActiveSubscription(orderedSubscriptions);
+    const highestListingPlan = getHighestActiveListingPlan(userListings);
+    const effectivePlan = getHigherPriorityPlan(currentSubscription?.plan_type, highestListingPlan);
+
+    if (effectivePlan !== "business") {
+      setBusinessStats(null);
+      return;
+    }
     const listingIds = userListings.map((l) => l.id);
 
     let totalFavoritesCount = 0;
@@ -510,7 +510,20 @@ const MyAccount = () => {
     return null;
   }
 
-  const activeSubscriptions = subscriptions.filter(isSubscriptionActive);
+  const highestListingPlan = getHighestActiveListingPlan(listings);
+  const currentSubscription = getEffectiveActiveSubscription(subscriptions);
+  const effectivePlan = getHigherPriorityPlan(currentSubscription?.plan_type, highestListingPlan);
+
+  const activeSubscriptions = effectivePlan !== "free"
+    ? [{
+        id: currentSubscription?.id || `effective-plan-${effectivePlan}`,
+        plan_type: effectivePlan,
+        status: "active",
+        starts_at: currentSubscription?.starts_at || currentSubscription?.created_at || new Date().toISOString(),
+        expires_at: currentSubscription?.expires_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        created_at: currentSubscription?.created_at || new Date().toISOString(),
+      }]
+    : [];
   const expiredSubscriptions = subscriptions.filter(
     (s) => s.status !== "active" || new Date(s.expires_at) <= new Date()
   );

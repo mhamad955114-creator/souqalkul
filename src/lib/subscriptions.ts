@@ -7,6 +7,12 @@ type SubscriptionLike = {
   status?: string | null;
 };
 
+type ListingPromotionLike = {
+  badge_type?: string | null;
+  created_at?: string;
+  status?: string | null;
+};
+
 const subscriptionPriority: Record<SubscriptionPlan, number> = {
   free: 0,
   featured: 1,
@@ -47,4 +53,27 @@ export const getEffectiveActiveSubscription = <T extends SubscriptionLike>(subsc
 
 export const getEffectivePlanType = <T extends SubscriptionLike>(subscriptions: T[]) => {
   return getEffectiveActiveSubscription(subscriptions)?.plan_type ?? "free";
+};
+
+export const getHighestActiveListingPlan = <T extends ListingPromotionLike>(listings: T[]) => {
+  const activeListings = listings.filter((listing) => listing.status === "active");
+
+  const sortedListings = [...activeListings].sort((a, b) => {
+    const priorityDiff = getSubscriptionPriority(b.badge_type) - getSubscriptionPriority(a.badge_type);
+
+    if (priorityDiff !== 0) {
+      return priorityDiff;
+    }
+
+    const aCreatedAt = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const bCreatedAt = b.created_at ? new Date(b.created_at).getTime() : 0;
+
+    return bCreatedAt - aCreatedAt;
+  });
+
+  return sortedListings[0]?.badge_type ?? "free";
+};
+
+export const getHigherPriorityPlan = (firstPlan?: string | null, secondPlan?: string | null) => {
+  return getSubscriptionPriority(secondPlan) > getSubscriptionPriority(firstPlan) ? (secondPlan ?? "free") : (firstPlan ?? "free");
 };
