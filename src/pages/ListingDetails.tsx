@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useBrand } from "@/contexts/BrandContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,6 +52,7 @@ interface Listing {
   area: string | null;
   phone: string | null;
   images: string[] | null;
+  badge_type?: string | null;
   is_featured: boolean | null;
   status: string | null;
   views_count: number | null;
@@ -85,14 +86,11 @@ const ListingDetails = () => {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [show360, setShow360] = useState(false);
   const [showZoomViewer, setShowZoomViewer] = useState(false);
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
-  const [isOwnerPro, setIsOwnerPro] = useState(false);
-  const [isOwnerBusiness, setIsOwnerBusiness] = useState(false);
 
   useEffect(() => {
-    const fetchListing = async () => {
-      if (!id) return;
+    if (!id) return;
 
+    const fetchListing = async () => {
       setLoading(true);
       try {
         const { data: listingData, error: listingError } = await supabase
@@ -134,18 +132,38 @@ const ListingDetails = () => {
         }
 
         setSeller(profileData ? { ...profileData, phone: sellerPhone } : null);
-
-        // Use badge_type from listing for professional/business display
-        const badgeType = (listingData as any).badge_type;
-        setIsOwnerPro(badgeType === "professional");
-        setIsOwnerBusiness(badgeType === "business");
-
       } finally {
         setLoading(false);
       }
     };
 
     fetchListing();
+
+    const channel = supabase
+      .channel(`listing-details-${id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "listings",
+          filter: `id=eq.${id}`,
+        },
+        (payload) => {
+          setListing((current) => {
+            if (!current) return payload.new as Listing;
+            return {
+              ...current,
+              ...(payload.new as Partial<Listing>),
+            };
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [id, navigate, user]);
 
   const getTimeSince = (dateString: string) => {
@@ -216,6 +234,8 @@ const ListingDetails = () => {
     !listing.images.every(img => img.includes("placeholder") || img.includes("unsplash"));
   const images = hasRealImages ? listing.images! : [];
   const showAppLogo = images.length === 0;
+  const isOwnerBusiness = listing.badge_type === "business";
+  const isOwnerPro = listing.badge_type === "professional";
 
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
