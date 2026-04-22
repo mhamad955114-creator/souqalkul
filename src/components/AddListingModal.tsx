@@ -356,6 +356,31 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
     try {
       const countryInfo = getCountryByName(selectedCountry);
+
+      // Determine badge_type from active subscription
+      let autoBadgeType: string | null = null;
+      let autoIsFeatured = false;
+      const { data: activeSub } = await supabase
+        .from("user_subscriptions")
+        .select("plan_type")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .gte("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      const userPlan = activeSub?.[0]?.plan_type;
+      if (userPlan === "business") {
+        autoBadgeType = "business";
+        autoIsFeatured = true;
+      } else if (userPlan === "professional") {
+        autoBadgeType = "professional";
+        autoIsFeatured = true;
+      } else if (userPlan === "featured") {
+        autoBadgeType = "featured";
+        autoIsFeatured = true;
+      }
+
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
@@ -366,9 +391,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         area: formData.area || null,
         phone: formData.phone,
         images: images,
-        is_featured: false,
+        is_featured: autoIsFeatured,
         status: "active",
-        badge_type: null,
+        badge_type: autoBadgeType,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
         country: selectedCountry,
         currency: countryInfo.currencyCode,
