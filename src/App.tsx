@@ -35,6 +35,7 @@ const Install = lazy(() => import("./pages/Install"));
 const Auth = lazy(() => import("./pages/Auth"));
 const DeleteData = lazy(() => import("./pages/DeleteData"));
 const Developers = lazy(() => import("./pages/Developers"));
+const BadgeAuditLog = lazy(() => import("./pages/BadgeAuditLog"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -139,6 +140,7 @@ const AppContent = () => {
             <Route path="/messages" element={<Messages />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/badge-audit" element={<BadgeAuditLog />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
