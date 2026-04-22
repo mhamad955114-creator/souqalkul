@@ -140,6 +140,7 @@ const AppContent = () => {
             <Route path="/messages" element={<Messages />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/badge-audit" element={<BadgeAuditLog />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
