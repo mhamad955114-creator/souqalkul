@@ -39,6 +39,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
   const [remainingListings, setRemainingListings] = useState<{ remaining: number; max: number; planName: string } | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<"free" | "featured" | "professional" | "business">("free");
   const [selectedCountry, setSelectedCountry] = useState(currentCountry.name);
   const [formData, setFormData] = useState({
     title: "",
@@ -52,21 +53,36 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
 
+  const getUserPlan = async () => {
+    if (!user) return "free" as const;
+
+    const { data, error } = await supabase
+      .from("user_subscriptions")
+      .select("plan_type, status, expires_at, created_at")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .gte("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return getEffectivePlanType(data || []) as "free" | "featured" | "professional" | "business";
+  };
+
+  const getPlanMaxImages = (plan: "free" | "featured" | "professional" | "business") => {
+    if (plan === "business") return settings.business_listing.max_images || settings.free_listing.max_images || 5;
+    if (plan === "professional") return settings.professional_listing.max_images || settings.free_listing.max_images || 5;
+    if (plan === "featured") return settings.featured_listing.max_images || settings.free_listing.max_images || 5;
+    return settings.free_listing.max_images || 5;
+  };
+
   // Fetch remaining listings count when modal opens
   useEffect(() => {
     if (!isOpen || !user) return;
     const fetchRemaining = async () => {
       try {
-        const { data: activeSub } = await supabase
-          .from("user_subscriptions")
-          .select("plan_type")
-          .eq("user_id", user.id)
-          .eq("status", "active")
-          .gte("expires_at", new Date().toISOString())
-          .order("created_at", { ascending: false })
-          .limit(1);
-
-        const userPlan = getEffectivePlanType(activeSub || []);
+        const userPlan = await getUserPlan();
+        setCurrentPlan(userPlan);
         const planNames: Record<string, string> = { free: "المجانية", featured: "المميزة", professional: "الاحترافية", business: "رجال الأعمال" };
         let maxActive: number;
         if (userPlan === "business") maxActive = settings.business_listing.max_active_listings;
@@ -131,8 +147,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const isVideoFile = (file: File) => file.type.startsWith("video/");
   const isVideoUrl = (url: string) => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
 
-  // Max images for free plan
-  const maxImages = settings.free_listing.max_images || 5;
+  const maxImages = getPlanMaxImages(currentPlan);
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !user) return;
@@ -297,17 +312,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
     // Check active listings limit based on user's plan
     try {
-      // Get user's active subscription
-      const { data: activeSub } = await supabase
-        .from("user_subscriptions")
-        .select("plan_type")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .gte("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      const userPlan = getEffectivePlanType(activeSub || []);
+      const userPlan = await getUserPlan();
+      setCurrentPlan(userPlan);
       
       let maxActive: number;
       if (userPlan === "business") {
@@ -361,16 +367,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       // Determine badge_type from active subscription
       let autoBadgeType: string | null = null;
       let autoIsFeatured = false;
-      const { data: activeSub } = await supabase
-        .from("user_subscriptions")
-        .select("plan_type")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .gte("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      const userPlan = getEffectivePlanType(activeSub || []);
+      const userPlan = await getUserPlan();
+      setCurrentPlan(userPlan);
       if (userPlan === "business") {
         autoBadgeType = "business";
         autoIsFeatured = true;
