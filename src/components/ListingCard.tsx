@@ -48,6 +48,12 @@ const ListingCard = ({ id, image, title, price, location, country, time, feature
   const hasVideo = images?.some(url => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url));
   const imageCount = images?.filter(url => !/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url)).length || 0;
   const videoCount = images?.filter(url => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url)).length || 0;
+  const shouldGlowCorner = (business || professional || featured) && status !== "sold" && status !== "expired";
+  const cornerGlowClass = business
+    ? "bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.42),transparent_68%)]"
+    : professional
+      ? "bg-[radial-gradient(circle_at_top_right,hsl(var(--accent)/0.34),transparent_70%)]"
+      : "bg-[radial-gradient(circle_at_top_right,hsl(var(--primary-glow)/0.30),transparent_70%)]";
 
   return (
     <div 
@@ -55,6 +61,11 @@ const ListingCard = ({ id, image, title, price, location, country, time, feature
       onClick={handleClick}
     >
       <div className="relative aspect-[4/6] overflow-hidden">
+        {shouldGlowCorner && (
+          <div
+            className={`pointer-events-none absolute right-0 top-0 z-10 h-32 w-32 rounded-bl-[2.5rem] opacity-95 blur-2xl transition-transform duration-500 group-hover:scale-110 ${cornerGlowClass}`}
+          />
+        )}
         {!hasRealImage ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-2">
             <img src={appLogo} alt="سوق الكل" className="w-20 h-20 object-contain opacity-60" />
