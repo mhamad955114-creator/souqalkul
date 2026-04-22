@@ -19,6 +19,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
+import { getEffectivePlanType } from "@/lib/subscriptions";
 
 interface AddListingModalProps {
   isOpen: boolean;
@@ -65,7 +66,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           .order("created_at", { ascending: false })
           .limit(1);
 
-        const userPlan = activeSub?.[0]?.plan_type || "free";
+        const userPlan = getEffectivePlanType(activeSub || []);
         const planNames: Record<string, string> = { free: "المجانية", featured: "المميزة", professional: "الاحترافية", business: "رجال الأعمال" };
         let maxActive: number;
         if (userPlan === "business") maxActive = settings.business_listing.max_active_listings;
@@ -306,7 +307,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         .order("created_at", { ascending: false })
         .limit(1);
 
-      const userPlan = activeSub?.[0]?.plan_type || "free";
+      const userPlan = getEffectivePlanType(activeSub || []);
       
       let maxActive: number;
       if (userPlan === "business") {
@@ -369,7 +370,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         .order("created_at", { ascending: false })
         .limit(1);
 
-      const userPlan = activeSub?.[0]?.plan_type;
+      const userPlan = getEffectivePlanType(activeSub || []);
       if (userPlan === "business") {
         autoBadgeType = "business";
         autoIsFeatured = true;

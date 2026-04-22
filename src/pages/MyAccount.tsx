@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatPrice, formatDate, categoryLabels, statusLabels, getCountryByName } from "@/lib/constants";
 import { useListingSettings } from "@/hooks/useListingSettings";
+import { getEffectiveActiveSubscription, isSubscriptionActive, sortSubscriptionsByPriority } from "@/lib/subscriptions";
 
 interface Listing {
   id: string;
@@ -174,11 +175,11 @@ const MyAccount = () => {
 
     if (!data) return;
 
-    setSubscriptions(data);
+    const orderedSubscriptions = sortSubscriptionsByPriority(data);
+    setSubscriptions(orderedSubscriptions);
 
-    const hasBusinessSub = data.some(
-      (s) => s.plan_type === "business" && s.status === "active" && new Date(s.expires_at) > new Date()
-    );
+    const currentSubscription = getEffectiveActiveSubscription(orderedSubscriptions);
+    const hasBusinessSub = currentSubscription?.plan_type === "business";
 
     if (!hasBusinessSub) {
       setBusinessStats(null);
@@ -509,9 +510,7 @@ const MyAccount = () => {
     return null;
   }
 
-  const activeSubscriptions = subscriptions.filter(
-    (s) => s.status === "active" && new Date(s.expires_at) > new Date()
-  );
+  const activeSubscriptions = subscriptions.filter(isSubscriptionActive);
   const expiredSubscriptions = subscriptions.filter(
     (s) => s.status !== "active" || new Date(s.expires_at) <= new Date()
   );
