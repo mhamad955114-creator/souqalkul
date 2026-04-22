@@ -959,7 +959,7 @@
 
     "ejs": ["ejs@3.1.10", "", { "dependencies": { "jake": "^10.8.5" }, "bin": "bin/cli.js" }, "sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA=="],
 
-    "electron-to-chromium": ["electron-to-chromium@1.5.341", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/electron-to-chromium/-/electron-to-chromium-1.5.341.tgz", {}, "sha512-1sZTssferjgDgaqRTc0ieP+ozzpOy7LQTPTtEW3yQFn4+ORdIAZWV5BthXPyHF7YqLvFJCUPhNhdAJQYlYUgiw=="],
+    "electron-to-chromium": ["electron-to-chromium@1.5.342", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/electron-to-chromium/-/electron-to-chromium-1.5.342.tgz", {}, "sha512-GTuy59SdGxYgz+HN8KwOjFAVF2gfoKEmv0PFholcvVtbI9GPDND0m6ynGX3gAKOavcHRLrcfNy0QMbHbAemYdw=="],
 
     "elementtree": ["elementtree@0.1.7", "", { "dependencies": { "sax": "1.1.4" } }, "sha512-wkgGT6kugeQk/P6VZ/f4T+4HB41BVgNBq5CDIZVbQ02nvTVqAiVTbskxxu3eA/X96lMlfYOwnLQpN2v5E1zDEg=="],
 
