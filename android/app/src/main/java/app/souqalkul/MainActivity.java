@@ -1,4 +1,4 @@
-package app.lovable.ddb3d223b5b54708966b845064964fb6;
+package app.souqalkul;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
