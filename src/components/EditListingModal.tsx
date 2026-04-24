@@ -205,7 +205,10 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     }
 
     // Validate metadata fields are filled for the selected category
-    const requiredMetaFields = categoryMetadataFields[formData.category] || [];
+    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter((field) => {
+      if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
+      return true;
+    });
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
       toast.error(`يرجى ملء جميع تفاصيل الإعلان: ${missingMetaFields.map(f => f.label).join('، ')}`);
@@ -395,7 +398,10 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           {/* Category-specific metadata fields */}
           {(() => {
-            const fields = categoryMetadataFields[formData.category] || [];
+            const fields = (categoryMetadataFields[formData.category] || []).filter((field) => {
+              if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
+              return true;
+            });
             if (fields.length === 0) return null;
             return (
               <div className="space-y-3 p-4 rounded-xl border border-border bg-muted/30">

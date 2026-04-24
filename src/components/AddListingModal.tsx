@@ -107,7 +107,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     fetchRemaining();
   }, [isOpen, user, settings]);
 
-  const currentMetadataFields = categoryMetadataFields[formData.category] || [];
+  const currentMetadataFields = (categoryMetadataFields[formData.category] || []).filter((field) => {
+    // إخفاء "مدة الإيجار" إذا كان الغرض "للبيع"
+    if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
+    return true;
+  });
   const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
     try {
       const response = await supabase.functions.invoke('moderate-image', {
@@ -352,7 +356,10 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
 
     // Validate metadata fields are filled for the selected category
-    const requiredMetaFields = categoryMetadataFields[formData.category] || [];
+    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter((field) => {
+      if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
+      return true;
+    });
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
       toast.error(`يرجى ملء جميع تفاصيل الإعلان: ${missingMetaFields.map(f => f.label).join('، ')}`);
