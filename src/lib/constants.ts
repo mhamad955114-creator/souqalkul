@@ -650,6 +650,8 @@ export const realEstateHiddenFieldsByType: Record<string, string[]> = {
     "elevator",
     "balcony",
     "view",
+    "parking",
+    "direction",
   ],
   "مزرعة": [
     "floor",
