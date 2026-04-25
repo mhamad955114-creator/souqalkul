@@ -205,10 +205,9 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     }
 
     // Validate metadata fields are filled for the selected category
-    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter((field) => {
-      if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
-      return true;
-    });
+    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter(
+      (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+    );
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
       toast.error(`يرجى ملء جميع تفاصيل الإعلان: ${missingMetaFields.map(f => f.label).join('، ')}`);
