@@ -696,6 +696,22 @@ export const realEstateHiddenFieldsByType: Record<string, string[]> = {
   ],
 };
 
+// إخفاء حقول الأثاث غير المتعلقة بنوع القطعة المختارة
+export const furnitureHiddenFieldsByType: Record<string, string[]> = {
+  // قطع مفردة: لا حاجة لعدد القطع
+  "سرير": ["pieces_count"],
+  "خزانة": ["pieces_count"],
+  // قطع بسيطة جداً: لا حاجة لعدد القطع ولا نمط التصميم
+  "طاولة": ["pieces_count", "design_style"],
+  "كرسي": ["pieces_count", "design_style"],
+  // أطقم/غرف كاملة: لا تُقاس بأبعاد قطعة واحدة
+  "غرفة نوم": ["dimensions"],
+  "غرفة جلوس": ["dimensions"],
+  "صالون": ["dimensions"],
+  "سفرة": ["dimensions"],
+  "مطبخ": ["dimensions"],
+};
+
 // تحديد ما إذا كان يجب إخفاء حقل معين بناءً على بيانات النموذج الحالية
 export const shouldHideMetadataField = (
   fieldKey: string,
