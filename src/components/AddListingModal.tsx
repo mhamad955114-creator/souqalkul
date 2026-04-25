@@ -11,7 +11,7 @@ import { compressImage } from "@/lib/imageCompression";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
-import { categories, areasByCity, categoryMetadataFields, countries, getCitiesByCountry, getCountryByName } from "@/lib/constants";
+import { categories, areasByCity, categoryMetadataFields, countries, getCitiesByCountry, getCountryByName, shouldHideMetadataField } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
