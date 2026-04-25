@@ -107,11 +107,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     fetchRemaining();
   }, [isOpen, user, settings]);
 
-  const currentMetadataFields = (categoryMetadataFields[formData.category] || []).filter((field) => {
-    // إخفاء "مدة الإيجار" إذا كان الغرض "للبيع"
-    if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
-    return true;
-  });
+  const currentMetadataFields = (categoryMetadataFields[formData.category] || []).filter(
+    (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+  );
   const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
     try {
       const response = await supabase.functions.invoke('moderate-image', {
