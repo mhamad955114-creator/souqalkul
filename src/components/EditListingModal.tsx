@@ -397,10 +397,9 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           {/* Category-specific metadata fields */}
           {(() => {
-            const fields = (categoryMetadataFields[formData.category] || []).filter((field) => {
-              if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
-              return true;
-            });
+            const fields = (categoryMetadataFields[formData.category] || []).filter(
+              (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+            );
             if (fields.length === 0) return null;
             return (
               <div className="space-y-3 p-4 rounded-xl border border-border bg-muted/30">
