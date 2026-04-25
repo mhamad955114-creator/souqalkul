@@ -636,6 +636,55 @@ export const makeupHiddenFieldsByProduct: Record<string, string[]> = {
   "أدوات تجميل": ["skin_type"],
 };
 
+// قواعد إخفاء الحقول حسب نوع العقار في فئة "عقارات"
+// مثلاً: الأرض لا تحتاج عدد غرف، حمامات، طابق، مصعد، شرفة... إلخ
+export const realEstateHiddenFieldsByType: Record<string, string[]> = {
+  "أرض": [
+    "rooms",
+    "bathrooms",
+    "floor",
+    "total_floors",
+    "building_age",
+    "furnished",
+    "heating",
+    "elevator",
+    "balcony",
+    "view",
+  ],
+  "مزرعة": [
+    "floor",
+    "total_floors",
+    "elevator",
+    "heating",
+    "furnished",
+  ],
+  "محل تجاري": [
+    "rooms",
+    "furnished",
+    "balcony",
+    "heating",
+    "view",
+  ],
+  "مستودع": [
+    "rooms",
+    "bathrooms",
+    "furnished",
+    "balcony",
+    "heating",
+    "view",
+    "elevator",
+  ],
+  "مكتب": [
+    "furnished",
+    "balcony",
+    "heating",
+  ],
+  "بناء كامل": [
+    "floor",
+    "furnished",
+  ],
+};
+
 // تحديد ما إذا كان يجب إخفاء حقل معين بناءً على بيانات النموذج الحالية
 export const shouldHideMetadataField = (
   fieldKey: string,
