@@ -618,6 +618,35 @@ export interface MetadataField {
   options?: string[];
 }
 
+// قواعد إخفاء الحقول التقنية حسب نوع الجهاز في فئة "الكترونيات"
+// المفتاح: نوع الجهاز، القيمة: قائمة الحقول التي يجب إخفاؤها
+export const electronicsHiddenFieldsByDevice: Record<string, string[]> = {
+  "سماعات": ["screen_size", "storage", "ram", "os", "battery"],
+  "كاميرا": ["ram", "os"],
+  "طابعة": ["screen_size", "ram", "os", "battery"],
+  "تلفزيون": ["ram", "battery", "os"],
+};
+
+// تحديد ما إذا كان يجب إخفاء حقل معين بناءً على بيانات النموذج الحالية
+export const shouldHideMetadataField = (
+  fieldKey: string,
+  category: string,
+  metadata: Record<string, string>
+): boolean => {
+  // إخفاء "مدة الإيجار" إذا كان الغرض "للبيع"
+  if (fieldKey === "rental_period" && metadata.purpose === "للبيع") return true;
+
+  // إخفاء حقول الإلكترونيات غير المتعلقة بنوع الجهاز
+  if (category === "الكترونيات") {
+    const deviceType = metadata.device_type;
+    if (deviceType && electronicsHiddenFieldsByDevice[deviceType]?.includes(fieldKey)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export const categoryMetadataFields: Record<string, MetadataField[]> = {
   "سيارات": [
     { key: "model", label: "الموديل", type: "text" },
