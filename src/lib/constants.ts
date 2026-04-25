@@ -683,6 +683,12 @@ export const realEstateHiddenFieldsByType: Record<string, string[]> = {
     "floor",
     "furnished",
   ],
+  "فيلا": [
+    "floor",
+  ],
+  "شاليه": [
+    "floor",
+  ],
 };
 
 // تحديد ما إذا كان يجب إخفاء حقل معين بناءً على بيانات النموذج الحالية
