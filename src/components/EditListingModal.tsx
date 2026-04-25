@@ -417,7 +417,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                             <SelectValue placeholder={`اختر ${field.label}`} />
                           </SelectTrigger>
                           <SelectContent>
-                            {field.options.map((opt) => (
+                            {(getMetadataFieldOptions(field, formData.category, metadata) || []).map((opt) => (
                               <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                             ))}
                           </SelectContent>
