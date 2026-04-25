@@ -712,6 +712,39 @@ export const furnitureHiddenFieldsByType: Record<string, string[]> = {
   "مطبخ": ["dimensions"],
 };
 
+// تقييد المواد المسموح بها لكل نوع أثاث (لمنع تركيبات غير منطقية مثل سرير من زجاج)
+export const furnitureMaterialsByType: Record<string, string[]> = {
+  "سرير": ["خشب طبيعي", "خشب صناعي (MDF)", "معدن", "قماش", "جلد", "أخرى"],
+  "خزانة": ["خشب طبيعي", "خشب صناعي (MDF)", "معدن", "زجاج", "أخرى"],
+  "طاولة": ["خشب طبيعي", "خشب صناعي (MDF)", "معدن", "زجاج", "بلاستيك", "أخرى"],
+  "كرسي": ["خشب طبيعي", "خشب صناعي (MDF)", "معدن", "قماش", "جلد", "بلاستيك", "أخرى"],
+  "مكتب": ["خشب طبيعي", "خشب صناعي (MDF)", "معدن", "زجاج", "أخرى"],
+  "غرفة نوم": ["خشب طبيعي", "خشب صناعي (MDF)", "أخرى"],
+  "سفرة": ["خشب طبيعي", "خشب صناعي (MDF)", "زجاج", "أخرى"],
+  "مطبخ": ["خشب طبيعي", "خشب صناعي (MDF)", "معدن", "أخرى"],
+  "غرفة جلوس": ["خشب طبيعي", "خشب صناعي (MDF)", "قماش", "جلد", "أخرى"],
+  "صالون": ["خشب طبيعي", "خشب صناعي (MDF)", "قماش", "جلد", "أخرى"],
+};
+
+// إرجاع الخيارات المُصفّاة لحقل معين بناءً على السياق الحالي
+export const getMetadataFieldOptions = (
+  field: MetadataField,
+  category: string,
+  metadata: Record<string, string>
+): string[] | undefined => {
+  if (!field.options) return field.options;
+
+  // تقييد مواد الأثاث حسب نوع القطعة
+  if (category === "أثاث" && field.key === "material") {
+    const furnitureType = metadata.furniture_type;
+    if (furnitureType && furnitureMaterialsByType[furnitureType]) {
+      return field.options.filter((opt) => furnitureMaterialsByType[furnitureType].includes(opt));
+    }
+  }
+
+  return field.options;
+};
+
 // تحديد ما إذا كان يجب إخفاء حقل معين بناءً على بيانات النموذج الحالية
 export const shouldHideMetadataField = (
   fieldKey: string,
