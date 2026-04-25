@@ -627,6 +627,15 @@ export const electronicsHiddenFieldsByDevice: Record<string, string[]> = {
   "تلفزيون": ["ram", "battery", "os"],
 };
 
+// قواعد إخفاء الحقول حسب نوع المنتج في فئة "مكياج"
+// skin_type يظهر فقط للمنتجات المتعلقة بالبشرة
+export const makeupHiddenFieldsByProduct: Record<string, string[]> = {
+  "عطور": ["skin_type"],
+  "طلاء أظافر": ["skin_type"],
+  "عناية بالشعر": ["skin_type"],
+  "أدوات تجميل": ["skin_type"],
+};
+
 // تحديد ما إذا كان يجب إخفاء حقل معين بناءً على بيانات النموذج الحالية
 export const shouldHideMetadataField = (
   fieldKey: string,
@@ -640,6 +649,14 @@ export const shouldHideMetadataField = (
   if (category === "الكترونيات") {
     const deviceType = metadata.device_type;
     if (deviceType && electronicsHiddenFieldsByDevice[deviceType]?.includes(fieldKey)) {
+      return true;
+    }
+  }
+
+  // إخفاء حقول المكياج غير المتعلقة بنوع المنتج
+  if (category === "مكياج") {
+    const productType = metadata.product_type;
+    if (productType && makeupHiddenFieldsByProduct[productType]?.includes(fieldKey)) {
       return true;
     }
   }
