@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { startVersionCheck } from "./lib/versionCheck";
 
 const isCapacitor = typeof (window as any).Capacitor !== "undefined";
 const CHUNK_ERROR_PATTERNS = [
@@ -123,3 +124,6 @@ window.addEventListener("vite:preloadError", (event) => {
 });
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+// Start polling for new app versions (works in browser & Capacitor webview)
+startVersionCheck();
