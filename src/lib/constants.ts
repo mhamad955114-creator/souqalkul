@@ -666,6 +666,9 @@ export const realEstateHiddenFieldsByType: Record<string, string[]> = {
     "balcony",
     "heating",
     "view",
+    "total_floors",
+    "elevator",
+    "building_age",
   ],
   "مستودع": [
     "rooms",
