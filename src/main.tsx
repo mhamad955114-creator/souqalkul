@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { startVersionCheck } from "./lib/versionCheck";
 
 const isCapacitor = typeof (window as any).Capacitor !== "undefined";
 const CHUNK_ERROR_PATTERNS = [
