@@ -13,7 +13,7 @@ import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { cities, categories, statuses, areasByCity, categoryMetadataFields, shouldHideMetadataField } from "@/lib/constants";
+import { cities, categories, statuses, areasByCity, categoryMetadataFields, shouldHideMetadataField, getMetadataFieldOptions } from "@/lib/constants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Listing {
