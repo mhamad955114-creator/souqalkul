@@ -745,6 +745,14 @@ export const shouldHideMetadataField = (
     }
   }
 
+  // إخفاء حقول الأثاث غير المتعلقة بنوع القطعة (مثل الأبعاد للأطقم الكاملة)
+  if (category === "أثاث") {
+    const furnitureType = metadata.furniture_type;
+    if (furnitureType && furnitureHiddenFieldsByType[furnitureType]?.includes(fieldKey)) {
+      return true;
+    }
+  }
+
   return false;
 };
 
