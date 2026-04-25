@@ -124,3 +124,6 @@ window.addEventListener("vite:preloadError", (event) => {
 });
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+// Start polling for new app versions (works in browser & Capacitor webview)
+startVersionCheck();
