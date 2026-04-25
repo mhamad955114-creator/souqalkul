@@ -710,6 +710,14 @@ export const shouldHideMetadataField = (
     }
   }
 
+  // إخفاء حقول العقارات غير المتعلقة بنوع العقار (مثل الأرض)
+  if (category === "عقارات") {
+    const propertyType = metadata.property_type;
+    if (propertyType && realEstateHiddenFieldsByType[propertyType]?.includes(fieldKey)) {
+      return true;
+    }
+  }
+
   return false;
 };
 
