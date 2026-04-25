@@ -11,7 +11,7 @@ import { compressImage } from "@/lib/imageCompression";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
-import { categories, areasByCity, categoryMetadataFields, countries, getCitiesByCountry, getCountryByName } from "@/lib/constants";
+import { categories, areasByCity, categoryMetadataFields, countries, getCitiesByCountry, getCountryByName, shouldHideMetadataField } from "@/lib/constants";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
@@ -107,11 +107,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     fetchRemaining();
   }, [isOpen, user, settings]);
 
-  const currentMetadataFields = (categoryMetadataFields[formData.category] || []).filter((field) => {
-    // إخفاء "مدة الإيجار" إذا كان الغرض "للبيع"
-    if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
-    return true;
-  });
+  const currentMetadataFields = (categoryMetadataFields[formData.category] || []).filter(
+    (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+  );
   const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
     try {
       const response = await supabase.functions.invoke('moderate-image', {
@@ -356,10 +354,9 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
 
     // Validate metadata fields are filled for the selected category
-    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter((field) => {
-      if (field.key === "rental_period" && metadata.purpose === "للبيع") return false;
-      return true;
-    });
+    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter(
+      (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+    );
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
       toast.error(`يرجى ملء جميع تفاصيل الإعلان: ${missingMetaFields.map(f => f.label).join('، ')}`);
