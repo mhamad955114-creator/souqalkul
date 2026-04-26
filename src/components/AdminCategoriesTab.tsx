@@ -375,6 +375,7 @@ const AdminCategoriesTab = () => {
   };
 
   const saveOptionFilter = async () => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const { targetKey, triggerKey, triggerValue, allowedOptionsText } = optionFilterForm;
     if (!targetKey || !triggerKey || !triggerValue || !allowedOptionsText.trim()) {
