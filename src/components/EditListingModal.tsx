@@ -207,8 +207,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     }
 
     // Validate metadata fields are filled for the selected category
-    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter(
-      (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+    const requiredMetaFields = getFields(formData.category).filter(
+      (field) => !shouldHideField(field.key, formData.category, metadata)
     );
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
