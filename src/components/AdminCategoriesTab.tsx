@@ -199,6 +199,7 @@ const AdminCategoriesTab = () => {
   };
 
   const moveCategory = async (def: CategoryDefinition, dir: -1 | 1) => {
+    if (!guardAdmin()) return;
     const sorted = [...definitions].sort((a, b) => a.display_order - b.display_order);
     const idx = sorted.findIndex((d) => d.id === def.id);
     const swapIdx = idx + dir;
