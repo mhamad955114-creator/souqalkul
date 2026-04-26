@@ -399,8 +399,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           {/* Category-specific metadata fields */}
           {(() => {
-            const fields = (categoryMetadataFields[formData.category] || []).filter(
-              (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+            const fields = getFields(formData.category).filter(
+              (field) => !shouldHideField(field.key, formData.category, metadata)
             );
             if (fields.length === 0) return null;
             return (
