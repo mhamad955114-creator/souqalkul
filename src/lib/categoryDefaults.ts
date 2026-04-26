@@ -1617,4 +1617,4 @@ export const DEFAULT_CATEGORY_DEFINITIONS: DefaultCategoryDefinition[] = [
     "hide_rules": {},
     "option_filters": {}
   }
-] as const;
+];
