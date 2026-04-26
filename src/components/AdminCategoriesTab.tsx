@@ -119,6 +119,9 @@ const AdminCategoriesTab = () => {
     payload: any;
   } | null>(null);
 
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
   useEffect(() => {
     if (!selectedKey && definitions.length > 0) {
       setSelectedKey(definitions[0].category_key);
