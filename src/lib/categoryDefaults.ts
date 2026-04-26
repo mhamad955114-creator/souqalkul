@@ -1,4 +1,16 @@
-export const DEFAULT_CATEGORY_DEFINITIONS = [
+// ⚠️ AUTO-GENERATED defaults derived from the initial seed migration
+// Used by the admin "Reset to defaults" button to restore category_definitions.
+
+export type DefaultCategoryDefinition = {
+  category_key: string;
+  label: string;
+  display_order: number;
+  fields: Array<{ key: string; label: string; type: "text" | "select"; options?: string[] }>;
+  hide_rules: Record<string, Record<string, string[]>>;
+  option_filters: Record<string, Record<string, Record<string, string[]>>>;
+};
+
+export const DEFAULT_CATEGORY_DEFINITIONS: DefaultCategoryDefinition[] = [
   {
     "category_key": "سيارات",
     "label": "سيارات",
