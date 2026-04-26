@@ -76,6 +76,15 @@ const emptyFieldForm: FieldFormState = {
 
 const AdminCategoriesTab = () => {
   const { definitions, loading, refresh } = useCategoryDefinitions();
+  const { isAdmin, loading: roleLoading } = useAdminRole();
+
+  const guardAdmin = (): boolean => {
+    if (!isAdmin) {
+      toast.error(UNAUTHORIZED_MSG);
+      return false;
+    }
+    return true;
+  };
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   // dialogs
