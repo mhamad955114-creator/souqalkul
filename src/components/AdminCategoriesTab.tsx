@@ -1051,6 +1051,42 @@ const AdminCategoriesTab = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={confirmReset} onOpenChange={(o) => !resetting && setConfirmReset(o)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>إعادة تعبئة البيانات الافتراضية</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم استعادة كل التصنيفات الأصلية ({DEFAULT_CATEGORY_DEFINITIONS.length} تصنيف) بكل خاناتها وقواعد الإخفاء والتصفية للوضع الأولي.
+              <br />
+              <strong className="text-destructive">
+                ملاحظة: التصنيفات الأصلية الموجودة سيتم استبدال خاناتها بالكامل (أي تعديلات يدوية عليها ستضيع).
+              </strong>
+              <br />
+              التصنيفات المخصصة التي أضفتها بنفسك (غير الأصلية) لن تتأثر.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resetting}>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                resetToDefaults();
+              }}
+              disabled={resetting}
+            >
+              {resetting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                  جارٍ الاستعادة...
+                </>
+              ) : (
+                "تأكيد الاستعادة"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
