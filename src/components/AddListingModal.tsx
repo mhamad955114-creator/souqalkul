@@ -109,8 +109,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     fetchRemaining();
   }, [isOpen, user, settings]);
 
-  const currentMetadataFields = (categoryMetadataFields[formData.category] || []).filter(
-    (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+  const currentMetadataFields = getFields(formData.category).filter(
+    (field) => !shouldHideField(field.key, formData.category, metadata)
   );
   const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
     try {
