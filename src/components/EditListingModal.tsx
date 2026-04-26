@@ -42,6 +42,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const { currentCountry } = useCountry();
+  const { getFields, shouldHideField, getFieldOptions } = useCategoryDefinitions();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
