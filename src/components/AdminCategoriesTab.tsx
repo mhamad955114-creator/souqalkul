@@ -188,7 +188,7 @@ const AdminCategoriesTab = () => {
       .delete()
       .eq("id", def.id);
     if (error) {
-      toast.error("فشل حذف التصنيف: " + error.message);
+      toast.error("فشل حذف التصنيف: " + getFriendlyError(error));
       return;
     }
     toast.success("تم حذف التصنيف");
