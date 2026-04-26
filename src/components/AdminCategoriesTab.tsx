@@ -436,6 +436,42 @@ const AdminCategoriesTab = () => {
     await refresh();
   };
 
+  // ============== Reset to defaults ==============
+  const resetToDefaults = async () => {
+    if (!guardAdmin()) return;
+    setResetting(true);
+    try {
+      // Upsert each default category (insert if missing, fully overwrite fields/rules if exists)
+      for (const def of DEFAULT_CATEGORY_DEFINITIONS) {
+        const { error } = await supabase
+          .from("category_definitions")
+          .upsert(
+            {
+              category_key: def.category_key,
+              label: def.label,
+              display_order: def.display_order,
+              is_active: true,
+              fields: def.fields as any,
+              hide_rules: def.hide_rules as any,
+              option_filters: def.option_filters as any,
+            },
+            { onConflict: "category_key" }
+          );
+        if (error) {
+          toast.error("فشل إعادة التعبئة: " + getFriendlyError(error));
+          setResetting(false);
+          setConfirmReset(false);
+          return;
+        }
+      }
+      toast.success(`تم إعادة تعبئة ${DEFAULT_CATEGORY_DEFINITIONS.length} تصنيفًا للوضع الافتراضي`);
+      setConfirmReset(false);
+      await refresh();
+    } finally {
+      setResetting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
