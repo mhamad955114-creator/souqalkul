@@ -40,7 +40,8 @@ import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatPrice, formatDate, categoryLabels, categoryMetadataFields, getCountryByName } from "@/lib/constants";
+import { formatPrice, formatDate, categoryLabels, getCountryByName } from "@/lib/constants";
+import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 
 interface Listing {
   id: string;
