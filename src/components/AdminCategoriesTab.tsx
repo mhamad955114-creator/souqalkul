@@ -286,7 +286,7 @@ const AdminCategoriesTab = () => {
       .update({ fields: newFields as any })
       .eq("id", selected.id);
     if (error) {
-      toast.error("فشل الحذف: " + error.message);
+      toast.error("فشل الحذف: " + getFriendlyError(error));
       return;
     }
     toast.success("تم حذف الخانة");
