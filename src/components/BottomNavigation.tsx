@@ -37,7 +37,7 @@ const BottomNavigation = ({ onListingAdded }: BottomNavigationProps) => {
 
   const navItems = [
     { icon: Home, label: t.nav.home, path: "/", onClick: () => navigate("/") },
-    { icon: ClipboardList, label: "إعلاناتي", path: "/my-account", onClick: handleAccount },
+    { icon: ClipboardList, label: "إعلانات", path: "/listings", onClick: () => navigate("/listings") },
     { icon: Plus, label: t.nav.addAd, path: null, onClick: handleAddListing, isSpecial: true },
     { icon: Heart, label: t.nav.favorites, path: "/favorites", onClick: () => navigate("/favorites") },
     { icon: User, label: t.nav.myAccount, path: "/my-account", onClick: handleAccount },
