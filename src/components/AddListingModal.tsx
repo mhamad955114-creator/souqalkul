@@ -34,6 +34,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const { settings } = useListingSettings();
   const { currentCountry } = useCountry();
   const navigate = useNavigate();
+  const { getFields, shouldHideField, getFieldOptions } = useCategoryDefinitions();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
