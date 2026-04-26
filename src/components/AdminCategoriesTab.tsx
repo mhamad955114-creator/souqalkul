@@ -139,6 +139,7 @@ const AdminCategoriesTab = () => {
   };
 
   const saveCategory = async () => {
+    if (!guardAdmin()) return;
     if (!catForm.category_key.trim() || !catForm.label.trim()) {
       toast.error("يرجى ملء المفتاح والاسم");
       return;
