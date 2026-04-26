@@ -11,7 +11,8 @@ import { compressImage } from "@/lib/imageCompression";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
 import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video } from "lucide-react";
-import { categories, areasByCity, categoryMetadataFields, countries, getCitiesByCountry, getCountryByName, shouldHideMetadataField, getMetadataFieldOptions } from "@/lib/constants";
+import { categories, areasByCity, countries, getCitiesByCountry, getCountryByName } from "@/lib/constants";
+import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
@@ -33,6 +34,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const { settings } = useListingSettings();
   const { currentCountry } = useCountry();
   const navigate = useNavigate();
+  const { getFields, shouldHideField, getFieldOptions } = useCategoryDefinitions();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
@@ -107,8 +109,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     fetchRemaining();
   }, [isOpen, user, settings]);
 
-  const currentMetadataFields = (categoryMetadataFields[formData.category] || []).filter(
-    (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+  const currentMetadataFields = getFields(formData.category).filter(
+    (field) => !shouldHideField(field.key, formData.category, metadata)
   );
   const moderateImage = async (imageUrl: string): Promise<{ approved: boolean; reason: string; suggestedCategory?: string }> => {
     try {
@@ -354,8 +356,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
 
     // Validate metadata fields are filled for the selected category
-    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter(
-      (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+    const requiredMetaFields = getFields(formData.category).filter(
+      (field) => !shouldHideField(field.key, formData.category, metadata)
     );
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
@@ -646,7 +648,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                           <SelectValue placeholder={`اختر ${field.label}`} />
                         </SelectTrigger>
                         <SelectContent>
-                          {(getMetadataFieldOptions(field, formData.category, metadata) || []).map((opt) => (
+                          {(getFieldOptions(field, formData.category, metadata) || []).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>

@@ -13,7 +13,8 @@ import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { cities, categories, statuses, areasByCity, categoryMetadataFields, shouldHideMetadataField, getMetadataFieldOptions } from "@/lib/constants";
+import { cities, categories, statuses, areasByCity } from "@/lib/constants";
+import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Listing {
@@ -41,6 +42,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const { currentCountry } = useCountry();
+  const { getFields, shouldHideField, getFieldOptions } = useCategoryDefinitions();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [moderatingImages, setModeratingImages] = useState(false);
@@ -205,8 +207,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     }
 
     // Validate metadata fields are filled for the selected category
-    const requiredMetaFields = (categoryMetadataFields[formData.category] || []).filter(
-      (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+    const requiredMetaFields = getFields(formData.category).filter(
+      (field) => !shouldHideField(field.key, formData.category, metadata)
     );
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
@@ -397,8 +399,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
 
           {/* Category-specific metadata fields */}
           {(() => {
-            const fields = (categoryMetadataFields[formData.category] || []).filter(
-              (field) => !shouldHideMetadataField(field.key, formData.category, metadata)
+            const fields = getFields(formData.category).filter(
+              (field) => !shouldHideField(field.key, formData.category, metadata)
             );
             if (fields.length === 0) return null;
             return (
@@ -417,7 +419,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                             <SelectValue placeholder={`اختر ${field.label}`} />
                           </SelectTrigger>
                           <SelectContent>
-                            {(getMetadataFieldOptions(field, formData.category, metadata) || []).map((opt) => (
+                            {(getFieldOptions(field, formData.category, metadata) || []).map((opt) => (
                               <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                             ))}
                           </SelectContent>

@@ -40,7 +40,8 @@ import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatPrice, formatDate, categoryLabels, categoryMetadataFields, getCountryByName } from "@/lib/constants";
+import { formatPrice, formatDate, categoryLabels, getCountryByName } from "@/lib/constants";
+import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 
 interface Listing {
   id: string;
@@ -76,6 +77,7 @@ const ListingDetails = () => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const { logoUrl: appLogo } = useBrand();
+  const { getFields } = useCategoryDefinitions();
   const [listing, setListing] = useState<Listing | null>(null);
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -455,7 +457,7 @@ const ListingDetails = () => {
 
                 {/* Dynamic Metadata Fields */}
                 {listing.metadata && typeof listing.metadata === 'object' && (() => {
-                  const fields = categoryMetadataFields[listing.category] || [];
+                  const fields = getFields(listing.category);
                   const meta = listing.metadata as Record<string, string>;
                   const filledFields = fields.filter(f => meta[f.key]);
                   if (filledFields.length === 0) return null;
