@@ -270,7 +270,7 @@ const AdminCategoriesTab = () => {
       .update({ fields: newFields as any })
       .eq("id", selected.id);
     if (error) {
-      toast.error("فشل الحفظ: " + error.message);
+      toast.error("فشل الحفظ: " + getFriendlyError(error));
       return;
     }
     toast.success("تم الحفظ");
