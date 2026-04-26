@@ -237,6 +237,7 @@ const AdminCategoriesTab = () => {
   };
 
   const saveField = async () => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     if (!fieldForm.key.trim() || !fieldForm.label.trim()) {
       toast.error("يرجى ملء المفتاح والاسم");
