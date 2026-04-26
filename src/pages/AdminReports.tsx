@@ -865,6 +865,7 @@ const AdminReports = () => {
         {activeTab === "storage" && <AdminStorageStats />}
         {activeTab === "countries" && <AdminCountriesTab />}
         {activeTab === "users" && <AdminUsersTab />}
+        {activeTab === "categories" && <AdminCategoriesTab />}
       </main>
 
       <Footer />
