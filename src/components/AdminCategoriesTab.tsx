@@ -283,6 +283,7 @@ const AdminCategoriesTab = () => {
   };
 
   const deleteField = async (index: number) => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const newFields = selected.fields.filter((_, i) => i !== index);
     const { error } = await supabase
