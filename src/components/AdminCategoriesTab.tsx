@@ -487,10 +487,21 @@ const AdminCategoriesTab = () => {
           <Settings2 className="h-6 w-6" />
           إدارة التصنيفات والخانات
         </h2>
-        <Button onClick={openNewCategory} className="gap-2">
-          <Plus className="h-4 w-4" />
-          تصنيف جديد
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setConfirmReset(true)}
+            className="gap-2"
+            title="إعادة تعبئة كل التصنيفات الأصلية بالقيم الافتراضية"
+          >
+            <RotateCcw className="h-4 w-4" />
+            إعادة الافتراضي
+          </Button>
+          <Button onClick={openNewCategory} className="gap-2">
+            <Plus className="h-4 w-4" />
+            تصنيف جديد
+          </Button>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-[300px_1fr] gap-6">
