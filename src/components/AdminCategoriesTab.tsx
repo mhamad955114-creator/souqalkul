@@ -347,6 +347,7 @@ const AdminCategoriesTab = () => {
   };
 
   const deleteHideRule = async (triggerKey: string, triggerValue: string) => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const newRules = { ...selected.hide_rules };
     if (newRules[triggerKey]) {
