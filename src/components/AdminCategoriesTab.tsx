@@ -35,8 +35,10 @@ import {
   Settings2,
   EyeOff,
   ListFilter,
+  RotateCcw,
 } from "lucide-react";
 import type { MetadataField } from "@/lib/constants";
+import { DEFAULT_CATEGORY_DEFINITIONS } from "@/lib/categoryDefaults";
 import {
   useCategoryDefinitions,
   type CategoryDefinition,
