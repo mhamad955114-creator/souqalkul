@@ -457,7 +457,7 @@ const ListingDetails = () => {
 
                 {/* Dynamic Metadata Fields */}
                 {listing.metadata && typeof listing.metadata === 'object' && (() => {
-                  const fields = categoryMetadataFields[listing.category] || [];
+                  const fields = getFields(listing.category);
                   const meta = listing.metadata as Record<string, string>;
                   const filledFields = fields.filter(f => meta[f.key]);
                   if (filledFields.length === 0) return null;
