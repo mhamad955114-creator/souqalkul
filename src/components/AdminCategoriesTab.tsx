@@ -155,7 +155,7 @@ const AdminCategoriesTab = () => {
         .eq("id", catEditing.id);
       setSavingCat(false);
       if (error) {
-        toast.error("فشل حفظ التصنيف: " + error.message);
+        toast.error("فشل حفظ التصنيف: " + getFriendlyError(error));
         return;
       }
       toast.success("تم تحديث التصنيف");
