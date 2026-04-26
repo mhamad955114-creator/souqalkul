@@ -184,6 +184,7 @@ const AdminCategoriesTab = () => {
   };
 
   const deleteCategory = async (def: CategoryDefinition) => {
+    if (!guardAdmin()) return;
     const { error } = await supabase
       .from("category_definitions")
       .delete()
