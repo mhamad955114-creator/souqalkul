@@ -41,6 +41,24 @@ import {
   useCategoryDefinitions,
   type CategoryDefinition,
 } from "@/hooks/useCategoryDefinitions";
+import { useAdminRole } from "@/hooks/useAdminRole";
+
+const UNAUTHORIZED_MSG = "غير مصرّح: هذه العملية متاحة للمشرفين فقط.";
+
+const getFriendlyError = (error: { code?: string; message?: string } | null): string => {
+  if (!error) return "حدث خطأ غير متوقع";
+  const msg = (error.message || "").toLowerCase();
+  if (
+    error.code === "42501" ||
+    msg.includes("row-level security") ||
+    msg.includes("row level security") ||
+    msg.includes("permission denied") ||
+    msg.includes("violates") && msg.includes("policy")
+  ) {
+    return UNAUTHORIZED_MSG;
+  }
+  return error.message || "حدث خطأ غير متوقع";
+};
 
 type FieldFormState = {
   key: string;
