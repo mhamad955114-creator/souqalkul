@@ -299,6 +299,7 @@ const AdminCategoriesTab = () => {
   };
 
   const moveField = async (index: number, dir: -1 | 1) => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const newFields = [...selected.fields];
     const swap = index + dir;
