@@ -35,8 +35,10 @@ import {
   Settings2,
   EyeOff,
   ListFilter,
+  RotateCcw,
 } from "lucide-react";
 import type { MetadataField } from "@/lib/constants";
+import { DEFAULT_CATEGORY_DEFINITIONS } from "@/lib/categoryDefaults";
 import {
   useCategoryDefinitions,
   type CategoryDefinition,
@@ -116,6 +118,9 @@ const AdminCategoriesTab = () => {
     type: "category" | "field" | "hideRule" | "optionFilter";
     payload: any;
   } | null>(null);
+
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     if (!selectedKey && definitions.length > 0) {
@@ -431,6 +436,42 @@ const AdminCategoriesTab = () => {
     await refresh();
   };
 
+  // ============== Reset to defaults ==============
+  const resetToDefaults = async () => {
+    if (!guardAdmin()) return;
+    setResetting(true);
+    try {
+      // Upsert each default category (insert if missing, fully overwrite fields/rules if exists)
+      for (const def of DEFAULT_CATEGORY_DEFINITIONS) {
+        const { error } = await supabase
+          .from("category_definitions")
+          .upsert(
+            {
+              category_key: def.category_key,
+              label: def.label,
+              display_order: def.display_order,
+              is_active: true,
+              fields: def.fields as any,
+              hide_rules: def.hide_rules as any,
+              option_filters: def.option_filters as any,
+            },
+            { onConflict: "category_key" }
+          );
+        if (error) {
+          toast.error("فشل إعادة التعبئة: " + getFriendlyError(error));
+          setResetting(false);
+          setConfirmReset(false);
+          return;
+        }
+      }
+      toast.success(`تم إعادة تعبئة ${DEFAULT_CATEGORY_DEFINITIONS.length} تصنيفًا للوضع الافتراضي`);
+      setConfirmReset(false);
+      await refresh();
+    } finally {
+      setResetting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -446,10 +487,21 @@ const AdminCategoriesTab = () => {
           <Settings2 className="h-6 w-6" />
           إدارة التصنيفات والخانات
         </h2>
-        <Button onClick={openNewCategory} className="gap-2">
-          <Plus className="h-4 w-4" />
-          تصنيف جديد
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setConfirmReset(true)}
+            className="gap-2"
+            title="إعادة تعبئة كل التصنيفات الأصلية بالقيم الافتراضية"
+          >
+            <RotateCcw className="h-4 w-4" />
+            إعادة الافتراضي
+          </Button>
+          <Button onClick={openNewCategory} className="gap-2">
+            <Plus className="h-4 w-4" />
+            تصنيف جديد
+          </Button>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-[300px_1fr] gap-6">
@@ -995,6 +1047,42 @@ const AdminCategoriesTab = () => {
               }}
             >
               حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmReset} onOpenChange={(o) => !resetting && setConfirmReset(o)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>إعادة تعبئة البيانات الافتراضية</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم استعادة كل التصنيفات الأصلية ({DEFAULT_CATEGORY_DEFINITIONS.length} تصنيف) بكل خاناتها وقواعد الإخفاء والتصفية للوضع الأولي.
+              <br />
+              <strong className="text-destructive">
+                ملاحظة: التصنيفات الأصلية الموجودة سيتم استبدال خاناتها بالكامل (أي تعديلات يدوية عليها ستضيع).
+              </strong>
+              <br />
+              التصنيفات المخصصة التي أضفتها بنفسك (غير الأصلية) لن تتأثر.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resetting}>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                resetToDefaults();
+              }}
+              disabled={resetting}
+            >
+              {resetting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                  جارٍ الاستعادة...
+                </>
+              ) : (
+                "تأكيد الاستعادة"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
