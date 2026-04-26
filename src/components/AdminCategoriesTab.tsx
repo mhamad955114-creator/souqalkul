@@ -319,6 +319,7 @@ const AdminCategoriesTab = () => {
   };
 
   const saveHideRule = async () => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const { triggerKey, triggerValue, hiddenFieldsText } = hideRuleForm;
     if (!triggerKey || !triggerValue || !hiddenFieldsText.trim()) {
