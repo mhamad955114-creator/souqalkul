@@ -648,7 +648,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                           <SelectValue placeholder={`اختر ${field.label}`} />
                         </SelectTrigger>
                         <SelectContent>
-                          {(getMetadataFieldOptions(field, formData.category, metadata) || []).map((opt) => (
+                          {(getFieldOptions(field, formData.category, metadata) || []).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
