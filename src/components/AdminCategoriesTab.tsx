@@ -172,7 +172,7 @@ const AdminCategoriesTab = () => {
       });
       setSavingCat(false);
       if (error) {
-        toast.error("فشل إضافة التصنيف: " + error.message);
+        toast.error("فشل إضافة التصنيف: " + getFriendlyError(error));
         return;
       }
       toast.success("تم إضافة التصنيف");
