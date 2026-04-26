@@ -3,7 +3,6 @@ import Header from "@/components/Header";
 import MarqueeTicker from "@/components/MarqueeTicker";
 import HeroSection from "@/components/HeroSection";
 import CategoriesSection from "@/components/CategoriesSection";
-import ListingsSection from "@/components/ListingsSection";
 import RestaurantsSection from "@/components/RestaurantsSection";
 import Footer from "@/components/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -11,7 +10,7 @@ import PageSkeleton from "@/components/PageSkeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [, setRefreshTrigger] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { dir } = useLanguage();
 
@@ -36,7 +35,6 @@ const Index = () => {
         <HeroSection />
         <CategoriesSection />
         <RestaurantsSection />
-        <ListingsSection refreshTrigger={refreshTrigger} />
       </main>
       <Footer />
       <BottomNavigation onListingAdded={handleListingAdded} />
