@@ -404,6 +404,7 @@ const AdminCategoriesTab = () => {
   };
 
   const deleteOptionFilter = async (targetKey: string, triggerKey: string, triggerValue: string) => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const newFilters = { ...selected.option_filters };
     if (newFilters[targetKey]?.[triggerKey]) {
