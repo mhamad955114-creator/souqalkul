@@ -80,6 +80,45 @@ export type Database = {
         }
         Relationships: []
       }
+      category_definitions: {
+        Row: {
+          category_key: string
+          created_at: string
+          display_order: number
+          fields: Json
+          hide_rules: Json
+          id: string
+          is_active: boolean
+          label: string
+          option_filters: Json
+          updated_at: string
+        }
+        Insert: {
+          category_key: string
+          created_at?: string
+          display_order?: number
+          fields?: Json
+          hide_rules?: Json
+          id?: string
+          is_active?: boolean
+          label: string
+          option_filters?: Json
+          updated_at?: string
+        }
+        Update: {
+          category_key?: string
+          created_at?: string
+          display_order?: number
+          fields?: Json
+          hide_rules?: Json
+          id?: string
+          is_active?: boolean
+          label?: string
+          option_filters?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
