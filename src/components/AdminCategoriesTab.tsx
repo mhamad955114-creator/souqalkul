@@ -41,6 +41,24 @@ import {
   useCategoryDefinitions,
   type CategoryDefinition,
 } from "@/hooks/useCategoryDefinitions";
+import { useAdminRole } from "@/hooks/useAdminRole";
+
+const UNAUTHORIZED_MSG = "غير مصرّح: هذه العملية متاحة للمشرفين فقط.";
+
+const getFriendlyError = (error: { code?: string; message?: string } | null): string => {
+  if (!error) return "حدث خطأ غير متوقع";
+  const msg = (error.message || "").toLowerCase();
+  if (
+    error.code === "42501" ||
+    msg.includes("row-level security") ||
+    msg.includes("row level security") ||
+    msg.includes("permission denied") ||
+    msg.includes("violates") && msg.includes("policy")
+  ) {
+    return UNAUTHORIZED_MSG;
+  }
+  return error.message || "حدث خطأ غير متوقع";
+};
 
 type FieldFormState = {
   key: string;
@@ -58,6 +76,15 @@ const emptyFieldForm: FieldFormState = {
 
 const AdminCategoriesTab = () => {
   const { definitions, loading, refresh } = useCategoryDefinitions();
+  const { isAdmin, loading: roleLoading } = useAdminRole();
+
+  const guardAdmin = (): boolean => {
+    if (!isAdmin) {
+      toast.error(UNAUTHORIZED_MSG);
+      return false;
+    }
+    return true;
+  };
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   // dialogs
@@ -112,6 +139,7 @@ const AdminCategoriesTab = () => {
   };
 
   const saveCategory = async () => {
+    if (!guardAdmin()) return;
     if (!catForm.category_key.trim() || !catForm.label.trim()) {
       toast.error("يرجى ملء المفتاح والاسم");
       return;
@@ -128,7 +156,7 @@ const AdminCategoriesTab = () => {
         .eq("id", catEditing.id);
       setSavingCat(false);
       if (error) {
-        toast.error("فشل حفظ التصنيف: " + error.message);
+        toast.error("فشل حفظ التصنيف: " + getFriendlyError(error));
         return;
       }
       toast.success("تم تحديث التصنيف");
@@ -145,7 +173,7 @@ const AdminCategoriesTab = () => {
       });
       setSavingCat(false);
       if (error) {
-        toast.error("فشل إضافة التصنيف: " + error.message);
+        toast.error("فشل إضافة التصنيف: " + getFriendlyError(error));
         return;
       }
       toast.success("تم إضافة التصنيف");
@@ -156,12 +184,13 @@ const AdminCategoriesTab = () => {
   };
 
   const deleteCategory = async (def: CategoryDefinition) => {
+    if (!guardAdmin()) return;
     const { error } = await supabase
       .from("category_definitions")
       .delete()
       .eq("id", def.id);
     if (error) {
-      toast.error("فشل حذف التصنيف: " + error.message);
+      toast.error("فشل حذف التصنيف: " + getFriendlyError(error));
       return;
     }
     toast.success("تم حذف التصنيف");
@@ -170,6 +199,7 @@ const AdminCategoriesTab = () => {
   };
 
   const moveCategory = async (def: CategoryDefinition, dir: -1 | 1) => {
+    if (!guardAdmin()) return;
     const sorted = [...definitions].sort((a, b) => a.display_order - b.display_order);
     const idx = sorted.findIndex((d) => d.id === def.id);
     const swapIdx = idx + dir;
@@ -207,6 +237,7 @@ const AdminCategoriesTab = () => {
   };
 
   const saveField = async () => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     if (!fieldForm.key.trim() || !fieldForm.label.trim()) {
       toast.error("يرجى ملء المفتاح والاسم");
@@ -243,7 +274,7 @@ const AdminCategoriesTab = () => {
       .update({ fields: newFields as any })
       .eq("id", selected.id);
     if (error) {
-      toast.error("فشل الحفظ: " + error.message);
+      toast.error("فشل الحفظ: " + getFriendlyError(error));
       return;
     }
     toast.success("تم الحفظ");
@@ -252,6 +283,7 @@ const AdminCategoriesTab = () => {
   };
 
   const deleteField = async (index: number) => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const newFields = selected.fields.filter((_, i) => i !== index);
     const { error } = await supabase
@@ -259,7 +291,7 @@ const AdminCategoriesTab = () => {
       .update({ fields: newFields as any })
       .eq("id", selected.id);
     if (error) {
-      toast.error("فشل الحذف: " + error.message);
+      toast.error("فشل الحذف: " + getFriendlyError(error));
       return;
     }
     toast.success("تم حذف الخانة");
@@ -267,6 +299,7 @@ const AdminCategoriesTab = () => {
   };
 
   const moveField = async (index: number, dir: -1 | 1) => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const newFields = [...selected.fields];
     const swap = index + dir;
@@ -286,6 +319,7 @@ const AdminCategoriesTab = () => {
   };
 
   const saveHideRule = async () => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const { triggerKey, triggerValue, hiddenFieldsText } = hideRuleForm;
     if (!triggerKey || !triggerValue || !hiddenFieldsText.trim()) {
@@ -304,7 +338,7 @@ const AdminCategoriesTab = () => {
       .update({ hide_rules: newRules as any })
       .eq("id", selected.id);
     if (error) {
-      toast.error("فشل الحفظ: " + error.message);
+      toast.error("فشل الحفظ: " + getFriendlyError(error));
       return;
     }
     toast.success("تم حفظ القاعدة");
@@ -313,6 +347,7 @@ const AdminCategoriesTab = () => {
   };
 
   const deleteHideRule = async (triggerKey: string, triggerValue: string) => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const newRules = { ...selected.hide_rules };
     if (newRules[triggerKey]) {
@@ -326,7 +361,7 @@ const AdminCategoriesTab = () => {
       .update({ hide_rules: newRules as any })
       .eq("id", selected.id);
     if (error) {
-      toast.error("فشل الحذف: " + error.message);
+      toast.error("فشل الحذف: " + getFriendlyError(error));
       return;
     }
     toast.success("تم الحذف");
@@ -340,6 +375,7 @@ const AdminCategoriesTab = () => {
   };
 
   const saveOptionFilter = async () => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const { targetKey, triggerKey, triggerValue, allowedOptionsText } = optionFilterForm;
     if (!targetKey || !triggerKey || !triggerValue || !allowedOptionsText.trim()) {
@@ -359,7 +395,7 @@ const AdminCategoriesTab = () => {
       .update({ option_filters: newFilters as any })
       .eq("id", selected.id);
     if (error) {
-      toast.error("فشل الحفظ: " + error.message);
+      toast.error("فشل الحفظ: " + getFriendlyError(error));
       return;
     }
     toast.success("تم حفظ التصفية");
@@ -368,6 +404,7 @@ const AdminCategoriesTab = () => {
   };
 
   const deleteOptionFilter = async (targetKey: string, triggerKey: string, triggerValue: string) => {
+    if (!guardAdmin()) return;
     if (!selected) return;
     const newFilters = { ...selected.option_filters };
     if (newFilters[targetKey]?.[triggerKey]) {
@@ -387,7 +424,7 @@ const AdminCategoriesTab = () => {
       .update({ option_filters: newFilters as any })
       .eq("id", selected.id);
     if (error) {
-      toast.error("فشل الحذف: " + error.message);
+      toast.error("فشل الحذف: " + getFriendlyError(error));
       return;
     }
     toast.success("تم الحذف");
