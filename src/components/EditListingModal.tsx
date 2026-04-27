@@ -22,6 +22,7 @@ interface Listing {
   title: string;
   description: string | null;
   price: number;
+  currency?: string | null;
   category: string;
   city: string;
   area: string | null;
@@ -48,6 +49,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
   const [moderatingImages, setModeratingImages] = useState(false);
   const [rejectedImages, setRejectedImages] = useState<{ url: string; reason: string }[]>([]);
   const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
+  const [priceCurrency, setPriceCurrency] = useState<"local" | "usd">("local");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
