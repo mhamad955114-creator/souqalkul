@@ -1038,6 +1038,26 @@ export const formatPriceByCountry = (price: number, countryName: string): string
   return formatPrice(price, country.currencySymbol);
 };
 
+// Resolve a currency symbol from an ISO currency code (e.g. "USD" -> "$", "SYP" -> "ل.س")
+export const getCurrencySymbolFromCode = (currencyCode?: string | null): string | undefined => {
+  if (!currencyCode) return undefined;
+  if (currencyCode === "USD") return "$";
+  const country = countries.find((c) => c.currencyCode === currencyCode);
+  return country?.currencySymbol;
+};
+
+// Format a listing price using its stored currency code (falls back to country if missing)
+export const formatListingPrice = (
+  price: number,
+  currencyCode?: string | null,
+  countryName?: string | null
+): string => {
+  const symbol =
+    getCurrencySymbolFromCode(currencyCode) ||
+    (countryName ? getCountryByName(countryName).currencySymbol : undefined);
+  return formatPrice(price, symbol);
+};
+
 // Date formatting
 export const formatDate = (dateString: string): string => {
   return new Intl.DateTimeFormat("ar-SA-u-nu-latn", {
