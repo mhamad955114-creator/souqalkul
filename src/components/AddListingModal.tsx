@@ -43,6 +43,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [remainingListings, setRemainingListings] = useState<{ remaining: number; max: number; planName: string } | null>(null);
   const [currentPlan, setCurrentPlan] = useState<"free" | "featured" | "professional" | "business">("free");
   const [selectedCountry, setSelectedCountry] = useState(currentCountry.name);
+  const [priceCurrency, setPriceCurrency] = useState<"local" | "usd">("local");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -401,7 +402,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         badge_type: autoBadgeType,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
         country: selectedCountry,
-        currency: countryInfo.currencyCode,
+        currency: priceCurrency === "usd" ? "USD" : countryInfo.currencyCode,
       } as any);
 
       if (error) {
