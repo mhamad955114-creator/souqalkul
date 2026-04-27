@@ -432,6 +432,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setMetadata({});
     setRejectedImages([]);
     setSuggestedCategory(null);
+    setPriceCurrency("local");
   };
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
