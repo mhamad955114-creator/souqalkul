@@ -11,6 +11,7 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCountry } from "@/contexts/CountryContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { countries } from "@/lib/constants";
 import AddListingModal from "./AddListingModal";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -37,6 +38,7 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { theme, toggleTheme } = useTheme();
   const { logoUrl } = useBrand();
   const { currentCountry, setCountry } = useCountry();
+  const { mode: currencyMode, toggleMode: toggleCurrency } = useCurrency();
 
   const handleAddListing = () => {
     if (user) {
