@@ -41,6 +41,7 @@ import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice, formatDate, categoryLabels, getCountryByName } from "@/lib/constants";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 
 interface Listing {
