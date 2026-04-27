@@ -108,6 +108,18 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
+              {/* Currency toggle ($ / local) */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 sm:h-9 sm:w-auto sm:px-2 text-xs font-bold"
+                onClick={toggleCurrency}
+                title={currencyMode === "usd" ? "عرض بعملة الدولة" : "عرض بالدولار"}
+                aria-label="تبديل العملة المعروضة"
+              >
+                {currencyMode === "usd" ? "$" : currentCountry.currencySymbol}
+              </Button>
+
               {user && <NotificationsDropdown />}
 
               <Button variant="ghost" size="icon" className="hidden md:flex">
