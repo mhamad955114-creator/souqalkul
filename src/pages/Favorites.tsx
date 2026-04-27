@@ -124,6 +124,7 @@ const Favorites = () => {
                   image={listing.images?.[0] || "/placeholder.svg"}
                   title={listing.title}
                   price={formatPrice(listing.price, listing.country ? getCountryByName(listing.country).currencySymbol : undefined)}
+                  priceValue={listing.price}
                   location={listing.city}
                   country={listing.country || undefined}
                   time={formatTimeAgo(listing.created_at)}
