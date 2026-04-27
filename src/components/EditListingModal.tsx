@@ -284,18 +284,47 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="price">
-                {t.listingForm.price.split("(")[0]}({currentCountry.currencySymbol}) *
+                {t.listingForm.price.split("(")[0]}({priceCurrency === "usd" ? "$" : currentCountry.currencySymbol}) *
               </Label>
-              <Input
-                id="price"
-                type="number"
-                placeholder="0.00"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                required
-                min="0"
-                step="0.01"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="price"
+                  type="number"
+                  placeholder="0.00"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  required
+                  min="0"
+                  step="0.01"
+                  className="flex-1"
+                />
+                <div className="flex rounded-md border border-input overflow-hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setPriceCurrency("local")}
+                    className={`px-3 text-xs font-bold transition-colors ${
+                      priceCurrency === "local"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                    aria-pressed={priceCurrency === "local"}
+                  >
+                    {currentCountry.currencySymbol}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPriceCurrency("usd")}
+                    className={`px-3 text-xs font-bold transition-colors border-r border-input ${
+                      priceCurrency === "usd"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                    aria-pressed={priceCurrency === "usd"}
+                  >
+                    $
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
