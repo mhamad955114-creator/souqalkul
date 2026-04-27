@@ -10,6 +10,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { BrandProvider } from "@/contexts/BrandContext";
 import { CountryProvider } from "@/contexts/CountryContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import SplashScreen from "@/components/SplashScreen";
 import PageSkeleton from "@/components/PageSkeleton";
 import UpdateNotification from "@/components/UpdateNotification";
@@ -166,15 +167,17 @@ const App = () => {
           <LanguageProvider>
             <BrandProvider>
               <CountryProvider>
-                <AuthProvider>
-                  <FavoritesProvider>
-                    <TooltipProvider>
-                      <Toaster />
-                      <Sonner />
-                      <AppContent />
-                    </TooltipProvider>
-                  </FavoritesProvider>
-                </AuthProvider>
+                <CurrencyProvider>
+                  <AuthProvider>
+                    <FavoritesProvider>
+                      <TooltipProvider>
+                        <Toaster />
+                        <Sonner />
+                        <AppContent />
+                      </TooltipProvider>
+                    </FavoritesProvider>
+                  </AuthProvider>
+                </CurrencyProvider>
               </CountryProvider>
             </BrandProvider>
           </LanguageProvider>

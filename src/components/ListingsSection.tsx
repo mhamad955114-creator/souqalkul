@@ -220,6 +220,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       image={listing.images?.[0] || "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"}
                       title={listing.title}
                       price={formatPrice(listing.price, currentCountry.currencySymbol)}
+                      priceValue={listing.price}
                       location={listing.city}
                       country={currentCountry.name}
                       time={formatTime(listing.created_at)}
