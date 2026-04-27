@@ -201,7 +201,7 @@ const ListingCard = ({ id, image, title, price, priceValue, location, country, t
             {title}
           </h3>
         </div>
-        <div className="text-xl font-bold text-primary mb-3">{price}</div>
+        <div className="text-xl font-bold text-primary mb-3">{displayPrice}</div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-1 min-w-0">
             <MapPin className="h-4 w-4 shrink-0" />
