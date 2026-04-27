@@ -24,6 +24,7 @@ interface Listing {
   status: string | null;
   category: string;
   country?: string | null;
+  currency?: string | null;
 }
 
 const Favorites = () => {
