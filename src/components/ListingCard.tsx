@@ -7,12 +7,17 @@ import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { useBrand } from "@/contexts/BrandContext";
 import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 import { useAuth } from "@/hooks/useAuth";
+import { useFormatPrice } from "@/hooks/useFormatPrice";
+import { getCountryByName } from "@/lib/constants";
 import type { CSSProperties } from "react";
 interface ListingCardProps {
   id?: string;
   image: string;
   title: string;
   price: string;
+  /** Optional: when provided along with the listing's country, the card re-formats the price
+   *  according to the user's currency display preference (local vs USD). */
+  priceValue?: number;
   location: string;
   country?: string;
   time: string;
@@ -28,7 +33,7 @@ interface ListingCardProps {
   images?: string[];
 }
 
-const ListingCard = ({ id, image, title, price, location, country, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, priceValue, location, country, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -36,8 +41,15 @@ const ListingCard = ({ id, image, title, price, location, country, time, feature
   const { logoUrl: appLogo } = useBrand();
   const { contact } = useContactSettings();
   const { user } = useAuth();
+  const { formatDisplayPrice } = useFormatPrice();
   const isListingFavorite = id ? isFavorite(id) : false;
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Re-format the price using the user's currency preference when we have the raw value.
+  const displayPrice =
+    priceValue !== undefined
+      ? formatDisplayPrice(priceValue, country ? getCountryByName(country).currencySymbol : undefined)
+      : price;
 
   const handleClick = () => {
     if (id) {
