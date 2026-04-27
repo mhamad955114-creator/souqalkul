@@ -221,6 +221,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       title={listing.title}
                       price={formatPrice(listing.price, currentCountry.currencySymbol)}
                       priceValue={listing.price}
+                      currency={(listing as any).currency}
                       location={listing.city}
                       country={currentCountry.name}
                       time={formatTime(listing.created_at)}

@@ -40,8 +40,7 @@ import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatPrice, formatDate, categoryLabels, getCountryByName } from "@/lib/constants";
-import { useFormatPrice } from "@/hooks/useFormatPrice";
+import { formatPrice, formatDate, categoryLabels, getCountryByName, formatListingPrice } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 
 interface Listing {
@@ -79,7 +78,6 @@ const ListingDetails = () => {
   const { t, dir } = useLanguage();
   const { logoUrl: appLogo } = useBrand();
   const { getFields } = useCategoryDefinitions();
-  const { formatDisplayPrice } = useFormatPrice();
   const [listing, setListing] = useState<Listing | null>(null);
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -402,7 +400,7 @@ const ListingDetails = () => {
 
                 {/* Price Row */}
                 <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-2xl font-bold text-primary">{formatDisplayPrice(listing.price, (listing as any).country ? getCountryByName((listing as any).country).currencySymbol : undefined)}</span>
+                  <span className="text-2xl font-bold text-primary">{formatListingPrice(listing.price, (listing as any).currency, (listing as any).country)}</span>
                   <span className="text-lg font-semibold text-foreground">السعر</span>
                 </div>
 

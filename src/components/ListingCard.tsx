@@ -8,16 +8,17 @@ import { useBrand } from "@/contexts/BrandContext";
 import { useContactSettings, buildWhatsAppUrl } from "@/hooks/useContactSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { useFormatPrice } from "@/hooks/useFormatPrice";
-import { getCountryByName } from "@/lib/constants";
+import { getCountryByName, getCurrencySymbolFromCode } from "@/lib/constants";
 import type { CSSProperties } from "react";
 interface ListingCardProps {
   id?: string;
   image: string;
   title: string;
   price: string;
-  /** Optional: when provided along with the listing's country, the card re-formats the price
-   *  according to the user's currency display preference (local vs USD). */
+  /** Optional: when provided along with the listing's country/currency, the card formats
+   *  the price using the seller's chosen currency (USD or country currency). */
   priceValue?: number;
+  currency?: string | null;
   location: string;
   country?: string;
   time: string;
@@ -33,7 +34,7 @@ interface ListingCardProps {
   images?: string[];
 }
 
-const ListingCard = ({ id, image, title, price, priceValue, location, country, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, priceValue, currency, location, country, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -45,11 +46,15 @@ const ListingCard = ({ id, image, title, price, priceValue, location, country, t
   const isListingFavorite = id ? isFavorite(id) : false;
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Re-format the price using the user's currency preference when we have the raw value.
-  const displayPrice =
-    priceValue !== undefined
-      ? formatDisplayPrice(priceValue, country ? getCountryByName(country).currencySymbol : undefined)
-      : price;
+  // Resolve display price: prefer the listing's stored currency, fall back to country, then user pref.
+  const displayPrice = (() => {
+    if (priceValue === undefined) return price;
+    const symbolFromCurrency = getCurrencySymbolFromCode(currency);
+    if (symbolFromCurrency) {
+      return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(priceValue) + " " + symbolFromCurrency;
+    }
+    return formatDisplayPrice(priceValue, country ? getCountryByName(country).currencySymbol : undefined);
+  })();
 
   const handleClick = () => {
     if (id) {

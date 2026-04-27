@@ -130,6 +130,7 @@ const RestaurantsSection = () => {
                 title={listing.title}
                 price={String(listing.price)}
                 priceValue={listing.price}
+                currency={(listing as any).currency}
                 country={currentCountry.name}
                 location={listing.city}
                 image={listing.images[0] || ""}

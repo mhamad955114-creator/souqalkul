@@ -43,6 +43,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [remainingListings, setRemainingListings] = useState<{ remaining: number; max: number; planName: string } | null>(null);
   const [currentPlan, setCurrentPlan] = useState<"free" | "featured" | "professional" | "business">("free");
   const [selectedCountry, setSelectedCountry] = useState(currentCountry.name);
+  const [priceCurrency, setPriceCurrency] = useState<"local" | "usd">("local");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -401,7 +402,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         badge_type: autoBadgeType,
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
         country: selectedCountry,
-        currency: countryInfo.currencyCode,
+        currency: priceCurrency === "usd" ? "USD" : countryInfo.currencyCode,
       } as any);
 
       if (error) {
@@ -431,6 +432,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setMetadata({});
     setRejectedImages([]);
     setSuggestedCategory(null);
+    setPriceCurrency("local");
   };
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
@@ -503,17 +505,48 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">{t.listingForm.price.split("(")[0]}({countryInfo.currencySymbol}) *</Label>
-              <Input
-                id="price"
-                type="number"
-                placeholder="0.00"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                required
-                min="0"
-                step="0.01"
-              />
+              <Label htmlFor="price">
+                {t.listingForm.price.split("(")[0]}({priceCurrency === "usd" ? "$" : countryInfo.currencySymbol}) *
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="price"
+                  type="number"
+                  placeholder="0.00"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  required
+                  min="0"
+                  step="0.01"
+                  className="flex-1"
+                />
+                <div className="flex rounded-md border border-input overflow-hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setPriceCurrency("local")}
+                    className={`px-3 text-xs font-bold transition-colors ${
+                      priceCurrency === "local"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                    aria-pressed={priceCurrency === "local"}
+                  >
+                    {countryInfo.currencySymbol}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPriceCurrency("usd")}
+                    className={`px-3 text-xs font-bold transition-colors border-r border-input ${
+                      priceCurrency === "usd"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                    aria-pressed={priceCurrency === "usd"}
+                  >
+                    $
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">

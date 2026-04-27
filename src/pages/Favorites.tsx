@@ -24,6 +24,7 @@ interface Listing {
   status: string | null;
   category: string;
   country?: string | null;
+  currency?: string | null;
 }
 
 const Favorites = () => {
@@ -44,7 +45,7 @@ const Favorites = () => {
       try {
         const { data, error } = await supabase
           .from("listings")
-          .select("id, title, description, price, city, images, created_at, is_featured, status, category, country")
+          .select("id, title, description, price, city, images, created_at, is_featured, status, category, country, currency")
           .in("id", favorites);
 
         if (error) throw error;
@@ -125,6 +126,7 @@ const Favorites = () => {
                   title={listing.title}
                   price={formatPrice(listing.price, listing.country ? getCountryByName(listing.country).currencySymbol : undefined)}
                   priceValue={listing.price}
+                  currency={listing.currency}
                   location={listing.city}
                   country={listing.country || undefined}
                   time={formatTimeAgo(listing.created_at)}

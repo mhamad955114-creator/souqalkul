@@ -11,7 +11,6 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { useCurrency } from "@/contexts/CurrencyContext";
 import { countries } from "@/lib/constants";
 import AddListingModal from "./AddListingModal";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -38,7 +37,6 @@ const Header = ({ onListingAdded }: HeaderProps) => {
   const { theme, toggleTheme } = useTheme();
   const { logoUrl } = useBrand();
   const { currentCountry, setCountry } = useCountry();
-  const { mode: currencyMode, toggleMode: toggleCurrency } = useCurrency();
 
   const handleAddListing = () => {
     if (user) {
@@ -108,17 +106,6 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Currency toggle ($ / local) */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 sm:h-9 sm:w-auto sm:px-2 text-xs font-bold"
-                onClick={toggleCurrency}
-                title={currencyMode === "usd" ? "عرض بعملة الدولة" : "عرض بالدولار"}
-                aria-label="تبديل العملة المعروضة"
-              >
-                {currencyMode === "usd" ? "$" : currentCountry.currencySymbol}
-              </Button>
 
               {user && <NotificationsDropdown />}
 
