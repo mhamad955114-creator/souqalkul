@@ -95,6 +95,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
       setMetadata((listing.metadata as Record<string, string>) || {});
       setRejectedImages([]);
       setSuggestedCategory(null);
+      setPriceCurrency(listing.currency === "USD" ? "usd" : "local");
     }
   }, [listing]);
 
@@ -227,6 +228,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
           title: formData.title,
           description: formData.description || null,
           price: parseFloat(formData.price),
+          currency: priceCurrency === "usd" ? "USD" : currentCountry.currencyCode,
           category: formData.category,
           city: formData.city,
           area: formData.area || null,
