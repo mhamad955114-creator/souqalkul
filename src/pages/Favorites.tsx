@@ -44,7 +44,7 @@ const Favorites = () => {
       try {
         const { data, error } = await supabase
           .from("listings")
-          .select("id, title, description, price, city, images, created_at, is_featured, status, category, country")
+          .select("id, title, description, price, city, images, created_at, is_featured, status, category, country, currency")
           .in("id", favorites);
 
         if (error) throw error;
