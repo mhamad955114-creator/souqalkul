@@ -116,6 +116,7 @@ function matchArea(city: string, addressParts: Record<string, string>): string |
 
 export function useGeolocation(): UseGeolocationReturn {
   const [loading, setLoading] = useState(false);
+  const { language } = useLanguage();
 
   const detectLocation = useCallback(async (): Promise<GeolocationResult | null> => {
     if (!navigator.geolocation) {
