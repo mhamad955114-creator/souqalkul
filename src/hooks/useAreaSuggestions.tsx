@@ -116,7 +116,7 @@ export function useAreaSuggestions(city: string, country: string, language: stri
       controller.abort();
       clearTimeout(timer);
     };
-  }, [city, country]);
+  }, [city, country, language]);
 
   return { suggestions, loading };
 }
