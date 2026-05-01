@@ -30,10 +30,17 @@ const cacheKey = (city: string, country: string, lang: string) =>
 
 /* -------------------- normalization & ranking helpers -------------------- */
 
-/** Normalize Arabic + Latin text for comparison: strip diacritics, unify alef/ya/ta-marbuta, lowercase. */
+/** Convert Arabic-Indic & Persian digits to ASCII (٠-٩, ۰-۹ → 0-9). */
+function digitsToAscii(s: string): string {
+  return s
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+}
+
+/** Normalize Arabic + Latin text for comparison: strip diacritics, unify alef/ya/ta-marbuta, lowercase, ASCII digits. */
 export function normalizeAreaText(input: string): string {
   if (!input) return "";
-  let s = input.normalize("NFKD").replace(/[\u064B-\u065F\u0670]/g, ""); // remove tashkeel
+  let s = digitsToAscii(input).normalize("NFKD").replace(/[\u064B-\u065F\u0670]/g, ""); // remove tashkeel
   s = s
     .replace(/[إأآا]/g, "ا")
     .replace(/ى/g, "ي")
@@ -41,8 +48,26 @@ export function normalizeAreaText(input: string): string {
     .replace(/ئ/g, "ي")
     .replace(/ة/g, "ه");
   s = s.replace(/[\u0300-\u036f]/g, ""); // latin diacritics
+  // Insert space between letter↔digit boundaries so "شارع12" ≈ "شارع 12" and "St12" ≈ "St 12"
+  s = s.replace(/([\p{L}])(\d)/gu, "$1 $2").replace(/(\d)([\p{L}])/gu, "$1 $2");
+  // Treat "/" "-" "_" as word separators (common in street/block codes)
+  s = s.replace(/[\/\-_]+/g, " ");
   return s.toLowerCase().trim().replace(/\s+/g, " ");
 }
+
+/** Street/road keyword synonyms across languages — all map to the same canonical token "st". */
+const STREET_SYNONYMS = [
+  "شارع", "ش", "جاده", "حاره", "زقاق",
+  "street", "st", "str", "road", "rd", "ave", "avenue", "blvd", "boulevard", "ln", "lane",
+  "sokak", "sk", "cadde", "cad", "bulvar", "blv",
+];
+const STREET_RE = new RegExp(`\\b(?:${STREET_SYNONYMS.join("|")})\\b`, "g");
+
+/** Canonicalize street keywords so "شارع 12" ≈ "street 12" ≈ "st 12". */
+function canonicalizeStreet(s: string): string {
+  return s.replace(STREET_RE, "st");
+}
+
 
 /** Weight per address feature type — more specific = higher. */
 const TYPE_WEIGHT: Record<string, number> = {
