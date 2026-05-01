@@ -84,7 +84,7 @@ describe("ListingLocationMap — coordinate persistence", () => {
   it("persists coordinates to DB after a successful Nominatim lookup", async () => {
     vi.stubGlobal("fetch", mockNominatimSuccess());
 
-    render(
+    renderWithLang(
       <ListingLocationMap
         listingId="listing-123"
         city="دمشق"
@@ -112,7 +112,7 @@ describe("ListingLocationMap — coordinate persistence", () => {
     const fetchSpy = mockNominatimSuccess();
     vi.stubGlobal("fetch", fetchSpy);
 
-    render(
+    renderWithLang(
       <ListingLocationMap
         listingId="listing-123"
         city="دمشق"
@@ -149,7 +149,7 @@ describe("ListingLocationMap — coordinate persistence", () => {
       vi.fn().mockResolvedValue({ ok: true, json: async () => [] })
     );
 
-    render(
+    renderWithLang(
       <ListingLocationMap
         listingId="listing-456"
         city="UnknownPlace"
@@ -167,7 +167,7 @@ describe("ListingLocationMap — coordinate persistence", () => {
   it("does NOT persist when the geocoding request fails", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network")));
 
-    render(
+    renderWithLang(
       <ListingLocationMap
         listingId="listing-789"
         city="دمشق"
