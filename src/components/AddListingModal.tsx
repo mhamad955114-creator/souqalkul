@@ -440,6 +440,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
   const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
+  const [cityQuery, setCityQuery] = useState("");
 
   const countryCities = getCitiesByCountry(selectedCountry);
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
@@ -645,11 +646,30 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 >
                   <Command>
                     <CommandInput
-                      placeholder={`ابحث في مدن ${selectedCountry}...`}
+                      placeholder={`ابحث أو اكتب اسم المدينة في ${selectedCountry}...`}
                       className="h-9"
+                      value={cityQuery}
+                      onValueChange={setCityQuery}
                     />
                     <CommandList>
-                      <CommandEmpty>لا توجد نتائج</CommandEmpty>
+                      <CommandEmpty>
+                        {cityQuery.trim() ? (
+                          <button
+                            type="button"
+                            className="w-full text-right px-2 py-1.5 text-sm hover:bg-accent rounded-md flex items-center gap-2"
+                            onClick={() => {
+                              handleCityChange(cityQuery.trim());
+                              setCityPopoverOpen(false);
+                              setCityQuery("");
+                            }}
+                          >
+                            <Check className="h-4 w-4 text-primary" />
+                            استخدام: "{cityQuery.trim()}"
+                          </button>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">ابدأ بالكتابة...</span>
+                        )}
+                      </CommandEmpty>
                       <CommandGroup>
                         {countryCities.map((city) => (
                           <CommandItem
@@ -658,6 +678,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                             onSelect={() => {
                               handleCityChange(city);
                               setCityPopoverOpen(false);
+                              setCityQuery("");
                             }}
                           >
                             <Check
@@ -669,6 +690,25 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                             {city}
                           </CommandItem>
                         ))}
+                        {cityQuery.trim() &&
+                          !countryCities.some(
+                            (c) => c.toLowerCase() === cityQuery.trim().toLowerCase()
+                          ) && (
+                            <CommandItem
+                              value={`__custom_${cityQuery}`}
+                              onSelect={() => {
+                                handleCityChange(cityQuery.trim());
+                                setCityPopoverOpen(false);
+                                setCityQuery("");
+                              }}
+                              className="border-t border-border mt-1 pt-2"
+                            >
+                              <Check className="ml-2 h-4 w-4 text-primary" />
+                              <span className="text-primary">
+                                استخدام: "{cityQuery.trim()}"
+                              </span>
+                            </CommandItem>
+                          )}
                       </CommandGroup>
                     </CommandList>
                   </Command>
@@ -678,22 +718,32 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
             <div className="space-y-2">
               <Label>{t.listingForm.area}</Label>
-              <Select
-                value={formData.area}
-                onValueChange={(value) => setFormData({ ...formData, area: value })}
-                disabled={!formData.city || availableAreas.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={formData.city ? t.listingForm.selectArea : t.listingForm.selectCityFirst} />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableAreas.map((area) => (
-                    <SelectItem key={area} value={area}>
-                      {area}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {availableAreas.length > 0 ? (
+                <Select
+                  value={formData.area}
+                  onValueChange={(value) => setFormData({ ...formData, area: value })}
+                  disabled={!formData.city}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={formData.city ? t.listingForm.selectArea : t.listingForm.selectCityFirst} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableAreas.map((area) => (
+                      <SelectItem key={area} value={area}>
+                        {area}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={formData.area}
+                  onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                  placeholder={formData.city ? "اكتب اسم المنطقة (اختياري)" : t.listingForm.selectCityFirst}
+                  disabled={!formData.city}
+                  maxLength={50}
+                />
+              )}
             </div>
           </div>
 
