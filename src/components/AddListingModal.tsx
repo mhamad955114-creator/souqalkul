@@ -21,6 +21,7 @@ import { useAreaSuggestions, filterAreaSuggestions } from "@/hooks/useAreaSugges
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { LocationConsentDialog } from "@/components/LocationConsentDialog";
 
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
@@ -461,15 +462,35 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setFormData({ ...formData, city, area: "" });
   };
 
-  const handleDetectLocation = async () => {
+  const [locationConsentOpen, setLocationConsentOpen] = useState(false);
+
+  const runDetectLocation = async () => {
     const result = await detectLocation();
     if (result) {
-      // Update country first if it changed (resets city list)
       if (result.country && result.country !== selectedCountry) {
         setSelectedCountry(result.country);
       }
       setFormData(prev => ({ ...prev, city: result.city, area: result.area || "" }));
     }
+  };
+
+  const handleDetectLocation = () => {
+    // Skip the consent dialog if user already granted it once in this browser
+    if (localStorage.getItem("location-consent") === "granted") {
+      runDetectLocation();
+      return;
+    }
+    setLocationConsentOpen(true);
+  };
+
+  const handleLocationAllow = () => {
+    localStorage.setItem("location-consent", "granted");
+    setLocationConsentOpen(false);
+    runDetectLocation();
+  };
+
+  const handleLocationDeny = () => {
+    setLocationConsentOpen(false);
   };
 
   return (
@@ -976,6 +997,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           </div>
         </form>
       </DialogContent>
+      <LocationConsentDialog
+        open={locationConsentOpen}
+        onAllow={handleLocationAllow}
+        onDeny={handleLocationDeny}
+      />
     </Dialog>
   );
 };
