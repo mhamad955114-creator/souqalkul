@@ -34,7 +34,7 @@ interface AddListingModalProps {
 
 const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) => {
   const { user } = useAuth();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { settings } = useListingSettings();
   const { currentCountry } = useCountry();
   const navigate = useNavigate();
