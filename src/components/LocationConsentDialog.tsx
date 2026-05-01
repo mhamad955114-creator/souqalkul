@@ -49,7 +49,7 @@ const COPY = {
   },
 } as const;
 
-export function LocationConsentDialog({ open, onAllow, onDeny }: LocationConsentDialogProps) {
+export function LocationConsentDialog({ open, onAllow, onDeny, onManual }: LocationConsentDialogProps) {
   const { language } = useLanguage();
   const t = COPY[(language as keyof typeof COPY)] || COPY.ar;
   const icons = [Shield, Eye, ListChecks];
@@ -77,12 +77,18 @@ export function LocationConsentDialog({ open, onAllow, onDeny }: LocationConsent
           })}
         </ul>
 
-        <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
-          <Button variant="outline" className="w-full sm:w-auto" onClick={onDeny}>
-            {t.deny}
-          </Button>
-          <Button className="w-full sm:w-auto" onClick={onAllow}>
+        <DialogFooter className="flex-col gap-2 sm:flex-col sm:gap-2">
+          <Button className="w-full" onClick={onAllow}>
             {t.allow}
+          </Button>
+          {onManual && (
+            <Button variant="secondary" className="w-full gap-2" onClick={onManual}>
+              <Pencil className="h-4 w-4" />
+              {t.manual}
+            </Button>
+          )}
+          <Button variant="ghost" className="w-full" onClick={onDeny}>
+            {t.deny}
           </Button>
         </DialogFooter>
       </DialogContent>
