@@ -439,6 +439,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   };
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
+  const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
 
   const countryCities = getCitiesByCountry(selectedCountry);
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
