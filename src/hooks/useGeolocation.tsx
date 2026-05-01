@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { countries, areasByCity } from "@/lib/constants";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface GeolocationResult {
   city: string;
