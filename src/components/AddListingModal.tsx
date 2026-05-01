@@ -620,21 +620,60 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   {t.listingForm.myLocation}
                 </Button>
               </div>
-              <Select
-                value={formData.city}
-                onValueChange={handleCityChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t.listingForm.selectCity} />
-                </SelectTrigger>
-                <SelectContent>
-                  {countryCities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={cityPopoverOpen} onOpenChange={setCityPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={cityPopoverOpen}
+                    className={cn(
+                      "w-full justify-between font-normal",
+                      !formData.city && "text-muted-foreground"
+                    )}
+                  >
+                    <span className="truncate">
+                      {formData.city || t.listingForm.selectCity}
+                    </span>
+                    <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="p-0 w-[--radix-popover-trigger-width] z-[100]"
+                  align="start"
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+                >
+                  <Command>
+                    <CommandInput
+                      placeholder={`ابحث في مدن ${selectedCountry}...`}
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>لا توجد نتائج</CommandEmpty>
+                      <CommandGroup>
+                        {countryCities.map((city) => (
+                          <CommandItem
+                            key={city}
+                            value={city}
+                            onSelect={() => {
+                              handleCityChange(city);
+                              setCityPopoverOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "ml-2 h-4 w-4",
+                                formData.city === city ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {city}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-2">
