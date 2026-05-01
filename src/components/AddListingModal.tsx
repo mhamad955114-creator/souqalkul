@@ -493,6 +493,12 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setLocationConsentOpen(false);
   };
 
+  const handleLocationManual = () => {
+    setLocationConsentOpen(false);
+    // Open the city picker so user can start typing right away
+    setTimeout(() => setCityPopoverOpen(true), 50);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl max-h-[85dvh] overflow-y-auto" onOpenAutoFocus={(e) => e.preventDefault()}>
@@ -1001,6 +1007,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         open={locationConsentOpen}
         onAllow={handleLocationAllow}
         onDeny={handleLocationDeny}
+        onManual={handleLocationManual}
       />
     </Dialog>
   );
