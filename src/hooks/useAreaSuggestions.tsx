@@ -120,24 +120,48 @@ function mergeAndRank(items: AreaSuggestion[], cityNorm: string): AreaSuggestion
 /**
  * Public filter helper used by UI: ranks matches by
  *   prefix > word-start > substring, then by base score.
- * Diacritic/case-insensitive.
+ * Diacritic/case/digit-script-insensitive. Recognizes street keywords
+ * (شارع/street/sokak…) and matches embedded numbers like "12" / "١٢".
  */
 export function filterAreaSuggestions(
   suggestions: AreaSuggestion[],
   query: string,
   limit = 8
 ): AreaSuggestion[] {
-  const q = normalizeAreaText(query);
-  if (!q) return suggestions.slice(0, limit);
+  const qRaw = normalizeAreaText(query);
+  if (!qRaw) return suggestions.slice(0, limit);
+
+  const q = canonicalizeStreet(qRaw);
+  const escape = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const tokens = q.split(" ").filter(Boolean);
+  const numericTokens = tokens.filter((t) => /^\d+$/.test(t));
+  const textTokens = tokens.filter((t) => !/^\d+$/.test(t));
 
   const scored = suggestions
     .map((s) => {
-      const n = normalizeAreaText(s.name);
-      let bonus = -1;
-      if (n.startsWith(q)) bonus = 300;
-      else if (new RegExp(`(^|\\s)${q.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`).test(n)) bonus = 200;
-      else if (n.includes(q)) bonus = 100;
-      return bonus < 0 ? null : { ...s, score: (s.score ?? 0) + bonus };
+      const n = canonicalizeStreet(normalizeAreaText(s.name));
+      let bonus = 0;
+
+      // Whole-query matching (prefix > word-start > substring)
+      if (n.startsWith(q)) bonus += 300;
+      else if (new RegExp(`(^|\\s)${escape(q)}`).test(n)) bonus += 200;
+      else if (n.includes(q)) bonus += 100;
+
+      // Per-token matching: every token must appear, with bonuses
+      let allTokensFound = true;
+      for (const t of textTokens) {
+        if (!n.includes(t)) { allTokensFound = false; break; }
+        if (new RegExp(`(^|\\s)${escape(t)}`).test(n)) bonus += 40;
+        else bonus += 15;
+      }
+      // Numeric tokens require exact whole-number match (so "1" doesn't match "12")
+      for (const t of numericTokens) {
+        if (!new RegExp(`(^|\\s)${t}(\\s|$)`).test(n)) { allTokensFound = false; break; }
+        bonus += 80; // strong signal: street/block numbers
+      }
+
+      if (bonus === 0 || !allTokensFound) return null;
+      return { ...s, score: (s.score ?? 0) + bonus };
     })
     .filter(Boolean) as AreaSuggestion[];
 
