@@ -38,6 +38,7 @@ import ReportModal from "@/components/ReportModal";
 import Product360Viewer from "@/components/Product360Viewer";
 import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import ListingLocationMap from "@/components/ListingLocationMap";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice, formatDate, categoryLabels, getCountryByName, formatListingPrice } from "@/lib/constants";
@@ -420,7 +421,14 @@ const ListingDetails = () => {
                   </span>
                 </div>
 
-                {/* Date */}
+                {/* Map */}
+                <div className="py-3">
+                  <ListingLocationMap
+                    city={listing.city}
+                    area={listing.area}
+                    country={(listing as any).country}
+                  />
+                </div>
                 <div className="flex items-center justify-between py-3 border-b border-border">
                   <span className="text-muted-foreground">{formatDate(listing.created_at)}</span>
                   <span className="font-medium text-foreground">تاريخ الإعلان</span>
