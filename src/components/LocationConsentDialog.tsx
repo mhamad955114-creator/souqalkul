@@ -1,12 +1,13 @@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MapPin, Shield, Eye, ListChecks } from "lucide-react";
+import { MapPin, Shield, Eye, ListChecks, Pencil } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LocationConsentDialogProps {
   open: boolean;
   onAllow: () => void;
   onDeny: () => void;
+  onManual?: () => void;
 }
 
 const COPY = {
