@@ -107,6 +107,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
       ? { lat: latitude, lon: longitude, accuracy: "saved", radius: 25 }
       : null;
 
+  const { language } = useLanguage();
   const [coords, setCoords] = useState<Coords | null>(initial);
   const [loading, setLoading] = useState(!coords);
   const [error, setError] = useState(false);
