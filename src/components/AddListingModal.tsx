@@ -997,6 +997,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           </div>
         </form>
       </DialogContent>
+      <LocationConsentDialog
+        open={locationConsentOpen}
+        onAllow={handleLocationAllow}
+        onDeny={handleLocationDeny}
+      />
     </Dialog>
   );
 };
