@@ -744,13 +744,59 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   </SelectContent>
                 </Select>
               ) : (
-                <Input
-                  value={formData.area}
-                  onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                  placeholder={formData.city ? "اكتب اسم المنطقة (اختياري)" : t.listingForm.selectCityFirst}
-                  disabled={!formData.city}
-                  maxLength={50}
-                />
+                <Popover
+                  open={areaSuggestionsOpen && filteredAreaSuggestions.length > 0}
+                  onOpenChange={setAreaSuggestionsOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Input
+                        value={formData.area}
+                        onChange={(e) => {
+                          setFormData({ ...formData, area: e.target.value });
+                          setAreaSuggestionsOpen(true);
+                        }}
+                        onFocus={() => setAreaSuggestionsOpen(true)}
+                        placeholder={
+                          formData.city
+                            ? "اكتب اسم المنطقة (اختياري)"
+                            : t.listingForm.selectCityFirst
+                        }
+                        disabled={!formData.city}
+                        maxLength={50}
+                        autoComplete="off"
+                      />
+                      {areaSuggestionsLoading && (
+                        <Loader2 className="absolute top-1/2 -translate-y-1/2 left-2 h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                      )}
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="p-0 w-[--radix-popover-trigger-width] z-[100]"
+                    align="start"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                  >
+                    <Command shouldFilter={false}>
+                      <CommandList>
+                        <CommandGroup heading={`اقتراحات في ${formData.city}`}>
+                          {filteredAreaSuggestions.map((s) => (
+                            <CommandItem
+                              key={s.name}
+                              value={s.name}
+                              onSelect={() => {
+                                setFormData({ ...formData, area: s.name });
+                                setAreaSuggestionsOpen(false);
+                              }}
+                            >
+                              <MapPin className="ml-2 h-3.5 w-3.5 text-muted-foreground" />
+                              {s.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
           </div>
