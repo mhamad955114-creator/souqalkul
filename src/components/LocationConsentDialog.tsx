@@ -21,6 +21,7 @@ const COPY = {
     ],
     allow: "السماح بالوصول",
     deny: "ليس الآن",
+    manual: "إدخال يدوي",
   },
   en: {
     title: "Allow access to your location?",
@@ -32,6 +33,7 @@ const COPY = {
     ],
     allow: "Allow access",
     deny: "Not now",
+    manual: "Enter manually",
   },
   tr: {
     title: "Konumunuza erişime izin verilsin mi?",
@@ -43,6 +45,7 @@ const COPY = {
     ],
     allow: "İzin ver",
     deny: "Şimdi değil",
+    manual: "Elle gir",
   },
 } as const;
 
