@@ -44,7 +44,7 @@ export function useAreaSuggestions(city: string, country: string, language: stri
 
     // Check cache first
     try {
-      const cached = sessionStorage.getItem(cacheKey(trimmedCity, country));
+      const cached = sessionStorage.getItem(cacheKey(trimmedCity, country, language));
       if (cached) {
         setSuggestions(JSON.parse(cached));
         return;
