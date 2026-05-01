@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { categories, areasByCity, countries, getCitiesByCountry, getCountryByName } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useAreaSuggestions } from "@/hooks/useAreaSuggestions";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
