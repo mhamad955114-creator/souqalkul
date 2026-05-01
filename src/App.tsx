@@ -159,7 +159,8 @@ const AppContent = () => {
             <Route path="/developers" element={<Developers />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Suspense>
+          </Suspense>
+        </LazyLoadBoundary>
       </BrowserRouter>
       {showSplash && <SplashScreen onFinish={handleSplashFinish} />}
     </>
