@@ -424,9 +424,12 @@ const ListingDetails = () => {
                 {/* Map */}
                 <div className="py-3">
                   <ListingLocationMap
+                    listingId={listing.id}
                     city={listing.city}
                     area={listing.area}
                     country={(listing as any).country}
+                    latitude={(listing as any).latitude}
+                    longitude={(listing as any).longitude}
                   />
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-border">
