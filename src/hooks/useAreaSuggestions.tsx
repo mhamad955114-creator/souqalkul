@@ -48,25 +48,40 @@ export function normalizeAreaText(input: string): string {
     .replace(/ئ/g, "ي")
     .replace(/ة/g, "ه");
   s = s.replace(/[\u0300-\u036f]/g, ""); // latin diacritics
-  // Insert space between letter↔digit boundaries so "شارع12" ≈ "شارع 12" and "St12" ≈ "St 12"
-  s = s.replace(/([\p{L}])(\d)/gu, "$1 $2").replace(/(\d)([\p{L}])/gu, "$1 $2");
-  // Treat "/" "-" "_" as word separators (common in street/block codes)
-  s = s.replace(/[\/\-_]+/g, " ");
+  // Treat punctuation/separators as spaces: / - _ . , ، ; : · • | () [] {}  + Arabic comma/semicolon
+  s = s.replace(/[\/\-_.,;:|·•()[\]{}،؛]+/gu, " ");
+  // Insert space between letter↔digit boundaries: "شارع12" → "شارع 12", "St12أ" → "St 12 أ"
+  s = s
+    .replace(/(\p{L})(\d)/gu, "$1 $2")
+    .replace(/(\d)(\p{L})/gu, "$1 $2");
+  // Strip leading zeros on standalone numeric tokens ("012" → "12")
+  s = s.replace(/(^|\s)0+(\d)/g, "$1$2");
   return s.toLowerCase().trim().replace(/\s+/g, " ");
 }
 
-/** Street/road keyword synonyms across languages — all map to the same canonical token "st". */
+/** Street/road keyword synonyms across languages — all map to the canonical token "st". */
 const STREET_SYNONYMS = [
-  "شارع", "ش", "جاده", "حاره", "زقاق",
+  "شارع", "ش", "جاده", "حارة", "حاره", "زقاق", "طريق",
   "street", "st", "str", "road", "rd", "ave", "avenue", "blvd", "boulevard", "ln", "lane",
   "sokak", "sk", "cadde", "cad", "bulvar", "blv",
 ];
-const STREET_RE = new RegExp(`\\b(?:${STREET_SYNONYMS.join("|")})\\b`, "g");
+/** Neighbourhood/district synonyms — all map to canonical token "nb". */
+const NEIGHBOURHOOD_SYNONYMS = [
+  "حي", "منطقة", "منطقه", "ضاحية", "ضاحيه", "مجاورة", "مجاوره", "قطاع", "بلوك",
+  "neighbourhood", "neighborhood", "district", "quarter", "block", "zone", "area", "sector",
+  "mahalle", "mah", "semt", "bolge", "bölge",
+];
+const wordsRe = (words: string[]) =>
+  // Use lookarounds for Unicode word boundaries (\b is ASCII-only and breaks for Arabic).
+  new RegExp(`(^|[^\\p{L}\\d])(?:${words.join("|")})(?=$|[^\\p{L}\\d])`, "gu");
+const STREET_RE = wordsRe(STREET_SYNONYMS);
+const NEIGHBOURHOOD_RE = wordsRe(NEIGHBOURHOOD_SYNONYMS);
 
-/** Canonicalize street keywords so "شارع 12" ≈ "street 12" ≈ "st 12". */
+/** Canonicalize street/neighbourhood keywords so variants collapse to a single token. */
 function canonicalizeStreet(s: string): string {
-  return s.replace(STREET_RE, "st");
+  return s.replace(STREET_RE, "$1st").replace(NEIGHBOURHOOD_RE, "$1nb");
 }
+
 
 
 /** Weight per address feature type — more specific = higher. */
