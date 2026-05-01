@@ -367,6 +367,8 @@ export type Database = {
           id: string
           images: string[] | null
           is_featured: boolean | null
+          latitude: number | null
+          longitude: number | null
           metadata: Json | null
           phone: string | null
           price: number
@@ -389,6 +391,8 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           metadata?: Json | null
           phone?: string | null
           price: number
@@ -411,6 +415,8 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           metadata?: Json | null
           phone?: string | null
           price?: number
