@@ -646,11 +646,30 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 >
                   <Command>
                     <CommandInput
-                      placeholder={`ابحث في مدن ${selectedCountry}...`}
+                      placeholder={`ابحث أو اكتب اسم المدينة في ${selectedCountry}...`}
                       className="h-9"
+                      value={cityQuery}
+                      onValueChange={setCityQuery}
                     />
                     <CommandList>
-                      <CommandEmpty>لا توجد نتائج</CommandEmpty>
+                      <CommandEmpty>
+                        {cityQuery.trim() ? (
+                          <button
+                            type="button"
+                            className="w-full text-right px-2 py-1.5 text-sm hover:bg-accent rounded-md flex items-center gap-2"
+                            onClick={() => {
+                              handleCityChange(cityQuery.trim());
+                              setCityPopoverOpen(false);
+                              setCityQuery("");
+                            }}
+                          >
+                            <Check className="h-4 w-4 text-primary" />
+                            استخدام: "{cityQuery.trim()}"
+                          </button>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">ابدأ بالكتابة...</span>
+                        )}
+                      </CommandEmpty>
                       <CommandGroup>
                         {countryCities.map((city) => (
                           <CommandItem
@@ -659,6 +678,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                             onSelect={() => {
                               handleCityChange(city);
                               setCityPopoverOpen(false);
+                              setCityQuery("");
                             }}
                           >
                             <Check
@@ -670,6 +690,25 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                             {city}
                           </CommandItem>
                         ))}
+                        {cityQuery.trim() &&
+                          !countryCities.some(
+                            (c) => c.toLowerCase() === cityQuery.trim().toLowerCase()
+                          ) && (
+                            <CommandItem
+                              value={`__custom_${cityQuery}`}
+                              onSelect={() => {
+                                handleCityChange(cityQuery.trim());
+                                setCityPopoverOpen(false);
+                                setCityQuery("");
+                              }}
+                              className="border-t border-border mt-1 pt-2"
+                            >
+                              <Check className="ml-2 h-4 w-4 text-primary" />
+                              <span className="text-primary">
+                                استخدام: "{cityQuery.trim()}"
+                              </span>
+                            </CommandItem>
+                          )}
                       </CommandGroup>
                     </CommandList>
                   </Command>
