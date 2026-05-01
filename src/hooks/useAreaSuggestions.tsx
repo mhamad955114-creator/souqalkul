@@ -21,14 +21,17 @@ interface NominatimResult {
   };
 }
 
-const cacheKey = (city: string, country: string) =>
-  `area-suggestions:${country.toLowerCase()}:${city.toLowerCase()}`;
+const cacheKey = (city: string, country: string, lang: string) =>
+  `area-suggestions:${lang}:${country.toLowerCase()}:${city.toLowerCase()}`;
 
 /**
  * Fetches neighbourhood / district suggestions for a given city using Nominatim.
  * Results are cached in sessionStorage to minimize API calls.
+ *
+ * @param language - UI language code (e.g. "ar", "en", "tr") used as Accept-Language
+ *                   so neighbourhood names come back in the user's language when possible.
  */
-export function useAreaSuggestions(city: string, country: string) {
+export function useAreaSuggestions(city: string, country: string, language: string = "ar") {
   const [suggestions, setSuggestions] = useState<AreaSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +44,7 @@ export function useAreaSuggestions(city: string, country: string) {
 
     // Check cache first
     try {
-      const cached = sessionStorage.getItem(cacheKey(trimmedCity, country));
+      const cached = sessionStorage.getItem(cacheKey(trimmedCity, country, language));
       if (cached) {
         setSuggestions(JSON.parse(cached));
         return;
@@ -63,7 +66,7 @@ export function useAreaSuggestions(city: string, country: string) {
         )}`;
         const res = await fetch(url, {
           signal: controller.signal,
-          headers: { "Accept-Language": "ar" },
+          headers: { "Accept-Language": language },
         });
         if (!res.ok) throw new Error("fetch failed");
         const data = (await res.json()) as NominatimResult[];
@@ -97,7 +100,7 @@ export function useAreaSuggestions(city: string, country: string) {
         const sliced = results.slice(0, 8);
         setSuggestions(sliced);
         try {
-          sessionStorage.setItem(cacheKey(trimmedCity, country), JSON.stringify(sliced));
+          sessionStorage.setItem(cacheKey(trimmedCity, country, language), JSON.stringify(sliced));
         } catch {
           // ignore
         }
@@ -113,7 +116,7 @@ export function useAreaSuggestions(city: string, country: string) {
       controller.abort();
       clearTimeout(timer);
     };
-  }, [city, country]);
+  }, [city, country, language]);
 
   return { suggestions, loading };
 }

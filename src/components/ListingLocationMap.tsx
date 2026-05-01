@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { MapPin, Loader2, Crosshair, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Fix default marker icons (Leaflet ships them as bundler-incompatible URLs)
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -106,6 +107,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
       ? { lat: latitude, lon: longitude, accuracy: "saved", radius: 25 }
       : null;
 
+  const { language } = useLanguage();
   const [coords, setCoords] = useState<Coords | null>(initial);
   const [loading, setLoading] = useState(!coords);
   const [error, setError] = useState(false);
@@ -142,7 +144,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
         )}`;
         const res = await fetch(url, {
           signal: controller.signal,
-          headers: { "Accept-Language": "ar" },
+          headers: { "Accept-Language": language },
         });
         if (!res.ok) throw new Error("geocode failed");
         const data = (await res.json()) as Array<{
@@ -196,7 +198,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
       controller.abort();
       clearTimeout(timeoutId);
     };
-  }, [query, coords]);
+  }, [query, coords, language, listingId]);
 
   if (!query) return null;
 

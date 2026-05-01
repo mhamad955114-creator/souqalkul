@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import ListingLocationMap from "./ListingLocationMap";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+
+const renderWithLang = (ui: React.ReactElement) =>
+  render(<LanguageProvider>{ui}</LanguageProvider>);
 
 // --- Mock react-leaflet (avoid rendering real map / requiring DOM measurements) ---
 vi.mock("react-leaflet", () => ({
@@ -80,7 +84,7 @@ describe("ListingLocationMap — coordinate persistence", () => {
   it("persists coordinates to DB after a successful Nominatim lookup", async () => {
     vi.stubGlobal("fetch", mockNominatimSuccess());
 
-    render(
+    renderWithLang(
       <ListingLocationMap
         listingId="listing-123"
         city="دمشق"
@@ -108,7 +112,7 @@ describe("ListingLocationMap — coordinate persistence", () => {
     const fetchSpy = mockNominatimSuccess();
     vi.stubGlobal("fetch", fetchSpy);
 
-    render(
+    renderWithLang(
       <ListingLocationMap
         listingId="listing-123"
         city="دمشق"
@@ -128,7 +132,8 @@ describe("ListingLocationMap — coordinate persistence", () => {
   it("does NOT call DB update when no listingId is provided", async () => {
     vi.stubGlobal("fetch", mockNominatimSuccess());
 
-    render(<ListingLocationMap city="دمشق" country="سوريا" latitude={null} longitude={null} />);
+    renderWithLang(
+      <ListingLocationMap city="دمشق" country="سوريا" latitude={null} longitude={null} />);
 
     await waitFor(() => {
       // Wait for fetch resolution to flush
@@ -144,7 +149,7 @@ describe("ListingLocationMap — coordinate persistence", () => {
       vi.fn().mockResolvedValue({ ok: true, json: async () => [] })
     );
 
-    render(
+    renderWithLang(
       <ListingLocationMap
         listingId="listing-456"
         city="UnknownPlace"
@@ -162,7 +167,7 @@ describe("ListingLocationMap — coordinate persistence", () => {
   it("does NOT persist when the geocoding request fails", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network")));
 
-    render(
+    renderWithLang(
       <ListingLocationMap
         listingId="listing-789"
         city="دمشق"
