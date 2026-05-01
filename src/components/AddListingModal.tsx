@@ -718,22 +718,32 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
             <div className="space-y-2">
               <Label>{t.listingForm.area}</Label>
-              <Select
-                value={formData.area}
-                onValueChange={(value) => setFormData({ ...formData, area: value })}
-                disabled={!formData.city || availableAreas.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={formData.city ? t.listingForm.selectArea : t.listingForm.selectCityFirst} />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableAreas.map((area) => (
-                    <SelectItem key={area} value={area}>
-                      {area}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {availableAreas.length > 0 ? (
+                <Select
+                  value={formData.area}
+                  onValueChange={(value) => setFormData({ ...formData, area: value })}
+                  disabled={!formData.city}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={formData.city ? t.listingForm.selectArea : t.listingForm.selectCityFirst} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableAreas.map((area) => (
+                      <SelectItem key={area} value={area}>
+                        {area}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={formData.area}
+                  onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                  placeholder={formData.city ? "اكتب اسم المنطقة (اختياري)" : t.listingForm.selectCityFirst}
+                  disabled={!formData.city}
+                  maxLength={50}
+                />
+              )}
             </div>
           </div>
 
