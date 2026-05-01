@@ -100,7 +100,7 @@ const classifyAccuracy = (
 
 const fmtCoord = (n: number) => n.toFixed(6);
 
-const ListingLocationMap = ({ city, area, country, latitude, longitude }: Props) => {
+const ListingLocationMap = ({ city, area, country, latitude, longitude, listingId }: Props) => {
   const initial: Coords | null =
     typeof latitude === "number" && typeof longitude === "number"
       ? { lat: latitude, lon: longitude, accuracy: "saved", radius: 25 }
@@ -170,6 +170,17 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude }: Props)
             sessionStorage.setItem(cacheKey(query), JSON.stringify(result));
           } catch {
             // ignore
+          }
+          // Persist to DB once so future visitors skip Nominatim entirely
+          if (listingId) {
+            supabase
+              .from("listings")
+              .update({ latitude: result.lat, longitude: result.lon })
+              .eq("id", listingId)
+              .is("latitude", null)
+              .then(({ error: updErr }) => {
+                if (updErr) console.warn("persist coords failed", updErr.message);
+              });
           }
         }
       } catch {
