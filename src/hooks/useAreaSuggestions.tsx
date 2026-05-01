@@ -21,14 +21,17 @@ interface NominatimResult {
   };
 }
 
-const cacheKey = (city: string, country: string) =>
-  `area-suggestions:${country.toLowerCase()}:${city.toLowerCase()}`;
+const cacheKey = (city: string, country: string, lang: string) =>
+  `area-suggestions:${lang}:${country.toLowerCase()}:${city.toLowerCase()}`;
 
 /**
  * Fetches neighbourhood / district suggestions for a given city using Nominatim.
  * Results are cached in sessionStorage to minimize API calls.
+ *
+ * @param language - UI language code (e.g. "ar", "en", "tr") used as Accept-Language
+ *                   so neighbourhood names come back in the user's language when possible.
  */
-export function useAreaSuggestions(city: string, country: string) {
+export function useAreaSuggestions(city: string, country: string, language: string = "ar") {
   const [suggestions, setSuggestions] = useState<AreaSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
 
