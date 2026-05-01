@@ -144,7 +144,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
         )}`;
         const res = await fetch(url, {
           signal: controller.signal,
-          headers: { "Accept-Language": "ar" },
+          headers: { "Accept-Language": language },
         });
         if (!res.ok) throw new Error("geocode failed");
         const data = (await res.json()) as Array<{
