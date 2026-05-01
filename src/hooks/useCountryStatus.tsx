@@ -61,6 +61,7 @@ export const useCountryStatus = () => {
 
     return () => {
       isMounted = false;
+      clearTimeout(safety);
       supabase.removeChannel(channel);
     };
   }, [currentCountry.name]);
