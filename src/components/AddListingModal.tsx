@@ -453,6 +453,10 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const handleDetectLocation = async () => {
     const result = await detectLocation();
     if (result) {
+      // Update country first if it changed (resets city list)
+      if (result.country && result.country !== selectedCountry) {
+        setSelectedCountry(result.country);
+      }
       setFormData(prev => ({ ...prev, city: result.city, area: result.area || "" }));
     }
   };
