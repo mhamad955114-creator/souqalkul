@@ -449,7 +449,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const countryInfo = getCountryByName(selectedCountry);
   const isCustomCity = !!formData.city && availableAreas.length === 0;
   const { suggestions: areaSuggestions, loading: areaSuggestionsLoading } =
-    useAreaSuggestions(isCustomCity ? formData.city : "", selectedCountry);
+    useAreaSuggestions(isCustomCity ? formData.city : "", selectedCountry, language);
   const filteredAreaSuggestions = areaSuggestions.filter((s) =>
     s.name.toLowerCase().includes(formData.area.trim().toLowerCase())
   );
