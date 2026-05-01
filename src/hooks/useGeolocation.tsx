@@ -138,8 +138,8 @@ export function useGeolocation(): UseGeolocationReturn {
       const { latitude, longitude } = position.coords;
 
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar&addressdetails=1&zoom=14`,
-        { headers: { "User-Agent": "SouqAlkulApp/1.0" } }
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=${language}&addressdetails=1&zoom=14`,
+        { headers: { "Accept-Language": language, "User-Agent": "SouqAlkulApp/1.0" } }
       );
 
       if (!response.ok) {
