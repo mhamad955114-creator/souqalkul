@@ -16,6 +16,7 @@ import PageSkeleton from "@/components/PageSkeleton";
 import UpdateNotification from "@/components/UpdateNotification";
 import InAppNotificationBanner from "@/components/InAppNotificationBanner";
 import MaintenancePage from "@/components/MaintenancePage";
+import LazyLoadBoundary from "@/components/LazyLoadBoundary";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import { useCountryStatus } from "@/hooks/useCountryStatus";
 import { useBackButton } from "@/hooks/useBackButton";
@@ -125,13 +126,19 @@ const AppContent = () => {
     );
   }
 
+  // Show skeleton instead of a blank screen while early checks resolve.
+  // Splash sits on top so the user always sees motion.
+  const earlyLoading = (loading || countryLoading) && showSplash;
+
   return (
     <>
       <UpdateNotification />
       <BrowserRouter>
         <InAppNotificationBanner />
-        <Suspense fallback={<PageSkeleton />}>
-          <Routes>
+        <LazyLoadBoundary>
+          <Suspense fallback={<PageSkeleton />}>
+            {earlyLoading ? <PageSkeleton /> : null}
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/my-account" element={<MyAccount />} />
             <Route path="/listing/:id" element={<ListingDetails />} />
