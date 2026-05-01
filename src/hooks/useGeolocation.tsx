@@ -191,7 +191,7 @@ export function useGeolocation(): UseGeolocationReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [language]);
 
   return { loading, detectLocation };
 }
