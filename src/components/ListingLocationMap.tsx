@@ -198,7 +198,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
       controller.abort();
       clearTimeout(timeoutId);
     };
-  }, [query, coords]);
+  }, [query, coords, language, listingId]);
 
   if (!query) return null;
 
