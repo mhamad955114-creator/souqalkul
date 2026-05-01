@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { categories, areasByCity, countries, getCitiesByCountry, getCountryByName } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useAreaSuggestions } from "@/hooks/useAreaSuggestions";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -441,10 +442,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const { loading: geoLoading, detectLocation } = useGeolocation();
   const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
   const [cityQuery, setCityQuery] = useState("");
+  const [areaSuggestionsOpen, setAreaSuggestionsOpen] = useState(false);
 
   const countryCities = getCitiesByCountry(selectedCountry);
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
   const countryInfo = getCountryByName(selectedCountry);
+  const isCustomCity = !!formData.city && availableAreas.length === 0;
+  const { suggestions: areaSuggestions, loading: areaSuggestionsLoading } =
+    useAreaSuggestions(isCustomCity ? formData.city : "", selectedCountry);
+  const filteredAreaSuggestions = areaSuggestions.filter((s) =>
+    s.name.toLowerCase().includes(formData.area.trim().toLowerCase())
+  );
 
   const handleCountryChange = (name: string) => {
     setSelectedCountry(name);
@@ -736,13 +744,59 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   </SelectContent>
                 </Select>
               ) : (
-                <Input
-                  value={formData.area}
-                  onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-                  placeholder={formData.city ? "اكتب اسم المنطقة (اختياري)" : t.listingForm.selectCityFirst}
-                  disabled={!formData.city}
-                  maxLength={50}
-                />
+                <Popover
+                  open={areaSuggestionsOpen && filteredAreaSuggestions.length > 0}
+                  onOpenChange={setAreaSuggestionsOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <Input
+                        value={formData.area}
+                        onChange={(e) => {
+                          setFormData({ ...formData, area: e.target.value });
+                          setAreaSuggestionsOpen(true);
+                        }}
+                        onFocus={() => setAreaSuggestionsOpen(true)}
+                        placeholder={
+                          formData.city
+                            ? "اكتب اسم المنطقة (اختياري)"
+                            : t.listingForm.selectCityFirst
+                        }
+                        disabled={!formData.city}
+                        maxLength={50}
+                        autoComplete="off"
+                      />
+                      {areaSuggestionsLoading && (
+                        <Loader2 className="absolute top-1/2 -translate-y-1/2 left-2 h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                      )}
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="p-0 w-[--radix-popover-trigger-width] z-[100]"
+                    align="start"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                  >
+                    <Command shouldFilter={false}>
+                      <CommandList>
+                        <CommandGroup heading={`اقتراحات في ${formData.city}`}>
+                          {filteredAreaSuggestions.map((s) => (
+                            <CommandItem
+                              key={s.name}
+                              value={s.name}
+                              onSelect={() => {
+                                setFormData({ ...formData, area: s.name });
+                                setAreaSuggestionsOpen(false);
+                              }}
+                            >
+                              <MapPin className="ml-2 h-3.5 w-3.5 text-muted-foreground" />
+                              {s.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
           </div>
