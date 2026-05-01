@@ -11,6 +11,12 @@ export const useMaintenanceMode = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let done = false;
+    // Safety: never block the UI more than 2.5s on this check
+    const safety = setTimeout(() => {
+      if (!done) setLoading(false);
+    }, 2500);
+
     const fetchMaintenance = async () => {
       try {
         const { data, error } = await supabase
@@ -26,11 +32,14 @@ export const useMaintenanceMode = () => {
       } catch {
         // If fetch fails, don't block the app
       } finally {
+        done = true;
+        clearTimeout(safety);
         setLoading(false);
       }
     };
 
     fetchMaintenance();
+    return () => clearTimeout(safety);
   }, []);
 
   return { maintenance, loading };

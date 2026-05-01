@@ -46,7 +46,7 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
     const showTimer = setTimeout(() => setShowContent(true), 50);
     const fadeTimer = setTimeout(() => setFadeOut(true), 1200);
     const removeTimer = setTimeout(() => onFinish(), 1600);
-    const hardStopTimer = setTimeout(() => onFinish(), 4500);
+    const hardStopTimer = setTimeout(() => onFinish(), 3000);
     return () => {
       clearTimeout(showTimer);
       clearTimeout(fadeTimer);

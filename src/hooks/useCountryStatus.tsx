@@ -14,6 +14,10 @@ export const useCountryStatus = () => {
 
   useEffect(() => {
     let isMounted = true;
+    // Safety: never block the UI more than 2.5s
+    const safety = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 2500);
 
     const fetchStatus = async () => {
       setLoading(true);
@@ -38,6 +42,7 @@ export const useCountryStatus = () => {
       } catch {
         if (isMounted) setStatus({ enabled: true, message: "" });
       } finally {
+        clearTimeout(safety);
         if (isMounted) setLoading(false);
       }
     };
@@ -56,6 +61,7 @@ export const useCountryStatus = () => {
 
     return () => {
       isMounted = false;
+      clearTimeout(safety);
       supabase.removeChannel(channel);
     };
   }, [currentCountry.name]);
