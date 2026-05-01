@@ -132,7 +132,8 @@ describe("ListingLocationMap — coordinate persistence", () => {
   it("does NOT call DB update when no listingId is provided", async () => {
     vi.stubGlobal("fetch", mockNominatimSuccess());
 
-    render(<ListingLocationMap city="دمشق" country="سوريا" latitude={null} longitude={null} />);
+    renderWithLang(
+      <ListingLocationMap city="دمشق" country="سوريا" latitude={null} longitude={null} />);
 
     await waitFor(() => {
       // Wait for fetch resolution to flush
