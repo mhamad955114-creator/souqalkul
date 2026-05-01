@@ -1007,6 +1007,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         open={locationConsentOpen}
         onAllow={handleLocationAllow}
         onDeny={handleLocationDeny}
+        onManual={handleLocationManual}
       />
     </Dialog>
   );
