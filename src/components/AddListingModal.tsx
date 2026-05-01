@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { categories, areasByCity, countries, getCitiesByCountry, getCountryByName } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { useAreaSuggestions } from "@/hooks/useAreaSuggestions";
+import { useAreaSuggestions, filterAreaSuggestions } from "@/hooks/useAreaSuggestions";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -450,9 +450,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const isCustomCity = !!formData.city && availableAreas.length === 0;
   const { suggestions: areaSuggestions, loading: areaSuggestionsLoading } =
     useAreaSuggestions(isCustomCity ? formData.city : "", selectedCountry, language);
-  const filteredAreaSuggestions = areaSuggestions.filter((s) =>
-    s.name.toLowerCase().includes(formData.area.trim().toLowerCase())
-  );
+  const filteredAreaSuggestions = filterAreaSuggestions(areaSuggestions, formData.area, 8);
 
   const handleCountryChange = (name: string) => {
     setSelectedCountry(name);
