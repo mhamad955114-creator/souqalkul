@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import ListingLocationMap from "./ListingLocationMap";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+
+const renderWithLang = (ui: React.ReactElement) =>
+  render(<LanguageProvider>{ui}</LanguageProvider>);
 
 // --- Mock react-leaflet (avoid rendering real map / requiring DOM measurements) ---
 vi.mock("react-leaflet", () => ({
