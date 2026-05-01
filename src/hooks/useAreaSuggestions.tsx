@@ -66,7 +66,7 @@ export function useAreaSuggestions(city: string, country: string, language: stri
         )}`;
         const res = await fetch(url, {
           signal: controller.signal,
-          headers: { "Accept-Language": "ar" },
+          headers: { "Accept-Language": language },
         });
         if (!res.ok) throw new Error("fetch failed");
         const data = (await res.json()) as NominatimResult[];
