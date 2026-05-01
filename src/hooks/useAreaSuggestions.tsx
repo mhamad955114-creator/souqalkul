@@ -100,7 +100,7 @@ export function useAreaSuggestions(city: string, country: string, language: stri
         const sliced = results.slice(0, 8);
         setSuggestions(sliced);
         try {
-          sessionStorage.setItem(cacheKey(trimmedCity, country), JSON.stringify(sliced));
+          sessionStorage.setItem(cacheKey(trimmedCity, country, language), JSON.stringify(sliced));
         } catch {
           // ignore
         }
