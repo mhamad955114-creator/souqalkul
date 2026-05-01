@@ -34,11 +34,13 @@ export function CountryProvider({ children }: { children: ReactNode }) {
   // Auto-detect country on first visit
   useEffect(() => {
     if (saved) return;
-    
+
+    // Hard timeout — never let detection block the UI for more than 3s
+    const hardStop = setTimeout(() => setDetecting(false), 3000);
+
     const detect = async () => {
       try {
-        // Use a free IP geolocation API
-        const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(5000) });
+        const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(2500) });
         if (res.ok) {
           const data = await res.json();
           const countryName = countryCodeMap[data.country_code];
@@ -49,10 +51,12 @@ export function CountryProvider({ children }: { children: ReactNode }) {
       } catch {
         // Fallback to default (Syria)
       } finally {
+        clearTimeout(hardStop);
         setDetecting(false);
       }
     };
     detect();
+    return () => clearTimeout(hardStop);
   }, [saved, setCountry]);
 
   return (
