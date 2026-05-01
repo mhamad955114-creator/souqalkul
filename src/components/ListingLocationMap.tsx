@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapPin, Loader2, Crosshair, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 // Fix default marker icons (Leaflet ships them as bundler-incompatible URLs)
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -20,6 +21,8 @@ interface Props {
   /** If saved coordinates exist on the listing, use them directly */
   latitude?: number | null;
   longitude?: number | null;
+  /** Listing id — when provided, persist geocoded coords back to DB once */
+  listingId?: string;
 }
 
 type AccuracyLevel = "exact" | "high" | "medium" | "low" | "very_low" | "saved";
