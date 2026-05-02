@@ -106,10 +106,18 @@ const LinkedAccountsCard = () => {
 
   const formatPhone = (value: string): string => {
     let cleaned = value.replace(/[^0-9+]/g, "");
-    const phoneCode = currentCountry.phoneCode;
+    const phoneCode = phoneCountry.phoneCode;
     if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
     else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
     return cleaned;
+  };
+
+  const validateLocalPhone = (raw: string): string | null => {
+    const trimmed = raw.trim();
+    if (!phoneCountry.phonePattern.test(trimmed)) {
+      return `صيغة الرقم غير صحيحة لـ${phoneCountry.name}. مثال: ${phoneCountry.phonePlaceholder}`;
+    }
+    return null;
   };
 
   const linkEmail = async () => {
