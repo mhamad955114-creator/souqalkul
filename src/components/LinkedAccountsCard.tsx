@@ -15,8 +15,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useCountry } from "@/contexts/CountryContext";
+import { countries, getCountryByName, type CountryInfo } from "@/lib/constants";
 
 import { toast } from "sonner";
 import { Link2, Loader2, CheckCircle2, Unlink, Mail, Phone, Plus } from "lucide-react";
@@ -49,6 +51,12 @@ const LinkedAccountsCard = () => {
   const [expiresIn, setExpiresIn] = useState(0);
   const [verifiedPhone, setVerifiedPhone] = useState<string>("");
   const { currentCountry } = useCountry();
+  const [phoneCountry, setPhoneCountry] = useState<CountryInfo>(currentCountry);
+
+  // Sync local dialog country when global country changes (e.g. auto-detection finishes)
+  useEffect(() => {
+    setPhoneCountry(currentCountry);
+  }, [currentCountry]);
 
   const RESEND_COOLDOWN = 60; // seconds
   const OTP_VALIDITY = 600; // 10 minutes
@@ -98,10 +106,18 @@ const LinkedAccountsCard = () => {
 
   const formatPhone = (value: string): string => {
     let cleaned = value.replace(/[^0-9+]/g, "");
-    const phoneCode = currentCountry.phoneCode;
+    const phoneCode = phoneCountry.phoneCode;
     if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
     else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
     return cleaned;
+  };
+
+  const validateLocalPhone = (raw: string): string | null => {
+    const trimmed = raw.trim();
+    if (!phoneCountry.phonePattern.test(trimmed)) {
+      return `صيغة الرقم غير صحيحة لـ${phoneCountry.name}. مثال: ${phoneCountry.phonePlaceholder}`;
+    }
+    return null;
   };
 
   const linkEmail = async () => {
@@ -124,6 +140,11 @@ const LinkedAccountsCard = () => {
   const sendPhoneOtp = async (isResend = false) => {
     if (!phoneValue.trim()) {
       toast.error("يرجى إدخال رقم الهاتف");
+      return;
+    }
+    const localError = validateLocalPhone(phoneValue);
+    if (localError) {
+      toast.error(localError);
       return;
     }
     const formatted = formatPhone(phoneValue);
@@ -389,15 +410,50 @@ const LinkedAccountsCard = () => {
               {otpStage === "idle" ? (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="linkPhone">رقم الهاتف ({currentCountry.name})</Label>
-                    <Input
-                      id="linkPhone"
-                      type="tel"
-                      dir="ltr"
-                      placeholder={currentCountry.phonePlaceholder}
-                      value={phoneValue}
-                      onChange={(e) => setPhoneValue(e.target.value)}
-                    />
+                    <Label htmlFor="linkCountry">الدولة</Label>
+                    <Select
+                      value={phoneCountry.name}
+                      onValueChange={(v) => setPhoneCountry(getCountryByName(v))}
+                    >
+                      <SelectTrigger id="linkCountry">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        {countries.map((c) => (
+                          <SelectItem key={c.name} value={c.name}>
+                            <span className="inline-flex items-center gap-2">
+                              <span>{c.name}</span>
+                              <span className="text-xs text-muted-foreground" dir="ltr">
+                                {c.phoneCode}
+                              </span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="linkPhone">رقم الهاتف</Label>
+                    <div className="flex items-center gap-2">
+                      <span
+                        dir="ltr"
+                        className="px-3 py-2 rounded-md border border-input bg-muted text-sm text-muted-foreground"
+                      >
+                        {phoneCountry.phoneCode}
+                      </span>
+                      <Input
+                        id="linkPhone"
+                        type="tel"
+                        dir="ltr"
+                        placeholder={phoneCountry.phonePlaceholder}
+                        value={phoneValue}
+                        onChange={(e) => setPhoneValue(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      مثال: {phoneCountry.phonePlaceholder}
+                    </p>
                   </div>
                   <Button onClick={() => sendPhoneOtp(false)} className="w-full" disabled={busy === "phone"}>
                     {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
