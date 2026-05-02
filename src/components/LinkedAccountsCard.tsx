@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+
 import { toast } from "sonner";
 import { Link2, Loader2, CheckCircle2, Unlink } from "lucide-react";
 
@@ -41,18 +41,19 @@ const LinkedAccountsCard = () => {
   const linkGoogle = async () => {
     setBusy("google");
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + "/settings",
+      const { data, error } = await supabase.auth.linkIdentity({
+        provider: "google",
+        options: { redirectTo: window.location.origin + "/settings" },
       });
-      if (result.error) {
-        toast.error("تعذّر ربط حساب Google");
+      if (error) {
+        toast.error("تعذّر ربط حساب Google: " + error.message);
         setBusy(null);
         return;
       }
-      if (result.redirected) return;
+      if ((data as any)?.url) return; // browser will redirect
       await refresh();
       toast.success("تم ربط حساب Google");
-    } catch {
+    } catch (e: any) {
       toast.error("حدث خطأ أثناء الربط");
     } finally {
       setBusy(null);
