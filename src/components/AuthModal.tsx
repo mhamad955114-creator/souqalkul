@@ -342,7 +342,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
                 </div>
               )}
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>{/* keep */}
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
