@@ -551,7 +551,7 @@ const LinkedAccountsCard = () => {
                   <button
                     type="button"
                     className="text-xs text-primary hover:underline w-full text-center"
-                    onClick={() => { setOtpStage("idle"); setOtpCode(""); }}
+                    onClick={() => resetOtpFlow()}
                   >
                     تعديل الرقم
                   </button>
