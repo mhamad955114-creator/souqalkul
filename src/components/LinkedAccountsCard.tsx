@@ -410,15 +410,50 @@ const LinkedAccountsCard = () => {
               {otpStage === "idle" ? (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="linkPhone">رقم الهاتف ({currentCountry.name})</Label>
-                    <Input
-                      id="linkPhone"
-                      type="tel"
-                      dir="ltr"
-                      placeholder={currentCountry.phonePlaceholder}
-                      value={phoneValue}
-                      onChange={(e) => setPhoneValue(e.target.value)}
-                    />
+                    <Label htmlFor="linkCountry">الدولة</Label>
+                    <Select
+                      value={phoneCountry.name}
+                      onValueChange={(v) => setPhoneCountry(getCountryByName(v))}
+                    >
+                      <SelectTrigger id="linkCountry">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        {countries.map((c) => (
+                          <SelectItem key={c.name} value={c.name}>
+                            <span className="inline-flex items-center gap-2">
+                              <span>{c.name}</span>
+                              <span className="text-xs text-muted-foreground" dir="ltr">
+                                {c.phoneCode}
+                              </span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="linkPhone">رقم الهاتف</Label>
+                    <div className="flex items-center gap-2">
+                      <span
+                        dir="ltr"
+                        className="px-3 py-2 rounded-md border border-input bg-muted text-sm text-muted-foreground"
+                      >
+                        {phoneCountry.phoneCode}
+                      </span>
+                      <Input
+                        id="linkPhone"
+                        type="tel"
+                        dir="ltr"
+                        placeholder={phoneCountry.phonePlaceholder}
+                        value={phoneValue}
+                        onChange={(e) => setPhoneValue(e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      مثال: {phoneCountry.phonePlaceholder}
+                    </p>
                   </div>
                   <Button onClick={() => sendPhoneOtp(false)} className="w-full" disabled={busy === "phone"}>
                     {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
