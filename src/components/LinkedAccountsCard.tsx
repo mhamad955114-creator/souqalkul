@@ -45,7 +45,41 @@ const LinkedAccountsCard = () => {
   const [phoneValue, setPhoneValue] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpStage, setOtpStage] = useState<"idle" | "sent">("idle");
+  const [resendIn, setResendIn] = useState(0);
+  const [expiresIn, setExpiresIn] = useState(0);
+  const [verifiedPhone, setVerifiedPhone] = useState<string>("");
   const { currentCountry } = useCountry();
+
+  const RESEND_COOLDOWN = 60; // seconds
+  const OTP_VALIDITY = 600; // 10 minutes
+
+  // Countdown for resend cooldown
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setInterval(() => setResendIn((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [resendIn]);
+
+  // Countdown for OTP validity
+  useEffect(() => {
+    if (expiresIn <= 0) return;
+    const t = setInterval(() => setExpiresIn((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [expiresIn]);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `${m}:${String(r).padStart(2, "0")}`;
+  };
+
+  const validatePhone = (formatted: string): string | null => {
+    // E.164: +<countrycode><digits>, total length 8-16
+    if (!/^\+[1-9]\d{6,14}$/.test(formatted)) {
+      return "رقم الهاتف غير صالح. تأكد من صيغة الرقم الدولية.";
+    }
+    return null;
+  };
 
   const refresh = async () => {
     setLoading(true);
@@ -87,32 +121,52 @@ const LinkedAccountsCard = () => {
     setEmailValue("");
   };
 
-  const sendPhoneOtp = async () => {
+  const sendPhoneOtp = async (isResend = false) => {
     if (!phoneValue.trim()) {
       toast.error("يرجى إدخال رقم الهاتف");
       return;
     }
-    setBusy("phone");
     const formatted = formatPhone(phoneValue);
+    const validationError = validatePhone(formatted);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+    if (isResend && resendIn > 0) return;
+
+    setBusy("phone");
     const { error } = await supabase.auth.updateUser({ phone: formatted });
     setBusy(null);
     if (error) {
       toast.error("تعذّر إرسال الرمز: " + error.message);
       return;
     }
-    toast.success("تم إرسال رمز التحقق عبر SMS");
+    setVerifiedPhone(formatted);
+    setOtpCode("");
+    setResendIn(RESEND_COOLDOWN);
+    setExpiresIn(OTP_VALIDITY);
+    toast.success(isResend ? "تم إعادة إرسال الرمز" : "تم إرسال رمز التحقق عبر SMS");
     setOtpStage("sent");
   };
 
   const verifyPhoneOtp = async () => {
-    if (!otpCode.trim()) {
-      toast.error("يرجى إدخال رمز التحقق");
+    if (!/^\d{4,8}$/.test(otpCode.trim())) {
+      toast.error("يرجى إدخال رمز التحقق المكوّن من أرقام");
+      return;
+    }
+    if (expiresIn <= 0) {
+      toast.error("انتهت صلاحية الرمز. اطلب رمزًا جديدًا.");
+      return;
+    }
+    // Verify the phone matches what OTP was sent to
+    const currentFormatted = formatPhone(phoneValue);
+    if (currentFormatted !== verifiedPhone) {
+      toast.error("تم تغيير الرقم. أعد إرسال الرمز للرقم الجديد.");
       return;
     }
     setBusy("phone");
-    const formatted = formatPhone(phoneValue);
     const { error } = await supabase.auth.verifyOtp({
-      phone: formatted,
+      phone: verifiedPhone,
       token: otpCode.trim(),
       type: "phone_change",
     });
@@ -126,6 +180,9 @@ const LinkedAccountsCard = () => {
     setPhoneValue("");
     setOtpCode("");
     setOtpStage("idle");
+    setResendIn(0);
+    setExpiresIn(0);
+    setVerifiedPhone("");
     await refresh();
   };
 
@@ -342,33 +399,56 @@ const LinkedAccountsCard = () => {
                       onChange={(e) => setPhoneValue(e.target.value)}
                     />
                   </div>
-                  <Button onClick={sendPhoneOtp} className="w-full" disabled={busy === "phone"}>
+                  <Button onClick={() => sendPhoneOtp(false)} className="w-full" disabled={busy === "phone"}>
                     {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
                     إرسال رمز التحقق
                   </Button>
                 </>
               ) : (
                 <>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Label htmlFor="otp">رمز التحقق</Label>
-                    <Input
-                      id="otp"
-                      type="text"
-                      inputMode="numeric"
-                      dir="ltr"
-                      placeholder="123456"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                    />
+                    <p className="text-xs text-muted-foreground" dir="ltr">
+                      {verifiedPhone}
+                    </p>
                   </div>
-                  <Button onClick={verifyPhoneOtp} className="w-full" disabled={busy === "phone"}>
+                  <Input
+                    id="otp"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={8}
+                    dir="ltr"
+                    placeholder="123456"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                  />
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>
+                      {expiresIn > 0
+                        ? `صلاحية الرمز: ${formatTime(expiresIn)}`
+                        : "انتهت صلاحية الرمز"}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={resendIn > 0 || busy === "phone"}
+                      onClick={() => sendPhoneOtp(true)}
+                      className="text-primary hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed"
+                    >
+                      {resendIn > 0 ? `إعادة الإرسال خلال ${resendIn} ث` : "إعادة إرسال الرمز"}
+                    </button>
+                  </div>
+                  <Button
+                    onClick={verifyPhoneOtp}
+                    className="w-full"
+                    disabled={busy === "phone" || expiresIn <= 0}
+                  >
                     {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                     تأكيد وربط الرقم
                   </Button>
                   <button
                     type="button"
                     className="text-xs text-primary hover:underline w-full text-center"
-                    onClick={() => setOtpStage("idle")}
+                    onClick={() => { setOtpStage("idle"); setOtpCode(""); }}
                   >
                     تعديل الرقم
                   </button>
