@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 
 import { toast } from "sonner";
@@ -24,6 +34,7 @@ const LinkedAccountsCard = () => {
   const [identities, setIdentities] = useState<IdentityLite[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<IdentityLite | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -116,7 +127,7 @@ const LinkedAccountsCard = () => {
                       size="sm"
                       variant="ghost"
                       disabled={busy === idn.provider}
-                      onClick={() => unlink(idn)}
+                      onClick={() => setConfirmTarget(idn)}
                     >
                       {busy === idn.provider ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -152,6 +163,32 @@ const LinkedAccountsCard = () => {
           </>
         )}
       </CardContent>
+
+      <AlertDialog open={!!confirmTarget} onOpenChange={(open) => !open && setConfirmTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد فك الربط</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد أنك تريد إزالة ربط حساب{" "}
+              {confirmTarget ? PROVIDER_LABELS[confirmTarget.provider] ?? confirmTarget.provider : ""}؟
+              لن تتمكن من تسجيل الدخول بهذه الطريقة بعد الآن.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                const target = confirmTarget;
+                setConfirmTarget(null);
+                if (target) await unlink(target);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              نعم، فك الربط
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
