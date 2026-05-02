@@ -22,6 +22,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { MessageSquare, RefreshCw, Tag, ShieldAlert, Smartphone } from "lucide-react";
 import { useAdminRole } from "@/hooks/useAdminRole";
+import LinkedAccountsCard from "@/components/LinkedAccountsCard";
 
 interface Profile {
   id: string;
@@ -612,6 +613,9 @@ const Settings = () => {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Linked Accounts */}
+            <LinkedAccountsCard />
 
             {/* Theme Section */}
             <Card>
