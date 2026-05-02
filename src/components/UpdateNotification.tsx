@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { RefreshCw, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { reloadIntoLatestBundle } from "@/lib/capgoUpdater";
 
 // Play a short local "ding" using the Web Audio API (no external assets)
 const playUpdateChime = () => {
