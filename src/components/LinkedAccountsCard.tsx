@@ -142,6 +142,11 @@ const LinkedAccountsCard = () => {
       toast.error("يرجى إدخال رقم الهاتف");
       return;
     }
+    const localError = validateLocalPhone(phoneValue);
+    if (localError) {
+      toast.error(localError);
+      return;
+    }
     const formatted = formatPhone(phoneValue);
     const validationError = validatePhone(formatted);
     if (validationError) {
