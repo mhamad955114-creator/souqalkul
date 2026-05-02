@@ -11,10 +11,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { useCountry } from "@/contexts/CountryContext";
 
 import { toast } from "sonner";
-import { Link2, Loader2, CheckCircle2, Unlink } from "lucide-react";
+import { Link2, Loader2, CheckCircle2, Unlink, Mail, Phone, Plus } from "lucide-react";
 
 interface IdentityLite {
   id: string;
@@ -35,6 +40,12 @@ const LinkedAccountsCard = () => {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<IdentityLite | null>(null);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [emailValue, setEmailValue] = useState("");
+  const [phoneValue, setPhoneValue] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpStage, setOtpStage] = useState<"idle" | "sent">("idle");
+  const { currentCountry } = useCountry();
 
   const refresh = async () => {
     setLoading(true);
@@ -48,6 +59,75 @@ const LinkedAccountsCard = () => {
   }, []);
 
   const hasGoogle = identities.some((i) => i.provider === "google");
+  const hasEmail = identities.some((i) => i.provider === "email");
+  const hasPhone = identities.some((i) => i.provider === "phone");
+
+  const formatPhone = (value: string): string => {
+    let cleaned = value.replace(/[^0-9+]/g, "");
+    const phoneCode = currentCountry.phoneCode;
+    if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
+    else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
+    return cleaned;
+  };
+
+  const linkEmail = async () => {
+    if (!emailValue.trim()) {
+      toast.error("يرجى إدخال البريد الإلكتروني");
+      return;
+    }
+    setBusy("email");
+    const { error } = await supabase.auth.updateUser({ email: emailValue.trim() });
+    setBusy(null);
+    if (error) {
+      toast.error("تعذّر إضافة البريد: " + error.message);
+      return;
+    }
+    toast.success("تم إرسال رابط التأكيد إلى بريدك. افتح الرسالة لإكمال الربط.");
+    setContactDialogOpen(false);
+    setEmailValue("");
+  };
+
+  const sendPhoneOtp = async () => {
+    if (!phoneValue.trim()) {
+      toast.error("يرجى إدخال رقم الهاتف");
+      return;
+    }
+    setBusy("phone");
+    const formatted = formatPhone(phoneValue);
+    const { error } = await supabase.auth.updateUser({ phone: formatted });
+    setBusy(null);
+    if (error) {
+      toast.error("تعذّر إرسال الرمز: " + error.message);
+      return;
+    }
+    toast.success("تم إرسال رمز التحقق عبر SMS");
+    setOtpStage("sent");
+  };
+
+  const verifyPhoneOtp = async () => {
+    if (!otpCode.trim()) {
+      toast.error("يرجى إدخال رمز التحقق");
+      return;
+    }
+    setBusy("phone");
+    const formatted = formatPhone(phoneValue);
+    const { error } = await supabase.auth.verifyOtp({
+      phone: formatted,
+      token: otpCode.trim(),
+      type: "phone_change",
+    });
+    setBusy(null);
+    if (error) {
+      toast.error("رمز غير صحيح: " + error.message);
+      return;
+    }
+    toast.success("تم ربط رقم الهاتف بنجاح");
+    setContactDialogOpen(false);
+    setPhoneValue("");
+    setOtpCode("");
+    setOtpStage("idle");
+    await refresh();
+  };
 
   const linkGoogle = async () => {
     setBusy("google");
@@ -160,6 +240,24 @@ const LinkedAccountsCard = () => {
                 ربط حساب Google
               </Button>
             )}
+
+            {(!hasEmail || !hasPhone) && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setOtpStage("idle");
+                  setContactDialogOpen(true);
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                {!hasEmail && !hasPhone
+                  ? "ربط بريد إلكتروني أو رقم هاتف"
+                  : !hasEmail
+                  ? "ربط بريد إلكتروني"
+                  : "ربط رقم هاتف"}
+              </Button>
+            )}
           </>
         )}
       </CardContent>
@@ -189,6 +287,97 @@ const LinkedAccountsCard = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={contactDialogOpen} onOpenChange={(o) => { if (!o) { setContactDialogOpen(false); setOtpStage("idle"); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>ربط طريقة دخول إضافية</DialogTitle>
+            <DialogDescription>
+              أضف بريدًا إلكترونيًا أو رقم هاتف إلى حسابك للدخول بهما لاحقًا.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Tabs defaultValue={!hasEmail ? "email" : "phone"} className="w-full">
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="email" disabled={hasEmail}>
+                <Mail className="h-4 w-4 me-1" /> بريد إلكتروني
+              </TabsTrigger>
+              <TabsTrigger value="phone" disabled={hasPhone}>
+                <Phone className="h-4 w-4 me-1" /> رقم هاتف
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="email" className="space-y-3 mt-3">
+              <div className="space-y-2">
+                <Label htmlFor="linkEmail">البريد الإلكتروني</Label>
+                <Input
+                  id="linkEmail"
+                  type="email"
+                  dir="ltr"
+                  placeholder="example@email.com"
+                  value={emailValue}
+                  onChange={(e) => setEmailValue(e.target.value)}
+                />
+              </div>
+              <Button onClick={linkEmail} className="w-full" disabled={busy === "email"}>
+                {busy === "email" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                إرسال رابط التأكيد
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                ستصلك رسالة تحتوي رابط التأكيد. بعد الضغط عليه يصبح البريد مرتبطًا بحسابك.
+              </p>
+            </TabsContent>
+
+            <TabsContent value="phone" className="space-y-3 mt-3">
+              {otpStage === "idle" ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="linkPhone">رقم الهاتف ({currentCountry.name})</Label>
+                    <Input
+                      id="linkPhone"
+                      type="tel"
+                      dir="ltr"
+                      placeholder={currentCountry.phonePlaceholder}
+                      value={phoneValue}
+                      onChange={(e) => setPhoneValue(e.target.value)}
+                    />
+                  </div>
+                  <Button onClick={sendPhoneOtp} className="w-full" disabled={busy === "phone"}>
+                    {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
+                    إرسال رمز التحقق
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="otp">رمز التحقق</Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      inputMode="numeric"
+                      dir="ltr"
+                      placeholder="123456"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                    />
+                  </div>
+                  <Button onClick={verifyPhoneOtp} className="w-full" disabled={busy === "phone"}>
+                    {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    تأكيد وربط الرقم
+                  </Button>
+                  <button
+                    type="button"
+                    className="text-xs text-primary hover:underline w-full text-center"
+                    onClick={() => setOtpStage("idle")}
+                  >
+                    تعديل الرقم
+                  </button>
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
