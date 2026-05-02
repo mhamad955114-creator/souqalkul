@@ -171,19 +171,41 @@ const LinkedAccountsCard = () => {
     setOtpStage("sent");
   };
 
+  const resetOtpFlow = (msg?: string) => {
+    setOtpStage("idle");
+    setOtpCode("");
+    setResendIn(0);
+    setExpiresIn(0);
+    setVerifiedPhone("");
+    setOtpError(null);
+    if (msg) toast.info(msg);
+  };
+
+  const interpretOtpError = (raw: string): string => {
+    const m = raw.toLowerCase();
+    if (m.includes("expired")) return "انتهت صلاحية الرمز. يرجى طلب رمز جديد.";
+    if (m.includes("invalid") || m.includes("incorrect") || m.includes("token"))
+      return "الرمز الذي أدخلته غير صحيح. تحقق من الرسالة وحاول مرة أخرى.";
+    if (m.includes("rate") || m.includes("too many"))
+      return "تم تجاوز عدد المحاولات. انتظر قليلًا قبل المحاولة مجددًا.";
+    if (m.includes("not found")) return "لم يتم العثور على طلب تحقق نشط. أعد إرسال الرمز.";
+    return "تعذّر التحقق من الرمز: " + raw;
+  };
+
   const verifyPhoneOtp = async () => {
+    setOtpError(null);
     if (!/^\d{4,8}$/.test(otpCode.trim())) {
-      toast.error("يرجى إدخال رمز التحقق المكوّن من أرقام");
+      setOtpError("يرجى إدخال رمز التحقق المكوّن من أرقام (4-8 أرقام).");
       return;
     }
     if (expiresIn <= 0) {
-      toast.error("انتهت صلاحية الرمز. اطلب رمزًا جديدًا.");
+      setOtpError("انتهت صلاحية الرمز. يرجى طلب رمز جديد.");
       return;
     }
     // Verify the phone matches what OTP was sent to
     const currentFormatted = formatPhone(phoneValue);
     if (currentFormatted !== verifiedPhone) {
-      toast.error("تم تغيير الرقم. أعد إرسال الرمز للرقم الجديد.");
+      setOtpError("تم تغيير الرقم. أعد إرسال الرمز للرقم الجديد.");
       return;
     }
     setBusy("phone");
@@ -194,7 +216,17 @@ const LinkedAccountsCard = () => {
     });
     setBusy(null);
     if (error) {
-      toast.error("رمز غير صحيح: " + error.message);
+      const msg = interpretOtpError(error.message || "");
+      setOtpError(msg);
+      toast.error(msg);
+      // If expired or not found, reset flow so the user can request a new code
+      const lower = (error.message || "").toLowerCase();
+      if (lower.includes("expired") || lower.includes("not found")) {
+        resetOtpFlow();
+      } else {
+        // Clear the wrong code so user can retype
+        setOtpCode("");
+      }
       return;
     }
     toast.success("تم ربط رقم الهاتف بنجاح");
@@ -205,6 +237,7 @@ const LinkedAccountsCard = () => {
     setResendIn(0);
     setExpiresIn(0);
     setVerifiedPhone("");
+    setOtpError(null);
     await refresh();
   };
 
