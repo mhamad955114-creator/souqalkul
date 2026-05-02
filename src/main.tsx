@@ -128,3 +128,7 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 // Start polling for new app versions (works in browser & Capacitor webview)
 startVersionCheck();
+
+// On native platforms, also enable Capgo OTA updates so users get new web
+// bundles inside the installed APK without needing a Play Store update.
+void initCapgoUpdater();
