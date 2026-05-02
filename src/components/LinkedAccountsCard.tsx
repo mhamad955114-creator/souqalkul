@@ -50,6 +50,7 @@ const LinkedAccountsCard = () => {
   const [resendIn, setResendIn] = useState(0);
   const [expiresIn, setExpiresIn] = useState(0);
   const [verifiedPhone, setVerifiedPhone] = useState<string>("");
+  const [otpError, setOtpError] = useState<string | null>(null);
   const { currentCountry } = useCountry();
   const [phoneCountry, setPhoneCountry] = useState<CountryInfo>(currentCountry);
 
