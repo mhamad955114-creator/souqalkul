@@ -11,10 +11,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { useCountry } from "@/contexts/CountryContext";
 
 import { toast } from "sonner";
-import { Link2, Loader2, CheckCircle2, Unlink } from "lucide-react";
+import { Link2, Loader2, CheckCircle2, Unlink, Mail, Phone, Plus } from "lucide-react";
 
 interface IdentityLite {
   id: string;
@@ -35,6 +40,12 @@ const LinkedAccountsCard = () => {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<IdentityLite | null>(null);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [emailValue, setEmailValue] = useState("");
+  const [phoneValue, setPhoneValue] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpStage, setOtpStage] = useState<"idle" | "sent">("idle");
+  const { currentCountry } = useCountry();
 
   const refresh = async () => {
     setLoading(true);
@@ -48,6 +59,75 @@ const LinkedAccountsCard = () => {
   }, []);
 
   const hasGoogle = identities.some((i) => i.provider === "google");
+  const hasEmail = identities.some((i) => i.provider === "email");
+  const hasPhone = identities.some((i) => i.provider === "phone");
+
+  const formatPhone = (value: string): string => {
+    let cleaned = value.replace(/[^0-9+]/g, "");
+    const phoneCode = currentCountry.phoneCode;
+    if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
+    else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
+    return cleaned;
+  };
+
+  const linkEmail = async () => {
+    if (!emailValue.trim()) {
+      toast.error("يرجى إدخال البريد الإلكتروني");
+      return;
+    }
+    setBusy("email");
+    const { error } = await supabase.auth.updateUser({ email: emailValue.trim() });
+    setBusy(null);
+    if (error) {
+      toast.error("تعذّر إضافة البريد: " + error.message);
+      return;
+    }
+    toast.success("تم إرسال رابط التأكيد إلى بريدك. افتح الرسالة لإكمال الربط.");
+    setContactDialogOpen(false);
+    setEmailValue("");
+  };
+
+  const sendPhoneOtp = async () => {
+    if (!phoneValue.trim()) {
+      toast.error("يرجى إدخال رقم الهاتف");
+      return;
+    }
+    setBusy("phone");
+    const formatted = formatPhone(phoneValue);
+    const { error } = await supabase.auth.updateUser({ phone: formatted });
+    setBusy(null);
+    if (error) {
+      toast.error("تعذّر إرسال الرمز: " + error.message);
+      return;
+    }
+    toast.success("تم إرسال رمز التحقق عبر SMS");
+    setOtpStage("sent");
+  };
+
+  const verifyPhoneOtp = async () => {
+    if (!otpCode.trim()) {
+      toast.error("يرجى إدخال رمز التحقق");
+      return;
+    }
+    setBusy("phone");
+    const formatted = formatPhone(phoneValue);
+    const { error } = await supabase.auth.verifyOtp({
+      phone: formatted,
+      token: otpCode.trim(),
+      type: "phone_change",
+    });
+    setBusy(null);
+    if (error) {
+      toast.error("رمز غير صحيح: " + error.message);
+      return;
+    }
+    toast.success("تم ربط رقم الهاتف بنجاح");
+    setContactDialogOpen(false);
+    setPhoneValue("");
+    setOtpCode("");
+    setOtpStage("idle");
+    await refresh();
+  };
 
   const linkGoogle = async () => {
     setBusy("google");
