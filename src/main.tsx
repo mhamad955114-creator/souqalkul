@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { startVersionCheck } from "./lib/versionCheck";
+import { initCapgoUpdater } from "./lib/capgoUpdater";
 
 const isCapacitor = typeof (window as any).Capacitor !== "undefined";
 const CHUNK_ERROR_PATTERNS = [
