@@ -510,8 +510,21 @@ const LinkedAccountsCard = () => {
                     dir="ltr"
                     placeholder="123456"
                     value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                    onChange={(e) => {
+                      setOtpCode(e.target.value.replace(/\D/g, ""));
+                      if (otpError) setOtpError(null);
+                    }}
+                    aria-invalid={!!otpError}
+                    className={otpError ? "border-destructive focus-visible:ring-destructive" : ""}
                   />
+                  {otpError && (
+                    <div
+                      role="alert"
+                      className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                    >
+                      {otpError}
+                    </div>
+                  )}
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>
                       {expiresIn > 0
