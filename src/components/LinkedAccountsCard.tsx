@@ -15,8 +15,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useCountry } from "@/contexts/CountryContext";
+import { countries, getCountryByName, type CountryInfo } from "@/lib/constants";
 
 import { toast } from "sonner";
 import { Link2, Loader2, CheckCircle2, Unlink, Mail, Phone, Plus } from "lucide-react";
