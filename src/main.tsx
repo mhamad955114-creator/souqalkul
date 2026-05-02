@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { startVersionCheck } from "./lib/versionCheck";
+import { initCapgoUpdater } from "./lib/capgoUpdater";
 
 const isCapacitor = typeof (window as any).Capacitor !== "undefined";
 const CHUNK_ERROR_PATTERNS = [
@@ -127,3 +128,7 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 // Start polling for new app versions (works in browser & Capacitor webview)
 startVersionCheck();
+
+// On native platforms, also enable Capgo OTA updates so users get new web
+// bundles inside the installed APK without needing a Play Store update.
+void initCapgoUpdater();

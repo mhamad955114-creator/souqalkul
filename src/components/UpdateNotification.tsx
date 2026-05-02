@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { RefreshCw, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { reloadIntoLatestBundle } from "@/lib/capgoUpdater";
 
 // Play a short local "ding" using the Web Audio API (no external assets)
 const playUpdateChime = () => {
@@ -75,8 +76,9 @@ const UpdateNotification = () => {
     } catch {
       // ignore cleanup errors
     }
-    // Hard reload to ensure latest assets are fetched
-    window.location.reload();
+    // On native (Capgo OTA), reload into the freshly downloaded bundle.
+    // On web, this falls back to a normal hard reload.
+    await reloadIntoLatestBundle();
   };
 
   if (!show) return null;
