@@ -613,6 +613,9 @@ const Settings = () => {
               </CardContent>
             </Card>
 
+            {/* Linked Accounts */}
+            <LinkedAccountsCard />
+
             {/* Theme Section */}
             <Card>
               <CardHeader>
