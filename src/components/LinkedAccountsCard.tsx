@@ -240,6 +240,24 @@ const LinkedAccountsCard = () => {
                 ربط حساب Google
               </Button>
             )}
+
+            {(!hasEmail || !hasPhone) && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setOtpStage("idle");
+                  setContactDialogOpen(true);
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                {!hasEmail && !hasPhone
+                  ? "ربط بريد إلكتروني أو رقم هاتف"
+                  : !hasEmail
+                  ? "ربط بريد إلكتروني"
+                  : "ربط رقم هاتف"}
+              </Button>
+            )}
           </>
         )}
       </CardContent>
