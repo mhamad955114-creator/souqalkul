@@ -37,6 +37,7 @@ const Install = lazy(() => import("./pages/Install"));
 const Auth = lazy(() => import("./pages/Auth"));
 const DeleteData = lazy(() => import("./pages/DeleteData"));
 const Developers = lazy(() => import("./pages/Developers"));
+const BuildApkGuide = lazy(() => import("./pages/BuildApkGuide"));
 const BadgeAuditLog = lazy(() => import("./pages/BadgeAuditLog"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -157,6 +158,7 @@ const AppContent = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/delete-data" element={<DeleteData />} />
             <Route path="/developers" element={<Developers />} />
+            <Route path="/docs/build-apk" element={<BuildApkGuide />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
