@@ -399,33 +399,56 @@ const LinkedAccountsCard = () => {
                       onChange={(e) => setPhoneValue(e.target.value)}
                     />
                   </div>
-                  <Button onClick={sendPhoneOtp} className="w-full" disabled={busy === "phone"}>
+                  <Button onClick={() => sendPhoneOtp(false)} className="w-full" disabled={busy === "phone"}>
                     {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
                     إرسال رمز التحقق
                   </Button>
                 </>
               ) : (
                 <>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Label htmlFor="otp">رمز التحقق</Label>
-                    <Input
-                      id="otp"
-                      type="text"
-                      inputMode="numeric"
-                      dir="ltr"
-                      placeholder="123456"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                    />
+                    <p className="text-xs text-muted-foreground" dir="ltr">
+                      {verifiedPhone}
+                    </p>
                   </div>
-                  <Button onClick={verifyPhoneOtp} className="w-full" disabled={busy === "phone"}>
+                  <Input
+                    id="otp"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={8}
+                    dir="ltr"
+                    placeholder="123456"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                  />
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>
+                      {expiresIn > 0
+                        ? `صلاحية الرمز: ${formatTime(expiresIn)}`
+                        : "انتهت صلاحية الرمز"}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={resendIn > 0 || busy === "phone"}
+                      onClick={() => sendPhoneOtp(true)}
+                      className="text-primary hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed"
+                    >
+                      {resendIn > 0 ? `إعادة الإرسال خلال ${resendIn} ث` : "إعادة إرسال الرمز"}
+                    </button>
+                  </div>
+                  <Button
+                    onClick={verifyPhoneOtp}
+                    className="w-full"
+                    disabled={busy === "phone" || expiresIn <= 0}
+                  >
                     {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                     تأكيد وربط الرقم
                   </Button>
                   <button
                     type="button"
                     className="text-xs text-primary hover:underline w-full text-center"
-                    onClick={() => setOtpStage("idle")}
+                    onClick={() => { setOtpStage("idle"); setOtpCode(""); }}
                   >
                     تعديل الرقم
                   </button>
