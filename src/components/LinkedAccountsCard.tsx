@@ -287,6 +287,97 @@ const LinkedAccountsCard = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={contactDialogOpen} onOpenChange={(o) => { if (!o) { setContactDialogOpen(false); setOtpStage("idle"); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>ربط طريقة دخول إضافية</DialogTitle>
+            <DialogDescription>
+              أضف بريدًا إلكترونيًا أو رقم هاتف إلى حسابك للدخول بهما لاحقًا.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Tabs defaultValue={!hasEmail ? "email" : "phone"} className="w-full">
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="email" disabled={hasEmail}>
+                <Mail className="h-4 w-4 me-1" /> بريد إلكتروني
+              </TabsTrigger>
+              <TabsTrigger value="phone" disabled={hasPhone}>
+                <Phone className="h-4 w-4 me-1" /> رقم هاتف
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="email" className="space-y-3 mt-3">
+              <div className="space-y-2">
+                <Label htmlFor="linkEmail">البريد الإلكتروني</Label>
+                <Input
+                  id="linkEmail"
+                  type="email"
+                  dir="ltr"
+                  placeholder="example@email.com"
+                  value={emailValue}
+                  onChange={(e) => setEmailValue(e.target.value)}
+                />
+              </div>
+              <Button onClick={linkEmail} className="w-full" disabled={busy === "email"}>
+                {busy === "email" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                إرسال رابط التأكيد
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                ستصلك رسالة تحتوي رابط التأكيد. بعد الضغط عليه يصبح البريد مرتبطًا بحسابك.
+              </p>
+            </TabsContent>
+
+            <TabsContent value="phone" className="space-y-3 mt-3">
+              {otpStage === "idle" ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="linkPhone">رقم الهاتف ({currentCountry.name})</Label>
+                    <Input
+                      id="linkPhone"
+                      type="tel"
+                      dir="ltr"
+                      placeholder={currentCountry.phonePlaceholder}
+                      value={phoneValue}
+                      onChange={(e) => setPhoneValue(e.target.value)}
+                    />
+                  </div>
+                  <Button onClick={sendPhoneOtp} className="w-full" disabled={busy === "phone"}>
+                    {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
+                    إرسال رمز التحقق
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="otp">رمز التحقق</Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      inputMode="numeric"
+                      dir="ltr"
+                      placeholder="123456"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                    />
+                  </div>
+                  <Button onClick={verifyPhoneOtp} className="w-full" disabled={busy === "phone"}>
+                    {busy === "phone" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    تأكيد وربط الرقم
+                  </Button>
+                  <button
+                    type="button"
+                    className="text-xs text-primary hover:underline w-full text-center"
+                    onClick={() => setOtpStage("idle")}
+                  >
+                    تعديل الرقم
+                  </button>
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
