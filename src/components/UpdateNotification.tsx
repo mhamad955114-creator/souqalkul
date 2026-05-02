@@ -1,13 +1,62 @@
 import { useState, useEffect } from "react";
 import { RefreshCw, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+// Play a short local "ding" using the Web Audio API (no external assets)
+const playUpdateChime = () => {
+  try {
+    const Ctx =
+      (window as any).AudioContext || (window as any).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const now = ctx.currentTime;
+    const tones = [880, 1175]; // A5 -> D6
+    tones.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      const start = now + i * 0.18;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.25, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.4);
+    });
+    setTimeout(() => ctx.close().catch(() => {}), 1200);
+  } catch {
+    // ignore
+  }
+};
+
+const triggerVibration = () => {
+  try {
+    if ("vibrate" in navigator) {
+      navigator.vibrate([120, 60, 120]);
+    }
+  } catch {
+    // ignore
+  }
+};
 
 const UpdateNotification = () => {
   const [show, setShow] = useState(false);
   const [reloading, setReloading] = useState(false);
 
   useEffect(() => {
-    const handler = () => setShow(true);
+    const handler = () => {
+      setShow(true);
+      // Sensory cues so the user actually notices the new version
+      playUpdateChime();
+      triggerVibration();
+      // Backup toast in case the user dismisses the modal
+      toast.success("تحديث جديد متاح لتطبيق سوق الكل", {
+        description: "اضغط على زر التحديث للحصول على أحدث نسخة.",
+        duration: 8000,
+      });
+    };
     window.addEventListener("sw-update-ready", handler);
     return () => window.removeEventListener("sw-update-ready", handler);
   }, []);
