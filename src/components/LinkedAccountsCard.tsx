@@ -51,6 +51,12 @@ const LinkedAccountsCard = () => {
   const [expiresIn, setExpiresIn] = useState(0);
   const [verifiedPhone, setVerifiedPhone] = useState<string>("");
   const { currentCountry } = useCountry();
+  const [phoneCountry, setPhoneCountry] = useState<CountryInfo>(currentCountry);
+
+  // Sync local dialog country when global country changes (e.g. auto-detection finishes)
+  useEffect(() => {
+    setPhoneCountry(currentCountry);
+  }, [currentCountry]);
 
   const RESEND_COOLDOWN = 60; // seconds
   const OTP_VALIDITY = 600; // 10 minutes
