@@ -158,6 +158,7 @@ const AppContent = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/delete-data" element={<DeleteData />} />
             <Route path="/developers" element={<Developers />} />
+            <Route path="/docs/build-apk" element={<BuildApkGuide />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
