@@ -9,6 +9,7 @@ import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, CheckCircle2, Inbox } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
+import { lovable } from "@/integrations/lovable";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -341,7 +342,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
                 </div>
               )}
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>{/* keep */}
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
