@@ -534,7 +534,7 @@ const LinkedAccountsCard = () => {
                     <button
                       type="button"
                       disabled={resendIn > 0 || busy === "phone"}
-                      onClick={() => sendPhoneOtp(true)}
+                      onClick={() => { setOtpError(null); sendPhoneOtp(true); }}
                       className="text-primary hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed"
                     >
                       {resendIn > 0 ? `إعادة الإرسال خلال ${resendIn} ث` : "إعادة إرسال الرمز"}
