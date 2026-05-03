@@ -49,7 +49,7 @@ export const countries: CountryInfo[] = [
   },
   {
     code: "LB", name: "لبنان", currency: "ليرة لبنانية", currencySymbol: "ل.ل", currencyCode: "LBP",
-    phoneCode: "+961", phonePattern: /^(03|70|71|76|78|79|81)\d{6}$/, phonePlaceholder: "0xxxxxxx",
+    phoneCode: "+961", phonePattern: /^(03|70|71|76|78|79|81)\d{6}$/, phonePlaceholder: "03xxxxxx",
     cities: ["بيروت", "طرابلس", "صيدا", "صور", "جونيه", "زحلة", "بعلبك", "جبيل", "النبطية"],
   },
   {
