@@ -356,10 +356,24 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
 
     const countryInfo = getCountryByName(selectedCountry);
-    if (!countryInfo.phonePattern.test(formData.phone)) {
+    // Normalize phone: convert Arabic-Indic digits to ASCII, strip spaces/dashes/parentheses,
+    // remove leading + and country code so user can paste any common format.
+    const arabicToEn = (s: string) =>
+      s.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)))
+       .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+    let normalizedPhone = arabicToEn(formData.phone).replace(/[\s\-()]/g, "");
+    const dialCode = countryInfo.phoneCode.replace("+", "");
+    if (normalizedPhone.startsWith("+")) normalizedPhone = normalizedPhone.slice(1);
+    if (normalizedPhone.startsWith("00" + dialCode)) normalizedPhone = normalizedPhone.slice(2 + dialCode.length);
+    else if (normalizedPhone.startsWith(dialCode)) normalizedPhone = normalizedPhone.slice(dialCode.length);
+    // Try with and without leading 0
+    const altPhone = normalizedPhone.startsWith("0") ? normalizedPhone.slice(1) : "0" + normalizedPhone;
+    if (!countryInfo.phonePattern.test(normalizedPhone) && !countryInfo.phonePattern.test(altPhone)) {
       toast.error(`رقم الهاتف غير صالح لـ ${selectedCountry}. الصيغة: ${countryInfo.phonePlaceholder}`);
       return;
     }
+    const finalPhone = countryInfo.phonePattern.test(normalizedPhone) ? normalizedPhone : altPhone;
+    formData.phone = finalPhone;
 
     // Validate metadata fields are filled for the selected category
     const requiredMetaFields = getFields(formData.category).filter(
