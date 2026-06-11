@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/imageCompression";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
-import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
+import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles, Camera } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
