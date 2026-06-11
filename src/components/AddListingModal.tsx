@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/imageCompression";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video, Check, ChevronsUpDown, Search } from "lucide-react";
+import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video, Check, ChevronsUpDown, Search, Camera } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
@@ -924,10 +924,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 id="image-upload"
                 disabled={uploadingImages || moderatingImages}
               />
-              <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center cursor-pointer py-4"
-              >
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleMediaUpload}
+                className="hidden"
+                id="camera-capture"
+                disabled={uploadingImages || moderatingImages}
+              />
+              <div className="flex flex-col items-center justify-center py-2">
                 {uploadingImages ? (
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 ) : moderatingImages ? (
@@ -935,17 +941,33 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 ) : (
                   <Upload className="h-8 w-8 text-muted-foreground" />
                 )}
-                <span className="mt-2 text-sm text-muted-foreground">
+                <span className="mt-2 text-sm text-muted-foreground text-center">
                   {uploadingImages 
                     ? t.listingForm.uploading 
                     : moderatingImages 
                       ? t.listingForm.moderating
-                      : "اضغط لرفع صور أو فيديو"}
+                      : "اختر صور/فيديو أو التقط صورة"}
                 </span>
                 <span className="text-xs text-muted-foreground mt-1">
                   {images.length}/{maxImages} صور • حجم الفيديو: 50 ميجابايت كحد أقصى
                 </span>
-              </label>
+                <div className="flex gap-2 mt-3 w-full">
+                  <label
+                    htmlFor="image-upload"
+                    className="flex-1 inline-flex items-center justify-center gap-2 cursor-pointer rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent"
+                  >
+                    <Upload className="h-4 w-4" />
+                    من المعرض
+                  </label>
+                  <label
+                    htmlFor="camera-capture"
+                    className="flex-1 inline-flex items-center justify-center gap-2 cursor-pointer rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Camera className="h-4 w-4" />
+                    الكاميرا
+                  </label>
+                </div>
+              </div>
 
               {images.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-4">

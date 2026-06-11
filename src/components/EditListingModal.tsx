@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/imageCompression";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
-import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles } from "lucide-react";
+import { Loader2, Upload, X, ShieldCheck, ShieldX, Sparkles, Camera } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
@@ -485,10 +485,16 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                 id="edit-image-upload"
                 disabled={uploadingImages || moderatingImages}
               />
-              <label
-                htmlFor="edit-image-upload"
-                className="flex flex-col items-center justify-center cursor-pointer py-4"
-              >
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleImageUpload}
+                className="hidden"
+                id="edit-camera-capture"
+                disabled={uploadingImages || moderatingImages}
+              />
+              <div className="flex flex-col items-center justify-center py-2">
                 {uploadingImages ? (
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 ) : moderatingImages ? (
@@ -496,14 +502,30 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                 ) : (
                   <Upload className="h-8 w-8 text-muted-foreground" />
                 )}
-                <span className="mt-2 text-sm text-muted-foreground">
+                <span className="mt-2 text-sm text-muted-foreground text-center">
                   {uploadingImages 
                     ? t.listingForm.uploading 
                     : moderatingImages 
                       ? t.listingForm.moderating
                       : t.listingForm.clickToUploadMore}
                 </span>
-              </label>
+                <div className="flex gap-2 mt-3 w-full">
+                  <label
+                    htmlFor="edit-image-upload"
+                    className="flex-1 inline-flex items-center justify-center gap-2 cursor-pointer rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent"
+                  >
+                    <Upload className="h-4 w-4" />
+                    من المعرض
+                  </label>
+                  <label
+                    htmlFor="edit-camera-capture"
+                    className="flex-1 inline-flex items-center justify-center gap-2 cursor-pointer rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Camera className="h-4 w-4" />
+                    الكاميرا
+                  </label>
+                </div>
+              </div>
 
               {images.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-4">
