@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/imageCompression";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video, Check, ChevronsUpDown, Search } from "lucide-react";
+import { Loader2, Upload, X, Star, ShieldCheck, ShieldX, Sparkles, MapPin, Video, Check, ChevronsUpDown, Search, Camera } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
