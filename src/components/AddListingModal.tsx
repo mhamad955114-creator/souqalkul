@@ -159,6 +159,84 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const isVideoFile = (file: File) => file.type.startsWith("video/");
   const isVideoUrl = (url: string) => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url);
 
+  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+    if (!file.type.startsWith("image/")) {
+      toast.error("الملف المختار ليس صورة");
+      return;
+    }
+
+    const max = getPlanMaxImages(currentPlan);
+    if (images.length >= max) {
+      toast.error(`الحد الأقصى للصور هو ${max} للباقة المختارة`);
+      return;
+    }
+
+    if (cameraPreviewUrl) {
+      URL.revokeObjectURL(cameraPreviewUrl);
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setCameraPreviewFile(file);
+    setCameraPreviewUrl(previewUrl);
+    e.target.value = "";
+  };
+
+  const confirmCameraUpload = async () => {
+    if (!cameraPreviewFile || !user) return;
+
+    setUploadingImages(true);
+    setRejectedImages([]);
+    setSuggestedCategory(null);
+
+    try {
+      const compressedFile = await compressImage(cameraPreviewFile);
+      const publicUrl = await uploadToB2(compressedFile, `listings/${user.id}`, compressedFile.name);
+
+      toast.success(t.listingForm.uploadedChecking);
+      setUploadingImages(false);
+      setModeratingImages(true);
+
+      const result = await moderateImage(publicUrl);
+
+      if (result.approved) {
+        setImages((prev) => [...prev, publicUrl]);
+        toast.success(t.listingForm.imagesApproved);
+
+        if (result.suggestedCategory && !formData.category) {
+          setSuggestedCategory(result.suggestedCategory);
+          setFormData((prev) => ({ ...prev, category: result.suggestedCategory! }));
+          toast.success(`${t.listingForm.categoryDetected}: ${result.suggestedCategory}`, {
+            icon: '✨'
+          });
+        }
+      } else {
+        setRejectedImages((prev) => [...prev, { url: publicUrl, reason: result.reason }]);
+        toast.error(t.listingForm.imagesRejected);
+      }
+    } catch (error: any) {
+      toast.error(t.listingForm.uploadFailed + ": " + (error.message || "Upload failed"));
+    } finally {
+      setUploadingImages(false);
+      setModeratingImages(false);
+      if (cameraPreviewUrl) {
+        URL.revokeObjectURL(cameraPreviewUrl);
+      }
+      setCameraPreviewFile(null);
+      setCameraPreviewUrl(null);
+    }
+  };
+
+  const cancelCameraPreview = () => {
+    if (cameraPreviewUrl) {
+      URL.revokeObjectURL(cameraPreviewUrl);
+    }
+    setCameraPreviewFile(null);
+    setCameraPreviewUrl(null);
+  };
+
   const maxImages = getPlanMaxImages(currentPlan);
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
