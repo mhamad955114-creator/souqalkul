@@ -60,6 +60,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
+  const [cameraPreviewFile, setCameraPreviewFile] = useState<File | null>(null);
+  const [cameraPreviewUrl, setCameraPreviewUrl] = useState<string | null>(null);
 
   const getUserPlan = async () => {
     if (!user) return "free" as const;
