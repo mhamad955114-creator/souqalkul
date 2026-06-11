@@ -64,6 +64,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
+  const [cameraPreviewFile, setCameraPreviewFile] = useState<File | null>(null);
+  const [cameraPreviewUrl, setCameraPreviewUrl] = useState<string | null>(null);
   useEffect(() => {
     if (listing) {
       let description = listing.description || "";
