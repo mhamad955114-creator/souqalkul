@@ -379,6 +379,15 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Cleanup camera preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (cameraPreviewUrl) {
+        URL.revokeObjectURL(cameraPreviewUrl);
+      }
+    };
+  }, [cameraPreviewUrl]);
+
   
 
   const handleSubmit = async (e: React.FormEvent) => {
