@@ -1017,10 +1017,10 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 type="file"
                 accept="image/*"
                 capture="environment"
-                onChange={handleMediaUpload}
+                onChange={handleCameraCapture}
                 className="hidden"
                 id="camera-capture"
-                disabled={uploadingImages || moderatingImages}
+                disabled={uploadingImages || moderatingImages || !!cameraPreviewFile}
               />
               <div className="flex flex-col items-center justify-center py-2">
                 {uploadingImages ? (
