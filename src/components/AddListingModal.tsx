@@ -184,6 +184,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     const previewUrl = URL.createObjectURL(file);
     setCameraPreviewFile(file);
     setCameraPreviewUrl(previewUrl);
+    saveCameraDraft(CAMERA_DRAFT_KEY, file);
     e.target.value = "";
   };
 
