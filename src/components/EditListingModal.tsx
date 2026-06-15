@@ -188,6 +188,66 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    if (!file.type.startsWith("image/")) {
+      toast.error("الملف المختار ليس صورة");
+      return;
+    }
+    if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+    const previewUrl = URL.createObjectURL(file);
+    setCameraPreviewFile(file);
+    setCameraPreviewUrl(previewUrl);
+    e.target.value = "";
+  };
+
+  const confirmCameraUpload = async () => {
+    if (!cameraPreviewFile || !user) return;
+    setUploadingImages(true);
+    setRejectedImages([]);
+    try {
+      const compressedFile = await compressImage(cameraPreviewFile);
+      const publicUrl = await uploadToB2(compressedFile, `listings/${user.id}`, compressedFile.name);
+      toast.success(t.listingForm.uploadedChecking);
+      setUploadingImages(false);
+      setModeratingImages(true);
+      const result = await moderateImage(publicUrl);
+      if (result.approved) {
+        setImages((prev) => [...prev, publicUrl]);
+        toast.success(t.listingForm.imagesApproved);
+        if (result.suggestedCategory && !formData.category) {
+          setSuggestedCategory(result.suggestedCategory);
+          setFormData((prev) => ({ ...prev, category: result.suggestedCategory! }));
+        }
+      } else {
+        setRejectedImages((prev) => [...prev, { url: publicUrl, reason: result.reason }]);
+        toast.error(t.listingForm.imagesRejected);
+      }
+    } catch (error: any) {
+      toast.error(t.listingForm.uploadFailed + ": " + (error.message || "Upload failed"));
+    } finally {
+      setUploadingImages(false);
+      setModeratingImages(false);
+      if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+      setCameraPreviewFile(null);
+      setCameraPreviewUrl(null);
+    }
+  };
+
+  const cancelCameraPreview = () => {
+    if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+    setCameraPreviewFile(null);
+    setCameraPreviewUrl(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+    };
+  }, [cameraPreviewUrl]);
+
+
   
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
 
@@ -491,10 +551,10 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                 type="file"
                 accept="image/*"
                 capture="environment"
-                onChange={handleImageUpload}
+                onChange={handleCameraCapture}
                 className="hidden"
                 id="edit-camera-capture"
-                disabled={uploadingImages || moderatingImages}
+                disabled={uploadingImages || moderatingImages || !!cameraPreviewFile}
               />
               <div className="flex flex-col items-center justify-center py-2">
                 {uploadingImages ? (
@@ -527,6 +587,37 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
                     الكاميرا
                   </label>
                 </div>
+
+                {cameraPreviewUrl && (
+                  <div className="w-full mt-4 rounded-lg border border-primary/30 bg-muted/30 p-3">
+                    <p className="text-sm font-medium mb-2 text-center">معاينة الصورة الملتقطة</p>
+                    <img
+                      src={cameraPreviewUrl}
+                      alt="Camera preview"
+                      className="w-full h-48 object-contain rounded-md bg-black/5"
+                    />
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        type="button"
+                        onClick={confirmCameraUpload}
+                        disabled={uploadingImages || moderatingImages}
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                      >
+                        <ShieldCheck className="h-4 w-4" />
+                        تأكيد ورفع
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelCameraPreview}
+                        disabled={uploadingImages || moderatingImages}
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent disabled:opacity-50"
+                      >
+                        <X className="h-4 w-4" />
+                        إلغاء
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {images.length > 0 && (
