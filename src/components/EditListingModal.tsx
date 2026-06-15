@@ -188,6 +188,66 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    if (!file.type.startsWith("image/")) {
+      toast.error("الملف المختار ليس صورة");
+      return;
+    }
+    if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+    const previewUrl = URL.createObjectURL(file);
+    setCameraPreviewFile(file);
+    setCameraPreviewUrl(previewUrl);
+    e.target.value = "";
+  };
+
+  const confirmCameraUpload = async () => {
+    if (!cameraPreviewFile || !user) return;
+    setUploadingImages(true);
+    setRejectedImages([]);
+    try {
+      const compressedFile = await compressImage(cameraPreviewFile);
+      const publicUrl = await uploadToB2(compressedFile, `listings/${user.id}`, compressedFile.name);
+      toast.success(t.listingForm.uploadedChecking);
+      setUploadingImages(false);
+      setModeratingImages(true);
+      const result = await moderateImage(publicUrl);
+      if (result.approved) {
+        setImages((prev) => [...prev, publicUrl]);
+        toast.success(t.listingForm.imagesApproved);
+        if (result.suggestedCategory && !formData.category) {
+          setSuggestedCategory(result.suggestedCategory);
+          setFormData((prev) => ({ ...prev, category: result.suggestedCategory! }));
+        }
+      } else {
+        setRejectedImages((prev) => [...prev, { url: publicUrl, reason: result.reason }]);
+        toast.error(t.listingForm.imagesRejected);
+      }
+    } catch (error: any) {
+      toast.error(t.listingForm.uploadFailed + ": " + (error.message || "Upload failed"));
+    } finally {
+      setUploadingImages(false);
+      setModeratingImages(false);
+      if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+      setCameraPreviewFile(null);
+      setCameraPreviewUrl(null);
+    }
+  };
+
+  const cancelCameraPreview = () => {
+    if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+    setCameraPreviewFile(null);
+    setCameraPreviewUrl(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+    };
+  }, [cameraPreviewUrl]);
+
+
   
   const availableAreas = formData.city ? areasByCity[formData.city] || [] : [];
 
