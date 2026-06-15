@@ -120,6 +120,25 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     fetchRemaining();
   }, [isOpen, user, settings]);
 
+  // Restore camera draft when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    let revokedUrl: string | null = null;
+    (async () => {
+      const draft = await loadCameraDraft(CAMERA_DRAFT_KEY);
+      if (draft) {
+        const url = URL.createObjectURL(draft);
+        revokedUrl = url;
+        setCameraPreviewFile(draft);
+        setCameraPreviewUrl(url);
+        toast.info("تم استعادة الصورة الملتقطة من المسودة");
+      }
+    })();
+    return () => {
+      if (revokedUrl) URL.revokeObjectURL(revokedUrl);
+    };
+  }, [isOpen]);
+
   const currentMetadataFields = getFields(formData.category).filter(
     (field) => !shouldHideField(field.key, formData.category, metadata)
   );
