@@ -16,6 +16,7 @@ import { useCountry } from "@/contexts/CountryContext";
 import { cities, categories, statuses, areasByCity } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
 
 interface Listing {
   id: string;
