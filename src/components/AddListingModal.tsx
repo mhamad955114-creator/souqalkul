@@ -230,6 +230,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       }
       setCameraPreviewFile(null);
       setCameraPreviewUrl(null);
+      clearCameraDraft(CAMERA_DRAFT_KEY);
     }
   };
 
@@ -239,6 +240,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
     setCameraPreviewFile(null);
     setCameraPreviewUrl(null);
+    clearCameraDraft(CAMERA_DRAFT_KEY);
   };
 
   const maxImages = getPlanMaxImages(currentPlan);
