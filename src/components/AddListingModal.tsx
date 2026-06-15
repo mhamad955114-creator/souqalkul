@@ -26,6 +26,9 @@ import { LocationConsentDialog } from "@/components/LocationConsentDialog";
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
 import { getEffectivePlanType } from "@/lib/subscriptions";
+import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
+
+const CAMERA_DRAFT_KEY = "add-listing-camera-draft";
 
 interface AddListingModalProps {
   isOpen: boolean;
