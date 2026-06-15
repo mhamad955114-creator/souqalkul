@@ -26,6 +26,9 @@ import { LocationConsentDialog } from "@/components/LocationConsentDialog";
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
 import { getEffectivePlanType } from "@/lib/subscriptions";
+import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
+
+const CAMERA_DRAFT_KEY = "add-listing-camera-draft";
 
 interface AddListingModalProps {
   isOpen: boolean;
@@ -117,6 +120,25 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     fetchRemaining();
   }, [isOpen, user, settings]);
 
+  // Restore camera draft when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    let revokedUrl: string | null = null;
+    (async () => {
+      const draft = await loadCameraDraft(CAMERA_DRAFT_KEY);
+      if (draft) {
+        const url = URL.createObjectURL(draft);
+        revokedUrl = url;
+        setCameraPreviewFile(draft);
+        setCameraPreviewUrl(url);
+        toast.info("تم استعادة الصورة الملتقطة من المسودة");
+      }
+    })();
+    return () => {
+      if (revokedUrl) URL.revokeObjectURL(revokedUrl);
+    };
+  }, [isOpen]);
+
   const currentMetadataFields = getFields(formData.category).filter(
     (field) => !shouldHideField(field.key, formData.category, metadata)
   );
@@ -181,6 +203,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     const previewUrl = URL.createObjectURL(file);
     setCameraPreviewFile(file);
     setCameraPreviewUrl(previewUrl);
+    saveCameraDraft(CAMERA_DRAFT_KEY, file);
     e.target.value = "";
   };
 
@@ -226,6 +249,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       }
       setCameraPreviewFile(null);
       setCameraPreviewUrl(null);
+      clearCameraDraft(CAMERA_DRAFT_KEY);
     }
   };
 
@@ -235,6 +259,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
     setCameraPreviewFile(null);
     setCameraPreviewUrl(null);
+    clearCameraDraft(CAMERA_DRAFT_KEY);
   };
 
   const maxImages = getPlanMaxImages(currentPlan);
