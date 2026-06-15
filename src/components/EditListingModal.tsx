@@ -189,6 +189,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const cameraDraftKey = `edit-listing-camera-draft-${listing?.id ?? "unknown"}`;
+
   const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
@@ -200,6 +202,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     const previewUrl = URL.createObjectURL(file);
     setCameraPreviewFile(file);
     setCameraPreviewUrl(previewUrl);
+    saveCameraDraft(cameraDraftKey, file);
     e.target.value = "";
   };
 
@@ -233,6 +236,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
       if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
       setCameraPreviewFile(null);
       setCameraPreviewUrl(null);
+      clearCameraDraft(cameraDraftKey);
     }
   };
 
@@ -240,6 +244,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
     setCameraPreviewFile(null);
     setCameraPreviewUrl(null);
+    clearCameraDraft(cameraDraftKey);
   };
 
   useEffect(() => {
@@ -247,6 +252,26 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
       if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
     };
   }, [cameraPreviewUrl]);
+
+  // Restore camera draft when modal opens
+  useEffect(() => {
+    if (!isOpen || !listing?.id) return;
+    let revokedUrl: string | null = null;
+    (async () => {
+      const draft = await loadCameraDraft(cameraDraftKey);
+      if (draft) {
+        const url = URL.createObjectURL(draft);
+        revokedUrl = url;
+        setCameraPreviewFile(draft);
+        setCameraPreviewUrl(url);
+        toast.info("تم استعادة الصورة الملتقطة من المسودة");
+      }
+    })();
+    return () => {
+      if (revokedUrl) URL.revokeObjectURL(revokedUrl);
+    };
+  }, [isOpen, listing?.id]);
+
 
 
   
