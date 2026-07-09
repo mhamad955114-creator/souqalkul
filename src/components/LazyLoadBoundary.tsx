@@ -10,6 +10,25 @@ interface State {
   retrying: boolean;
 }
 
+const purgeCachesAndReload = async () => {
+  try {
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+  } catch {
+    // ignore
+  }
+  // Bust HTTP cache with a query param so the browser fetches a fresh index.html
+  const url = new URL(window.location.href);
+  url.searchParams.set("_r", Date.now().toString());
+  window.location.replace(url.toString());
+};
+
 /**
  * Recovers from failed dynamic chunk loads (common on flaky mobile networks
  * or after a new deployment invalidates old chunk hashes).
@@ -32,19 +51,21 @@ class LazyLoadBoundary extends Component<Props, State> {
 
   componentDidUpdate(_prev: Props, prevState: State) {
     if (!prevState.hasError && this.state.hasError && this.state.retrying) {
-      // Auto-recover from chunk load errors by reloading once
+      // Auto-recover from chunk load errors by purging SW/caches then reloading once
       const reloadKey = "__lazy_reload_attempt";
       const attempted = sessionStorage.getItem(reloadKey);
       if (!attempted) {
         sessionStorage.setItem(reloadKey, "1");
-        setTimeout(() => window.location.reload(), 400);
+        setTimeout(() => {
+          void purgeCachesAndReload();
+        }, 400);
       }
     }
   }
 
   handleReload = () => {
     sessionStorage.removeItem("__lazy_reload_attempt");
-    window.location.reload();
+    void purgeCachesAndReload();
   };
 
   render() {
