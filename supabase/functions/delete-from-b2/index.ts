@@ -3,6 +3,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 import { S3Client, DeleteObjectCommand, DeleteObjectsCommand } from "npm:@aws-sdk/client-s3@3.700.0";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const B2_KEY_ID = Deno.env.get("B2_KEY_ID")!;
 const B2_APP_KEY = Deno.env.get("B2_APP_KEY")!;
