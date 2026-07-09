@@ -67,7 +67,7 @@ const Settings = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, user_id, full_name, city, avatar_url, created_at, updated_at, is_verified, country")
         .eq("user_id", user.id)
         .single();
 
@@ -75,9 +75,10 @@ const Settings = () => {
         console.error("Error fetching profile:", error);
         toast.error(t.settings.loadError);
       } else if (data) {
-        setProfile(data);
+        const { data: phoneData } = await supabase.rpc("get_user_phone", { _target_user_id: user.id });
+        setProfile({ ...data, phone: (phoneData as string | null) ?? null } as any);
         setFullName(data.full_name || "");
-        setPhone(data.phone || "");
+        setPhone((phoneData as string | null) || "");
         setCity(data.city || "");
         setAvatarUrl(data.avatar_url || "");
       }
