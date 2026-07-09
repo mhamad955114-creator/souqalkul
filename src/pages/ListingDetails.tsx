@@ -441,10 +441,12 @@ const ListingDetails = () => {
                 <div className="flex items-center justify-between py-3 border-b border-border">
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(listing.id);
-                      toast.success("تم نسخ رقم الإعلان");
+                      const shortId = listing.id.split("-")[0].toUpperCase();
+                      navigator.clipboard.writeText(shortId);
+                      toast.success("تم نسخ رقم الإعلان، الصقه في خانة البحث لعرض الإعلان");
                     }}
                     className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                    title="اضغط لنسخ رقم الإعلان"
                   >
                     <Copy className="h-3.5 w-3.5" />
                     <span className="font-mono text-sm">{listing.id.split("-")[0].toUpperCase()}</span>

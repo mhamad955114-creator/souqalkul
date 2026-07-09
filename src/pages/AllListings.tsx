@@ -126,9 +126,14 @@ const AllListings = () => {
     }
 
     if (searchQuery) {
+      const trimmed = searchQuery.trim();
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (uuidRegex.test(searchQuery.trim())) {
-        query = query.eq("id", searchQuery.trim());
+      const shortIdRegex = /^[0-9a-f]{4,8}$/i;
+      if (uuidRegex.test(trimmed)) {
+        query = query.eq("id", trimmed);
+      } else if (shortIdRegex.test(trimmed)) {
+        // Match by short listing id (first 8 chars of UUID)
+        query = query.filter("id::text", "ilike", `${trimmed.toLowerCase()}%`);
       } else {
         query = query.ilike("title", `%${searchQuery}%`);
       }
