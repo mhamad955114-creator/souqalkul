@@ -45,7 +45,7 @@ interface EditListingModalProps {
 
 const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingModalProps) => {
   const { user } = useAuth();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { currentCountry } = useCountry();
   const { getFields, shouldHideField, getFieldOptions } = useCategoryDefinitions();
   const [loading, setLoading] = useState(false);
