@@ -135,25 +135,44 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
 
     let cancelled = false;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    // Build fallback queries — most specific first, then progressively less specific
+    const queries = Array.from(
+      new Set(
+        [
+          [area, city, country].filter(Boolean).join(", "),
+          [city, country].filter(Boolean).join(", "),
+          [area, country].filter(Boolean).join(", "),
+          [country].filter(Boolean).join(", "),
+        ].filter(Boolean)
+      )
+    );
 
     (async () => {
       try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(
-          query
-        )}`;
-        const res = await fetch(url, {
-          signal: controller.signal,
-          headers: { "Accept-Language": language },
-        });
-        if (!res.ok) throw new Error("geocode failed");
-        const data = (await res.json()) as Array<{
+        let data: Array<{
           lat: string;
           lon: string;
           addresstype?: string;
           type?: string;
           class?: string;
-        }>;
+        }> = [];
+        for (const q of queries) {
+          const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=1&q=${encodeURIComponent(
+            q
+          )}`;
+          const res = await fetch(url, {
+            signal: controller.signal,
+            headers: { "Accept-Language": language },
+          });
+          if (!res.ok) continue;
+          const j = await res.json();
+          if (Array.isArray(j) && j.length > 0) {
+            data = j;
+            break;
+          }
+        }
         if (cancelled) return;
         if (data.length === 0) {
           setError(true);
