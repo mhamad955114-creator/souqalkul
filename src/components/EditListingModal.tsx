@@ -98,6 +98,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         status: listing.status || "active",
         maritalStatus,
         age,
+        latitude: listing.latitude ?? null,
+        longitude: listing.longitude ?? null,
       });
       setImages(listing.images || []);
       setMetadata((listing.metadata as Record<string, string>) || {});
