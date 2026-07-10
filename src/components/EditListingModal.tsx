@@ -65,6 +65,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     status: "",
     maritalStatus: "",
     age: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
