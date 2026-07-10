@@ -22,6 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LocationConsentDialog } from "@/components/LocationConsentDialog";
+import LocationPicker from "@/components/LocationPicker";
 
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
@@ -60,6 +61,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     city: "",
     area: "",
     phone: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
@@ -536,6 +539,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
         country: selectedCountry,
         currency: priceCurrency === "usd" ? "USD" : countryInfo.currencyCode,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
       } as any);
 
       if (error) {
@@ -560,6 +565,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       city: "",
       area: "",
       phone: "",
+      latitude: null,
+      longitude: null,
     });
     setImages([]);
     setMetadata({});
@@ -953,6 +960,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               )}
             </div>
           </div>
+
+          <LocationPicker
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onChange={(lat, lng) => setFormData((p) => ({ ...p, latitude: lat, longitude: lng }))}
+            hint={[formData.area, formData.city, selectedCountry].filter(Boolean).join(", ")}
+            language={language}
+          />
+
+
 
           <div className="space-y-2">
             <Label htmlFor="phone">{t.listingForm.phone} * <span className="text-xs text-muted-foreground">({countryInfo.phoneCode})</span></Label>

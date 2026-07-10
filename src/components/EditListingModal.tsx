@@ -17,6 +17,7 @@ import { cities, categories, statuses, areasByCity } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
+import LocationPicker from "@/components/LocationPicker";
 
 interface Listing {
   id: string;
@@ -31,6 +32,8 @@ interface Listing {
   images: string[] | null;
   status: string | null;
   metadata?: Record<string, string> | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface EditListingModalProps {
@@ -42,7 +45,7 @@ interface EditListingModalProps {
 
 const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingModalProps) => {
   const { user } = useAuth();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { currentCountry } = useCountry();
   const { getFields, shouldHideField, getFieldOptions } = useCategoryDefinitions();
   const [loading, setLoading] = useState(false);
@@ -62,6 +65,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
     status: "",
     maritalStatus: "",
     age: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
@@ -93,6 +98,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         status: listing.status || "active",
         maritalStatus,
         age,
+        latitude: listing.latitude ?? null,
+        longitude: listing.longitude ?? null,
       });
       setImages(listing.images || []);
       setMetadata((listing.metadata as Record<string, string>) || {});
@@ -324,6 +331,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
           status: formData.status,
           images: images,
           metadata: Object.keys(metadata).length > 0 ? metadata : null,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
         } as any)
         .eq("id", listing.id);
 
@@ -483,6 +492,14 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
               </Select>
             </div>
           </div>
+
+          <LocationPicker
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onChange={(lat, lng) => setFormData((p) => ({ ...p, latitude: lat, longitude: lng }))}
+            hint={[formData.area, formData.city, currentCountry.name].filter(Boolean).join(", ")}
+            language={language}
+          />
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
