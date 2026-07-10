@@ -562,6 +562,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       city: "",
       area: "",
       phone: "",
+      latitude: null,
+      longitude: null,
     });
     setImages([]);
     setMetadata({});
