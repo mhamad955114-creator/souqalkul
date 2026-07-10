@@ -331,6 +331,8 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
           status: formData.status,
           images: images,
           metadata: Object.keys(metadata).length > 0 ? metadata : null,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
         } as any)
         .eq("id", listing.id);
 
