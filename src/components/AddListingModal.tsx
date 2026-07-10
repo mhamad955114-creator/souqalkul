@@ -538,6 +538,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         metadata: Object.keys(metadata).length > 0 ? metadata : null,
         country: selectedCountry,
         currency: priceCurrency === "usd" ? "USD" : countryInfo.currencyCode,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
       } as any);
 
       if (error) {
