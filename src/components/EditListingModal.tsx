@@ -17,6 +17,7 @@ import { cities, categories, statuses, areasByCity } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
+import LocationPicker from "@/components/LocationPicker";
 
 interface Listing {
   id: string;
@@ -31,6 +32,8 @@ interface Listing {
   images: string[] | null;
   status: string | null;
   metadata?: Record<string, string> | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface EditListingModalProps {
