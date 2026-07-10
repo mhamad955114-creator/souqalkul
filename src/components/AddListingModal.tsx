@@ -961,6 +961,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
           </div>
 
+          <LocationPicker
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onChange={(lat, lng) => setFormData((p) => ({ ...p, latitude: lat, longitude: lng }))}
+            hint={[formData.area, formData.city, selectedCountry].filter(Boolean).join(", ")}
+            language={language}
+          />
+
+
+
           <div className="space-y-2">
             <Label htmlFor="phone">{t.listingForm.phone} * <span className="text-xs text-muted-foreground">({countryInfo.phoneCode})</span></Label>
             <Input
