@@ -498,7 +498,7 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
             longitude={formData.longitude}
             onChange={(lat, lng) => setFormData((p) => ({ ...p, latitude: lat, longitude: lng }))}
             hint={[formData.area, formData.city, currentCountry.name].filter(Boolean).join(", ")}
-            language={(useLanguage() as any).language}
+            language={language}
           />
 
           <div className="grid grid-cols-2 gap-4">
