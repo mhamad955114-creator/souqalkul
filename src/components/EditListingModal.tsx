@@ -493,6 +493,14 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
             </div>
           </div>
 
+          <LocationPicker
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onChange={(lat, lng) => setFormData((p) => ({ ...p, latitude: lat, longitude: lng }))}
+            hint={[formData.area, formData.city, currentCountry.name].filter(Boolean).join(", ")}
+            language={(useLanguage() as any).language}
+          />
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">{t.listingForm.phone}</Label>
