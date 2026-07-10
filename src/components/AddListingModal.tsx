@@ -60,6 +60,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     city: "",
     area: "",
     phone: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
   const [images, setImages] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<Record<string, string>>({});
