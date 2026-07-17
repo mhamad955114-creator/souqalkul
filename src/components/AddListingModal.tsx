@@ -502,6 +502,18 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       return;
     }
 
+    // Validate coordinates (must be present and within valid ranges)
+    const { latitude: _lat, longitude: _lng } = formData;
+    if (
+      _lat === null || _lng === null ||
+      !Number.isFinite(_lat) || !Number.isFinite(_lng) ||
+      _lat < -90 || _lat > 90 || _lng < -180 || _lng > 180 ||
+      (_lat === 0 && _lng === 0)
+    ) {
+      toast.error("يرجى تحديد موقع الإعلان على الخريطة قبل الحفظ");
+      return;
+    }
+
     setLoading(true);
 
     try {
