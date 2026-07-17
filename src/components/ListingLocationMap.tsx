@@ -31,7 +31,7 @@ interface Props {
   compact?: boolean;
 }
 
-type AccuracyLevel = "exact" | "high" | "medium" | "low" | "very_low" | "saved";
+type AccuracyLevel = "exact" | "high" | "medium" | "low" | "very_low" | "saved" | "shared";
 
 interface Coords {
   lat: number;
