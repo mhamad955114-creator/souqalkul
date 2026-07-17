@@ -421,7 +421,7 @@ const ListingDetails = () => {
                   </span>
                 </div>
 
-                {/* Map */}
+                {/* Map preview with saved coordinates */}
                 <div className="py-3">
                   <ListingLocationMap
                     listingId={listing.id}
@@ -430,6 +430,7 @@ const ListingDetails = () => {
                     country={(listing as any).country}
                     latitude={(listing as any).latitude}
                     longitude={(listing as any).longitude}
+                    compact
                   />
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-border">
