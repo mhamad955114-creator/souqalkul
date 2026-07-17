@@ -245,6 +245,19 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
     toast.success("تم نسخ الإحداثيات");
   };
 
+  const copyLocationShareLink = () => {
+    if (!coords) return;
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("lat", coords.lat.toString());
+      url.searchParams.set("lng", coords.lon.toString());
+      navigator.clipboard.writeText(url.toString());
+      toast.success("تم نسخ رابط مشاركة الموقع");
+    } catch {
+      toast.error("فشل نسخ الرابط");
+    }
+  };
+
   return (
     <div className={`border border-border bg-card overflow-hidden ${compact ? "rounded-xl" : "rounded-2xl"}`}>
       <div className={`flex items-center gap-2 border-b border-border ${compact ? "px-3 py-2" : "px-4 py-3"}`}>
@@ -329,6 +342,15 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
             <span className={`font-mono text-foreground" dir="ltr ${compact ? "text-[11px]" : "text-xs"}`}>
               {fmtCoord(coords.lat)}, {fmtCoord(coords.lon)}
             </span>
+          </button>
+
+          {/* Share location link */}
+          <button
+            onClick={copyLocationShareLink}
+            className={`w-full flex items-center justify-center gap-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors ${compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"}`}
+          >
+            <Share2 className={`${compact ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
+            نسخ رابط مشاركة الموقع
           </button>
         </div>
       )}
