@@ -235,14 +235,14 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
-        <MapPin className="h-4 w-4 text-primary" />
-        <span className="font-semibold text-sm">الموقع على الخريطة</span>
-        <span className="text-xs text-muted-foreground mr-auto truncate">{query}</span>
+    <div className={`border border-border bg-card overflow-hidden ${compact ? "rounded-xl" : "rounded-2xl"}`}>
+      <div className={`flex items-center gap-2 border-b border-border ${compact ? "px-3 py-2" : "px-4 py-3"}`}>
+        <MapPin className="h-4 w-4 text-primary shrink-0" />
+        <span className={`font-semibold ${compact ? "text-xs" : "text-sm"}`}>الموقع على الخريطة</span>
+        <span className={`text-muted-foreground mr-auto truncate ${compact ? "text-[11px]" : "text-xs"}`}>{query}</span>
       </div>
 
-      <div className="relative h-56 w-full bg-muted">
+      <div className={`relative w-full bg-muted ${compact ? "h-40" : "h-56"}`}>
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin" />
