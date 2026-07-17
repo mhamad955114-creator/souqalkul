@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useBrand } from "@/contexts/BrandContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,7 @@ interface SellerProfile {
 const ListingDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const { logoUrl: appLogo } = useBrand();
@@ -241,6 +242,11 @@ const ListingDetails = () => {
   const isOwnerPro = listing.badge_type === "professional";
 
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
+
+  const sharedLat = parseFloat(searchParams.get("lat") || "");
+  const sharedLng = parseFloat(searchParams.get("lng") || "");
+  const sharedLatitude = !isNaN(sharedLat) ? sharedLat : null;
+  const sharedLongitude = !isNaN(sharedLng) ? sharedLng : null;
 
   return (
     <div className="min-h-screen bg-background" dir={dir}>
@@ -430,6 +436,8 @@ const ListingDetails = () => {
                     country={(listing as any).country}
                     latitude={(listing as any).latitude}
                     longitude={(listing as any).longitude}
+                    sharedLatitude={sharedLatitude}
+                    sharedLongitude={sharedLongitude}
                     compact
                   />
                 </div>

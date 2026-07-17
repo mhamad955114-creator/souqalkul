@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapPin, Loader2, Crosshair, Copy } from "lucide-react";
+import { MapPin, Loader2, Crosshair, Copy, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -22,13 +22,16 @@ interface Props {
   /** If saved coordinates exist on the listing, use them directly */
   latitude?: number | null;
   longitude?: number | null;
+  /** Shared coordinates embedded in the URL (e.g. from a share link) take priority */
+  sharedLatitude?: number | null;
+  sharedLongitude?: number | null;
   /** Listing id — when provided, persist geocoded coords back to DB once */
   listingId?: string;
   /** Render a compact inline preview (smaller map, minimal chrome) */
   compact?: boolean;
 }
 
-type AccuracyLevel = "exact" | "high" | "medium" | "low" | "very_low" | "saved";
+type AccuracyLevel = "exact" | "high" | "medium" | "low" | "very_low" | "saved" | "shared";
 
 interface Coords {
   lat: number;
@@ -45,6 +48,12 @@ const accuracyMeta: Record<
   AccuracyLevel,
   { label: string; color: string; description: string; zoom: number }
 > = {
+  shared: {
+    label: "موقع مشارك",
+    color: "text-emerald-600 dark:text-emerald-400",
+    description: "إحداثيات مدمجة في رابط المشاركة.",
+    zoom: 16,
+  },
   saved: {
     label: "موقع محفوظ",
     color: "text-emerald-600 dark:text-emerald-400",
@@ -103,9 +112,11 @@ const classifyAccuracy = (
 
 const fmtCoord = (n: number) => n.toFixed(6);
 
-const ListingLocationMap = ({ city, area, country, latitude, longitude, listingId, compact }: Props) => {
+const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLatitude, sharedLongitude, listingId, compact }: Props) => {
   const initial: Coords | null =
-    typeof latitude === "number" && typeof longitude === "number"
+    typeof sharedLatitude === "number" && typeof sharedLongitude === "number"
+      ? { lat: sharedLatitude, lon: sharedLongitude, accuracy: "shared", radius: 25 }
+      : typeof latitude === "number" && typeof longitude === "number"
       ? { lat: latitude, lon: longitude, accuracy: "saved", radius: 25 }
       : null;
 
@@ -234,6 +245,19 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
     toast.success("تم نسخ الإحداثيات");
   };
 
+  const copyLocationShareLink = () => {
+    if (!coords) return;
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("lat", coords.lat.toString());
+      url.searchParams.set("lng", coords.lon.toString());
+      navigator.clipboard.writeText(url.toString());
+      toast.success("تم نسخ رابط مشاركة الموقع");
+    } catch {
+      toast.error("فشل نسخ الرابط");
+    }
+  };
+
   return (
     <div className={`border border-border bg-card overflow-hidden ${compact ? "rounded-xl" : "rounded-2xl"}`}>
       <div className={`flex items-center gap-2 border-b border-border ${compact ? "px-3 py-2" : "px-4 py-3"}`}>
@@ -318,6 +342,15 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
             <span className={`font-mono text-foreground" dir="ltr ${compact ? "text-[11px]" : "text-xs"}`}>
               {fmtCoord(coords.lat)}, {fmtCoord(coords.lon)}
             </span>
+          </button>
+
+          {/* Share location link */}
+          <button
+            onClick={copyLocationShareLink}
+            className={`w-full flex items-center justify-center gap-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors ${compact ? "px-2.5 py-1.5 text-[11px]" : "px-3 py-2 text-xs"}`}
+          >
+            <Share2 className={`${compact ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
+            نسخ رابط مشاركة الموقع
           </button>
         </div>
       )}
