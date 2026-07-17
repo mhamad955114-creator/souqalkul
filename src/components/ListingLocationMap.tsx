@@ -24,6 +24,8 @@ interface Props {
   longitude?: number | null;
   /** Listing id — when provided, persist geocoded coords back to DB once */
   listingId?: string;
+  /** Render a compact inline preview (smaller map, minimal chrome) */
+  compact?: boolean;
 }
 
 type AccuracyLevel = "exact" | "high" | "medium" | "low" | "very_low" | "saved";
