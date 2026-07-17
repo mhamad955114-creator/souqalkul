@@ -290,13 +290,13 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
       </div>
 
       {coords && meta && (
-        <div className="px-4 py-3 border-t border-border space-y-2">
+        <div className={`border-t border-border space-y-2 ${compact ? "px-3 py-2" : "px-4 py-3"}`}>
           {/* Accuracy badge + description */}
           <div className="flex items-start gap-2">
-            <Crosshair className={`h-4 w-4 mt-0.5 shrink-0 ${meta.color}`} />
+            <Crosshair className={`shrink-0 ${meta.color} ${compact ? "h-3.5 w-3.5 mt-0.5" : "h-4 w-4 mt-0.5"}`} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className={`text-sm font-semibold ${meta.color}`}>
+                <span className={`font-semibold ${meta.color} ${compact ? "text-xs" : "text-sm"}`}>
                   دقة الموقع: {meta.label}
                 </span>
                 {isApproximate && (
@@ -305,17 +305,17 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
                   </span>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">{meta.description}</p>
+              {!compact && <p className="text-xs text-muted-foreground mt-0.5">{meta.description}</p>}
             </div>
           </div>
 
           {/* Coordinates row */}
           <button
             onClick={copyCoords}
-            className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors group"
+            className={`w-full flex items-center justify-between gap-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors group ${compact ? "px-2.5 py-1.5" : "px-3 py-2"}`}
           >
-            <Copy className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-            <span className="font-mono text-xs text-foreground" dir="ltr">
+            <Copy className={`text-muted-foreground group-hover:text-primary transition-colors ${compact ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
+            <span className={`font-mono text-foreground" dir="ltr ${compact ? "text-[11px]" : "text-xs"}`}>
               {fmtCoord(coords.lat)}, {fmtCoord(coords.lon)}
             </span>
           </button>
@@ -327,7 +327,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, listingI
           href={`https://www.openstreetmap.org/?mlat=${coords.lat}&mlon=${coords.lon}#map=15/${coords.lat}/${coords.lon}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-center py-2.5 text-sm text-primary hover:bg-muted transition-colors border-t border-border"
+          className={`block text-center text-primary hover:bg-muted transition-colors border-t border-border ${compact ? "py-2 text-xs" : "py-2.5 text-sm"}`}
         >
           فتح في خرائط OpenStreetMap
         </a>
