@@ -103,7 +103,7 @@ const classifyAccuracy = (
 
 const fmtCoord = (n: number) => n.toFixed(6);
 
-const ListingLocationMap = ({ city, area, country, latitude, longitude, listingId }: Props) => {
+const ListingLocationMap = ({ city, area, country, latitude, longitude, listingId, compact }: Props) => {
   const initial: Coords | null =
     typeof latitude === "number" && typeof longitude === "number"
       ? { lat: latitude, lon: longitude, accuracy: "saved", radius: 25 }
