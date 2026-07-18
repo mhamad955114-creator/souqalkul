@@ -6,7 +6,13 @@ import { MapPin, Loader2, Crosshair, Copy, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatCoordinate } from "@/lib/utils";
+import {
+  formatCoordinate,
+  getStoredCoordPrecision,
+  setStoredCoordPrecision,
+  COORD_PRECISION_META,
+  type CoordinatePrecision,
+} from "@/lib/utils";
 
 // Fix default marker icons (Leaflet ships them as bundler-incompatible URLs)
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
@@ -127,6 +133,12 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
   const [coords, setCoords] = useState<Coords | null>(initial);
   const [loading, setLoading] = useState(!coords);
   const [error, setError] = useState(false);
+  const [precision, setPrecision] = useState<CoordinatePrecision>(() => getStoredCoordPrecision());
+
+  const changePrecision = (p: CoordinatePrecision) => {
+    setPrecision(p);
+    setStoredCoordPrecision(p);
+  };
 
   const query = [area, city, country].filter(Boolean).join(", ");
 
@@ -243,7 +255,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
 
   const copyCoords = () => {
     if (!coords) return;
-    const text = `${formatCoordinate(coords.lat)}, ${formatCoordinate(coords.lon)}`;
+    const text = `${formatCoordinate(coords.lat, precision)}, ${formatCoordinate(coords.lon, precision)}`;
     navigator.clipboard.writeText(text);
     toast.success("تم نسخ الإحداثيات");
   };
@@ -252,8 +264,9 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
     if (!coords) return;
     try {
       const url = new URL(window.location.href);
-      url.searchParams.set("lat", formatCoordinate(coords.lat));
-      url.searchParams.set("lng", formatCoordinate(coords.lon));
+      url.searchParams.set("lat", formatCoordinate(coords.lat, precision));
+      url.searchParams.set("lng", formatCoordinate(coords.lon, precision));
+      url.searchParams.set("prec", precision);
       navigator.clipboard.writeText(url.toString());
       toast.success("تم نسخ رابط مشاركة الموقع");
     } catch {
@@ -307,7 +320,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
                 <div className="text-xs space-y-1" dir="rtl">
                   <div className="font-semibold">{query}</div>
                   <div className="font-mono text-[11px] text-gray-600" dir="ltr">
-                    {formatCoordinate(coords.lat)}, {formatCoordinate(coords.lon)}
+                    {formatCoordinate(coords.lat, precision)}, {formatCoordinate(coords.lon, precision)}
                   </div>
                 </div>
               </Popup>
@@ -336,6 +349,28 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
             </div>
           </div>
 
+          {/* Precision selector */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className={`text-muted-foreground ${compact ? "text-[10px]" : "text-[11px]"}`}>
+              دقة الإحداثيات:
+            </span>
+            {(["low", "medium", "high"] as CoordinatePrecision[]).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => changePrecision(p)}
+                title={COORD_PRECISION_META[p].hint}
+                className={`rounded-full border transition-colors ${compact ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]"} ${
+                  precision === p
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-muted/40 hover:bg-muted border-border text-foreground"
+                }`}
+              >
+                {COORD_PRECISION_META[p].label}
+              </button>
+            ))}
+          </div>
+
           {/* Coordinates row */}
           <button
             onClick={copyCoords}
@@ -343,7 +378,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
           >
             <Copy className={`text-muted-foreground group-hover:text-primary transition-colors ${compact ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
             <span className={`font-mono text-foreground" dir="ltr ${compact ? "text-[11px]" : "text-xs"}`}>
-              {formatCoordinate(coords.lat)}, {formatCoordinate(coords.lon)}
+              {formatCoordinate(coords.lat, precision)}, {formatCoordinate(coords.lon, precision)}
             </span>
           </button>
 
