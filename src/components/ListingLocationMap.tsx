@@ -6,6 +6,7 @@ import { MapPin, Loader2, Crosshair, Copy, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatCoordinate } from "@/lib/utils";
 
 // Fix default marker icons (Leaflet ships them as bundler-incompatible URLs)
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;

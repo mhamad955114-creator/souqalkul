@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapPin, Crosshair, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatCoordinate } from "@/lib/utils";
 
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
