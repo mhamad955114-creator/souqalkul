@@ -320,7 +320,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
                 <div className="text-xs space-y-1" dir="rtl">
                   <div className="font-semibold">{query}</div>
                   <div className="font-mono text-[11px] text-gray-600" dir="ltr">
-                    {formatCoordinate(coords.lat)}, {formatCoordinate(coords.lon)}
+                    {formatCoordinate(coords.lat, precision)}, {formatCoordinate(coords.lon, precision)}
                   </div>
                 </div>
               </Popup>
