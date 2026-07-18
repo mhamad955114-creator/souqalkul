@@ -13,6 +13,13 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
+interface ResolvedAddress {
+  displayName: string;
+  country?: string;
+  city?: string;
+  area?: string;
+}
+
 interface Props {
   latitude: number | null;
   longitude: number | null;
@@ -20,6 +27,8 @@ interface Props {
   /** Free-text query used to auto-center the map when no coords are set */
   hint?: string;
   language?: string;
+  /** Called when reverse geocoding resolves the address for the picked point */
+  onAddressResolved?: (address: ResolvedAddress) => void;
 }
 
 const DEFAULT_CENTER: [number, number] = [33.5138, 36.2765]; // Damascus fallback
