@@ -349,6 +349,28 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
             </div>
           </div>
 
+          {/* Precision selector */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className={`text-muted-foreground ${compact ? "text-[10px]" : "text-[11px]"}`}>
+              دقة الإحداثيات:
+            </span>
+            {(["low", "medium", "high"] as CoordinatePrecision[]).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => changePrecision(p)}
+                title={COORD_PRECISION_META[p].hint}
+                className={`rounded-full border transition-colors ${compact ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]"} ${
+                  precision === p
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-muted/40 hover:bg-muted border-border text-foreground"
+                }`}
+              >
+                {COORD_PRECISION_META[p].label}
+              </button>
+            ))}
+          </div>
+
           {/* Coordinates row */}
           <button
             onClick={copyCoords}
@@ -356,7 +378,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
           >
             <Copy className={`text-muted-foreground group-hover:text-primary transition-colors ${compact ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
             <span className={`font-mono text-foreground" dir="ltr ${compact ? "text-[11px]" : "text-xs"}`}>
-              {formatCoordinate(coords.lat)}, {formatCoordinate(coords.lon)}
+              {formatCoordinate(coords.lat, precision)}, {formatCoordinate(coords.lon, precision)}
             </span>
           </button>
 
