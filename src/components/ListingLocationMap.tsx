@@ -133,6 +133,12 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
   const [coords, setCoords] = useState<Coords | null>(initial);
   const [loading, setLoading] = useState(!coords);
   const [error, setError] = useState(false);
+  const [precision, setPrecision] = useState<CoordinatePrecision>(() => getStoredCoordPrecision());
+
+  const changePrecision = (p: CoordinatePrecision) => {
+    setPrecision(p);
+    setStoredCoordPrecision(p);
+  };
 
   const query = [area, city, country].filter(Boolean).join(", ");
 
