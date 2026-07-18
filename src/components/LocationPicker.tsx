@@ -50,7 +50,51 @@ const Recenter = ({ center, zoom }: { center: [number, number]; zoom?: number })
   return null;
 };
 
-const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar" }: Props) => {
+const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", onAddressResolved }: Props) => {
+  const hasCoords = typeof latitude === "number" && typeof longitude === "number";
+  const [center, setCenter] = useState<[number, number]>(
+    hasCoords ? [latitude!, longitude!] : DEFAULT_CENTER
+  );
+  const [zoom, setZoom] = useState(hasCoords ? 15 : 6);
+  const [geocoding, setGeocoding] = useState(false);
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [reverseLoading, setReverseLoading] = useState(false);
+  const [resolved, setResolved] = useState<ResolvedAddress | null>(null);
+  const lastHint = useRef<string>("");
+  const reverseAbort = useRef<AbortController | null>(null);
+  const reverseKey = useRef<string>("");
+
+  const reverseGeocode = async (lat: number, lng: number) => {
+    const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+    if (key === reverseKey.current) return;
+    reverseKey.current = key;
+    reverseAbort.current?.abort();
+    const controller = new AbortController();
+    reverseAbort.current = controller;
+    setReverseLoading(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
+        { signal: controller.signal, headers: { "Accept-Language": language } }
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      const a = data?.address || {};
+      const address: ResolvedAddress = {
+        displayName: data?.display_name || "",
+        country: a.country,
+        city: a.city || a.town || a.village || a.municipality || a.county,
+        area: a.suburb || a.neighbourhood || a.quarter || a.city_district || a.district,
+      };
+      setResolved(address);
+      onAddressResolved?.(address);
+    } catch {
+      // ignore
+    } finally {
+      setReverseLoading(false);
+    }
+  };
+
   const hasCoords = typeof latitude === "number" && typeof longitude === "number";
   const [center, setCenter] = useState<[number, number]>(
     hasCoords ? [latitude!, longitude!] : DEFAULT_CENTER
