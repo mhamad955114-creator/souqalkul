@@ -224,8 +224,10 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
                   const m = e.target as L.Marker;
                   const p = m.getLatLng();
                   onChange(p.lat, p.lng);
+                  reverseGeocode(p.lat, p.lng);
                 },
               }}
+
             />
           )}
         </MapContainer>
