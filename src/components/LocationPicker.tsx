@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapPin, Crosshair, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatCoordinate } from "@/lib/utils";
 
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -182,7 +183,7 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar" }
       </p>
       {hasCoords && (
         <p className="text-[11px] font-mono text-muted-foreground" dir="ltr">
-          {latitude!.toFixed(6)}, {longitude!.toFixed(6)}
+          {formatCoordinate(latitude)}, {formatCoordinate(longitude)}
         </p>
       )}
     </div>
