@@ -255,7 +255,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
 
   const copyCoords = () => {
     if (!coords) return;
-    const text = `${formatCoordinate(coords.lat)}, ${formatCoordinate(coords.lon)}`;
+    const text = `${formatCoordinate(coords.lat, precision)}, ${formatCoordinate(coords.lon, precision)}`;
     navigator.clipboard.writeText(text);
     toast.success("تم نسخ الإحداثيات");
   };
@@ -264,8 +264,9 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
     if (!coords) return;
     try {
       const url = new URL(window.location.href);
-      url.searchParams.set("lat", formatCoordinate(coords.lat));
-      url.searchParams.set("lng", formatCoordinate(coords.lon));
+      url.searchParams.set("lat", formatCoordinate(coords.lat, precision));
+      url.searchParams.set("lng", formatCoordinate(coords.lon, precision));
+      url.searchParams.set("prec", precision);
       navigator.clipboard.writeText(url.toString());
       toast.success("تم نسخ رابط مشاركة الموقع");
     } catch {
