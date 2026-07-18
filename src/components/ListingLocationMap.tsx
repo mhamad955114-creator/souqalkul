@@ -30,6 +30,8 @@ interface Props {
   listingId?: string;
   /** Render a compact inline preview (smaller map, minimal chrome) */
   compact?: boolean;
+  /** Optional className applied to the map container to override the default height */
+  mapHeightClass?: string;
 }
 
 type AccuracyLevel = "exact" | "high" | "medium" | "low" | "very_low" | "saved" | "shared";
@@ -113,7 +115,7 @@ const classifyAccuracy = (
 
 
 
-const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLatitude, sharedLongitude, listingId, compact }: Props) => {
+const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLatitude, sharedLongitude, listingId, compact, mapHeightClass }: Props) => {
   const initial: Coords | null =
     typeof sharedLatitude === "number" && typeof sharedLongitude === "number"
       ? { lat: sharedLatitude, lon: sharedLongitude, accuracy: "shared", radius: 25 }
@@ -267,7 +269,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
         <span className={`text-muted-foreground mr-auto truncate ${compact ? "text-[11px]" : "text-xs"}`}>{query}</span>
       </div>
 
-      <div className={`relative w-full bg-muted ${compact ? "h-40" : "h-56"}`}>
+      <div className={`relative w-full bg-muted ${mapHeightClass || (compact ? "h-40" : "h-56")}`}>
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin" />
