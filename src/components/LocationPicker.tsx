@@ -131,7 +131,15 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
   const pick = (lat: number, lng: number) => {
     onChange(lat, lng);
     setCenter([lat, lng]);
+    reverseGeocode(lat, lng);
   };
+
+  // Reverse geocode when coords are provided/updated externally
+  useEffect(() => {
+    if (hasCoords) reverseGeocode(latitude!, longitude!);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latitude, longitude]);
+
 
   const useMyLocation = () => {
     if (!("geolocation" in navigator)) {
