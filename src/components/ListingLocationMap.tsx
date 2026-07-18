@@ -111,7 +111,7 @@ const classifyAccuracy = (
   return { level: "medium", radius: 800 };
 };
 
-const fmtCoord = (n: number) => n.toFixed(6);
+
 
 const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLatitude, sharedLongitude, listingId, compact }: Props) => {
   const initial: Coords | null =
@@ -241,7 +241,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
 
   const copyCoords = () => {
     if (!coords) return;
-    const text = `${fmtCoord(coords.lat)}, ${fmtCoord(coords.lon)}`;
+    const text = `${formatCoordinate(coords.lat)}, ${formatCoordinate(coords.lon)}`;
     navigator.clipboard.writeText(text);
     toast.success("تم نسخ الإحداثيات");
   };
@@ -250,8 +250,8 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
     if (!coords) return;
     try {
       const url = new URL(window.location.href);
-      url.searchParams.set("lat", coords.lat.toString());
-      url.searchParams.set("lng", coords.lon.toString());
+      url.searchParams.set("lat", formatCoordinate(coords.lat));
+      url.searchParams.set("lng", formatCoordinate(coords.lon));
       navigator.clipboard.writeText(url.toString());
       toast.success("تم نسخ رابط مشاركة الموقع");
     } catch {
@@ -305,7 +305,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
                 <div className="text-xs space-y-1" dir="rtl">
                   <div className="font-semibold">{query}</div>
                   <div className="font-mono text-[11px] text-gray-600" dir="ltr">
-                    {fmtCoord(coords.lat)}, {fmtCoord(coords.lon)}
+                    {formatCoordinate(coords.lat)}, {formatCoordinate(coords.lon)}
                   </div>
                 </div>
               </Popup>
@@ -341,7 +341,7 @@ const ListingLocationMap = ({ city, area, country, latitude, longitude, sharedLa
           >
             <Copy className={`text-muted-foreground group-hover:text-primary transition-colors ${compact ? "h-3 w-3" : "h-3.5 w-3.5"}`} />
             <span className={`font-mono text-foreground" dir="ltr ${compact ? "text-[11px]" : "text-xs"}`}>
-              {fmtCoord(coords.lat)}, {fmtCoord(coords.lon)}
+              {formatCoordinate(coords.lat)}, {formatCoordinate(coords.lon)}
             </span>
           </button>
 
