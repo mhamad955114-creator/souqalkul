@@ -39,6 +39,7 @@ const DeleteData = lazy(() => import("./pages/DeleteData"));
 const Developers = lazy(() => import("./pages/Developers"));
 const BuildApkGuide = lazy(() => import("./pages/BuildApkGuide"));
 const BadgeAuditLog = lazy(() => import("./pages/BadgeAuditLog"));
+const ListingMapPage = lazy(() => import("./pages/ListingMapPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -143,6 +144,7 @@ const AppContent = () => {
             <Route path="/" element={<Index />} />
             <Route path="/my-account" element={<MyAccount />} />
             <Route path="/listing/:id" element={<ListingDetails />} />
+            <Route path="/listing/:id/map" element={<ListingMapPage />} />
             <Route path="/listings" element={<AllListings />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/favorites" element={<Favorites />} />

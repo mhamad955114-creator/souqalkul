@@ -440,6 +440,15 @@ const ListingDetails = () => {
                     sharedLongitude={sharedLongitude}
                     compact
                   />
+                  <Button
+                    onClick={() => navigate(`/listing/${listing.id}/map`)}
+                    variant="outline"
+                    className="w-full mt-2"
+                    size="sm"
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    عرض الموقع على خريطة أكبر
+                  </Button>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-border">
                   <span className="text-muted-foreground">{formatDate(listing.created_at)}</span>
