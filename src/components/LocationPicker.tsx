@@ -95,16 +95,8 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
     }
   };
 
-  const hasCoords = typeof latitude === "number" && typeof longitude === "number";
-  const [center, setCenter] = useState<[number, number]>(
-    hasCoords ? [latitude!, longitude!] : DEFAULT_CENTER
-  );
-  const [zoom, setZoom] = useState(hasCoords ? 15 : 6);
-  const [geocoding, setGeocoding] = useState(false);
-  const [gpsLoading, setGpsLoading] = useState(false);
-  const lastHint = useRef<string>("");
-
   // Auto-geocode from hint (city/area/country) when user has no coords yet
+
   useEffect(() => {
     if (hasCoords) return;
     const q = (hint || "").trim();
