@@ -237,12 +237,33 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
         اضغط على الخريطة أو اسحب الدبوس لتحديد الموقع بدقة. اختياري — إن لم تحدد سنستخدم موقع المدينة تقريبياً.
       </p>
       {hasCoords && (
-        <p className="text-[11px] font-mono text-muted-foreground" dir="ltr">
-          {formatCoordinate(latitude)}, {formatCoordinate(longitude)}
-        </p>
+        <div className="space-y-1">
+          <p className="text-[11px] font-mono text-muted-foreground" dir="ltr">
+            {formatCoordinate(latitude)}, {formatCoordinate(longitude)}
+          </p>
+          <div className="text-xs text-foreground bg-muted/50 rounded-md px-2 py-1.5 flex items-start gap-1.5">
+            <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary" />
+            <div className="min-w-0 flex-1">
+              {reverseLoading ? (
+                <span className="text-muted-foreground inline-flex items-center gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  جارِ تحديد العنوان...
+                </span>
+              ) : resolved?.displayName ? (
+                <>
+                  <span className="font-medium">العنوان المقترح:</span>{" "}
+                  <span className="break-words">{resolved.displayName}</span>
+                </>
+              ) : (
+                <span className="text-muted-foreground">لم يتم العثور على عنوان</span>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 };
+
 
 export default LocationPicker;
