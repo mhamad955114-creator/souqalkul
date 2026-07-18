@@ -99,6 +99,7 @@ const ListingMapPage = () => {
               country={listing.country}
               latitude={listing.latitude}
               longitude={listing.longitude}
+              mapHeightClass="h-[60vh]"
             />
           </div>
         ) : null}
