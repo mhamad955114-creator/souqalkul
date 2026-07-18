@@ -183,7 +183,7 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar" }
       </p>
       {hasCoords && (
         <p className="text-[11px] font-mono text-muted-foreground" dir="ltr">
-          {latitude!.toFixed(6)}, {longitude!.toFixed(6)}
+          {formatCoordinate(latitude)}, {formatCoordinate(longitude)}
         </p>
       )}
     </div>
