@@ -294,7 +294,7 @@ const AdminSettingsTab = () => {
 
   const handleSaveShamcash = async () => {
     setSavingShamcash(true);
-    const { error } = await upsertSetting("shamcash_account", shamcashAccount as any);
+    const { error } = await upsertAdminSetting("shamcash_account", shamcashAccount as any);
 
     if (!error) {
       toast.success("تم حفظ رقم شام كاش");
