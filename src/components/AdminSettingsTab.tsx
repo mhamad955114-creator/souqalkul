@@ -124,6 +124,24 @@ const AdminSettingsTab = () => {
     return { error: null };
   };
 
+  // Sensitive settings live in a separate admin-only table
+  const upsertAdminSetting = async (setting_key: string, setting_value: any) => {
+    const { data, error } = await (supabase as any)
+      .from("admin_settings")
+      .update({ setting_value, updated_at: new Date().toISOString() })
+      .eq("setting_key", setting_key)
+      .select("id")
+      .limit(1);
+
+    if (error) return { error };
+    if (!data || data.length === 0) {
+      return await (supabase as any)
+        .from("admin_settings")
+        .insert({ setting_key, setting_value });
+    }
+    return { error: null };
+  };
+
   useEffect(() => {
     const fetchExtraSettings = async () => {
       const { data } = await supabase
