@@ -149,7 +149,6 @@ const AdminSettingsTab = () => {
         .select("setting_key, setting_value")
         .in("setting_key", [
           "maintenance_mode",
-          "shamcash_account",
           "contact_email",
           "contact_phone",
           "contact_location",
@@ -166,15 +165,26 @@ const AdminSettingsTab = () => {
           "marquee_ticker",
         ]);
 
+      // Sensitive settings loaded from admin-only table
+      const { data: adminData } = await (supabase as any)
+        .from("admin_settings")
+        .select("setting_key, setting_value")
+        .in("setting_key", ["shamcash_account"]);
+
+      if (adminData) {
+        adminData.forEach((row: any) => {
+          if (row.setting_key === "shamcash_account") {
+            setShamcashAccount(normalizeText(row.setting_value, "0999999999"));
+          }
+        });
+      }
+
       if (data) {
         data.forEach((row: any) => {
           if (row.setting_key === "maintenance_mode") {
             const val = row.setting_value as any;
             setMaintenanceEnabled(val.enabled ?? false);
             setMaintenanceMessage(val.message ?? "");
-          }
-          if (row.setting_key === "shamcash_account") {
-            setShamcashAccount(normalizeText(row.setting_value, "0999999999"));
           }
           if (row.setting_key === "contact_email") {
             setContactEmail(normalizeText(row.setting_value, "suopalkul5@gmail.com"));
