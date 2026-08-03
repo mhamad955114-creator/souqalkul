@@ -12,6 +12,8 @@ import { formatPrice } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { useBrand } from "@/contexts/BrandContext";
+import { useAdminRole } from "@/hooks/useAdminRole";
+import { guardPublicSettingWrite, guardAdminSettingWrite, NOT_ADMIN_MESSAGE } from "@/lib/settingsGuards";
 
 const planConfig = [
   {
@@ -50,6 +52,7 @@ const planConfig = [
 
 const AdminSettingsTab = () => {
   const { settings, loading, updateSetting } = useListingSettings();
+  const { isAdmin, loading: roleLoading } = useAdminRole();
   const [editValues, setEditValues] = useState<Record<string, ListingPlan>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
@@ -107,6 +110,10 @@ const AdminSettingsTab = () => {
   };
 
   const upsertSetting = async (setting_key: string, setting_value: any) => {
+    // طبقة تحقق: لا يُسمح بكتابة أي مفتاح حساس داخل الإعدادات العامة
+    const guard = guardPublicSettingWrite(setting_key);
+    if (guard.error) return guard;
+
     const { data, error } = await supabase
       .from("listing_settings")
       .update({ setting_value: setting_value as any, updated_at: new Date().toISOString() })
@@ -126,6 +133,10 @@ const AdminSettingsTab = () => {
 
   // Sensitive settings live in a separate admin-only table
   const upsertAdminSetting = async (setting_key: string, setting_value: any) => {
+    // طبقة تحقق: المفاتيح الحساسة تُكتب فقط من حساب مشرف
+    const guard = guardAdminSettingWrite(setting_key, isAdmin);
+    if (guard.error) return guard;
+
     const { data, error } = await (supabase as any)
       .from("admin_settings")
       .update({ setting_value, updated_at: new Date().toISOString() })
@@ -293,13 +304,18 @@ const AdminSettingsTab = () => {
   };
 
   const handleSaveShamcash = async () => {
+    if (roleLoading) return;
+    if (!isAdmin) {
+      toast.error(NOT_ADMIN_MESSAGE);
+      return;
+    }
     setSavingShamcash(true);
     const { error } = await upsertAdminSetting("shamcash_account", shamcashAccount as any);
 
     if (!error) {
       toast.success("تم حفظ رقم شام كاش");
     } else {
-      toast.error("فشل حفظ رقم شام كاش");
+      toast.error((error as any).message === NOT_ADMIN_MESSAGE ? NOT_ADMIN_MESSAGE : "فشل حفظ رقم شام كاش");
     }
     setSavingShamcash(false);
   };
