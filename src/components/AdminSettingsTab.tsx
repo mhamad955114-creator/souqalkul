@@ -12,6 +12,8 @@ import { formatPrice } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadToB2 } from "@/lib/b2Upload";
 import { useBrand } from "@/contexts/BrandContext";
+import { useAdminRole } from "@/hooks/useAdminRole";
+import { guardPublicSettingWrite, guardAdminSettingWrite, NOT_ADMIN_MESSAGE } from "@/lib/settingsGuards";
 
 const planConfig = [
   {
