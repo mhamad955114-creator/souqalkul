@@ -304,13 +304,18 @@ const AdminSettingsTab = () => {
   };
 
   const handleSaveShamcash = async () => {
+    if (roleLoading) return;
+    if (!isAdmin) {
+      toast.error(NOT_ADMIN_MESSAGE);
+      return;
+    }
     setSavingShamcash(true);
     const { error } = await upsertAdminSetting("shamcash_account", shamcashAccount as any);
 
     if (!error) {
       toast.success("تم حفظ رقم شام كاش");
     } else {
-      toast.error("فشل حفظ رقم شام كاش");
+      toast.error((error as any).message === NOT_ADMIN_MESSAGE ? NOT_ADMIN_MESSAGE : "فشل حفظ رقم شام كاش");
     }
     setSavingShamcash(false);
   };
