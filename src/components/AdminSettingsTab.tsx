@@ -107,6 +107,10 @@ const AdminSettingsTab = () => {
   };
 
   const upsertSetting = async (setting_key: string, setting_value: any) => {
+    // طبقة تحقق: لا يُسمح بكتابة أي مفتاح حساس داخل الإعدادات العامة
+    const guard = guardPublicSettingWrite(setting_key);
+    if (guard.error) return guard;
+
     const { data, error } = await supabase
       .from("listing_settings")
       .update({ setting_value: setting_value as any, updated_at: new Date().toISOString() })
@@ -126,6 +130,10 @@ const AdminSettingsTab = () => {
 
   // Sensitive settings live in a separate admin-only table
   const upsertAdminSetting = async (setting_key: string, setting_value: any) => {
+    // طبقة تحقق: المفاتيح الحساسة تُكتب فقط من حساب مشرف
+    const guard = guardAdminSettingWrite(setting_key, isAdmin);
+    if (guard.error) return guard;
+
     const { data, error } = await (supabase as any)
       .from("admin_settings")
       .update({ setting_value, updated_at: new Date().toISOString() })
