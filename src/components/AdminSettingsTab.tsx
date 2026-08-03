@@ -52,6 +52,7 @@ const planConfig = [
 
 const AdminSettingsTab = () => {
   const { settings, loading, updateSetting } = useListingSettings();
+  const { isAdmin, loading: roleLoading } = useAdminRole();
   const [editValues, setEditValues] = useState<Record<string, ListingPlan>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
