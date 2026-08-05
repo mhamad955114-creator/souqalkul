@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCountry } from "@/contexts/CountryContext";
 import { cities, areasByCity } from "@/lib/constants";
 
 const HeroSection = () => {
@@ -15,9 +16,21 @@ const HeroSection = () => {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const { loading: geoLoading, detectLocation } = useGeolocation();
   const { t, dir } = useLanguage();
+  const { currentCity, setCity } = useCountry();
   const navigate = useNavigate();
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
+  const cityPrefilled = useRef(false);
+
+  // تعبئة المدينة تلقائياً بعد اكتشافها (مرة واحدة، ودون الكتابة فوق اختيار المستخدم)
+  useEffect(() => {
+    if (cityPrefilled.current || !currentCity) return;
+    if (selectedCity || locationValue.trim()) return;
+    cityPrefilled.current = true;
+    setSelectedCity(currentCity);
+    setLocationValue(currentCity);
+  }, [currentCity, selectedCity, locationValue]);
+
 
   // Build suggestions: if a city is selected, show its areas; otherwise show cities
   const getSuggestions = (): { label: string; type: "city" | "area" }[] => {
