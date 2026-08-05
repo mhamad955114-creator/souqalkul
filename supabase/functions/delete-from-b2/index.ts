@@ -65,12 +65,18 @@ Deno.serve(async (req) => {
     );
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const userId = (claimsData?.claims as { sub?: string } | undefined)?.sub;
+    if (claimsError || !claimsData?.claims || !userId) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const { data: isAdmin } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
 
     const body = await req.json();
 
@@ -103,6 +109,26 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: "No keys or URLs provided" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Per-object ownership check: non-admins may only delete objects stored
+    // under their own user id (including legacy "<uid>-avatar.ext" names).
+    if (isAdmin !== true) {
+      const ownsKey = (k: string) => {
+        const normalized = k.replace(/^\/+/, "");
+        const segments = normalized.split("/");
+        if (segments.includes(userId)) return true;
+        const fileName = segments[segments.length - 1] || "";
+        return fileName.startsWith(`${userId}-`);
+      };
+
+      const forbidden = keysToDelete.filter((k) => !ownsKey(k));
+      if (forbidden.length > 0) {
+        return new Response(
+          JSON.stringify({ error: "Forbidden: you can only delete your own files" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Use batch delete if multiple, single delete otherwise
