@@ -64,12 +64,19 @@ Deno.serve(async (req) => {
     );
     const token = authHeader.replace("Bearer ", "");
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const userId = (claimsData?.claims as { sub?: string } | undefined)?.sub;
+    if (claimsError || !claimsData?.claims || !userId) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const { data: isAdmin } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+
     const contentType = req.headers.get("content-type") || "";
     if (!contentType.includes("multipart/form-data")) {
       return new Response(
@@ -80,7 +87,7 @@ Deno.serve(async (req) => {
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const folder = (formData.get("folder") as string) || "uploads";
+    const requestedFolder = (formData.get("folder") as string) || "uploads";
 
     if (!file) {
       return new Response(
@@ -93,6 +100,35 @@ Deno.serve(async (req) => {
     if (file.size > 50 * 1024 * 1024) {
       return new Response(
         JSON.stringify({ error: "File too large (max 50MB)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Destination folder is derived server-side: the caller can only pick a
+    // root namespace, never another user's folder.
+    const root = requestedFolder
+      .replace(/^\/+|\/+$/g, "")
+      .split("/")[0]
+      .replace(/[^a-zA-Z0-9_-]+/g, "-")
+      .toLowerCase() || "uploads";
+
+    const ALLOWED_ROOTS = ["listings", "avatars", "uploads", "receipts"];
+    const ADMIN_ONLY_ROOTS = ["brand"];
+
+    let folder: string;
+    if (ADMIN_ONLY_ROOTS.includes(root)) {
+      if (isAdmin !== true) {
+        return new Response(
+          JSON.stringify({ error: "Forbidden" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      folder = root;
+    } else if (ALLOWED_ROOTS.includes(root)) {
+      folder = `${root}/${userId}`;
+    } else {
+      return new Response(
+        JSON.stringify({ error: "Invalid destination folder" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

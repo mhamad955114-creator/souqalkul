@@ -936,6 +936,13 @@ export type Database = {
         }[]
       }
       get_listing_phone: { Args: { _listing_id: string }; Returns: string }
+      get_plan_config: {
+        Args: { _plan_type: string }
+        Returns: {
+          duration_days: number
+          price: number
+        }[]
+      }
       get_user_phone: { Args: { _target_user_id: string }; Returns: string }
       has_role: {
         Args: {
