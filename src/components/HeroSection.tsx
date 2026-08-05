@@ -60,10 +60,13 @@ const HeroSection = () => {
     if (result) {
       setLocationValue(result.city);
       setSelectedCity(result.city);
+      cityPrefilled.current = true;
+      if (result.city) setCity(result.city);
       setShowSuggestions(true);
       setHighlightedIndex(-1);
     }
   };
+
 
   const handleSearch = () => {
     const params = new URLSearchParams();
