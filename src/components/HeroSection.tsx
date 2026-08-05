@@ -87,7 +87,9 @@ const HeroSection = () => {
     if (item.type === "city") {
       setLocationValue(item.label);
       setSelectedCity(item.label);
-      // Keep suggestions open to show areas
+      cityPrefilled.current = true;
+      setCity(item.label);
+
       setShowSuggestions(true);
       setHighlightedIndex(-1);
       // Focus back on input
