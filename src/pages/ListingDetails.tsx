@@ -31,6 +31,8 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatModal from "@/components/ChatModal";
+import PriceEstimateCard from "@/components/PriceEstimateCard";
+
 import AuthModal from "@/components/AuthModal";
 import ShareButtons from "@/components/ShareButtons";
 import RatingSection from "@/components/RatingSection";
@@ -626,7 +628,11 @@ const ListingDetails = () => {
               </CardContent>
             </Card>
 
+            {/* AI price evaluation */}
+            {listing && <PriceEstimateCard listingId={listing.id} />}
+
             {/* Safety Tips */}
+
             <Card>
               <CardContent className="p-6">
                 <h3 className="font-semibold text-foreground mb-3">

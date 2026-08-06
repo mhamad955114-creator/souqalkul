@@ -24,6 +24,8 @@ import { useCountry } from "@/contexts/CountryContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LocationConsentDialog } from "@/components/LocationConsentDialog";
 import LocationPicker from "@/components/LocationPicker";
+import PriceEstimateCard from "@/components/PriceEstimateCard";
+
 
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
@@ -766,6 +768,22 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
               </Select>
             </div>
           </div>
+
+          <PriceEstimateCard
+            compact
+            draft={{
+              title: formData.title,
+              description: formData.description,
+              price: formData.price ? parseFloat(formData.price) : undefined,
+              currency: priceCurrency === "usd" ? "USD" : countryInfo.currency,
+              category: formData.category,
+              city: formData.city,
+              country: selectedCountry,
+              metadata,
+            }}
+          />
+
+
 
           {/* Country selector */}
           <div className="space-y-2">
