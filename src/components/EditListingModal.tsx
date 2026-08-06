@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { cities, categories, statuses, areasByCity } from "@/lib/constants";
+import { resolveCityArea } from "@/lib/locationMatch";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
