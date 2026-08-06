@@ -29,6 +29,9 @@ interface Props {
   language?: string;
   /** Called when reverse geocoding resolves the address for the picked point */
   onAddressResolved?: (address: ResolvedAddress) => void;
+  /** Called when the user taps the suggested address to auto-fill city/area */
+  onApplyAddress?: (address: ResolvedAddress) => void;
+
 }
 
 const DEFAULT_CENTER: [number, number] = [33.5138, 36.2765]; // Damascus fallback
