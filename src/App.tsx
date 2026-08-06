@@ -40,6 +40,8 @@ const Developers = lazy(() => import("./pages/Developers"));
 const BuildApkGuide = lazy(() => import("./pages/BuildApkGuide"));
 const BadgeAuditLog = lazy(() => import("./pages/BadgeAuditLog"));
 const ListingMapPage = lazy(() => import("./pages/ListingMapPage"));
+const AiAssistant = lazy(() => import("./pages/AiAssistant"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
