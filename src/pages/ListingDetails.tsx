@@ -626,7 +626,11 @@ const ListingDetails = () => {
               </CardContent>
             </Card>
 
+            {/* AI price evaluation */}
+            {listing && <PriceEstimateCard listingId={listing.id} />}
+
             {/* Safety Tips */}
+
             <Card>
               <CardContent className="p-6">
                 <h3 className="font-semibold text-foreground mb-3">
