@@ -79,9 +79,20 @@ const Header = ({ onListingAdded }: HeaderProps) => {
 
             {/* Actions */}
             <div className="flex items-center gap-1 sm:gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 sm:h-9 sm:w-9 text-primary"
+                onClick={() => navigate("/ai")}
+                title="المساعد الذكي"
+              >
+                <Bot className="h-5 w-5" />
+              </Button>
+
               <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={toggleTheme} title={t.settings.theme}>
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
+
 
               <LanguageSwitcher />
 
