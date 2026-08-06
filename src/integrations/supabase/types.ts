@@ -919,6 +919,10 @@ export type Database = {
         Args: { _admin_note?: string; _request_id: string }
         Returns: undefined
       }
+      admin_set_profile_verified: {
+        Args: { _is_verified: boolean; _user_id: string }
+        Returns: undefined
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
