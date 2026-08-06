@@ -53,7 +53,7 @@ const Recenter = ({ center, zoom }: { center: [number, number]; zoom?: number })
   return null;
 };
 
-const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", onAddressResolved }: Props) => {
+const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", onAddressResolved, onApplyAddress }: Props) => {
   const hasCoords = typeof latitude === "number" && typeof longitude === "number";
   const [center, setCenter] = useState<[number, number]>(
     hasCoords ? [latitude!, longitude!] : DEFAULT_CENTER
