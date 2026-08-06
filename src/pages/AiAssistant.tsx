@@ -359,8 +359,8 @@ const AiAssistant = () => {
               حذف
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogFooter>
         </AlertDialogContent>
+
       </AlertDialog>
 
       <BottomNavigation />
