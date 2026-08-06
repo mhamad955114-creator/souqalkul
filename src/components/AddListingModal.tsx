@@ -979,7 +979,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             onChange={(lat, lng) => setFormData((p) => ({ ...p, latitude: lat, longitude: lng }))}
             hint={[formData.area, formData.city, selectedCountry].filter(Boolean).join(", ")}
             language={language}
+            onApplyAddress={(addr) => {
+              const { city, area } = resolveCityArea(addr, countryCities, true);
+              if (!city) {
+                toast.error("لم نتمكن من تحديد المدينة من العنوان المقترح");
+                return;
+              }
+              setFormData((p) => ({ ...p, city, area: area || "" }));
+              toast.success(`تم تعبئة المدينة: ${city}${area ? ` — ${area}` : ""}`);
+            }}
           />
+
 
 
 
