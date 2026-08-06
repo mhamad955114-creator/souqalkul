@@ -767,6 +767,22 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             </div>
           </div>
 
+          <PriceEstimateCard
+            compact
+            draft={{
+              title: formData.title,
+              description: formData.description,
+              price: formData.price ? parseFloat(formData.price) : undefined,
+              currency: priceCurrency === "usd" ? "USD" : countryInfo.currency,
+              category: formData.category,
+              city: formData.city,
+              country: selectedCountry,
+              metadata,
+            }}
+          />
+
+
+
           {/* Country selector */}
           <div className="space-y-2">
             <Label>الدولة *</Label>
