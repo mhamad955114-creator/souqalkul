@@ -29,6 +29,9 @@ interface Props {
   language?: string;
   /** Called when reverse geocoding resolves the address for the picked point */
   onAddressResolved?: (address: ResolvedAddress) => void;
+  /** Called when the user taps the suggested address to auto-fill city/area */
+  onApplyAddress?: (address: ResolvedAddress) => void;
+
 }
 
 const DEFAULT_CENTER: [number, number] = [33.5138, 36.2765]; // Damascus fallback
@@ -50,7 +53,7 @@ const Recenter = ({ center, zoom }: { center: [number, number]; zoom?: number })
   return null;
 };
 
-const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", onAddressResolved }: Props) => {
+const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", onAddressResolved, onApplyAddress }: Props) => {
   const hasCoords = typeof latitude === "number" && typeof longitude === "number";
   const [center, setCenter] = useState<[number, number]>(
     hasCoords ? [latitude!, longitude!] : DEFAULT_CENTER
@@ -241,24 +244,47 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
           <p className="text-[11px] font-mono text-muted-foreground" dir="ltr">
             {formatCoordinate(latitude)}, {formatCoordinate(longitude)}
           </p>
-          <div className="text-xs text-foreground bg-muted/50 rounded-md px-2 py-1.5 flex items-start gap-1.5">
-            <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary" />
-            <div className="min-w-0 flex-1">
-              {reverseLoading ? (
-                <span className="text-muted-foreground inline-flex items-center gap-1">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  جارِ تحديد العنوان...
-                </span>
-              ) : resolved?.displayName ? (
-                <>
-                  <span className="font-medium">العنوان المقترح:</span>{" "}
-                  <span className="break-words">{resolved.displayName}</span>
-                </>
-              ) : (
-                <span className="text-muted-foreground">لم يتم العثور على عنوان</span>
-              )}
-            </div>
-          </div>
+          {(() => {
+            const clickable = !reverseLoading && !!resolved?.displayName && !!onApplyAddress;
+            const Tag = clickable ? "button" : "div";
+            return (
+              <Tag
+                {...(clickable
+                  ? {
+                      type: "button" as const,
+                      onClick: () => onApplyAddress!(resolved!),
+                      title: "اضغط لتعبئة المدينة والمنطقة تلقائياً",
+                    }
+                  : {})}
+                className={`w-full text-right text-xs text-foreground bg-muted/50 rounded-md px-2 py-1.5 flex items-start gap-1.5 ${
+                  clickable ? "hover:bg-accent transition-colors cursor-pointer" : ""
+                }`}
+              >
+                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary" />
+                <div className="min-w-0 flex-1">
+                  {reverseLoading ? (
+                    <span className="text-muted-foreground inline-flex items-center gap-1">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      جارِ تحديد العنوان...
+                    </span>
+                  ) : resolved?.displayName ? (
+                    <>
+                      <span className="font-medium">العنوان المقترح:</span>{" "}
+                      <span className="break-words">{resolved.displayName}</span>
+                      {clickable && (
+                        <span className="block mt-1 text-[11px] text-primary font-medium">
+                          اضغط لتعبئة المدينة والمنطقة تلقائياً
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">لم يتم العثور على عنوان</span>
+                  )}
+                </div>
+              </Tag>
+            );
+          })()}
+
         </div>
       )}
     </div>

@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { categories, areasByCity, countries, getCitiesByCountry, getCountryByName } from "@/lib/constants";
+import { resolveCityArea } from "@/lib/locationMatch";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useAreaSuggestions, filterAreaSuggestions } from "@/hooks/useAreaSuggestions";
@@ -979,7 +980,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             onChange={(lat, lng) => setFormData((p) => ({ ...p, latitude: lat, longitude: lng }))}
             hint={[formData.area, formData.city, selectedCountry].filter(Boolean).join(", ")}
             language={language}
+            onApplyAddress={(addr) => {
+              const { city, area } = resolveCityArea(addr, countryCities, true);
+              if (!city) {
+                toast.error("لم نتمكن من تحديد المدينة من العنوان المقترح");
+                return;
+              }
+              setFormData((p) => ({ ...p, city, area: area || "" }));
+              toast.success(`تم تعبئة المدينة: ${city}${area ? ` — ${area}` : ""}`);
+            }}
           />
+
 
 
 
