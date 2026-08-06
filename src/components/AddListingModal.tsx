@@ -24,6 +24,8 @@ import { useCountry } from "@/contexts/CountryContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LocationConsentDialog } from "@/components/LocationConsentDialog";
 import LocationPicker from "@/components/LocationPicker";
+import PriceEstimateCard from "@/components/PriceEstimateCard";
+
 
 import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
