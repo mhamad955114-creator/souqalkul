@@ -163,6 +163,9 @@ const AppContent = () => {
             <Route path="/delete-data" element={<DeleteData />} />
             <Route path="/developers" element={<Developers />} />
             <Route path="/docs/build-apk" element={<BuildApkGuide />} />
+            <Route path="/ai" element={<AiAssistant />} />
+            <Route path="/ai/:threadId" element={<AiAssistant />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
