@@ -55,10 +55,10 @@ const AdminVerificationTab = () => {
     setUpdating(profile.id);
     const newStatus = !profile.is_verified;
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ is_verified: newStatus })
-      .eq("id", profile.id);
+    const { error } = await supabase.rpc("admin_set_profile_verified", {
+      _user_id: profile.user_id,
+      _is_verified: newStatus,
+    });
 
     if (error) {
       toast.error("فشل في تحديث حالة التوثيق");
