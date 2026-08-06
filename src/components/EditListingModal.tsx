@@ -512,7 +512,17 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
             onChange={(lat, lng) => setFormData((p) => ({ ...p, latitude: lat, longitude: lng }))}
             hint={[formData.area, formData.city, currentCountry.name].filter(Boolean).join(", ")}
             language={language}
+            onApplyAddress={(addr) => {
+              const { city, area } = resolveCityArea(addr, cities, false);
+              if (!city) {
+                toast.error("لم نتمكن من تحديد المدينة من العنوان المقترح");
+                return;
+              }
+              setFormData((p) => ({ ...p, city, area: area || "" }));
+              toast.success(`تم تعبئة المدينة: ${city}${area ? ` — ${area}` : ""}`);
+            }}
           />
+
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
