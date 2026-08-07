@@ -27,6 +27,7 @@ interface Thread {
   id: string;
   title: string;
   updated_at: string;
+  listing_id?: string | null;
 }
 
 interface Message {
@@ -35,11 +36,32 @@ interface Message {
   content: string;
 }
 
+interface ListingContext {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  currency: string | null;
+  category: string;
+  city: string;
+  area: string | null;
+  country: string;
+  status: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
 const SUGGESTIONS = [
   "ما هو السعر المناسب لسيارة مستعملة موديل 2015؟",
   "اكتب لي وصفاً جاذباً لإعلان هاتف مستعمل",
   "كيف أتفاوض على السعر بأمان؟",
 ];
+
+const LISTING_SUGGESTIONS = [
+  "هل سعر هذا الإعلان مناسب؟",
+  "ما الأسئلة التي يجب أن أسألها البائع؟",
+  "أعد كتابة وصف هذا الإعلان بشكل أفضل",
+];
+
 
 const AiAssistant = () => {
   const { threadId } = useParams<{ threadId?: string }>();
