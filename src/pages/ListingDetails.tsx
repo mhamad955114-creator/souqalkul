@@ -631,6 +631,19 @@ const ListingDetails = () => {
             {/* AI price evaluation */}
             {listing && <PriceEstimateCard listingId={listing.id} />}
 
+            {/* Ask the AI assistant about this listing (context sent automatically) */}
+            {listing && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate(`/ai?listing=${listing.id}`)}
+              >
+                <Bot className="h-4 w-4" />
+                اسأل المساعد الذكي عن هذا الإعلان
+              </Button>
+            )}
+
+
             {/* Safety Tips */}
 
             <Card>
