@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Plus, Send, Trash2, MessagesSquare, Bot } from "lucide-react";
+import { Loader2, Plus, Send, Trash2, MessagesSquare, Bot, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
