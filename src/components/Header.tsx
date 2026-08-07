@@ -194,15 +194,17 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 {t.nav.addListing}
               </Button>
 
-              {/* Mobile Share App Button */}
-              <div className="md:hidden">
-                <ShareButtons
-                  url="https://play.google.com/store/apps/details?id=app.souqalkul"
-                  title="سوق الكل - أفضل سوق إلكتروني"
-                  description="حمّل تطبيق سوق الكل للبيع والشراء"
-                  variant="icon"
-                />
-              </div>
+              {/* AI Assistant Button (mobile, in place of share) */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden h-9 w-9 text-primary"
+                onClick={() => navigate("/ai")}
+                title="المساعد الذكي"
+              >
+                <Bot className="h-5 w-5" />
+              </Button>
+
 
               <Button
                 variant="ghost"
