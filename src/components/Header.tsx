@@ -82,12 +82,14 @@ const Header = ({ onListingAdded }: HeaderProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 sm:h-9 sm:w-9 text-primary"
+                className="hidden md:flex h-9 w-9 text-primary"
                 onClick={() => navigate("/ai")}
                 title="المساعد الذكي"
               >
                 <Bot className="h-5 w-5" />
               </Button>
+
+
 
               <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={toggleTheme} title={t.settings.theme}>
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
