@@ -25,7 +25,9 @@ import {
   Flag,
   Hash,
   ZoomIn,
-  Copy
+  Copy,
+  Bot
+
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
