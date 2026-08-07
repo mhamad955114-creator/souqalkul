@@ -65,6 +65,8 @@ const LISTING_SUGGESTIONS = [
 
 const AiAssistant = () => {
   const { threadId } = useParams<{ threadId?: string }>();
+  const [searchParams] = useSearchParams();
+  const listingParam = searchParams.get("listing");
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
@@ -75,13 +77,15 @@ const AiAssistant = () => {
   const [sending, setSending] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [listing, setListing] = useState<ListingContext | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const listingHandledRef = useRef<string | null>(null);
 
   const loadThreads = async () => {
     const { data } = await supabase
       .from("ai_threads")
-      .select("id, title, updated_at")
+      .select("id, title, updated_at, listing_id")
       .order("updated_at", { ascending: false });
     setThreads((data as Thread[]) || []);
     return (data as Thread[]) || [];
@@ -96,6 +100,29 @@ const AiAssistant = () => {
     }
     (async () => {
       const list = await loadThreads();
+
+      // Opened from a listing → start a dedicated thread bound to that listing.
+      if (listingParam && listingHandledRef.current !== listingParam) {
+        listingHandledRef.current = listingParam;
+        const existing = list.find((t) => t.listing_id === listingParam);
+        if (existing) {
+          navigate(`/ai/${existing.id}`, { replace: true });
+          return;
+        }
+        const { data, error } = await supabase
+          .from("ai_threads")
+          .insert({ user_id: user.id, listing_id: listingParam, title: "سؤال عن إعلان" })
+          .select("id, title, updated_at, listing_id")
+          .single();
+        if (error || !data) {
+          toast.error("تعذّر إنشاء محادثة");
+          return;
+        }
+        setThreads((prev) => [data as Thread, ...prev]);
+        navigate(`/ai/${(data as Thread).id}`, { replace: true });
+        return;
+      }
+
       if (!threadId) {
         if (list.length > 0) {
           navigate(`/ai/${list[0].id}`, { replace: true });
@@ -103,7 +130,7 @@ const AiAssistant = () => {
           const { data, error } = await supabase
             .from("ai_threads")
             .insert({ user_id: user.id })
-            .select("id, title, updated_at")
+            .select("id, title, updated_at, listing_id")
             .single();
           if (error) {
             toast.error("تعذّر إنشاء محادثة");
@@ -115,7 +142,54 @@ const AiAssistant = () => {
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading, threadId]);
+  }, [user, authLoading, threadId, listingParam]);
+
+  // Load the active thread's linked listing (context sent with every message).
+  useEffect(() => {
+    if (!threadId || !user) {
+      setListing(null);
+      return;
+    }
+    (async () => {
+      const { data: thread } = await supabase
+        .from("ai_threads")
+        .select("listing_id")
+        .eq("id", threadId)
+        .maybeSingle();
+      const linkedId = (thread as { listing_id?: string | null } | null)?.listing_id;
+      if (!linkedId) {
+        setListing(null);
+        return;
+      }
+      const { data: listingData } = await supabase
+        .from("listings")
+        .select("id, title, description, price, currency, category, city, area, country, status, metadata")
+        .eq("id", linkedId)
+        .maybeSingle();
+      setListing((listingData as ListingContext) || null);
+    })();
+  }, [threadId, user]);
+
+  // Human-readable listing context handed to the model on every turn.
+  const listingContext = useMemo(() => {
+    if (!listing) return undefined;
+    const lines = [
+      `العنوان: ${listing.title}`,
+      `السعر: ${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(listing.price)} ${listing.currency || ""}`.trim(),
+      `القسم: ${listing.category}`,
+      `الموقع: ${[listing.area, listing.city, listing.country].filter(Boolean).join("، ")}`,
+      listing.status ? `الحالة: ${listing.status}` : "",
+      listing.description ? `الوصف: ${listing.description.slice(0, 1200)}` : "",
+    ];
+    if (listing.metadata && typeof listing.metadata === "object") {
+      const details = Object.entries(listing.metadata)
+        .filter(([, v]) => v !== null && v !== "" && typeof v !== "object")
+        .map(([k, v]) => `${k}: ${v}`)
+        .slice(0, 20);
+      if (details.length) lines.push(`مواصفات: ${details.join(" | ")}`);
+    }
+    return lines.filter(Boolean).join("\n");
+  }, [listing]);
 
   // Load the active thread's messages.
   useEffect(() => {
@@ -133,6 +207,7 @@ const AiAssistant = () => {
       setLoadingMessages(false);
       inputRef.current?.focus();
     })();
+
   }, [threadId, user]);
 
   useEffect(() => {
