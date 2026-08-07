@@ -356,6 +356,21 @@ const AiAssistant = () => {
 
           {/* Conversation */}
           <section className="flex flex-col rounded-lg border border-border h-[65vh]">
+            {listing && (
+              <button
+                type="button"
+                onClick={() => navigate(`/listing/${listing.id}`)}
+                className="flex items-center gap-2 border-b border-border bg-primary/5 px-3 py-2 text-start"
+              >
+                <Tag className="h-4 w-4 shrink-0 text-primary" />
+                <span className="flex-1 min-w-0">
+                  <span className="block text-xs font-semibold truncate">{listing.title}</span>
+                  <span className="block text-[10px] text-muted-foreground">
+                    سياق الإعلان مُرفق تلقائياً بكل رسالة
+                  </span>
+                </span>
+              </button>
+            )}
             <ScrollArea className="flex-1">
               <div ref={scrollRef} className="p-3 space-y-4 overflow-y-auto max-h-[calc(65vh-110px)]">
                 {loadingMessages ? (
@@ -365,10 +380,12 @@ const AiAssistant = () => {
                 ) : messages.length === 0 && !streaming ? (
                   <div className="py-6 text-center space-y-3">
                     <p className="text-sm text-muted-foreground">
-                      اسألني عن الأسعار، أو دعني أكتب لك إعلاناً مميزاً.
+                      {listing
+                        ? "اسألني أي شيء عن هذا الإعلان — تفاصيله معي."
+                        : "اسألني عن الأسعار، أو دعني أكتب لك إعلاناً مميزاً."}
                     </p>
                     <div className="flex flex-col gap-2 items-center">
-                      {SUGGESTIONS.map((s) => (
+                      {(listing ? LISTING_SUGGESTIONS : SUGGESTIONS).map((s) => (
                         <Button
                           key={s}
                           variant="outline"
@@ -381,6 +398,7 @@ const AiAssistant = () => {
                       ))}
                     </div>
                   </div>
+
                 ) : (
                   messages.map((m) =>
                     m.role === "user" ? (
