@@ -71,6 +71,59 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const [metadata, setMetadata] = useState<Record<string, string>>({});
   const [cameraPreviewFile, setCameraPreviewFile] = useState<File | null>(null);
   const [cameraPreviewUrl, setCameraPreviewUrl] = useState<string | null>(null);
+  const [draftRestored, setDraftRestored] = useState(false);
+
+  // ---- Draft persistence (keep typed data when the modal/page is closed) ----
+  const DRAFT_KEY = "add-listing-draft";
+
+  // Restore draft when the modal opens
+  useEffect(() => {
+    if (!isOpen || draftRestored) return;
+    setDraftRestored(true);
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.formData) setFormData((prev) => ({ ...prev, ...d.formData }));
+      if (Array.isArray(d.images)) setImages(d.images);
+      if (d.metadata) setMetadata(d.metadata);
+      if (d.selectedCountry) setSelectedCountry(d.selectedCountry);
+      if (d.priceCurrency) setPriceCurrency(d.priceCurrency);
+      const hasContent =
+        d.formData &&
+        Object.values(d.formData).some((v) => typeof v === "string" && v.trim() !== "");
+      if (hasContent) toast.info("تم استعادة بيانات الإعلان المحفوظة");
+    } catch {
+      // ignore corrupted draft
+    }
+  }, [isOpen, draftRestored]);
+
+  // Reset the restore guard when the modal closes so the next open restores again
+  useEffect(() => {
+    if (!isOpen) setDraftRestored(false);
+  }, [isOpen]);
+
+  // Persist draft on every change while the modal is open
+  useEffect(() => {
+    if (!isOpen || !draftRestored) return;
+    const hasContent =
+      Object.values(formData).some((v) => typeof v === "string" && v.trim() !== "") ||
+      images.length > 0 ||
+      Object.keys(metadata).length > 0;
+    try {
+      if (hasContent) {
+        localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ formData, images, metadata, selectedCountry, priceCurrency })
+        );
+      } else {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    } catch {
+      // storage full / unavailable
+    }
+  }, [isOpen, draftRestored, formData, images, metadata, selectedCountry, priceCurrency]);
+
 
   const getUserPlan = async () => {
     if (!user) return "free" as const;
@@ -588,7 +641,13 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setRejectedImages([]);
     setSuggestedCategory(null);
     setPriceCurrency("local");
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // ignore
+    }
   };
+
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
   const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
