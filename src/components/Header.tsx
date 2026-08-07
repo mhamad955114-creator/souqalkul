@@ -1,5 +1,5 @@
 import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Crown, Receipt, Bot } from "lucide-react";
-import ShareButtons from "./ShareButtons";
+
 import { useBrand } from "@/contexts/BrandContext";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
@@ -82,12 +82,14 @@ const Header = ({ onListingAdded }: HeaderProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 sm:h-9 sm:w-9 text-primary"
+                className="hidden md:flex h-9 w-9 text-primary"
                 onClick={() => navigate("/ai")}
                 title="المساعد الذكي"
               >
                 <Bot className="h-5 w-5" />
               </Button>
+
+
 
               <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={toggleTheme} title={t.settings.theme}>
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -194,15 +196,17 @@ const Header = ({ onListingAdded }: HeaderProps) => {
                 {t.nav.addListing}
               </Button>
 
-              {/* Mobile Share App Button */}
-              <div className="md:hidden">
-                <ShareButtons
-                  url="https://play.google.com/store/apps/details?id=app.souqalkul"
-                  title="سوق الكل - أفضل سوق إلكتروني"
-                  description="حمّل تطبيق سوق الكل للبيع والشراء"
-                  variant="icon"
-                />
-              </div>
+              {/* AI Assistant Button (mobile, in place of share) */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden h-9 w-9 text-primary"
+                onClick={() => navigate("/ai")}
+                title="المساعد الذكي"
+              >
+                <Bot className="h-5 w-5" />
+              </Button>
+
 
               <Button
                 variant="ghost"
