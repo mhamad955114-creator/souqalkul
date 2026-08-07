@@ -641,7 +641,13 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     setRejectedImages([]);
     setSuggestedCategory(null);
     setPriceCurrency("local");
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // ignore
+    }
   };
+
 
   const { loading: geoLoading, detectLocation } = useGeolocation();
   const [cityPopoverOpen, setCityPopoverOpen] = useState(false);
