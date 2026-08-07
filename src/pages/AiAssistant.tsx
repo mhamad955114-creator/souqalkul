@@ -219,7 +219,7 @@ const AiAssistant = () => {
     const { data, error } = await supabase
       .from("ai_threads")
       .insert({ user_id: user.id })
-      .select("id, title, updated_at")
+      .select("id, title, updated_at, listing_id")
       .single();
     if (error || !data) {
       toast.error("تعذّر إنشاء محادثة");
