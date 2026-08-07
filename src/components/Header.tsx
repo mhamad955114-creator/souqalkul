@@ -1,5 +1,5 @@
 import { Search, Plus, User, Menu, LogOut, FileText, ShoppingBag, Heart, MessageCircle, Shield, Moon, Sun, Crown, Receipt, Bot } from "lucide-react";
-import ShareButtons from "./ShareButtons";
+
 import { useBrand } from "@/contexts/BrandContext";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { Button } from "./ui/button";
