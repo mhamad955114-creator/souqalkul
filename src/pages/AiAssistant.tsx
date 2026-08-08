@@ -113,6 +113,7 @@ const AiAssistant = () => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [listing, setListing] = useState<ListingContext | null>(null);
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const listingHandledRef = useRef<string | null>(null);
