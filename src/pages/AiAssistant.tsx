@@ -48,6 +48,7 @@ interface ListingContext {
   country: string;
   status: string | null;
   metadata: Record<string, unknown> | null;
+  images: string[] | null;
 }
 
 const SUGGESTIONS = [
@@ -199,7 +200,7 @@ const AiAssistant = () => {
       }
       const { data: listingData } = await supabase
         .from("listings")
-        .select("id, title, description, price, currency, category, city, area, country, status, metadata")
+        .select("id, title, description, price, currency, category, city, area, country, status, metadata, images")
         .eq("id", linkedId)
         .maybeSingle();
       setListing((listingData as ListingContext) || null);
@@ -225,6 +226,16 @@ const AiAssistant = () => {
       if (details.length) lines.push(`مواصفات: ${details.join(" | ")}`);
     }
     return lines.filter(Boolean).join("\n");
+  }, [listing]);
+
+  // Real listing photos (no placeholders/videos) sent with every message for visual analysis.
+  const listingImages = useMemo(() => {
+    const imgs = listing?.images || [];
+    return imgs
+      .filter((u) => typeof u === "string" && /^https?:\/\//i.test(u))
+      .filter((u) => !u.includes("placeholder") && !u.includes("unsplash"))
+      .filter((u) => !/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(u))
+      .slice(0, 4);
   }, [listing]);
 
   const listingSuggestions = useMemo(() => buildListingSuggestions(listing), [listing]);
@@ -305,7 +316,7 @@ const AiAssistant = () => {
             Authorization: `Bearer ${token}`,
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
-          body: JSON.stringify({ threadId, message: content, listingContext }),
+          body: JSON.stringify({ threadId, message: content, listingContext, listingImages }),
         },
       );
 
@@ -408,7 +419,9 @@ const AiAssistant = () => {
                   <span className="flex-1 min-w-0">
                     <span className="block text-xs font-semibold truncate">{listing.title}</span>
                     <span className="block text-[10px] text-muted-foreground">
-                      سياق الإعلان مُرفق تلقائياً بكل رسالة — اضغط للمراجعة
+                      {listingImages.length > 0
+                        ? `سياق الإعلان و${listingImages.length} صورة مُرفقة تلقائياً — اضغط للمراجعة`
+                        : "سياق الإعلان مُرفق تلقائياً بكل رسالة — اضغط للمراجعة"}
                     </span>
                   </span>
                   <ChevronDown
