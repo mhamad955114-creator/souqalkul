@@ -397,19 +397,100 @@ const AiAssistant = () => {
           {/* Conversation */}
           <section className="flex flex-col rounded-lg border border-border h-[65vh]">
             {listing && (
-              <button
-                type="button"
-                onClick={() => navigate(`/listing/${listing.id}`)}
-                className="flex items-center gap-2 border-b border-border bg-primary/5 px-3 py-2 text-start"
-              >
-                <Tag className="h-4 w-4 shrink-0 text-primary" />
-                <span className="flex-1 min-w-0">
-                  <span className="block text-xs font-semibold truncate">{listing.title}</span>
-                  <span className="block text-[10px] text-muted-foreground">
-                    سياق الإعلان مُرفق تلقائياً بكل رسالة
+              <div className="border-b border-border bg-primary/5">
+                {/* Header row — always visible */}
+                <button
+                  type="button"
+                  onClick={() => setSummaryOpen((o) => !o)}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-start"
+                >
+                  <Tag className="h-4 w-4 shrink-0 text-primary" />
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-xs font-semibold truncate">{listing.title}</span>
+                    <span className="block text-[10px] text-muted-foreground">
+                      سياق الإعلان مُرفق تلقائياً بكل رسالة — اضغط للمراجعة
+                    </span>
                   </span>
-                </span>
-              </button>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                      summaryOpen && "rotate-180",
+                    )}
+                  />
+                </button>
+
+                {/* Expanded summary card */}
+                {summaryOpen && (
+                  <div className="px-3 pb-3 space-y-2 text-xs">
+                    <div className="grid grid-cols-1 gap-1.5">
+                      <div className="flex items-start gap-1.5">
+                        <DollarSign className="h-3.5 w-3.5 shrink-0 mt-0.5 text-muted-foreground" />
+                        <span className="font-medium">السعر:</span>
+                        <span>
+                          {new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(listing.price)}{" "}
+                          {listing.currency || ""}
+                        </span>
+                      </div>
+                      <div className="flex items-start gap-1.5">
+                        <TagIcon className="h-3.5 w-3.5 shrink-0 mt-0.5 text-muted-foreground" />
+                        <span className="font-medium">القسم:</span>
+                        <span>{listing.category}</span>
+                      </div>
+                      <div className="flex items-start gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5 text-muted-foreground" />
+                        <span className="font-medium">الموقع:</span>
+                        <span>{[listing.area, listing.city, listing.country].filter(Boolean).join("، ")}</span>
+                      </div>
+                      {listing.status && (
+                        <div className="flex items-start gap-1.5">
+                          <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-muted-foreground" />
+                          <span className="font-medium">الحالة:</span>
+                          <span>{listing.status}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {listing.description && (
+                      <div className="flex items-start gap-1.5">
+                        <FileText className="h-3.5 w-3.5 shrink-0 mt-0.5 text-muted-foreground" />
+                        <div className="min-w-0">
+                          <span className="font-medium">الوصف: </span>
+                          <span className="text-muted-foreground line-clamp-4">
+                            {listing.description.slice(0, 400)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {listing.metadata && typeof listing.metadata === "object" &&
+                      Object.entries(listing.metadata).filter(([, v]) => v !== null && v !== "" && typeof v !== "object").length > 0 && (
+                        <div className="rounded-md bg-background/60 border border-border p-2">
+                          <span className="font-medium block mb-1">المواصفات:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {Object.entries(listing.metadata)
+                              .filter(([, v]) => v !== null && v !== "" && typeof v !== "object")
+                              .slice(0, 12)
+                              .map(([k, v]) => (
+                                <span key={k} className="inline-flex rounded bg-muted px-1.5 py-0.5 text-[10px]">
+                                  {k}: {String(v)}
+                                </span>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="sm"
+                      className="h-6 p-0 text-xs text-primary"
+                      onClick={() => navigate(`/listing/${listing.id}`)}
+                    >
+                      عرض الإعلان كاملاً ←
+                    </Button>
+                  </div>
+                )}
+              </div>
             )}
             <ScrollArea className="flex-1">
               <div ref={scrollRef} className="p-3 space-y-4 overflow-y-auto max-h-[calc(65vh-110px)]">
