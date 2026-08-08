@@ -424,7 +424,7 @@ const AiAssistant = () => {
                         : "اسألني عن الأسعار، أو دعني أكتب لك إعلاناً مميزاً."}
                     </p>
                     <div className="flex flex-col gap-2 items-center">
-                      {(listing ? LISTING_SUGGESTIONS : SUGGESTIONS).map((s) => (
+                      {(listing ? listingSuggestions : SUGGESTIONS).map((s) => (
                         <Button
                           key={s}
                           variant="outline"
