@@ -48,6 +48,7 @@ interface ListingContext {
   country: string;
   status: string | null;
   metadata: Record<string, unknown> | null;
+  images: string[] | null;
 }
 
 const SUGGESTIONS = [
@@ -199,7 +200,7 @@ const AiAssistant = () => {
       }
       const { data: listingData } = await supabase
         .from("listings")
-        .select("id, title, description, price, currency, category, city, area, country, status, metadata")
+        .select("id, title, description, price, currency, category, city, area, country, status, metadata, images")
         .eq("id", linkedId)
         .maybeSingle();
       setListing((listingData as ListingContext) || null);
@@ -227,7 +228,21 @@ const AiAssistant = () => {
     return lines.filter(Boolean).join("\n");
   }, [listing]);
 
-  const listingSuggestions = useMemo(() => buildListingSuggestions(listing), [listing]);
+  // Real listing photos (no placeholders/videos) sent with every message for visual analysis.
+  const listingImages = useMemo(() => {
+    const imgs = listing?.images || [];
+    return imgs
+      .filter((u) => typeof u === "string" && /^https?:\/\//i.test(u))
+      .filter((u) => !u.includes("placeholder") && !u.includes("unsplash"))
+      .filter((u) => !/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(u))
+      .slice(0, 4);
+  }, [listing]);
+
+  const listingSuggestions = useMemo(() => {
+    const base = buildListingSuggestions(listing);
+    if (!listingImages.length) return base;
+    return ["حلّل صور هذا الإعلان وأخبرني بحالة المنتج", ...base].slice(0, 6);
+  }, [listing, listingImages]);
 
 
 
@@ -305,7 +320,7 @@ const AiAssistant = () => {
             Authorization: `Bearer ${token}`,
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
-          body: JSON.stringify({ threadId, message: content, listingContext }),
+          body: JSON.stringify({ threadId, message: content, listingContext, listingImages }),
         },
       );
 
@@ -408,7 +423,9 @@ const AiAssistant = () => {
                   <span className="flex-1 min-w-0">
                     <span className="block text-xs font-semibold truncate">{listing.title}</span>
                     <span className="block text-[10px] text-muted-foreground">
-                      سياق الإعلان مُرفق تلقائياً بكل رسالة — اضغط للمراجعة
+                      {listingImages.length > 0
+                        ? `سياق الإعلان و${listingImages.length} صورة مُرفقة تلقائياً — اضغط للمراجعة`
+                        : "سياق الإعلان مُرفق تلقائياً بكل رسالة — اضغط للمراجعة"}
                     </span>
                   </span>
                   <ChevronDown
@@ -458,6 +475,25 @@ const AiAssistant = () => {
                           <span className="text-muted-foreground line-clamp-4">
                             {listing.description.slice(0, 400)}
                           </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {listingImages.length > 0 && (
+                      <div className="rounded-md bg-background/60 border border-border p-2">
+                        <span className="font-medium block mb-1">
+                          الصور المرفقة للتحليل ({listingImages.length}):
+                        </span>
+                        <div className="flex gap-1.5 overflow-x-auto">
+                          {listingImages.map((url) => (
+                            <img
+                              key={url}
+                              src={url}
+                              alt={`صورة من إعلان ${listing.title}`}
+                              loading="lazy"
+                              className="h-14 w-14 shrink-0 rounded object-cover border border-border"
+                            />
+                          ))}
                         </div>
                       </div>
                     )}
