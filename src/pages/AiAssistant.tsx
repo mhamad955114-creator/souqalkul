@@ -226,6 +226,10 @@ const AiAssistant = () => {
     return lines.filter(Boolean).join("\n");
   }, [listing]);
 
+  const listingSuggestions = useMemo(() => buildListingSuggestions(listing), [listing]);
+
+
+
   // Load the active thread's messages.
   useEffect(() => {
     if (!threadId || !user) return;
