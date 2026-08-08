@@ -56,11 +56,46 @@ const SUGGESTIONS = [
   "كيف أتفاوض على السعر بأمان؟",
 ];
 
-const LISTING_SUGGESTIONS = [
+const GENERIC_LISTING_SUGGESTIONS = [
   "هل سعر هذا الإعلان مناسب؟",
   "ما الأسئلة التي يجب أن أسألها البائع؟",
   "أعد كتابة وصف هذا الإعلان بشكل أفضل",
 ];
+
+// Ready-made questions tailored to the linked listing (category, price, location).
+const buildListingSuggestions = (listing: ListingContext | null): string[] => {
+  if (!listing) return GENERIC_LISTING_SUGGESTIONS;
+  const price = `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(listing.price)} ${listing.currency || ""}`.trim();
+  const place = [listing.area, listing.city].filter(Boolean).join("، ") || listing.country;
+  const base = [
+    `هل ${price} سعر مناسب لـ«${listing.title}»؟`,
+    `ما متوسط سعر مثل هذا في ${place}؟`,
+    `ما الأسئلة المهمة التي أسألها البائع عن «${listing.title}»؟`,
+    "ما العيوب أو المخاطر التي يجب أن أتحقق منها قبل الشراء؟",
+    "أعد كتابة وصف هذا الإعلان بشكل أكثر جذباً",
+    "اقترح لي طريقة تفاوض مهذبة للحصول على سعر أفضل",
+  ];
+
+  const cat = listing.category || "";
+  const extras: string[] = [];
+  if (/سيار|مركب|دراج/.test(cat)) {
+    extras.push("ما الفحوصات الميكانيكية الضرورية قبل شراء هذه المركبة؟");
+    extras.push("هل عدد الكيلومترات والموديل مناسبان للسعر المطلوب؟");
+  } else if (/عقار|منزل|شق|أرض|بيت/.test(cat)) {
+    extras.push("ما الأوراق القانونية التي يجب التأكد منها قبل شراء هذا العقار؟");
+    extras.push("هل الموقع والمساحة يستحقان هذا السعر؟");
+  } else if (/هات|جوال|إلكترون|كمبيوت|لابتوب/.test(cat)) {
+    extras.push("كيف أتأكد أن هذا الجهاز أصلي وغير مُصلَّح؟");
+    extras.push("ما المواصفات التي يجب مقارنتها مع أجهزة مشابهة؟");
+  } else if (/أثاث|منزل/.test(cat)) {
+    extras.push("كيف أتحقق من جودة الأثاث وحالته من الصور؟");
+  } else if (/وظيف|عمل|خدم/.test(cat)) {
+    extras.push("ما الأسئلة التي أطرحها لتقييم جدية هذا العرض؟");
+  }
+
+  return [...base.slice(0, 3), ...extras, ...base.slice(3)].slice(0, 6);
+};
+
 
 
 const AiAssistant = () => {
@@ -190,6 +225,10 @@ const AiAssistant = () => {
     }
     return lines.filter(Boolean).join("\n");
   }, [listing]);
+
+  const listingSuggestions = useMemo(() => buildListingSuggestions(listing), [listing]);
+
+
 
   // Load the active thread's messages.
   useEffect(() => {
@@ -385,7 +424,7 @@ const AiAssistant = () => {
                         : "اسألني عن الأسعار، أو دعني أكتب لك إعلاناً مميزاً."}
                     </p>
                     <div className="flex flex-col gap-2 items-center">
-                      {(listing ? LISTING_SUGGESTIONS : SUGGESTIONS).map((s) => (
+                      {(listing ? listingSuggestions : SUGGESTIONS).map((s) => (
                         <Button
                           key={s}
                           variant="outline"
@@ -425,6 +464,29 @@ const AiAssistant = () => {
                 )}
               </div>
             </ScrollArea>
+
+            {/* Ready-made questions about the linked listing, always reachable */}
+            {listing && messages.length > 0 && (
+              <div className="border-t border-border px-2 py-2">
+                <div className="flex gap-2 overflow-x-auto">
+                  {listingSuggestions.map((s) => (
+                    <Button
+                      key={s}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={sending}
+                      className="text-[11px] h-7 shrink-0 whitespace-nowrap"
+                      onClick={() => send(s)}
+                    >
+                      {s}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+
 
             <form
               onSubmit={(e) => {
