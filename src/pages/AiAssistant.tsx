@@ -238,7 +238,11 @@ const AiAssistant = () => {
       .slice(0, 4);
   }, [listing]);
 
-  const listingSuggestions = useMemo(() => buildListingSuggestions(listing), [listing]);
+  const listingSuggestions = useMemo(() => {
+    const base = buildListingSuggestions(listing);
+    if (!listingImages.length) return base;
+    return ["حلّل صور هذا الإعلان وأخبرني بحالة المنتج", ...base].slice(0, 6);
+  }, [listing, listingImages]);
 
 
 
@@ -471,6 +475,25 @@ const AiAssistant = () => {
                           <span className="text-muted-foreground line-clamp-4">
                             {listing.description.slice(0, 400)}
                           </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {listingImages.length > 0 && (
+                      <div className="rounded-md bg-background/60 border border-border p-2">
+                        <span className="font-medium block mb-1">
+                          الصور المرفقة للتحليل ({listingImages.length}):
+                        </span>
+                        <div className="flex gap-1.5 overflow-x-auto">
+                          {listingImages.map((url) => (
+                            <img
+                              key={url}
+                              src={url}
+                              alt={`صورة من إعلان ${listing.title}`}
+                              loading="lazy"
+                              className="h-14 w-14 shrink-0 rounded object-cover border border-border"
+                            />
+                          ))}
                         </div>
                       </div>
                     )}
