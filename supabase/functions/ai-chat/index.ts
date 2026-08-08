@@ -52,6 +52,13 @@ Deno.serve(async (req) => {
     const threadId: string | undefined = body.threadId;
     const userMessage: string = (body.message || "").toString().slice(0, 4000);
     const listingContext: string | undefined = body.listingContext;
+    // Listing photos (https URLs) forwarded so the model can analyse them.
+    const listingImages: string[] = Array.isArray(body.listingImages)
+      ? body.listingImages
+          .filter((u: unknown) => typeof u === "string" && /^https?:\/\//i.test(u))
+          .filter((u: string) => !/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(u))
+          .slice(0, 4)
+      : [];
 
     if (!threadId || !userMessage.trim()) {
       return new Response(JSON.stringify({ error: "طلب غير صالح" }), {
