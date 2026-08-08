@@ -104,14 +104,25 @@ Deno.serve(async (req) => {
       "لا تطلب أبداً معلومات بطاقات بنكية أو كلمات مرور، ولا تعد بأي دفع إلكتروني داخل التطبيق — الترقيات تتم يدوياً عبر واتساب.",
       "إن كان السؤال خارج نطاق السوق والبيع والشراء، أجب بلطف وباختصار.",
       listingContext ? `سياق الإعلان الحالي:\n${listingContext}` : "",
+      listingImages.length
+        ? `صور الإعلان مرفقة مع رسالة المستخدم (${listingImages.length}). اعتمد عليها في وصف الحالة والتفاصيل الظاهرة، ولا تخترع تفاصيل غير مرئية.`
+        : "",
     ]
       .filter(Boolean)
       .join("\n");
 
+    // Attach the listing photos to the current user turn (multimodal blocks).
+    const currentUserContent = listingImages.length
+      ? [
+          { type: "text", text: userMessage },
+          ...listingImages.map((url) => ({ type: "image_url", image_url: { url } })),
+        ]
+      : userMessage;
+
     const messages = [
       { role: "system", content: systemPrompt },
       ...((history || []) as ChatMessage[]).map((m) => ({ role: m.role, content: m.content })),
-      { role: "user", content: userMessage },
+      { role: "user", content: currentUserContent },
     ];
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
