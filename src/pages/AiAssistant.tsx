@@ -465,6 +465,29 @@ const AiAssistant = () => {
               </div>
             </ScrollArea>
 
+            {/* Ready-made questions about the linked listing, always reachable */}
+            {listing && messages.length > 0 && (
+              <div className="border-t border-border px-2 py-2">
+                <div className="flex gap-2 overflow-x-auto">
+                  {listingSuggestions.map((s) => (
+                    <Button
+                      key={s}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={sending}
+                      className="text-[11px] h-7 shrink-0 whitespace-nowrap"
+                      onClick={() => send(s)}
+                    >
+                      {s}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();
