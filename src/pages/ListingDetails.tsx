@@ -47,6 +47,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice, formatDate, categoryLabels, getCountryByName, formatListingPrice } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
+import { useListingAiThread } from "@/hooks/useListingAiThread";
+
 
 interface Listing {
   id: string;
