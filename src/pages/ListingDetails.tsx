@@ -87,6 +87,8 @@ const ListingDetails = () => {
   const { logoUrl: appLogo } = useBrand();
   const { getFields } = useCategoryDefinitions();
   const [listing, setListing] = useState<Listing | null>(null);
+  const { thread: aiThread } = useListingAiThread(listing?.id);
+
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
