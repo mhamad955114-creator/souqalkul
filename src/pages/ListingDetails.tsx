@@ -47,6 +47,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice, formatDate, categoryLabels, getCountryByName, formatListingPrice } from "@/lib/constants";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
+import { useListingAiThread } from "@/hooks/useListingAiThread";
+
 
 interface Listing {
   id: string;
@@ -85,6 +87,8 @@ const ListingDetails = () => {
   const { logoUrl: appLogo } = useBrand();
   const { getFields } = useCategoryDefinitions();
   const [listing, setListing] = useState<Listing | null>(null);
+  const { thread: aiThread } = useListingAiThread(listing?.id);
+
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -635,15 +639,26 @@ const ListingDetails = () => {
 
             {/* Ask the AI assistant about this listing (context sent automatically) */}
             {listing && (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => navigate(`/ai?listing=${listing.id}`)}
-              >
-                <Bot className="h-4 w-4" />
-                اسأل المساعد الذكي عن هذا الإعلان
-              </Button>
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate(`/ai?listing=${listing.id}`)}
+                >
+                  <Bot className="h-4 w-4" />
+                  {aiThread && aiThread.messageCount > 0
+                    ? "متابعة محادثة هذا الإعلان"
+                    : "اسأل المساعد الذكي عن هذا الإعلان"}
+                </Button>
+                {aiThread && aiThread.messageCount > 0 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    محادثة محفوظة • {aiThread.messageCount} رسالة • آخر تحديث{" "}
+                    {formatDate(aiThread.updated_at)}
+                  </p>
+                )}
+              </div>
             )}
+
 
 
             {/* Safety Tips */}
