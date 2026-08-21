@@ -677,6 +677,15 @@ const AdminReports = () => {
               <Layers className="h-4 w-4" />
               التصنيفات
             </Button>
+            <Button
+              variant={activeTab === "upgrades" ? "default" : "outline"}
+              onClick={() => setActiveTab("upgrades")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <Star className="h-4 w-4" />
+              طلبات الترقية
+            </Button>
           </div>
         </div>
 
