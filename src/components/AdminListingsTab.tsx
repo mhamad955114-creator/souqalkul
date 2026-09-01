@@ -540,28 +540,55 @@ const AdminListingsTab = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="text-right">الصورة</TableHead>
                     <TableHead className="text-right">العنوان</TableHead>
+                    <TableHead className="text-right">السعر</TableHead>
                     <TableHead className="text-right">المستخدم</TableHead>
+                    <TableHead className="text-right">الحالة</TableHead>
                     <TableHead className="text-right">التاريخ</TableHead>
                     <TableHead className="text-right">التصنيف الحالي</TableHead>
                     <TableHead className="text-right">تعيين التصنيف</TableHead>
                     <TableHead className="text-right">الصور</TableHead>
+                    <TableHead className="text-right">إجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                         لا توجد إعلانات
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filtered.map((listing) => (
+                    filtered.map((listing) => {
+                      const cover = (listing.images || []).find((u) => u && !u.match(/\.(mp4|webm|mov)$/i));
+                      return (
                       <TableRow key={listing.id}>
+                        <TableCell>
+                          <button
+                            type="button"
+                            onClick={() => { setPreviewListing(listing); setPreviewImageIndex(0); }}
+                            className="w-12 h-12 rounded-md overflow-hidden bg-muted flex items-center justify-center"
+                          >
+                            {cover ? (
+                              <img src={cover} alt={listing.title} loading="lazy" className="w-full h-full object-cover" />
+                            ) : (
+                              <ImageOff className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </button>
+                        </TableCell>
                         <TableCell className="font-medium max-w-[200px] truncate">
                           {listing.title}
                         </TableCell>
+                        <TableCell className="whitespace-nowrap font-bold text-primary text-sm">
+                          {listing.price?.toLocaleString("en-US")}
+                        </TableCell>
                         <TableCell>{listing.user_email}</TableCell>
+                        <TableCell>
+                          <Badge variant={listing.status === "sold" ? "secondary" : "outline"} className="text-xs">
+                            {listing.status === "sold" ? "مباع" : "نشط"}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="whitespace-nowrap">{formatDate(listing.created_at)}</TableCell>
                         <TableCell>
                           {listing.badge_type && badgeConfig[listing.badge_type] ? (
@@ -614,8 +641,43 @@ const AdminListingsTab = () => {
                             </span>
                           )}
                         </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1 text-xs"
+                              onClick={() => { setPreviewListing(listing); setPreviewImageIndex(0); }}
+                            >
+                              <Eye className="h-3 w-3" />
+                              عرض
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1 text-xs"
+                              onClick={() => openEditDialog(listing)}
+                              disabled={updating === listing.id}
+                            >
+                              <Pencil className="h-3 w-3" />
+                              تعديل
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="gap-1 text-xs"
+                              onClick={() => setDeleteListing(listing)}
+                              disabled={updating === listing.id}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              حذف
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
-                    ))
+                      );
+                    })
+
                   )}
                 </TableBody>
               </Table>
