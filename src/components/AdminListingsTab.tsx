@@ -56,6 +56,77 @@ const AdminListingsTab = () => {
   const [previewListing, setPreviewListing] = useState<ListingRow | null>(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [deleteImagesListing, setDeleteImagesListing] = useState<ListingRow | null>(null);
+  const [editListing, setEditListing] = useState<ListingRow | null>(null);
+  const [editForm, setEditForm] = useState({ title: "", price: "", description: "", status: "active" });
+  const [deleteListing, setDeleteListing] = useState<ListingRow | null>(null);
+
+  const openEditDialog = (listing: ListingRow) => {
+    setEditListing(listing);
+    setEditForm({
+      title: listing.title || "",
+      price: listing.price != null ? String(listing.price) : "",
+      description: listing.description || "",
+      status: listing.status || "active",
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editListing) return;
+    const priceNum = Number(editForm.price);
+    if (!editForm.title.trim()) {
+      toast.error("العنوان مطلوب");
+      return;
+    }
+    if (!Number.isFinite(priceNum) || priceNum < 0) {
+      toast.error("السعر غير صالح");
+      return;
+    }
+    setUpdating(editListing.id);
+    const patch = {
+      title: editForm.title.trim(),
+      price: priceNum,
+      description: editForm.description.trim() || null,
+      status: editForm.status,
+    };
+    const { error } = await supabase.from("listings").update(patch as any).eq("id", editListing.id);
+    if (error) {
+      console.error(error);
+      toast.error("فشل حفظ التعديلات");
+    } else {
+      toast.success("تم حفظ التعديلات");
+      const apply = (l: ListingRow) => (l.id === editListing.id ? { ...l, ...patch } : l);
+      setListings((prev) => prev.map(apply));
+      setPendingListings((prev) => prev.map(apply));
+      setEditListing(null);
+    }
+    setUpdating(null);
+  };
+
+  const handleDeleteListing = async (listing: ListingRow) => {
+    setUpdating(listing.id);
+    try {
+      const urls = (listing.images || []).filter((u) => !!u);
+      if (urls.length > 0) {
+        try {
+          const { deleteFromB2 } = await import("@/lib/b2Delete");
+          await deleteFromB2({ urls });
+        } catch (e) {
+          console.error("B2 delete failed", e);
+        }
+      }
+      const { error } = await supabase.from("listings").delete().eq("id", listing.id);
+      if (error) throw error;
+      toast.success(`تم حذف الإعلان "${listing.title}"`);
+      setListings((prev) => prev.filter((l) => l.id !== listing.id));
+      setPendingListings((prev) => prev.filter((l) => l.id !== listing.id));
+    } catch (err) {
+      console.error(err);
+      toast.error("فشل حذف الإعلان");
+    }
+    setUpdating(null);
+    setDeleteListing(null);
+  };
+
 
   const fetchListings = async () => {
     setLoading(true);
