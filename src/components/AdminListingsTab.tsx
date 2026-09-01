@@ -56,6 +56,77 @@ const AdminListingsTab = () => {
   const [previewListing, setPreviewListing] = useState<ListingRow | null>(null);
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [deleteImagesListing, setDeleteImagesListing] = useState<ListingRow | null>(null);
+  const [editListing, setEditListing] = useState<ListingRow | null>(null);
+  const [editForm, setEditForm] = useState({ title: "", price: "", description: "", status: "active" });
+  const [deleteListing, setDeleteListing] = useState<ListingRow | null>(null);
+
+  const openEditDialog = (listing: ListingRow) => {
+    setEditListing(listing);
+    setEditForm({
+      title: listing.title || "",
+      price: listing.price != null ? String(listing.price) : "",
+      description: listing.description || "",
+      status: listing.status || "active",
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editListing) return;
+    const priceNum = Number(editForm.price);
+    if (!editForm.title.trim()) {
+      toast.error("العنوان مطلوب");
+      return;
+    }
+    if (!Number.isFinite(priceNum) || priceNum < 0) {
+      toast.error("السعر غير صالح");
+      return;
+    }
+    setUpdating(editListing.id);
+    const patch = {
+      title: editForm.title.trim(),
+      price: priceNum,
+      description: editForm.description.trim() || null,
+      status: editForm.status,
+    };
+    const { error } = await supabase.from("listings").update(patch as any).eq("id", editListing.id);
+    if (error) {
+      console.error(error);
+      toast.error("فشل حفظ التعديلات");
+    } else {
+      toast.success("تم حفظ التعديلات");
+      const apply = (l: ListingRow) => (l.id === editListing.id ? { ...l, ...patch } : l);
+      setListings((prev) => prev.map(apply));
+      setPendingListings((prev) => prev.map(apply));
+      setEditListing(null);
+    }
+    setUpdating(null);
+  };
+
+  const handleDeleteListing = async (listing: ListingRow) => {
+    setUpdating(listing.id);
+    try {
+      const urls = (listing.images || []).filter((u) => !!u);
+      if (urls.length > 0) {
+        try {
+          const { deleteFromB2 } = await import("@/lib/b2Delete");
+          await deleteFromB2({ urls });
+        } catch (e) {
+          console.error("B2 delete failed", e);
+        }
+      }
+      const { error } = await supabase.from("listings").delete().eq("id", listing.id);
+      if (error) throw error;
+      toast.success(`تم حذف الإعلان "${listing.title}"`);
+      setListings((prev) => prev.filter((l) => l.id !== listing.id));
+      setPendingListings((prev) => prev.filter((l) => l.id !== listing.id));
+    } catch (err) {
+      console.error(err);
+      toast.error("فشل حذف الإعلان");
+    }
+    setUpdating(null);
+    setDeleteListing(null);
+  };
+
 
   const fetchListings = async () => {
     setLoading(true);
@@ -469,28 +540,55 @@ const AdminListingsTab = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="text-right">الصورة</TableHead>
                     <TableHead className="text-right">العنوان</TableHead>
+                    <TableHead className="text-right">السعر</TableHead>
                     <TableHead className="text-right">المستخدم</TableHead>
+                    <TableHead className="text-right">الحالة</TableHead>
                     <TableHead className="text-right">التاريخ</TableHead>
                     <TableHead className="text-right">التصنيف الحالي</TableHead>
                     <TableHead className="text-right">تعيين التصنيف</TableHead>
                     <TableHead className="text-right">الصور</TableHead>
+                    <TableHead className="text-right">إجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                         لا توجد إعلانات
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filtered.map((listing) => (
+                    filtered.map((listing) => {
+                      const cover = (listing.images || []).find((u) => u && !u.match(/\.(mp4|webm|mov)$/i));
+                      return (
                       <TableRow key={listing.id}>
+                        <TableCell>
+                          <button
+                            type="button"
+                            onClick={() => { setPreviewListing(listing); setPreviewImageIndex(0); }}
+                            className="w-12 h-12 rounded-md overflow-hidden bg-muted flex items-center justify-center"
+                          >
+                            {cover ? (
+                              <img src={cover} alt={listing.title} loading="lazy" className="w-full h-full object-cover" />
+                            ) : (
+                              <ImageOff className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </button>
+                        </TableCell>
                         <TableCell className="font-medium max-w-[200px] truncate">
                           {listing.title}
                         </TableCell>
+                        <TableCell className="whitespace-nowrap font-bold text-primary text-sm">
+                          {listing.price?.toLocaleString("en-US")}
+                        </TableCell>
                         <TableCell>{listing.user_email}</TableCell>
+                        <TableCell>
+                          <Badge variant={listing.status === "sold" ? "secondary" : "outline"} className="text-xs">
+                            {listing.status === "sold" ? "مباع" : "نشط"}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="whitespace-nowrap">{formatDate(listing.created_at)}</TableCell>
                         <TableCell>
                           {listing.badge_type && badgeConfig[listing.badge_type] ? (
@@ -543,8 +641,43 @@ const AdminListingsTab = () => {
                             </span>
                           )}
                         </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1 text-xs"
+                              onClick={() => { setPreviewListing(listing); setPreviewImageIndex(0); }}
+                            >
+                              <Eye className="h-3 w-3" />
+                              عرض
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1 text-xs"
+                              onClick={() => openEditDialog(listing)}
+                              disabled={updating === listing.id}
+                            >
+                              <Pencil className="h-3 w-3" />
+                              تعديل
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="gap-1 text-xs"
+                              onClick={() => setDeleteListing(listing)}
+                              disabled={updating === listing.id}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              حذف
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
-                    ))
+                      );
+                    })
+
                   )}
                 </TableBody>
               </Table>
