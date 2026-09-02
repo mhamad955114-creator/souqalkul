@@ -1,4 +1,5 @@
 import imageCompression from 'browser-image-compression';
+import { enhanceImage } from './imageEnhance';
 
 const COMPRESSION_OPTIONS = {
   maxWidthOrHeight: 1080,
@@ -9,8 +10,8 @@ const COMPRESSION_OPTIONS = {
 };
 
 /**
- * Compress an image file client-side before upload.
- * Converts to WebP, max 1080px, 70% quality.
+ * Auto-enhance (crop unwanted borders + fix lighting) then compress an image
+ * client-side before upload. Always outputs a single format: WebP.
  */
 export async function compressImage(file: File): Promise<File> {
   // Skip non-image files (e.g. videos)
@@ -18,13 +19,16 @@ export async function compressImage(file: File): Promise<File> {
     return file;
   }
 
+  const enhanced = await enhanceImage(file);
+
   try {
-    const compressed = await imageCompression(file, COMPRESSION_OPTIONS);
+    const compressed = await imageCompression(enhanced, COMPRESSION_OPTIONS);
     // Return as a new File with .webp extension
-    const newName = file.name.replace(/\.[^.]+$/, '.webp');
+    const newName = enhanced.name.replace(/\.[^.]+$/, '.webp');
     return new File([compressed], newName, { type: 'image/webp' });
   } catch (error) {
-    console.warn('Image compression failed, using original:', error);
-    return file;
+    console.warn('Image compression failed, using enhanced original:', error);
+    return enhanced;
   }
 }
+
