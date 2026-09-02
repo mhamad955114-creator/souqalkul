@@ -915,7 +915,108 @@ const AdminListingsTab = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Listing Dialog */}
+      <Dialog open={!!editListing} onOpenChange={(open) => !open && setEditListing(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="text-right">تعديل الإعلان</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[65vh]">
+            <div className="space-y-4 p-1">
+              {editListing?.images && editListing.images.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {editListing.images.map((img, idx) => (
+                    <div key={idx} className="flex-shrink-0 w-16 h-16 rounded-md overflow-hidden bg-muted">
+                      {img.match(/\.(mp4|webm|mov)$/i) ? (
+                        <div className="w-full h-full flex items-center justify-center text-xs">🎬</div>
+                      ) : (
+                        <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">العنوان</Label>
+                <Input
+                  id="edit-title"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-price">السعر</Label>
+                <Input
+                  id="edit-price"
+                  type="number"
+                  inputMode="numeric"
+                  dir="ltr"
+                  value={editForm.price}
+                  onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>الحالة</Label>
+                <Select
+                  value={editForm.status}
+                  onValueChange={(val) => setEditForm((f) => ({ ...f, status: val }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">نشط</SelectItem>
+                    <SelectItem value="sold">مباع</SelectItem>
+                    <SelectItem value="pending">بانتظار الموافقة</SelectItem>
+                    <SelectItem value="rejected">مرفوض</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">الوصف</Label>
+                <Textarea
+                  id="edit-description"
+                  rows={5}
+                  value={editForm.description}
+                  onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+                />
+              </div>
+            </div>
+          </ScrollArea>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setEditListing(null)}>إلغاء</Button>
+            <Button onClick={handleSaveEdit} disabled={updating === editListing?.id}>
+              {updating === editListing?.id && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
+              حفظ التعديلات
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Listing Confirmation */}
+      <AlertDialog open={!!deleteListing} onOpenChange={(open) => !open && setDeleteListing(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف الإعلان نهائياً</AlertDialogTitle>
+            <AlertDialogDescription>
+              سيتم حذف الإعلان "{deleteListing?.title}" وجميع صوره ({deleteListing?.images?.length || 0}) نهائياً. لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteListing && handleDeleteListing(deleteListing)}
+            >
+              <Trash2 className="h-4 w-4 ml-2" />
+              حذف نهائي
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+
   );
 };
 
