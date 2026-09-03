@@ -84,6 +84,12 @@ const Pricing = () => {
       if (error) throw error;
 
       toast.success("تم إرسال طلب الترقية وسيظهر في لوحة التحكم");
+
+      await notifyAdmins({
+        title: "طلب ترقية جديد",
+        message: `طلب ترقية إلى ${plan.name} برقم ${transactionNumber}`,
+        type: "upgrade_request",
+      });
       window.open(buildWhatsAppUrl(contact.whatsapp, message), "_blank", "noopener,noreferrer");
     } catch {
       toast.error("تعذر إرسال طلب الترقية، حاول مرة أخرى");
