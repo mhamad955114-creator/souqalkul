@@ -353,6 +353,12 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         toast.error(t.listingForm.editError + ": " + error.message);
       } else {
         toast.success(t.listingForm.editSuccess);
+        await notifyAdmins({
+          title: "تعديل إعلان",
+          message: `تم تعديل الإعلان "${formData.title}"`,
+          type: "listing_updated",
+          relatedId: listing.id,
+        });
         onSuccess();
       }
     } finally {
