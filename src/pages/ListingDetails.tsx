@@ -101,6 +101,34 @@ const ListingDetails = () => {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [show360, setShow360] = useState(false);
   const [showZoomViewer, setShowZoomViewer] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+
+  const handlePublish = async () => {
+    if (!listing || !user || listing.user_id !== user.id) return;
+    setPublishing(true);
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: "active", sold_at: null })
+        .eq("id", listing.id);
+
+      if (error) throw error;
+
+      setListing({ ...listing, status: "active" });
+      toast.success("تم نشر الإعلان بنجاح");
+
+      await notifyAdmins({
+        title: "نشر إعلان جديد",
+        message: `قام مستخدم بنشر الإعلان "${listing.title}"`,
+        type: "listing_published",
+        relatedId: listing.id,
+      });
+    } catch {
+      toast.error("تعذر نشر الإعلان، حاول مرة أخرى");
+    } finally {
+      setPublishing(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
