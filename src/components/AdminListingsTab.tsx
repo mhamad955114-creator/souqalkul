@@ -927,6 +927,26 @@ const AdminListingsTab = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Direct messaging with the listing owner */}
+      <Dialog open={!!messageListing} onOpenChange={(open) => !open && setMessageListing(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              مراسلة صاحب إعلان: {messageListing?.title}
+            </DialogTitle>
+          </DialogHeader>
+          {messageListing && (
+            <ListingAdminChat
+              listingId={messageListing.id}
+              ownerId={messageListing.user_id}
+              listingTitle={messageListing.title}
+              asAdmin
+              className="border-0 shadow-none"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Listing Dialog */}
       <Dialog open={!!editListing} onOpenChange={(open) => !open && setEditListing(null)}>
         <DialogContent className="sm:max-w-lg max-h-[90vh]">
