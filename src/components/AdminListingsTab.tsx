@@ -664,6 +664,15 @@ const AdminListingsTab = () => {
                             </Button>
                             <Button
                               size="sm"
+                              variant="outline"
+                              className="gap-1 text-xs"
+                              onClick={() => setMessageListing(listing)}
+                            >
+                              <MessageSquare className="h-3 w-3" />
+                              مراسلة
+                            </Button>
+                            <Button
+                              size="sm"
                               variant="destructive"
                               className="gap-1 text-xs"
                               onClick={() => setDeleteListing(listing)}
