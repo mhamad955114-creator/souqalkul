@@ -18,6 +18,7 @@ import { resolveCityArea } from "@/lib/locationMatch";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 import LocationPicker from "@/components/LocationPicker";
 
 interface Listing {
