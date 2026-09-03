@@ -18,6 +18,7 @@ import { resolveCityArea } from "@/lib/locationMatch";
 import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 import LocationPicker from "@/components/LocationPicker";
 
 interface Listing {
@@ -353,6 +354,12 @@ const EditListingModal = ({ isOpen, onClose, listing, onSuccess }: EditListingMo
         toast.error(t.listingForm.editError + ": " + error.message);
       } else {
         toast.success(t.listingForm.editSuccess);
+        await notifyAdmins({
+          title: "تعديل إعلان",
+          message: `تم تعديل الإعلان "${formData.title}"`,
+          type: "listing_updated",
+          relatedId: listing.id,
+        });
         onSuccess();
       }
     } finally {

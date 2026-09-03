@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
-import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight, Trash2, ImageOff, Pencil } from "lucide-react";
+import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight, Trash2, ImageOff, Pencil, MessageSquare } from "lucide-react";
+import ListingAdminChat from "./ListingAdminChat";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { formatDate } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -57,6 +58,7 @@ const AdminListingsTab = () => {
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [deleteImagesListing, setDeleteImagesListing] = useState<ListingRow | null>(null);
   const [editListing, setEditListing] = useState<ListingRow | null>(null);
+  const [messageListing, setMessageListing] = useState<ListingRow | null>(null);
   const [editForm, setEditForm] = useState({ title: "", price: "", description: "", status: "active" });
   const [deleteListing, setDeleteListing] = useState<ListingRow | null>(null);
 
@@ -664,6 +666,15 @@ const AdminListingsTab = () => {
                             </Button>
                             <Button
                               size="sm"
+                              variant="outline"
+                              className="gap-1 text-xs"
+                              onClick={() => setMessageListing(listing)}
+                            >
+                              <MessageSquare className="h-3 w-3" />
+                              مراسلة
+                            </Button>
+                            <Button
+                              size="sm"
                               variant="destructive"
                               className="gap-1 text-xs"
                               onClick={() => setDeleteListing(listing)}
@@ -915,6 +926,26 @@ const AdminListingsTab = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Direct messaging with the listing owner */}
+      <Dialog open={!!messageListing} onOpenChange={(open) => !open && setMessageListing(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right">
+              مراسلة صاحب إعلان: {messageListing?.title}
+            </DialogTitle>
+          </DialogHeader>
+          {messageListing && (
+            <ListingAdminChat
+              listingId={messageListing.id}
+              ownerId={messageListing.user_id}
+              listingTitle={messageListing.title}
+              asAdmin
+              className="border-0 shadow-none"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Listing Dialog */}
       <Dialog open={!!editListing} onOpenChange={(open) => !open && setEditListing(null)}>

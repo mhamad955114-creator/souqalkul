@@ -26,7 +26,8 @@ import {
   Hash,
   ZoomIn,
   Copy,
-  Bot
+  Bot,
+  Rocket
 
 } from "lucide-react";
 import { toast } from "sonner";
@@ -34,6 +35,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatModal from "@/components/ChatModal";
 import PriceEstimateCard from "@/components/PriceEstimateCard";
+import ListingAdminChat from "@/components/ListingAdminChat";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 
 import AuthModal from "@/components/AuthModal";
 import ShareButtons from "@/components/ShareButtons";
@@ -98,6 +101,34 @@ const ListingDetails = () => {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [show360, setShow360] = useState(false);
   const [showZoomViewer, setShowZoomViewer] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+
+  const handlePublish = async () => {
+    if (!listing || !user || listing.user_id !== user.id) return;
+    setPublishing(true);
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: "active", sold_at: null })
+        .eq("id", listing.id);
+
+      if (error) throw error;
+
+      setListing({ ...listing, status: "active" });
+      toast.success("تم نشر الإعلان بنجاح");
+
+      await notifyAdmins({
+        title: "نشر إعلان جديد",
+        message: `قام مستخدم بنشر الإعلان "${listing.title}"`,
+        type: "listing_published",
+        relatedId: listing.id,
+      });
+    } catch {
+      toast.error("تعذر نشر الإعلان، حاول مرة أخرى");
+    } finally {
+      setPublishing(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -248,6 +279,7 @@ const ListingDetails = () => {
   const showAppLogo = images.length === 0;
   const isOwnerBusiness = listing.badge_type === "business";
   const isOwnerPro = listing.badge_type === "professional";
+  const isOwner = !!user && listing.user_id === user.id;
 
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
@@ -633,6 +665,40 @@ const ListingDetails = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Owner: publish the listing + admin messages */}
+            {isOwner && (
+              <div className="space-y-4">
+                {listing.status !== "active" && (
+                  <Card>
+                    <CardContent className="p-4 space-y-2">
+                      <p className="text-sm text-muted-foreground text-center">
+                        هذا الإعلان غير منشور حالياً
+                        {listing.status ? ` (${listing.status})` : ""}
+                      </p>
+                      <Button
+                        onClick={handlePublish}
+                        disabled={publishing}
+                        className="w-full"
+                        size="lg"
+                      >
+                        {publishing ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Rocket className="h-5 w-5" />
+                        )}
+                        نشر الإعلان
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+                <ListingAdminChat
+                  listingId={listing.id}
+                  ownerId={listing.user_id}
+                  listingTitle={listing.title}
+                />
+              </div>
+            )}
 
             {/* AI price evaluation */}
             {listing && <PriceEstimateCard listingId={listing.id} />}

@@ -424,6 +424,47 @@ export type Database = {
           },
         ]
       }
+      listing_admin_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_from_admin: boolean
+          listing_id: string
+          owner_id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_from_admin?: boolean
+          listing_id: string
+          owner_id: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_from_admin?: boolean
+          listing_id?: string
+          owner_id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_admin_messages_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_settings: {
         Row: {
           id: string

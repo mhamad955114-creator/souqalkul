@@ -22,6 +22,7 @@ import {
 import { Loader2, Plus, Send, Trash2, MessagesSquare, Bot, Tag, ChevronDown, MapPin, DollarSign, Tag as TagIcon, FileText, Info } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 
 interface Thread {
   id: string;
@@ -156,6 +157,12 @@ const AiAssistant = () => {
           return;
         }
         setThreads((prev) => [data as Thread, ...prev]);
+        await notifyAdmins({
+          title: "محادثة ذكاء اصطناعي عن إعلان",
+          message: "بدأ مستخدم محادثة جديدة مع المساعد الذكي حول إعلان",
+          type: "ai_thread_created",
+          relatedId: (data as Thread).id,
+        });
         navigate(`/ai/${(data as Thread).id}`, { replace: true });
         return;
       }
@@ -281,6 +288,12 @@ const AiAssistant = () => {
       return;
     }
     setThreads((prev) => [data as Thread, ...prev]);
+    await notifyAdmins({
+      title: "محادثة جديدة في المساعد الذكي",
+      message: "بدأ مستخدم محادثة جديدة مع المساعد الذكي",
+      type: "ai_thread_created",
+      relatedId: (data as Thread).id,
+    });
     navigate(`/ai/${(data as Thread).id}`);
   };
 

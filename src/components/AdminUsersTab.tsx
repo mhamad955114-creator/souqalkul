@@ -24,7 +24,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Trash2, Search, Users, ShieldAlert, BadgeCheck, Ban, CheckCircle2 } from "lucide-react";
+import { Loader2, Trash2, Search, Users, ShieldAlert, BadgeCheck, Ban, CheckCircle2, Pencil } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -40,7 +43,17 @@ interface UserRow {
   is_admin?: boolean;
   is_banned?: boolean;
   ban_reason?: string | null;
+  plan_type?: string | null;
+  plan_expires_at?: string | null;
+  requests_total?: number;
+  requests_pending?: number;
 }
+
+const planLabels: Record<string, string> = {
+  featured: "مميز ⭐",
+  professional: "احترافي 👑",
+  business: "رجال أعمال 💎",
+};
 
 const AdminUsersTab = () => {
   const { user: currentUser } = useAuth();
@@ -53,6 +66,15 @@ const AdminUsersTab = () => {
   const [suspendTarget, setSuspendTarget] = useState<UserRow | null>(null);
   const [suspendReason, setSuspendReason] = useState("");
   const [suspending, setSuspending] = useState(false);
+  const [editTarget, setEditTarget] = useState<UserRow | null>(null);
+  const [editForm, setEditForm] = useState({
+    full_name: "",
+    phone: "",
+    city: "",
+    country: "",
+    is_verified: false,
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -84,12 +106,46 @@ const AdminUsersTab = () => {
         .map((b) => [b.user_id, b.reason])
     );
 
+    // Active subscriptions (plan details)
+    const { data: subs } = await supabase
+      .from("user_subscriptions")
+      .select("user_id, plan_type, expires_at, status")
+      .eq("status", "active")
+      .order("expires_at", { ascending: false });
+
+    const planMap = new Map<string, { plan_type: string; expires_at: string }>();
+    (subs || [])
+      .filter((s: any) => new Date(s.expires_at) > new Date())
+      .forEach((s: any) => {
+        if (!planMap.has(s.user_id)) {
+          planMap.set(s.user_id, { plan_type: s.plan_type, expires_at: s.expires_at });
+        }
+      });
+
+    // Upgrade / top-up requests sent by each user
+    const { data: requests } = await supabase
+      .from("top_up_requests")
+      .select("user_id, status");
+
+    const reqTotal = new Map<string, number>();
+    const reqPending = new Map<string, number>();
+    (requests || []).forEach((r: any) => {
+      reqTotal.set(r.user_id, (reqTotal.get(r.user_id) || 0) + 1);
+      if (r.status === "pending") {
+        reqPending.set(r.user_id, (reqPending.get(r.user_id) || 0) + 1);
+      }
+    });
+
     setUsers(
       (data || []).map((u) => ({
         ...u,
         is_admin: adminIds.has(u.user_id),
         is_banned: banMap.has(u.user_id),
         ban_reason: banMap.get(u.user_id) ?? null,
+        plan_type: planMap.get(u.user_id)?.plan_type ?? null,
+        plan_expires_at: planMap.get(u.user_id)?.expires_at ?? null,
+        requests_total: reqTotal.get(u.user_id) || 0,
+        requests_pending: reqPending.get(u.user_id) || 0,
       }))
     );
     setLoading(false);
@@ -157,6 +213,64 @@ const AdminUsersTab = () => {
       toast.error(e?.message || "خطأ غير متوقع");
     } finally {
       setSuspending(false);
+    }
+  };
+
+  const openEdit = (u: UserRow) => {
+    setEditTarget(u);
+    setEditForm({
+      full_name: u.full_name || "",
+      phone: u.phone || "",
+      city: u.city || "",
+      country: u.country || "",
+      is_verified: u.is_verified,
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editTarget) return;
+    setSavingEdit(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: editForm.full_name.trim() || null,
+          phone: editForm.phone.trim() || null,
+          city: editForm.city.trim() || null,
+          country: editForm.country.trim() || null,
+        })
+        .eq("user_id", editTarget.user_id);
+
+      if (error) throw error;
+
+      if (editForm.is_verified !== editTarget.is_verified) {
+        const { error: verifyError } = await supabase.rpc("admin_set_profile_verified", {
+          _user_id: editTarget.user_id,
+          _is_verified: editForm.is_verified,
+        });
+        if (verifyError) throw verifyError;
+      }
+
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.user_id === editTarget.user_id
+            ? {
+                ...u,
+                full_name: editForm.full_name.trim() || null,
+                phone: editForm.phone.trim() || null,
+                city: editForm.city.trim() || null,
+                country: editForm.country.trim() || null,
+                is_verified: editForm.is_verified,
+              }
+            : u
+        )
+      );
+      toast.success("تم تحديث بيانات المستخدم");
+      setEditTarget(null);
+    } catch (e: any) {
+      toast.error(e?.message || "فشل تحديث البيانات");
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -249,6 +363,8 @@ const AdminUsersTab = () => {
                 <TableHead className="text-right">المستخدم</TableHead>
                 <TableHead className="text-right">الهاتف</TableHead>
                 <TableHead className="text-right">الموقع</TableHead>
+                <TableHead className="text-right">الباقة</TableHead>
+                <TableHead className="text-right">الطلبات</TableHead>
                 <TableHead className="text-right">تاريخ التسجيل</TableHead>
                 <TableHead className="text-right">إجراءات</TableHead>
               </TableRow>
@@ -256,7 +372,7 @@ const AdminUsersTab = () => {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     لا توجد نتائج
                   </TableCell>
                 </TableRow>
@@ -307,11 +423,45 @@ const AdminUsersTab = () => {
                     <TableCell className="text-sm">
                       {[u.city, u.country].filter(Boolean).join(" - ") || "—"}
                     </TableCell>
+                    <TableCell className="text-sm">
+                      {u.plan_type ? (
+                        <div className="flex flex-col">
+                          <Badge variant="secondary" className="w-fit text-[10px]">
+                            {planLabels[u.plan_type] || u.plan_type}
+                          </Badge>
+                          {u.plan_expires_at && (
+                            <span className="text-[10px] text-muted-foreground mt-0.5" dir="ltr">
+                              {new Date(u.plan_expires_at).toLocaleDateString("en-GB")}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">مجاني</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <div className="flex flex-col">
+                        <span className="text-xs">الإجمالي: {u.requests_total || 0}</span>
+                        {(u.requests_pending || 0) > 0 && (
+                          <span className="text-[10px] text-amber-600">
+                            قيد الانتظار: {u.requests_pending}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {new Date(u.created_at).toLocaleDateString("en-GB")}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEdit(u)}
+                          title="تعديل بيانات المستخدم"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
                         <Button
                           variant={u.is_banned ? "default" : "outline"}
                           size="sm"
@@ -360,6 +510,85 @@ const AdminUsersTab = () => {
           </Table>
         </div>
       </Card>
+
+      {/* Edit user dialog */}
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-right">تعديل بيانات المستخدم</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="user-name">الاسم الكامل</Label>
+              <Input
+                id="user-name"
+                value={editForm.full_name}
+                onChange={(e) => setEditForm((f) => ({ ...f, full_name: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user-phone">الهاتف</Label>
+              <Input
+                id="user-phone"
+                dir="ltr"
+                value={editForm.phone}
+                onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="user-city">المدينة</Label>
+                <Input
+                  id="user-city"
+                  value={editForm.city}
+                  onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="user-country">البلد</Label>
+                <Input
+                  id="user-country"
+                  value={editForm.country}
+                  onChange={(e) => setEditForm((f) => ({ ...f, country: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <Switch
+                checked={editForm.is_verified}
+                onCheckedChange={(v) => setEditForm((f) => ({ ...f, is_verified: v }))}
+              />
+              <Label className="flex items-center gap-1.5">
+                <BadgeCheck className="h-4 w-4 text-blue-500" />
+                حساب موثّق
+              </Label>
+            </div>
+            {editTarget && (
+              <div className="rounded-lg bg-muted/50 p-3 text-xs space-y-1">
+                <p>
+                  الباقة الحالية:{" "}
+                  {editTarget.plan_type
+                    ? planLabels[editTarget.plan_type] || editTarget.plan_type
+                    : "مجاني"}
+                </p>
+                <p>
+                  الطلبات المُرسلة: {editTarget.requests_total || 0} — قيد الانتظار:{" "}
+                  {editTarget.requests_pending || 0}
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setEditTarget(null)} disabled={savingEdit}>
+              إلغاء
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={savingEdit}>
+              {savingEdit && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
+              حفظ
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Suspend / unsuspend confirmation */}
       <AlertDialog open={!!suspendTarget} onOpenChange={(o) => !o && setSuspendTarget(null)}>
