@@ -666,6 +666,40 @@ const ListingDetails = () => {
               </CardContent>
             </Card>
 
+            {/* Owner: publish the listing + admin messages */}
+            {isOwner && (
+              <div className="space-y-4">
+                {listing.status !== "active" && (
+                  <Card>
+                    <CardContent className="p-4 space-y-2">
+                      <p className="text-sm text-muted-foreground text-center">
+                        هذا الإعلان غير منشور حالياً
+                        {listing.status ? ` (${listing.status})` : ""}
+                      </p>
+                      <Button
+                        onClick={handlePublish}
+                        disabled={publishing}
+                        className="w-full"
+                        size="lg"
+                      >
+                        {publishing ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Rocket className="h-5 w-5" />
+                        )}
+                        نشر الإعلان
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+                <ListingAdminChat
+                  listingId={listing.id}
+                  ownerId={listing.user_id}
+                  listingTitle={listing.title}
+                />
+              </div>
+            )}
+
             {/* AI price evaluation */}
             {listing && <PriceEstimateCard listingId={listing.id} />}
 
