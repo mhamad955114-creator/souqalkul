@@ -279,6 +279,7 @@ const ListingDetails = () => {
   const showAppLogo = images.length === 0;
   const isOwnerBusiness = listing.badge_type === "business";
   const isOwnerPro = listing.badge_type === "professional";
+  const isOwner = !!user && listing.user_id === user.id;
 
   const BackArrow = dir === "rtl" ? ArrowRight : ArrowLeft;
 
