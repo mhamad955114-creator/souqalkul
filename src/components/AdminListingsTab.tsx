@@ -58,6 +58,7 @@ const AdminListingsTab = () => {
   const [previewImageIndex, setPreviewImageIndex] = useState(0);
   const [deleteImagesListing, setDeleteImagesListing] = useState<ListingRow | null>(null);
   const [editListing, setEditListing] = useState<ListingRow | null>(null);
+  const [messageListing, setMessageListing] = useState<ListingRow | null>(null);
   const [editForm, setEditForm] = useState({ title: "", price: "", description: "", status: "active" });
   const [deleteListing, setDeleteListing] = useState<ListingRow | null>(null);
 
