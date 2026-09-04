@@ -45,7 +45,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, BadgeCheck, Bell, CreditCard, LayoutList, HardDrive, Globe, Layers, Star } from "lucide-react";
+import { Loader2, Eye, ExternalLink, Shield, Trash2, Users, FileText, Flag, TrendingUp, Download, Mail, CheckCircle, Settings, BadgeCheck, Bell, CreditCard, LayoutList, HardDrive, Globe, Layers, Star, CalendarClock } from "lucide-react";
 import AdminSettingsTab from "@/components/AdminSettingsTab";
 
 import AdminVerificationTab from "@/components/AdminVerificationTab";
@@ -55,6 +55,8 @@ import AdminStorageStats from "@/components/AdminStorageStats";
 import AdminCountriesTab from "@/components/AdminCountriesTab";
 import AdminUsersTab from "@/components/AdminUsersTab";
 import AdminCategoriesTab from "@/components/AdminCategoriesTab";
+import AdminSubscriptionsTab from "@/components/AdminSubscriptionsTab";
+
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
 
@@ -108,7 +110,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries" | "users" | "categories" | "upgrades">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries" | "users" | "categories" | "upgrades" | "subscriptions">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -687,6 +689,16 @@ const AdminReports = () => {
               <Star className="h-4 w-4" />
               طلبات الترقية
             </Button>
+            <Button
+              variant={activeTab === "subscriptions" ? "default" : "outline"}
+              onClick={() => setActiveTab("subscriptions")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <CalendarClock className="h-4 w-4" />
+              تقويم الباقات
+            </Button>
+
           </div>
         </div>
 
@@ -877,6 +889,8 @@ const AdminReports = () => {
         {activeTab === "users" && <AdminUsersTab />}
         {activeTab === "categories" && <AdminCategoriesTab />}
         {activeTab === "upgrades" && <AdminUpgradeRequestsTab />}
+        {activeTab === "subscriptions" && <AdminSubscriptionsTab />}
+
       </main>
 
       <Footer />

@@ -36,7 +36,7 @@ import Footer from "@/components/Footer";
 import ChatModal from "@/components/ChatModal";
 import PriceEstimateCard from "@/components/PriceEstimateCard";
 import ListingAdminChat from "@/components/ListingAdminChat";
-import { notifyAdmins } from "@/lib/notifyAdmins";
+import { notifyAdmins, notifyUser } from "@/lib/notifyAdmins";
 
 import AuthModal from "@/components/AuthModal";
 import ShareButtons from "@/components/ShareButtons";
@@ -123,6 +123,15 @@ const ListingDetails = () => {
         type: "listing_published",
         relatedId: listing.id,
       });
+
+      // Advertiser gets their own confirmation (in-app + push).
+      await notifyUser(user.id, {
+        title: "تم نشر إعلانك",
+        message: `إعلانك "${listing.title}" أصبح منشوراً وظاهراً للمستخدمين`,
+        type: "listing_published_owner",
+        relatedId: listing.id,
+      });
+
     } catch {
       toast.error("تعذر نشر الإعلان، حاول مرة أخرى");
     } finally {
