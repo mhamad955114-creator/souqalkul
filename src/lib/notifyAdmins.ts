@@ -1,44 +1,49 @@
 import { supabase } from "@/integrations/supabase/client";
 
-/**
- * Fetch all admin user IDs from the user_roles table.
- */
-async function getAdminUserIds(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("user_id")
-    .eq("role", "admin");
-
-  if (error || !data) return [];
-  return data.map((r) => r.user_id);
-}
-
-/**
- * Send a notification to all admin users.
- * Silently fails if the insert errors (non-critical).
- */
-
-export async function notifyAdmins(params: {
+interface NotifyParams {
   title: string;
   message: string;
   type: string;
   relatedId?: string;
-}): Promise<void> {
+}
+
+/**
+ * Notify every admin about an event (upgrade request, listing edit, AI chat...).
+ * Runs through the `notify-event` edge function because the notifications table
+ * only allows admin inserts — the function validates the caller and writes with
+ * the service role, which also fires the push-notification trigger.
+ */
+export async function notifyAdmins(params: NotifyParams): Promise<void> {
   try {
-    const adminIds = await getAdminUserIds();
-    if (adminIds.length === 0) return;
-
-    const rows = adminIds.map((adminId) => ({
-      user_id: adminId,
-      title: params.title,
-      message: params.message,
-      type: params.type,
-      related_id: params.relatedId || null,
-    }));
-
-    await supabase.from("notifications").insert(rows);
+    await supabase.functions.invoke("notify-event", {
+      body: { ...params, notifyAdmins: true },
+    });
   } catch {
-    // Non-critical — don't block the user action if notification fails
+    // Non-critical — never block the user action.
     console.warn("Failed to send admin notifications");
+  }
+}
+
+/**
+ * Notify a specific user (the advertiser) about something that concerns them.
+ * Regular users may only target themselves; admins may target any user.
+ */
+export async function notifyUser(
+  targetUserId: string,
+  params: NotifyParams & { alsoAdmins?: boolean },
+): Promise<void> {
+  try {
+    await supabase.functions.invoke("notify-event", {
+      body: {
+        title: params.title,
+        message: params.message,
+        type: params.type,
+        relatedId: params.relatedId,
+        targetUserId,
+        notifyAdmins: params.alsoAdmins === true,
+      },
+    });
+  } catch {
+    console.warn("Failed to send user notification");
   }
 }
