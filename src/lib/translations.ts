@@ -1517,6 +1517,12 @@ export const en: Translations = {
     faqA2: "Yes, you can cancel anytime by contacting us. Your plan will remain active until its expiration date.",
     faqQ3: "What's the difference between plans?",
     faqA3: "Each plan offers additional features like better visibility, more images, and advanced support. Contact us for details.",
+    planPrice: "Plan price",
+    planDuration: "Plan duration",
+    planActiveListings: "Active listings",
+    planImages: "Images",
+    planUnlimited: "Unlimited",
+    planDays: "days",
   },
   aboutUs: {
     title: "About Us",
