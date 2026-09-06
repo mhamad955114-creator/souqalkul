@@ -2041,6 +2041,12 @@ export const tr: Translations = {
     faqA2: "Evet, bizimle iletişime geçerek istediğiniz zaman iptal edebilirsiniz. Paketiniz sona erme tarihine kadar aktif kalacaktır.",
     faqQ3: "Paketler arasındaki fark nedir?",
     faqA3: "Her paket daha iyi görünürlük, daha fazla görsel ve gelişmiş destek gibi ek özellikler sunar. Detaylar için bizimle iletişime geçin.",
+    planPrice: "Paket fiyatı",
+    planDuration: "Paket süresi",
+    planActiveListings: "Aktif ilanlar",
+    planImages: "Görsel sayısı",
+    planUnlimited: "Sınırsız",
+    planDays: "gün",
   },
   aboutUs: {
     title: "Hakkımızda",
