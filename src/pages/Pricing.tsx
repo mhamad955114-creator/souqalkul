@@ -24,6 +24,9 @@ const Pricing = () => {
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
+  const formatNum = (n: number) => new Intl.NumberFormat("en-US").format(n);
+  const formatLimit = (n: number) => (n < 0 ? t.pricing.planUnlimited : formatNum(n));
+
   const plans = [
     {
       key: "featured",
@@ -35,6 +38,8 @@ const Pricing = () => {
       features: [t.pricing.featuredF1, t.pricing.featuredF2, t.pricing.featuredF3],
       price: settings.featured_listing.price ?? 0,
       durationDays: settings.featured_listing.duration_days,
+      maxActive: settings.featured_listing.max_active_listings,
+      maxImages: settings.featured_listing.max_images,
     },
     {
       key: "professional",
@@ -46,6 +51,8 @@ const Pricing = () => {
       features: [t.pricing.proF1, t.pricing.proF2, t.pricing.proF3, t.pricing.proF4],
       price: settings.professional_listing.price ?? 0,
       durationDays: settings.professional_listing.duration_days,
+      maxActive: settings.professional_listing.max_active_listings,
+      maxImages: settings.professional_listing.max_images,
     },
     {
       key: "business",
@@ -57,6 +64,8 @@ const Pricing = () => {
       features: [t.pricing.bizF1, t.pricing.bizF2, t.pricing.bizF3, t.pricing.bizF4],
       price: settings.business_listing.price ?? 0,
       durationDays: settings.business_listing.duration_days,
+      maxActive: settings.business_listing.max_active_listings,
+      maxImages: settings.business_listing.max_images,
     },
   ];
 
@@ -136,9 +145,29 @@ const Pricing = () => {
                   )}
                 </div>
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                <p className="text-3xl font-bold text-primary mt-2" dir="ltr">
+                  {formatNum(plan.price)} <span className="text-base font-normal">ل.س</span>
+                </p>
               </CardHeader>
 
               <CardContent className="space-y-3">
+                <div className="rounded-lg border bg-muted/40 divide-y text-sm">
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-muted-foreground">{t.pricing.planDuration}</span>
+                    <span className="font-semibold" dir="ltr">
+                      {formatNum(plan.durationDays)} {t.pricing.planDays}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-muted-foreground">{t.pricing.planActiveListings}</span>
+                    <span className="font-semibold" dir="ltr">{formatLimit(plan.maxActive)}</span>
+                  </div>
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-muted-foreground">{t.pricing.planImages}</span>
+                    <span className="font-semibold" dir="ltr">{formatLimit(plan.maxImages)}</span>
+                  </div>
+                </div>
+
                 {plan.features.map((feature, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
