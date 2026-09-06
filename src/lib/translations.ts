@@ -462,6 +462,12 @@ export interface Translations {
     faqA2: string;
     faqQ3: string;
     faqA3: string;
+    planPrice: string;
+    planDuration: string;
+    planActiveListings: string;
+    planImages: string;
+    planUnlimited: string;
+    planDays: string;
   };
 
   // About Us
