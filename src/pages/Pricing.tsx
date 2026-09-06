@@ -145,9 +145,29 @@ const Pricing = () => {
                   )}
                 </div>
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                <p className="text-3xl font-bold text-primary mt-2" dir="ltr">
+                  {formatNum(plan.price)} <span className="text-base font-normal">ل.س</span>
+                </p>
               </CardHeader>
 
               <CardContent className="space-y-3">
+                <div className="rounded-lg border bg-muted/40 divide-y text-sm">
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-muted-foreground">{t.pricing.planDuration}</span>
+                    <span className="font-semibold" dir="ltr">
+                      {formatNum(plan.durationDays)} {t.pricing.planDays}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-muted-foreground">{t.pricing.planActiveListings}</span>
+                    <span className="font-semibold" dir="ltr">{formatLimit(plan.maxActive)}</span>
+                  </div>
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-muted-foreground">{t.pricing.planImages}</span>
+                    <span className="font-semibold" dir="ltr">{formatLimit(plan.maxImages)}</span>
+                  </div>
+                </div>
+
                 {plan.features.map((feature, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
