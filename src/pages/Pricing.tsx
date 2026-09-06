@@ -24,6 +24,9 @@ const Pricing = () => {
 
   const BackArrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
+  const formatNum = (n: number) => new Intl.NumberFormat("en-US").format(n);
+  const formatLimit = (n: number) => (n < 0 ? t.pricing.planUnlimited : formatNum(n));
+
   const plans = [
     {
       key: "featured",
@@ -35,6 +38,8 @@ const Pricing = () => {
       features: [t.pricing.featuredF1, t.pricing.featuredF2, t.pricing.featuredF3],
       price: settings.featured_listing.price ?? 0,
       durationDays: settings.featured_listing.duration_days,
+      maxActive: settings.featured_listing.max_active_listings,
+      maxImages: settings.featured_listing.max_images,
     },
     {
       key: "professional",
@@ -46,6 +51,8 @@ const Pricing = () => {
       features: [t.pricing.proF1, t.pricing.proF2, t.pricing.proF3, t.pricing.proF4],
       price: settings.professional_listing.price ?? 0,
       durationDays: settings.professional_listing.duration_days,
+      maxActive: settings.professional_listing.max_active_listings,
+      maxImages: settings.professional_listing.max_images,
     },
     {
       key: "business",
@@ -57,6 +64,8 @@ const Pricing = () => {
       features: [t.pricing.bizF1, t.pricing.bizF2, t.pricing.bizF3, t.pricing.bizF4],
       price: settings.business_listing.price ?? 0,
       durationDays: settings.business_listing.duration_days,
+      maxActive: settings.business_listing.max_active_listings,
+      maxImages: settings.business_listing.max_images,
     },
   ];
 
