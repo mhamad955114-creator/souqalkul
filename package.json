@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@capacitor-community/safe-area": "^8.0.1",
+    "@capacitor-firebase/authentication": "^8.5.1",
     "@capacitor/android": "^8.2.0",
     "@capacitor/app": "^8.0.1",
     "@capacitor/cli": "^8.2.0",
@@ -59,6 +60,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
+    "firebase": "^12.6.0",
     "html5-qrcode": "^2.3.8",
     "input-otp": "^1.4.2",
     "leaflet": "^1.9.4",
