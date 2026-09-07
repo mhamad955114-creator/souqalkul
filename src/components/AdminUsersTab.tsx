@@ -148,18 +148,40 @@ const AdminUsersTab = () => {
       }
     });
 
+    // Active listings per user (used for the points system)
+    const { data: activeListings } = await supabase
+      .from("listings")
+      .select("user_id")
+      .eq("status", "active");
+
+    const activeMap = new Map<string, number>();
+    (activeListings || []).forEach((l: any) => {
+      activeMap.set(l.user_id, (activeMap.get(l.user_id) || 0) + 1);
+    });
+
     setUsers(
-      (data || []).map((u) => ({
-        ...u,
-        is_admin: adminIds.has(u.user_id),
-        is_banned: banMap.has(u.user_id),
-        ban_reason: banMap.get(u.user_id) ?? null,
-        plan_type: planMap.get(u.user_id)?.plan_type ?? null,
-        plan_expires_at: planMap.get(u.user_id)?.expires_at ?? null,
-        requests_total: reqTotal.get(u.user_id) || 0,
-        requests_pending: reqPending.get(u.user_id) || 0,
-      }))
+      (data || []).map((u) => {
+        const planType = planMap.get(u.user_id)?.plan_type ?? null;
+        const activeCount = activeMap.get(u.user_id) || 0;
+        return {
+          ...u,
+          is_admin: adminIds.has(u.user_id),
+          is_banned: banMap.has(u.user_id),
+          ban_reason: banMap.get(u.user_id) ?? null,
+          plan_type: planType,
+          plan_expires_at: planMap.get(u.user_id)?.expires_at ?? null,
+          requests_total: reqTotal.get(u.user_id) || 0,
+          requests_pending: reqPending.get(u.user_id) || 0,
+          active_listings: activeCount,
+          points: calculateUserPoints({
+            planType,
+            activeListings: activeCount,
+            isVerified: u.is_verified,
+          }),
+        };
+      })
     );
+
     setLoading(false);
   };
 
