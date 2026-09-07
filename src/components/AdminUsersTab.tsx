@@ -24,12 +24,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Trash2, Search, Users, ShieldAlert, BadgeCheck, Ban, CheckCircle2, Pencil } from "lucide-react";
+import { Loader2, Trash2, Search, Users, ShieldAlert, BadgeCheck, Ban, CheckCircle2, Pencil, Award } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  calculateUserPoints,
+  formatPoints,
+  getPointsTier,
+  POINTS_PER_ACTIVE_LISTING,
+  PLAN_POINTS,
+  VERIFIED_BONUS_POINTS,
+} from "@/lib/userPoints";
+
 
 interface UserRow {
   user_id: string;
@@ -47,6 +56,9 @@ interface UserRow {
   plan_expires_at?: string | null;
   requests_total?: number;
   requests_pending?: number;
+  active_listings?: number;
+  points?: number;
+
 }
 
 const planLabels: Record<string, string> = {
@@ -136,18 +148,40 @@ const AdminUsersTab = () => {
       }
     });
 
+    // Active listings per user (used for the points system)
+    const { data: activeListings } = await supabase
+      .from("listings")
+      .select("user_id")
+      .eq("status", "active");
+
+    const activeMap = new Map<string, number>();
+    (activeListings || []).forEach((l: any) => {
+      activeMap.set(l.user_id, (activeMap.get(l.user_id) || 0) + 1);
+    });
+
     setUsers(
-      (data || []).map((u) => ({
-        ...u,
-        is_admin: adminIds.has(u.user_id),
-        is_banned: banMap.has(u.user_id),
-        ban_reason: banMap.get(u.user_id) ?? null,
-        plan_type: planMap.get(u.user_id)?.plan_type ?? null,
-        plan_expires_at: planMap.get(u.user_id)?.expires_at ?? null,
-        requests_total: reqTotal.get(u.user_id) || 0,
-        requests_pending: reqPending.get(u.user_id) || 0,
-      }))
+      (data || []).map((u) => {
+        const planType = planMap.get(u.user_id)?.plan_type ?? null;
+        const activeCount = activeMap.get(u.user_id) || 0;
+        return {
+          ...u,
+          is_admin: adminIds.has(u.user_id),
+          is_banned: banMap.has(u.user_id),
+          ban_reason: banMap.get(u.user_id) ?? null,
+          plan_type: planType,
+          plan_expires_at: planMap.get(u.user_id)?.expires_at ?? null,
+          requests_total: reqTotal.get(u.user_id) || 0,
+          requests_pending: reqPending.get(u.user_id) || 0,
+          active_listings: activeCount,
+          points: calculateUserPoints({
+            planType,
+            activeListings: activeCount,
+            isVerified: u.is_verified,
+          }),
+        };
+      })
     );
+
     setLoading(false);
   };
 
@@ -354,6 +388,23 @@ const AdminUsersTab = () => {
         />
       </div>
 
+      {/* Points rules */}
+      <Card>
+        <CardContent className="p-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5 font-semibold text-foreground">
+            <Award className="h-4 w-4 text-amber-500" />
+            طريقة حساب النقاط
+          </span>
+          <span dir="ltr">مميز: +{formatPoints(PLAN_POINTS.featured)}</span>
+          <span dir="ltr">احترافي: +{formatPoints(PLAN_POINTS.professional)}</span>
+          <span dir="ltr">رجال أعمال: +{formatPoints(PLAN_POINTS.business)}</span>
+          <span dir="ltr">
+            كل إعلان نشط: +{formatPoints(POINTS_PER_ACTIVE_LISTING)}
+          </span>
+          <span dir="ltr">حساب موثّق: +{formatPoints(VERIFIED_BONUS_POINTS)}</span>
+        </CardContent>
+      </Card>
+
       {/* Users table */}
       <Card>
         <div className="overflow-x-auto">
@@ -361,9 +412,11 @@ const AdminUsersTab = () => {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-right">المستخدم</TableHead>
+                <TableHead className="text-right">النقاط</TableHead>
                 <TableHead className="text-right">الهاتف</TableHead>
                 <TableHead className="text-right">الموقع</TableHead>
                 <TableHead className="text-right">الباقة</TableHead>
+
                 <TableHead className="text-right">الطلبات</TableHead>
                 <TableHead className="text-right">تاريخ التسجيل</TableHead>
                 <TableHead className="text-right">إجراءات</TableHead>
@@ -372,7 +425,7 @@ const AdminUsersTab = () => {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     لا توجد نتائج
                   </TableCell>
                 </TableRow>
@@ -417,7 +470,22 @@ const AdminUsersTab = () => {
                         </div>
                       </div>
                     </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="flex items-center gap-1 font-bold text-sm" dir="ltr">
+                          <Award className="h-3.5 w-3.5 text-amber-500" />
+                          {formatPoints(u.points || 0)}
+                        </span>
+                        <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0">
+                          {getPointsTier(u.points || 0).label}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground" dir="ltr">
+                          {formatPoints(u.active_listings || 0)} إعلان نشط
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-sm" dir="ltr">
+
                       {u.phone || "—"}
                     </TableCell>
                     <TableCell className="text-sm">
