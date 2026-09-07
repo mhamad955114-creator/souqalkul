@@ -388,6 +388,23 @@ const AdminUsersTab = () => {
         />
       </div>
 
+      {/* Points rules */}
+      <Card>
+        <CardContent className="p-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5 font-semibold text-foreground">
+            <Award className="h-4 w-4 text-amber-500" />
+            طريقة حساب النقاط
+          </span>
+          <span dir="ltr">مميز: +{formatPoints(PLAN_POINTS.featured)}</span>
+          <span dir="ltr">احترافي: +{formatPoints(PLAN_POINTS.professional)}</span>
+          <span dir="ltr">رجال أعمال: +{formatPoints(PLAN_POINTS.business)}</span>
+          <span dir="ltr">
+            كل إعلان نشط: +{formatPoints(POINTS_PER_ACTIVE_LISTING)}
+          </span>
+          <span dir="ltr">حساب موثّق: +{formatPoints(VERIFIED_BONUS_POINTS)}</span>
+        </CardContent>
+      </Card>
+
       {/* Users table */}
       <Card>
         <div className="overflow-x-auto">
@@ -395,9 +412,11 @@ const AdminUsersTab = () => {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-right">المستخدم</TableHead>
+                <TableHead className="text-right">النقاط</TableHead>
                 <TableHead className="text-right">الهاتف</TableHead>
                 <TableHead className="text-right">الموقع</TableHead>
                 <TableHead className="text-right">الباقة</TableHead>
+
                 <TableHead className="text-right">الطلبات</TableHead>
                 <TableHead className="text-right">تاريخ التسجيل</TableHead>
                 <TableHead className="text-right">إجراءات</TableHead>
