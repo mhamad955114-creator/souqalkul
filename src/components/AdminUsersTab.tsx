@@ -425,7 +425,7 @@ const AdminUsersTab = () => {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     لا توجد نتائج
                   </TableCell>
                 </TableRow>
@@ -470,7 +470,22 @@ const AdminUsersTab = () => {
                         </div>
                       </div>
                     </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="flex items-center gap-1 font-bold text-sm" dir="ltr">
+                          <Award className="h-3.5 w-3.5 text-amber-500" />
+                          {formatPoints(u.points || 0)}
+                        </span>
+                        <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0">
+                          {getPointsTier(u.points || 0).label}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground" dir="ltr">
+                          {formatPoints(u.active_listings || 0)} إعلان نشط
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell className="text-sm" dir="ltr">
+
                       {u.phone || "—"}
                     </TableCell>
                     <TableCell className="text-sm">
