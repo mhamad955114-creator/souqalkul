@@ -24,12 +24,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Trash2, Search, Users, ShieldAlert, BadgeCheck, Ban, CheckCircle2, Pencil } from "lucide-react";
+import { Loader2, Trash2, Search, Users, ShieldAlert, BadgeCheck, Ban, CheckCircle2, Pencil, Award } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  calculateUserPoints,
+  formatPoints,
+  getPointsTier,
+  POINTS_PER_ACTIVE_LISTING,
+  PLAN_POINTS,
+  VERIFIED_BONUS_POINTS,
+} from "@/lib/userPoints";
+
 
 interface UserRow {
   user_id: string;
@@ -47,6 +56,9 @@ interface UserRow {
   plan_expires_at?: string | null;
   requests_total?: number;
   requests_pending?: number;
+  active_listings?: number;
+  points?: number;
+
 }
 
 const planLabels: Record<string, string> = {
