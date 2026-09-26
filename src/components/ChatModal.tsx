@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Send, ArrowRight, ArrowLeft, User } from "lucide-react";
+import { Loader2, Send, ArrowRight, ArrowLeft, User, Bot } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useChat, useChatMessages } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -197,6 +199,8 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
     }
   }, [messages]);
 
+  const [askingAi, setAskingAi] = useState(false);
+
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;
 
@@ -204,6 +208,22 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
     await sendMessage(newMessage);
     setNewMessage("");
     setSending(false);
+  };
+
+  const handleAskAi = async () => {
+    if (askingAi || !conversationId) return;
+    setAskingAi(true);
+    if (newMessage.trim()) {
+      await sendMessage(newMessage);
+      setNewMessage("");
+    }
+    const { data, error } = await supabase.functions.invoke("chat-ai-reply", { body: { conversationId } });
+    setAskingAi(false);
+    if (error || (data as any)?.error) {
+      let msg = (data as any)?.error;
+      try { msg = msg || (await (error as any)?.context?.json())?.error; } catch { /* ignore */ }
+      toast.error(msg || "تعذّر الحصول على رد المساعد");
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -249,7 +269,16 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.map((msg) => (
+            {messages.map((msg) => (msg as any).is_ai ? (
+              <div key={msg.id} className="flex justify-center">
+                <div className="max-w-[90%] px-4 py-2 rounded-2xl border border-primary/30 bg-accent">
+                  <p className="flex items-center gap-1 text-xs font-bold text-primary mb-1">
+                    <Bot className="h-3.5 w-3.5" /> المساعد الذكي
+                  </p>
+                  <p className="text-sm whitespace-pre-wrap break-words text-foreground">{msg.content}</p>
+                </div>
+              </div>
+            ) : (
               <div
                 key={msg.id}
                 className={`flex ${msg.sender_id === currentUserId ? "justify-start" : "justify-end"}`}
@@ -292,6 +321,16 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
             disabled={sending}
             className="flex-1"
           />
+          <Button
+            onClick={handleAskAi}
+            disabled={askingAi || sending}
+            size="icon"
+            variant="outline"
+            aria-label="اسأل المساعد الذكي"
+            title="اسأل المساعد الذكي (يراه الطرفان)"
+          >
+            {askingAi ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bot className="h-4 w-4" />}
+          </Button>
           <Button onClick={handleSend} disabled={!newMessage.trim() || sending} size="icon">
             {sending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
