@@ -397,6 +397,11 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
               المتابعة باستخدام جوجل
             </Button>
 
+            <Button type="button" variant="outline" className="w-full mt-2" size="lg"
+              onClick={() => { onClose(); window.location.assign("/phone-login"); }}>
+              <Phone className="h-5 w-5" />
+              الدخول بكود SMS
+            </Button>
             <div className="text-center mt-4">
               <button
                 type="button"

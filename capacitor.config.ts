@@ -28,6 +28,10 @@ const config: CapacitorConfig = {
       // Reset to the bundled APK version when the user reinstalls.
       resetWhenUpdate: true,
     },
+    FirebaseAuthentication: {
+      skipNativeAuth: false,
+      providers: ['phone'],
+    },
   },
 };
 
