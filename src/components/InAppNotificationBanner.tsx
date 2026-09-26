@@ -1,3 +1,4 @@
+import { getNotificationRoute } from "@/lib/notificationRoute";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X, MessageSquare, Bell, Tag, ShieldAlert, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -70,9 +71,8 @@ const InAppNotificationBanner = () => {
   const handleClick = useCallback(() => {
     if (isSwiping) return;
     if (!current) return;
-    if (current.related_id) {
-      navigate(`/listing/${current.related_id}`);
-    }
+    const route = getNotificationRoute(current.type, current.related_id);
+    if (route) navigate(route);
     dismiss();
   }, [current, navigate, dismiss, isSwiping]);
 

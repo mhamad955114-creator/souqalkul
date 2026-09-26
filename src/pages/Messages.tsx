@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -21,6 +21,19 @@ const Messages = () => {
     listingTitle: string;
   } | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const listingParam = searchParams.get("listing");
+  const convParam = searchParams.get("conversation");
+
+  useEffect(() => {
+    if ((!listingParam && !convParam) || loading) return;
+    const conv = conversations.find((c) => c.id === convParam || c.listing_id === listingParam);
+    if (conv) {
+      setSelectedConversation({ id: conv.id, listingTitle: conv.listing?.title || t.messagesPage.listing });
+      setChatOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [listingParam, convParam, conversations, loading]);
 
   if (authLoading) {
     return (
@@ -148,6 +161,7 @@ const Messages = () => {
             if (!open) setSelectedConversation(null);
           }}
           listingTitle={selectedConversation.listingTitle}
+          initialConversationId={selectedConversation.id}
         />
       )}
     </div>
