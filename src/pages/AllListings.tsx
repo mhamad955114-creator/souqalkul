@@ -39,6 +39,7 @@ import { sortListingsByPromotionPriority } from "@/lib/listingPriority";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
 import { useCountry } from "@/contexts/CountryContext";
+import FollowCategoryButton from "@/components/FollowCategoryButton";
 
 interface Listing {
   id: string;
@@ -453,6 +454,12 @@ const AllListings = () => {
           <p className="text-muted-foreground">
             {t.listings.browseAds} {totalCount} {t.listings.available}
           </p>
+          {category !== "all" && (
+            <FollowCategoryButton
+              category={category}
+              label={translatedCategoriesWithAll.find((c) => c.value === category)?.label || category}
+            />
+          )}
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-8">
