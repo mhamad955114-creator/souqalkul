@@ -10,10 +10,13 @@ import {
 import { useNotifications } from "@/hooks/useNotifications";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ScrollArea } from "./ui/scroll-area";
+import { useNavigate } from "react-router-dom";
+import { getNotificationRoute } from "@/lib/notificationRoute";
 
 const NotificationsDropdown = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const { language } = useLanguage();
+  const navigate = useNavigate();
 
   const labels = {
     ar: { notifications: "الإشعارات", markAll: "تحديد الكل كمقروء", noNotifications: "لا توجد إشعارات" },
@@ -65,7 +68,11 @@ const NotificationsDropdown = () => {
               <DropdownMenuItem
                 key={notif.id}
                 className={`flex flex-col items-start gap-1 p-3 cursor-pointer ${!notif.is_read ? "bg-primary/5" : ""}`}
-                onClick={() => markAsRead(notif.id)}
+                onClick={() => {
+                  if (!notif.is_read) markAsRead(notif.id);
+                  const route = getNotificationRoute(notif.type, notif.related_id);
+                  if (route) navigate(route);
+                }}
               >
                 <div className="flex items-center gap-2 w-full">
                   <span className="font-medium text-sm flex-1">{notif.title}</span>

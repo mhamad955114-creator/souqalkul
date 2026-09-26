@@ -18,9 +18,10 @@ interface ChatModalProps {
   listingId?: string;
   sellerId?: string;
   listingTitle?: string;
+  initialConversationId?: string;
 }
 
-const ChatModal = ({ open, onOpenChange, listingId, sellerId, listingTitle }: ChatModalProps) => {
+const ChatModal = ({ open, onOpenChange, listingId, sellerId, listingTitle, initialConversationId }: ChatModalProps) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const { conversations, loading: convLoading, getOrCreateConversation, fetchConversations } = useChat();
@@ -40,6 +41,13 @@ const ChatModal = ({ open, onOpenChange, listingId, sellerId, listingTitle }: Ch
     };
     initConversation();
   }, [open, listingId, sellerId, user, getOrCreateConversation, fetchConversations]);
+
+  useEffect(() => {
+    if (open && initialConversationId) {
+      setSelectedConversation(initialConversationId);
+      setView("chat");
+    }
+  }, [open, initialConversationId]);
 
   useEffect(() => {
     if (!open) {
