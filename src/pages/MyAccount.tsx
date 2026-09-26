@@ -1,3 +1,4 @@
+import { attachPhones } from "@/lib/profilePhones";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -229,11 +230,11 @@ const MyAccount = () => {
       // Fetch profile
       supabase
         .from("profiles")
-        .select("full_name, phone, city, avatar_url, is_verified, created_at")
+        .select("user_id, full_name, city, avatar_url, is_verified, created_at")
         .eq("user_id", user.id)
         .maybeSingle()
-        .then(({ data }) => {
-          if (data) setProfile(data);
+        .then(async ({ data }) => {
+          if (data) setProfile((await attachPhones([data]))[0] as any);
         });
 
       fetchSubscriptions();

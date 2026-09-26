@@ -1,3 +1,4 @@
+import { attachPhones } from "@/lib/profilePhones";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -60,7 +61,7 @@ const AdminSubscriptionsTab = () => {
 
       const userIds = [...new Set((subs || []).map((s) => s.user_id))];
       const { data: profiles } = userIds.length
-        ? await supabase.from("profiles").select("user_id, full_name, phone").in("user_id", userIds)
+        ? { data: await attachPhones((await supabase.from("profiles").select("user_id, full_name").in("user_id", userIds)).data) }
         : { data: [] as { user_id: string; full_name: string | null; phone: string | null }[] };
 
       const byUser = new Map((profiles || []).map((p) => [p.user_id, p]));

@@ -1,3 +1,4 @@
+import { attachPhones } from "@/lib/profilePhones";
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,11 +39,11 @@ const AdminVerificationTab = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, user_id, full_name, phone, city, is_verified, created_at")
+      .select("id, user_id, full_name, city, is_verified, created_at")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setProfiles(data);
+      setProfiles(await attachPhones(data) as any);
     }
     setLoading(false);
   };

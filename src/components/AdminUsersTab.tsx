@@ -1,3 +1,4 @@
+import { attachPhones } from "@/lib/profilePhones";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -90,9 +91,9 @@ const AdminUsersTab = () => {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data: raw, error } = await supabase
       .from("profiles")
-      .select("user_id, full_name, phone, city, country, is_verified, avatar_url, created_at")
+      .select("user_id, full_name, city, country, is_verified, avatar_url, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -100,6 +101,7 @@ const AdminUsersTab = () => {
       setLoading(false);
       return;
     }
+    const data = await attachPhones(raw);
 
     const { data: roles } = await supabase
       .from("user_roles")
