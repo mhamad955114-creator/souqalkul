@@ -1082,6 +1082,13 @@ export type Database = {
           price: number
         }[]
       }
+      get_profile_phones: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          phone: string
+          user_id: string
+        }[]
+      }
       get_user_phone: { Args: { _target_user_id: string }; Returns: string }
       has_role: {
         Args: {
