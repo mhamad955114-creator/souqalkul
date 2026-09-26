@@ -8,6 +8,13 @@
       "when": 1790386533756,
       "tag": "0000_category_follows",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790386910165,
+      "tag": "0001_ai_messages_in_chat",
+      "breakpoints": true
     }
   ]
 }
