@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "268786737947",
+    "project_id": "suok-alkul-9bdf7",
+    "storage_bucket": "suok-alkul-9bdf7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268786737947:android:2c1d73aa868b93ee11a9be",
+        "android_client_info": {
+          "package_name": "app.souqalkul"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsC2JkmPm33nWyWXhnqhK03Rwms_oHR10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
