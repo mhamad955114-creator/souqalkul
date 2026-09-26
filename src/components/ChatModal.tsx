@@ -207,7 +207,6 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
     }
   }, [messages]);
 
-  const [askingAi, setAskingAi] = useState(false);
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;
@@ -218,21 +217,6 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
     setSending(false);
   };
 
-  const handleAskAi = async () => {
-    if (askingAi || !conversationId) return;
-    setAskingAi(true);
-    if (newMessage.trim()) {
-      await sendMessage(newMessage);
-      setNewMessage("");
-    }
-    const { data, error } = await supabase.functions.invoke("chat-ai-reply", { body: { conversationId } });
-    setAskingAi(false);
-    if (error || (data as any)?.error) {
-      let msg = (data as any)?.error;
-      try { msg = msg || (await (error as any)?.context?.json())?.error; } catch { /* ignore */ }
-      toast.error(msg || "تعذّر الحصول على رد المساعد");
-    }
-  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -329,16 +313,6 @@ const ChatView = ({ conversationId, onBack, currentUserId, conversations, listin
             disabled={sending}
             className="flex-1"
           />
-          <Button
-            onClick={handleAskAi}
-            disabled={askingAi || sending}
-            size="icon"
-            variant="outline"
-            aria-label="اسأل المساعد الذكي"
-            title="اسأل المساعد الذكي (يراه الطرفان)"
-          >
-            {askingAi ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bot className="h-4 w-4" />}
-          </Button>
           <Button onClick={handleSend} disabled={!newMessage.trim() || sending} size="icon">
             {sending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
