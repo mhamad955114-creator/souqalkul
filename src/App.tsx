@@ -35,6 +35,7 @@ const Terms = lazy(() => import("./pages/Terms"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
 const Install = lazy(() => import("./pages/Install"));
 const Auth = lazy(() => import("./pages/Auth"));
+const PhoneLogin = lazy(() => import("./pages/PhoneLogin"));
 const DeleteData = lazy(() => import("./pages/DeleteData"));
 const Developers = lazy(() => import("./pages/Developers"));
 const BuildApkGuide = lazy(() => import("./pages/BuildApkGuide"));
@@ -160,6 +161,7 @@ const AppContent = () => {
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/install" element={<Install />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/phone-login" element={<PhoneLogin />} />
             <Route path="/delete-data" element={<DeleteData />} />
             <Route path="/developers" element={<Developers />} />
             <Route path="/docs/build-apk" element={<BuildApkGuide />} />
