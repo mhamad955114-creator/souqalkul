@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Loader2, TrendingUp, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface PriceEstimateDraft {
   title?: string;
@@ -42,12 +43,20 @@ const verdictStyles: Record<string, string> = {
   "مرتفع": "bg-destructive/10 text-destructive border-destructive/30",
 };
 
+const COPY = {
+  ar: { required: "أكمل عنوان الإعلان والتصنيف أولاً", error: "تعذّر تقييم السعر", title: "تقييم السعر بالذكاء الاصطناعي", retry: "إعادة التقييم", action: "قيّم السعر", intro: "نقارن هذا الإعلان بإعلانات مشابهة في نفس التصنيف والبلد لنقترح نطاق سعر عادل.", price: "السعر", confidence: "دقة التقدير", comparisons: "إعلانات مقارنة", range: "النطاق العادل المقترح", tips: "نصائح", disclaimer: "هذا تقدير تقريبي بالذكاء الاصطناعي وليس سعراً رسمياً.", verdicts: { "منخفض": "منخفض", "مناسب": "مناسب", "مرتفع": "مرتفع" } },
+  en: { required: "Complete the listing title and category first", error: "The price could not be estimated", title: "AI price estimate", retry: "Estimate again", action: "Estimate price", intro: "We compare this listing with similar listings in the same category and country to suggest a fair price range.", price: "Price", confidence: "Estimate confidence", comparisons: "Comparable listings", range: "Suggested fair range", tips: "Tips", disclaimer: "This is an approximate AI estimate, not an official price.", verdicts: { "منخفض": "Low", "مناسب": "Fair", "مرتفع": "High" } },
+  tr: { required: "Önce ilan başlığını ve kategoriyi tamamlayın", error: "Fiyat tahmini yapılamadı", title: "Yapay zekâ fiyat tahmini", retry: "Yeniden değerlendir", action: "Fiyatı değerlendir", intro: "Adil bir fiyat aralığı önermek için bu ilanı aynı kategori ve ülkedeki benzer ilanlarla karşılaştırırız.", price: "Fiyat", confidence: "Tahmin güveni", comparisons: "Karşılaştırılan ilanlar", range: "Önerilen adil aralık", tips: "İpuçları", disclaimer: "Bu, yapay zekâ destekli yaklaşık bir tahmindir; resmî fiyat değildir.", verdicts: { "منخفض": "Düşük", "مناسب": "Uygun", "مرتفع": "Yüksek" } },
+} as const;
+
 const formatNumber = (value?: number) =>
   typeof value === "number" && Number.isFinite(value)
     ? new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)
     : "—";
 
 const PriceEstimateCard = ({ listingId, draft, compact = false }: Props) => {
+  const { language } = useLanguage();
+  const copy = COPY[language];
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PriceEstimateResult | null>(null);
 
@@ -55,7 +64,7 @@ const PriceEstimateCard = ({ listingId, draft, compact = false }: Props) => {
 
   const runEstimate = async () => {
     if (!canEstimate) {
-      toast.error("أكمل عنوان الإعلان والتصنيف أولاً");
+      toast.error(copy.required);
       return;
     }
     setLoading(true);
@@ -67,7 +76,7 @@ const PriceEstimateCard = ({ listingId, draft, compact = false }: Props) => {
       if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
       setResult(data as PriceEstimateResult);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "تعذّر تقييم السعر";
+      const message = err instanceof Error ? err.message : copy.error;
       toast.error(message);
     } finally {
       setLoading(false);
@@ -79,17 +88,17 @@ const PriceEstimateCard = ({ listingId, draft, compact = false }: Props) => {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-sm font-bold">تقييم السعر بالذكاء الاصطناعي</span>
+          <span className="text-sm font-bold">{copy.title}</span>
         </div>
         <Button type="button" size="sm" variant="outline" onClick={runEstimate} disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TrendingUp className="h-4 w-4" />}
-          <span className="ms-1">{result ? "إعادة التقييم" : "قيّم السعر"}</span>
+          <span className="ms-1">{result ? copy.retry : copy.action}</span>
         </Button>
       </div>
 
       {!result && !loading && (
         <p className="text-xs text-muted-foreground">
-          نقارن هذا الإعلان بإعلانات مشابهة في نفس التصنيف والبلد لنقترح نطاق سعر عادل.
+          {copy.intro}
         </p>
       )}
 
@@ -101,23 +110,23 @@ const PriceEstimateCard = ({ listingId, draft, compact = false }: Props) => {
                 variant="outline"
                 className={verdictStyles[result.verdict] || "bg-muted text-muted-foreground"}
               >
-                السعر {result.verdict}
+                {copy.price} {copy.verdicts[result.verdict as keyof typeof copy.verdicts] || result.verdict}
               </Badge>
             )}
             {result.confidence && (
               <Badge variant="secondary" className="text-xs">
-                دقة التقدير: {result.confidence}
+                {copy.confidence}: {result.confidence}
               </Badge>
             )}
             {typeof result.comparables_count === "number" && (
               <Badge variant="secondary" className="text-xs">
-                إعلانات مقارنة: {formatNumber(result.comparables_count)}
+                {copy.comparisons}: {formatNumber(result.comparables_count)}
               </Badge>
             )}
           </div>
 
           <div className="rounded-lg bg-muted/50 px-3 py-2">
-            <p className="text-xs text-muted-foreground mb-1">النطاق العادل المقترح</p>
+            <p className="text-xs text-muted-foreground mb-1">{copy.range}</p>
             <p className="text-base font-bold" dir="ltr">
               {formatNumber(result.fair_min)} - {formatNumber(result.fair_max)} {result.currency}
             </p>
@@ -140,7 +149,7 @@ const PriceEstimateCard = ({ listingId, draft, compact = false }: Props) => {
             <div className="space-y-1">
               <p className="text-xs font-bold flex items-center gap-1">
                 <Lightbulb className="h-3.5 w-3.5 text-primary" />
-                نصائح
+                {copy.tips}
               </p>
               {result.tips.map((tip, i) => (
                 <p key={i} className="text-xs text-muted-foreground">
@@ -151,7 +160,7 @@ const PriceEstimateCard = ({ listingId, draft, compact = false }: Props) => {
           )}
 
           <p className="text-[11px] text-muted-foreground">
-            هذا تقدير تقريبي بالذكاء الاصطناعي وليس سعراً رسمياً.
+            {copy.disclaimer}
           </p>
         </div>
       )}

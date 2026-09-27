@@ -31,6 +31,15 @@ import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
 import { getEffectivePlanType } from "@/lib/subscriptions";
 import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
+import {
+  listingUiCopy,
+  localizeCategory,
+  localizeCity,
+  localizeCountry,
+  localizeFieldLabel,
+  localizeOption,
+  localizedCurrencySymbol,
+} from "@/lib/listingLocalization";
 
 const CAMERA_DRAFT_KEY = "add-listing-camera-draft";
 
@@ -43,6 +52,7 @@ interface AddListingModalProps {
 const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) => {
   const { user } = useAuth();
   const { t, dir, language } = useLanguage();
+  const copy = listingUiCopy[language];
   const { settings } = useListingSettings();
   const { currentCountry } = useCountry();
   const navigate = useNavigate();
@@ -92,7 +102,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       const hasContent =
         d.formData &&
         Object.values(d.formData).some((v) => typeof v === "string" && v.trim() !== "");
-      if (hasContent) toast.info("تم استعادة بيانات الإعلان المحفوظة");
+      if (hasContent) toast.info(copy.draftRestored);
     } catch {
       // ignore corrupted draft
     }
@@ -155,7 +165,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       try {
         const userPlan = await getUserPlan();
         setCurrentPlan(userPlan);
-        const planNames: Record<string, string> = { free: "المجانية", featured: "المميزة", professional: "الاحترافية", business: "رجال الأعمال" };
+        const planNames: Record<string, string> = copy.plans;
         let maxActive: number;
         if (userPlan === "business") maxActive = settings.business_listing.max_active_listings;
         else if (userPlan === "professional") maxActive = settings.professional_listing.max_active_listings;
@@ -190,7 +200,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         revokedUrl = url;
         setCameraPreviewFile(draft);
         setCameraPreviewUrl(url);
-        toast.info("تم استعادة الصورة الملتقطة من المسودة");
+        toast.info(copy.cameraDraftRestored);
       }
     })();
     return () => {
@@ -245,13 +255,13 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
-      toast.error("الملف المختار ليس صورة");
+      toast.error(copy.invalidImage);
       return;
     }
 
     const max = getPlanMaxImages(currentPlan);
     if (images.length >= max) {
-      toast.error(`الحد الأقصى للصور هو ${max} للباقة المختارة`);
+      toast.error(copy.imageLimit(max));
       return;
     }
 
@@ -329,11 +339,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     // Enforce max images limit
     const remainingSlots = maxImages - images.length;
     if (remainingSlots <= 0) {
-      toast.error(`الحد الأقصى للصور هو ${maxImages} للباقة المختارة`);
+      toast.error(copy.imageLimit(maxImages));
       return;
     }
     if (e.target.files.length > remainingSlots) {
-      toast.error(`يمكنك رفع ${remainingSlots} صور/فيديو إضافية فقط (الحد الأقصى: ${maxImages})`);
+      toast.error(copy.remainingMedia(remainingSlots, maxImages));
       return;
     }
 
@@ -352,7 +362,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           file = await compressImage(file);
         }
         if (isVideoFile(file) && file.size > 15 * 1024 * 1024) {
-          toast.error("حجم الفيديو يجب أن لا يتجاوز 15 ميجابايت");
+          toast.error(copy.videoTooLarge);
           continue;
         }
         preparedFiles.push(file);
@@ -380,7 +390,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
       // Moderate videos with AI
       if (uploadedVideoUrls.length > 0) {
-        toast.success(`تم رفع ${uploadedVideoUrls.length} فيديو، جاري فحص المحتوى...`);
+        toast.success(copy.videosChecking(uploadedVideoUrls.length));
         setModeratingImages(true);
 
         const videoResults = await Promise.allSettled(
@@ -394,16 +404,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           if (r.status === 'fulfilled') {
             if (r.value.result.approved) {
               setImages((prev) => [...prev, r.value.url]);
-              toast.success("تم قبول الفيديو ✅");
+              toast.success(`${copy.videoApproved} ✅`);
             } else {
-              rejected.push({ url: r.value.url, reason: r.value.result.reason || "محتوى الفيديو مخالف" });
+              rejected.push({ url: r.value.url, reason: r.value.result.reason || copy.videoViolation });
             }
           }
         }
 
         if (rejected.length > 0) {
           setRejectedImages(prev => [...prev, ...rejected]);
-          toast.error(`تم رفض ${rejected.length} فيديو لمخالفة المحتوى`);
+          toast.error(copy.videosRejected(rejected.length));
         }
       }
 
@@ -484,12 +494,12 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
 
     if (formData.title.trim().length < 3) {
-      toast.error("عنوان الإعلان يجب أن يكون 3 أحرف على الأقل");
+      toast.error(copy.titleTooShort);
       return;
     }
 
     if (formData.title.trim().length > 200) {
-      toast.error("عنوان الإعلان يجب أن يكون أقل من 200 حرف");
+      toast.error(copy.titleTooLong);
       return;
     }
 
@@ -518,8 +528,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           .eq("status", "active");
 
         if ((count ?? 0) >= maxActive) {
-          toast.error(`لقد وصلت للحد الأقصى من الإعلانات النشطة (${maxActive}). قم بترقية باقتك لنشر المزيد.`, {
-            action: { label: "ترقية الباقة", onClick: () => { onClose(); navigate("/pricing"); } },
+          toast.error(copy.activeLimit(maxActive), {
+            action: { label: copy.upgradePlan, onClick: () => { onClose(); navigate("/pricing"); } },
           });
           return;
         }
@@ -542,7 +552,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     // Try with and without leading 0
     const altPhone = normalizedPhone.startsWith("0") ? normalizedPhone.slice(1) : "0" + normalizedPhone;
     if (!countryInfo.phonePattern.test(normalizedPhone) && !countryInfo.phonePattern.test(altPhone)) {
-      toast.error(`رقم الهاتف غير صالح لـ ${selectedCountry}. الصيغة: ${countryInfo.phonePlaceholder}`);
+      toast.error(copy.invalidCountryPhone(localizeCountry(countryInfo.code, selectedCountry, language), countryInfo.phonePlaceholder));
       return;
     }
     const finalPhone = countryInfo.phonePattern.test(normalizedPhone) ? normalizedPhone : altPhone;
@@ -554,7 +564,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     );
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
-      toast.error(`يرجى ملء جميع تفاصيل الإعلان: ${missingMetaFields.map(f => f.label).join('، ')}`);
+      toast.error(copy.missingDetails(missingMetaFields.map(f => localizeFieldLabel(f.key, f.label, language)).join(", ")));
       return;
     }
 
@@ -566,7 +576,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       _lat < -90 || _lat > 90 || _lng < -180 || _lng > 180 ||
       (_lat === 0 && _lng === 0)
     ) {
-      toast.error("يرجى تحديد موقع الإعلان على الخريطة قبل الحفظ");
+      toast.error(copy.mapRequired);
       return;
     }
 
@@ -710,7 +720,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl max-h-[85dvh] overflow-y-auto" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <DialogContent dir={dir} className="sm:max-w-2xl max-h-[85dvh] overflow-y-auto" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{t.listingForm.addTitle}</DialogTitle>
         </DialogHeader>
@@ -720,11 +730,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             <AlertDescription className="text-sm flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary shrink-0" />
               {remainingListings.remaining === -1 ? (
-                <span>باقتك: <strong>{remainingListings.planName}</strong> — إعلانات غير محدودة</span>
+                <span>{copy.unlimitedPlan(remainingListings.planName)}</span>
               ) : remainingListings.remaining <= 0 ? (
-                <span>وصلت للحد الأقصى ({remainingListings.max} إعلان) في الباقة {remainingListings.planName}. <button type="button" onClick={() => { onClose(); navigate("/pricing"); }} className="underline text-primary font-medium">ترقية الباقة</button></span>
+                <span>{copy.planLimit(remainingListings.max, remainingListings.planName)} <button type="button" onClick={() => { onClose(); navigate("/pricing"); }} className="underline text-primary font-medium">{copy.upgradePlan}</button></span>
               ) : (
-                <span>باقتك: <strong>{remainingListings.planName}</strong> — متبقي <strong>{remainingListings.remaining}</strong> من {remainingListings.max} إعلان</span>
+                <span>{copy.planRemaining(remainingListings.planName, remainingListings.remaining, remainingListings.max)}</span>
               )}
             </AlertDescription>
           </Alert>
@@ -757,7 +767,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="price">
-                {t.listingForm.price.split("(")[0]}({priceCurrency === "usd" ? "$" : countryInfo.currencySymbol}) *
+                 {t.listingForm.price.split("(")[0]}({priceCurrency === "usd" ? "$" : localizedCurrencySymbol(countryInfo.currencySymbol, countryInfo.currencyCode, language)}) *
               </Label>
               <div className="flex gap-2">
                 <Input
@@ -782,7 +792,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                     }`}
                     aria-pressed={priceCurrency === "local"}
                   >
-                    {countryInfo.currencySymbol}
+                     {localizedCurrencySymbol(countryInfo.currencySymbol, countryInfo.currencyCode, language)}
                   </button>
                   <button
                     type="button"
@@ -820,7 +830,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 <SelectContent>
                   {categories.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
+                       {localizeCategory(cat.value, t)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -846,14 +856,14 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
           {/* Country selector */}
           <div className="space-y-2">
-            <Label>الدولة *</Label>
+            <Label>{copy.country} *</Label>
             <Select value={selectedCountry} onValueChange={handleCountryChange}>
               <SelectTrigger>
-                <SelectValue placeholder="اختر الدولة" />
+                <SelectValue placeholder={copy.selectCountry} />
               </SelectTrigger>
               <SelectContent>
                 {countries.map((c) => (
-                  <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                  <SelectItem key={c.code} value={c.name}>{localizeCountry(c.code, c.name, language)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -904,7 +914,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                 >
                   <Command>
                     <CommandInput
-                      placeholder={`ابحث أو اكتب اسم المدينة في ${selectedCountry}...`}
+                      placeholder={copy.citySearch(localizeCountry(countryInfo.code, selectedCountry, language))}
                       className="h-9"
                       value={cityQuery}
                       onValueChange={setCityQuery}
@@ -914,7 +924,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                         {cityQuery.trim() ? (
                           <button
                             type="button"
-                            className="w-full text-right px-2 py-1.5 text-sm hover:bg-accent rounded-md flex items-center gap-2"
+                            className="w-full text-start px-2 py-1.5 text-sm hover:bg-accent rounded-md flex items-center gap-2"
                             onClick={() => {
                               handleCityChange(cityQuery.trim());
                               setCityPopoverOpen(false);
@@ -922,10 +932,10 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                             }}
                           >
                             <Check className="h-4 w-4 text-primary" />
-                            استخدام: "{cityQuery.trim()}"
+                            {copy.useValue(cityQuery.trim())}
                           </button>
                         ) : (
-                          <span className="text-muted-foreground text-sm">ابدأ بالكتابة...</span>
+                          <span className="text-muted-foreground text-sm">{copy.startTyping}</span>
                         )}
                       </CommandEmpty>
                       <CommandGroup>
@@ -945,7 +955,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                                 formData.city === city ? "opacity-100" : "opacity-0"
                               )}
                             />
-                            {city}
+                            {localizeCity(city, countryInfo.code, language)}
                           </CommandItem>
                         ))}
                         {cityQuery.trim() &&
@@ -963,7 +973,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                             >
                               <Check className="ml-2 h-4 w-4 text-primary" />
                               <span className="text-primary">
-                                استخدام: "{cityQuery.trim()}"
+                                {copy.useValue(cityQuery.trim())}
                               </span>
                             </CommandItem>
                           )}
@@ -988,7 +998,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   <SelectContent>
                     {availableAreas.map((area) => (
                       <SelectItem key={area} value={area}>
-                        {area}
+                        {localizeCity(area, countryInfo.code, language)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1009,7 +1019,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                         onFocus={() => setAreaSuggestionsOpen(true)}
                         placeholder={
                           formData.city
-                            ? "اكتب اسم المنطقة (اختياري)"
+                            ? copy.areaPlaceholder
                             : t.listingForm.selectCityFirst
                         }
                         disabled={!formData.city}
@@ -1028,7 +1038,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   >
                     <Command shouldFilter={false}>
                       <CommandList>
-                        <CommandGroup heading={`اقتراحات في ${formData.city}`}>
+                        <CommandGroup heading={copy.suggestionsIn(localizeCity(formData.city, countryInfo.code, language))}>
                           {filteredAreaSuggestions.map((s) => (
                             <CommandItem
                               key={s.name}
@@ -1060,11 +1070,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
             onApplyAddress={(addr) => {
               const { city, area } = resolveCityArea(addr, countryCities, true);
               if (!city) {
-                toast.error("لم نتمكن من تحديد المدينة من العنوان المقترح");
+                toast.error(copy.addressCityError);
                 return;
               }
               setFormData((p) => ({ ...p, city, area: area || "" }));
-              toast.success(`تم تعبئة المدينة: ${city}${area ? ` — ${area}` : ""}`);
+              toast.success(copy.cityFilled(city, area));
             }}
           />
 
@@ -1088,29 +1098,29 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           {/* Category-specific metadata fields */}
           {currentMetadataFields.length > 0 && (
             <div className="space-y-3 p-4 rounded-xl border border-border bg-muted/30">
-              <Label className="text-sm font-semibold">تفاصيل الإعلان (إجبارية) <span className="text-destructive">*</span></Label>
+              <Label className="text-sm font-semibold">{copy.requiredDetails} <span className="text-destructive">*</span></Label>
               <div className="grid grid-cols-2 gap-3">
                 {currentMetadataFields.map((field) => (
                   <div key={field.key} className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">{field.label} <span className="text-destructive">*</span></Label>
+                    <Label className="text-xs text-muted-foreground">{localizeFieldLabel(field.key, field.label, language)} <span className="text-destructive">*</span></Label>
                     {field.type === "select" && field.options ? (
                       <Select
                         value={metadata[field.key] || ""}
                         onValueChange={(value) => setMetadata(prev => ({ ...prev, [field.key]: value }))}
                       >
                         <SelectTrigger className="h-9">
-                          <SelectValue placeholder={`اختر ${field.label}`} />
+                          <SelectValue placeholder={copy.choose(localizeFieldLabel(field.key, field.label, language))} />
                         </SelectTrigger>
                         <SelectContent>
                           {(getFieldOptions(field, formData.category, metadata) || []).map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            <SelectItem key={opt} value={opt}>{localizeOption(opt, language)}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     ) : (
                       <Input
                         className="h-9"
-                        placeholder={field.label}
+                        placeholder={localizeFieldLabel(field.key, field.label, language)}
                         value={metadata[field.key] || ""}
                         onChange={(e) => setMetadata(prev => ({ ...prev, [field.key]: e.target.value }))}
                       />
@@ -1125,16 +1135,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           <Alert className="border-amber-500/30 bg-amber-500/5">
             <Star className="h-4 w-4 text-amber-500" />
             <AlertDescription className="space-y-1">
-              <p className="font-medium text-foreground">ترقية الإعلان ⭐</p>
+               <p className="font-medium text-foreground">{copy.promotionTitle} ⭐</p>
               <p className="text-sm text-muted-foreground">
-                هل تريد تمييز إعلانك وإظهاره في المقدمة؟{" "}
+                 {copy.promotionDesc}{" "}
                 <a 
                   href="https://wa.me/905350348850?text=%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%AA%D8%B1%D9%82%D9%8A%D8%A9%20%D8%A5%D8%B9%D9%84%D8%A7%D9%86%D9%8A" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="text-primary font-semibold underline"
                 >
-                  تواصل معنا عبر واتساب
+                   {copy.contactWhatsapp}
                 </a>
               </p>
             </AlertDescription>
@@ -1143,7 +1153,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               {t.listingForm.images}
-              <span className="text-xs text-muted-foreground">(صور وفيديو)</span>
+              <span className="text-xs text-muted-foreground">({copy.mediaKinds})</span>
             </Label>
             <div className="border-2 border-dashed border-border rounded-lg p-4">
               <input
@@ -1177,10 +1187,10 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                     ? t.listingForm.uploading 
                     : moderatingImages 
                       ? t.listingForm.moderating
-                      : "اختر صور/فيديو أو التقط صورة"}
+                      : copy.chooseMedia}
                 </span>
                 <span className="text-xs text-muted-foreground mt-1">
-                  {images.length}/{maxImages} صور • حجم الفيديو: 50 ميجابايت كحد أقصى
+                  {copy.mediaCount(images.length, maxImages)}
                 </span>
                 <div className="flex gap-2 mt-3 w-full">
                   <label
@@ -1188,21 +1198,21 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                     className="flex-1 inline-flex items-center justify-center gap-2 cursor-pointer rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent"
                   >
                     <Upload className="h-4 w-4" />
-                    من المعرض
+                    {copy.gallery}
                   </label>
                   <label
                     htmlFor="camera-capture"
                     className="flex-1 inline-flex items-center justify-center gap-2 cursor-pointer rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90"
                   >
                     <Camera className="h-4 w-4" />
-                    الكاميرا
+                    {copy.camera}
                   </label>
                 </div>
 
                 {/* Camera Preview */}
                 {cameraPreviewUrl && (
                   <div className="w-full mt-4 rounded-lg border border-primary/30 bg-muted/30 p-3">
-                    <p className="text-sm font-medium mb-2 text-center">معاينة الصورة الملتقطة</p>
+                    <p className="text-sm font-medium mb-2 text-center">{copy.cameraPreview}</p>
                     <img
                       src={cameraPreviewUrl}
                       alt="Camera preview"
@@ -1216,7 +1226,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                         className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                       >
                         <Check className="h-4 w-4" />
-                        تأكيد ورفع
+                        {copy.confirmUpload}
                       </button>
                       <button
                         type="button"
@@ -1225,7 +1235,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                         className="flex-1 inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent disabled:opacity-50"
                       >
                         <X className="h-4 w-4" />
-                        إلغاء
+                        {copy.cancel}
                       </button>
                     </div>
                   </div>
