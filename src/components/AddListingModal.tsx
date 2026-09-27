@@ -601,7 +601,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         autoIsFeatured = true;
       }
 
-      const { error } = await supabase.from("listings").insert({
+      const { data: savedListing, error } = await supabase.from("listings").insert({
         user_id: user.id,
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -619,15 +619,17 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         currency: priceCurrency === "usd" ? "USD" : countryInfo.currencyCode,
         latitude: formData.latitude,
         longitude: formData.longitude,
-      } as any);
+      } as any).select("id").single();
 
       if (error) {
         toast.error(t.listingForm.addError + ": " + error.message);
-      } else {
+      } else if (savedListing?.id) {
         toast.success(t.listingForm.addSuccess);
         resetForm();
         onSuccess();
         onClose();
+      } else {
+        toast.error(t.listingForm.addError);
       }
     } finally {
       setLoading(false);
