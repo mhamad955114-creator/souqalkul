@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { MapPin, Crosshair, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatCoordinate } from "@/lib/utils";
+import type { Language } from "@/lib/translations";
 
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -26,7 +27,7 @@ interface Props {
   onChange: (lat: number | null, lng: number | null) => void;
   /** Free-text query used to auto-center the map when no coords are set */
   hint?: string;
-  language?: string;
+  language?: Language;
   /** Called when reverse geocoding resolves the address for the picked point */
   onAddressResolved?: (address: ResolvedAddress) => void;
   /** Called when the user taps the suggested address to auto-fill city/area */
@@ -35,6 +36,30 @@ interface Props {
 }
 
 const DEFAULT_CENTER: [number, number] = [33.5138, 36.2765]; // Damascus fallback
+
+const COPY = {
+  ar: {
+    unsupported: "المتصفح لا يدعم تحديد الموقع", found: "تم تحديد موقعك الحالي", failed: "تعذّر الوصول إلى موقعك",
+    title: "الموقع الدقيق على الخريطة", mine: "موقعي", clear: "مسح",
+    help: "اضغط على الخريطة أو اسحب الدبوس لتحديد الموقع بدقة. اختياري — إن لم تحدد سنستخدم موقع المدينة تقريبياً.",
+    applyTitle: "اضغط لتعبئة المدينة والمنطقة تلقائياً", locating: "جارِ تحديد العنوان...",
+    suggested: "العنوان المقترح:", apply: "اضغط لتعبئة المدينة والمنطقة تلقائياً", notFound: "لم يتم العثور على عنوان",
+  },
+  en: {
+    unsupported: "Your browser does not support location services", found: "Your current location was found", failed: "Your location could not be accessed",
+    title: "Exact location on the map", mine: "My location", clear: "Clear",
+    help: "Tap the map or drag the pin to set the exact location. Optional — otherwise, the approximate city location is used.",
+    applyTitle: "Tap to fill the city and area automatically", locating: "Finding the address...",
+    suggested: "Suggested address:", apply: "Tap to fill the city and area automatically", notFound: "No address found",
+  },
+  tr: {
+    unsupported: "Tarayıcınız konum hizmetlerini desteklemiyor", found: "Mevcut konumunuz belirlendi", failed: "Konumunuza erişilemedi",
+    title: "Haritada kesin konum", mine: "Konumum", clear: "Temizle",
+    help: "Kesin konumu belirlemek için haritaya dokunun veya iğneyi sürükleyin. İsteğe bağlıdır; seçmezseniz yaklaşık şehir konumu kullanılır.",
+    applyTitle: "Şehir ve bölgeyi otomatik doldurmak için dokunun", locating: "Adres belirleniyor...",
+    suggested: "Önerilen adres:", apply: "Şehir ve bölgeyi otomatik doldurmak için dokunun", notFound: "Adres bulunamadı",
+  },
+} as const;
 
 const ClickHandler = ({ onPick }: { onPick: (lat: number, lng: number) => void }) => {
   useMapEvents({
@@ -54,6 +79,7 @@ const Recenter = ({ center, zoom }: { center: [number, number]; zoom?: number })
 };
 
 const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", onAddressResolved, onApplyAddress }: Props) => {
+  const copy = COPY[language];
   const hasCoords = typeof latitude === "number" && typeof longitude === "number";
   const [center, setCenter] = useState<[number, number]>(
     hasCoords ? [latitude!, longitude!] : DEFAULT_CENTER
@@ -146,7 +172,7 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
 
   const useMyLocation = () => {
     if (!("geolocation" in navigator)) {
-      toast.error("المتصفح لا يدعم تحديد الموقع");
+      toast.error(copy.unsupported);
       return;
     }
     setGpsLoading(true);
@@ -155,11 +181,11 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
         pick(pos.coords.latitude, pos.coords.longitude);
         setZoom(16);
         setGpsLoading(false);
-        toast.success("تم تحديد موقعك الحالي");
+        toast.success(copy.found);
       },
       () => {
         setGpsLoading(false);
-        toast.error("تعذّر الوصول إلى موقعك");
+        toast.error(copy.failed);
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -170,11 +196,11 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" dir={language === "ar" ? "rtl" : "ltr"}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm">
           <MapPin className="h-4 w-4 text-primary" />
-          <span className="font-medium">الموقع الدقيق على الخريطة</span>
+          <span className="font-medium">{copy.title}</span>
           {geocoding && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
         </div>
         <div className="flex items-center gap-1">
@@ -189,7 +215,7 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
             ) : (
               <Crosshair className="h-3.5 w-3.5" />
             )}
-            موقعي
+            {copy.mine}
           </button>
           {hasCoords && (
             <button
@@ -198,7 +224,7 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
               className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md border border-input bg-background hover:bg-accent"
             >
               <X className="h-3.5 w-3.5" />
-              مسح
+              {copy.clear}
             </button>
           )}
         </div>
@@ -237,7 +263,7 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
       </div>
 
       <p className="text-xs text-muted-foreground">
-        اضغط على الخريطة أو اسحب الدبوس لتحديد الموقع بدقة. اختياري — إن لم تحدد سنستخدم موقع المدينة تقريبياً.
+        {copy.help}
       </p>
       {hasCoords && (
         <div className="space-y-1">
@@ -253,10 +279,10 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
                   ? {
                       type: "button" as const,
                       onClick: () => onApplyAddress!(resolved!),
-                      title: "اضغط لتعبئة المدينة والمنطقة تلقائياً",
+                       title: copy.applyTitle,
                     }
                   : {})}
-                className={`w-full text-right text-xs text-foreground bg-muted/50 rounded-md px-2 py-1.5 flex items-start gap-1.5 ${
+                className={`w-full text-start text-xs text-foreground bg-muted/50 rounded-md px-2 py-1.5 flex items-start gap-1.5 ${
                   clickable ? "hover:bg-accent transition-colors cursor-pointer" : ""
                 }`}
               >
@@ -265,20 +291,20 @@ const LocationPicker = ({ latitude, longitude, onChange, hint, language = "ar", 
                   {reverseLoading ? (
                     <span className="text-muted-foreground inline-flex items-center gap-1">
                       <Loader2 className="h-3 w-3 animate-spin" />
-                      جارِ تحديد العنوان...
+                       {copy.locating}
                     </span>
                   ) : resolved?.displayName ? (
                     <>
-                      <span className="font-medium">العنوان المقترح:</span>{" "}
+                       <span className="font-medium">{copy.suggested}</span>{" "}
                       <span className="break-words">{resolved.displayName}</span>
                       {clickable && (
                         <span className="block mt-1 text-[11px] text-primary font-medium">
-                          اضغط لتعبئة المدينة والمنطقة تلقائياً
+                           {copy.apply}
                         </span>
                       )}
                     </>
                   ) : (
-                    <span className="text-muted-foreground">لم يتم العثور على عنوان</span>
+                    <span className="text-muted-foreground">{copy.notFound}</span>
                   )}
                 </div>
               </Tag>

@@ -31,6 +31,15 @@ import { useListingSettings } from "@/hooks/useListingSettings";
 import { useNavigate } from "react-router-dom";
 import { getEffectivePlanType } from "@/lib/subscriptions";
 import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
+import {
+  listingUiCopy,
+  localizeCategory,
+  localizeCity,
+  localizeCountry,
+  localizeFieldLabel,
+  localizeOption,
+  localizedCurrencySymbol,
+} from "@/lib/listingLocalization";
 
 const CAMERA_DRAFT_KEY = "add-listing-camera-draft";
 
@@ -43,6 +52,7 @@ interface AddListingModalProps {
 const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) => {
   const { user } = useAuth();
   const { t, dir, language } = useLanguage();
+  const copy = listingUiCopy[language];
   const { settings } = useListingSettings();
   const { currentCountry } = useCountry();
   const navigate = useNavigate();
@@ -92,7 +102,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       const hasContent =
         d.formData &&
         Object.values(d.formData).some((v) => typeof v === "string" && v.trim() !== "");
-      if (hasContent) toast.info("تم استعادة بيانات الإعلان المحفوظة");
+      if (hasContent) toast.info(copy.draftRestored);
     } catch {
       // ignore corrupted draft
     }
@@ -155,7 +165,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       try {
         const userPlan = await getUserPlan();
         setCurrentPlan(userPlan);
-        const planNames: Record<string, string> = { free: "المجانية", featured: "المميزة", professional: "الاحترافية", business: "رجال الأعمال" };
+        const planNames: Record<string, string> = copy.plans;
         let maxActive: number;
         if (userPlan === "business") maxActive = settings.business_listing.max_active_listings;
         else if (userPlan === "professional") maxActive = settings.professional_listing.max_active_listings;
@@ -190,7 +200,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         revokedUrl = url;
         setCameraPreviewFile(draft);
         setCameraPreviewUrl(url);
-        toast.info("تم استعادة الصورة الملتقطة من المسودة");
+        toast.info(copy.cameraDraftRestored);
       }
     })();
     return () => {
@@ -245,13 +255,13 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
-      toast.error("الملف المختار ليس صورة");
+      toast.error(copy.invalidImage);
       return;
     }
 
     const max = getPlanMaxImages(currentPlan);
     if (images.length >= max) {
-      toast.error(`الحد الأقصى للصور هو ${max} للباقة المختارة`);
+      toast.error(copy.imageLimit(max));
       return;
     }
 
@@ -329,11 +339,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     // Enforce max images limit
     const remainingSlots = maxImages - images.length;
     if (remainingSlots <= 0) {
-      toast.error(`الحد الأقصى للصور هو ${maxImages} للباقة المختارة`);
+      toast.error(copy.imageLimit(maxImages));
       return;
     }
     if (e.target.files.length > remainingSlots) {
-      toast.error(`يمكنك رفع ${remainingSlots} صور/فيديو إضافية فقط (الحد الأقصى: ${maxImages})`);
+      toast.error(copy.remainingMedia(remainingSlots, maxImages));
       return;
     }
 
@@ -352,7 +362,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           file = await compressImage(file);
         }
         if (isVideoFile(file) && file.size > 15 * 1024 * 1024) {
-          toast.error("حجم الفيديو يجب أن لا يتجاوز 15 ميجابايت");
+          toast.error(copy.videoTooLarge);
           continue;
         }
         preparedFiles.push(file);
@@ -380,7 +390,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
       // Moderate videos with AI
       if (uploadedVideoUrls.length > 0) {
-        toast.success(`تم رفع ${uploadedVideoUrls.length} فيديو، جاري فحص المحتوى...`);
+        toast.success(copy.videosChecking(uploadedVideoUrls.length));
         setModeratingImages(true);
 
         const videoResults = await Promise.allSettled(
@@ -394,16 +404,16 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           if (r.status === 'fulfilled') {
             if (r.value.result.approved) {
               setImages((prev) => [...prev, r.value.url]);
-              toast.success("تم قبول الفيديو ✅");
+              toast.success(`${copy.videoApproved} ✅`);
             } else {
-              rejected.push({ url: r.value.url, reason: r.value.result.reason || "محتوى الفيديو مخالف" });
+              rejected.push({ url: r.value.url, reason: r.value.result.reason || copy.videoViolation });
             }
           }
         }
 
         if (rejected.length > 0) {
           setRejectedImages(prev => [...prev, ...rejected]);
-          toast.error(`تم رفض ${rejected.length} فيديو لمخالفة المحتوى`);
+          toast.error(copy.videosRejected(rejected.length));
         }
       }
 
@@ -484,12 +494,12 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     }
 
     if (formData.title.trim().length < 3) {
-      toast.error("عنوان الإعلان يجب أن يكون 3 أحرف على الأقل");
+      toast.error(copy.titleTooShort);
       return;
     }
 
     if (formData.title.trim().length > 200) {
-      toast.error("عنوان الإعلان يجب أن يكون أقل من 200 حرف");
+      toast.error(copy.titleTooLong);
       return;
     }
 
@@ -518,8 +528,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           .eq("status", "active");
 
         if ((count ?? 0) >= maxActive) {
-          toast.error(`لقد وصلت للحد الأقصى من الإعلانات النشطة (${maxActive}). قم بترقية باقتك لنشر المزيد.`, {
-            action: { label: "ترقية الباقة", onClick: () => { onClose(); navigate("/pricing"); } },
+          toast.error(copy.activeLimit(maxActive), {
+            action: { label: copy.upgradePlan, onClick: () => { onClose(); navigate("/pricing"); } },
           });
           return;
         }
@@ -542,7 +552,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     // Try with and without leading 0
     const altPhone = normalizedPhone.startsWith("0") ? normalizedPhone.slice(1) : "0" + normalizedPhone;
     if (!countryInfo.phonePattern.test(normalizedPhone) && !countryInfo.phonePattern.test(altPhone)) {
-      toast.error(`رقم الهاتف غير صالح لـ ${selectedCountry}. الصيغة: ${countryInfo.phonePlaceholder}`);
+      toast.error(copy.invalidCountryPhone(localizeCountry(countryInfo.code, selectedCountry, language), countryInfo.phonePlaceholder));
       return;
     }
     const finalPhone = countryInfo.phonePattern.test(normalizedPhone) ? normalizedPhone : altPhone;
@@ -554,7 +564,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
     );
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
     if (missingMetaFields.length > 0) {
-      toast.error(`يرجى ملء جميع تفاصيل الإعلان: ${missingMetaFields.map(f => f.label).join('، ')}`);
+      toast.error(copy.missingDetails(missingMetaFields.map(f => localizeFieldLabel(f.key, f.label, language)).join(", ")));
       return;
     }
 
@@ -566,7 +576,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       _lat < -90 || _lat > 90 || _lng < -180 || _lng > 180 ||
       (_lat === 0 && _lng === 0)
     ) {
-      toast.error("يرجى تحديد موقع الإعلان على الخريطة قبل الحفظ");
+      toast.error(copy.mapRequired);
       return;
     }
 
