@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { Check, Crown, Star, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +33,7 @@ const Pricing = () => {
     {
       key: "featured",
       name: t.pricing.featuredName,
-      icon: Crown,
+      icon: Star,
       iconColor: "gold-crown",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-300",
@@ -46,8 +46,8 @@ const Pricing = () => {
     {
       key: "professional",
       name: t.pricing.professionalName,
-      icon: Crown,
-      iconColor: "gold-crown",
+      icon: Star,
+      iconColor: "purple-star",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-300",
       features: [t.pricing.proF1, t.pricing.proF2, t.pricing.proF3, t.pricing.proF4],
