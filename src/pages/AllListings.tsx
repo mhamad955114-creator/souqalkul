@@ -58,6 +58,7 @@ interface Listing {
   _avgRating?: number;
   country?: string;
   currency?: string;
+  custom_plan_key?: string | null;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -702,6 +703,7 @@ const AllListings = () => {
                     description={listing.description}
                     averageRating={listing._avgRating}
                     images={listing.images}
+                    customPlanKey={listing.custom_plan_key}
                   />
                 </div>
               ))}

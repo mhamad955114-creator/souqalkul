@@ -19,6 +19,7 @@ export interface CustomPlan {
   max_images: number;
   reward_cost: number;
   color: string;
+  glow_color2: string;
   display_order: number;
   is_active: boolean;
 }

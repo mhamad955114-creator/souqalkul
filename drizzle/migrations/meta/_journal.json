@@ -78,6 +78,20 @@
       "when": 1790613074505,
       "tag": "0010_notify_admins_new_plan_request",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790627963762,
+      "tag": "0011_add_custom_plan_glow_to_listings",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790627977153,
+      "tag": "0012_add_secondary_custom_plan_glow_color",
+      "breakpoints": true
     }
   ]
 }

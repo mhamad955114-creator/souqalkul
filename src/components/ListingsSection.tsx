@@ -23,6 +23,7 @@ interface Listing {
   category: string;
   user_id: string;
   badge_type?: string | null;
+  custom_plan_key?: string | null;
   _avgRating?: number;
 }
 
@@ -235,6 +236,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       description={listing.description}
                       averageRating={listing._avgRating}
                       images={listing.images}
+                      customPlanKey={listing.custom_plan_key}
                     />
                   </div>
                 ))

@@ -25,6 +25,8 @@ interface Listing {
   category: string;
   country?: string | null;
   currency?: string | null;
+  badge_type?: string | null;
+  custom_plan_key?: string | null;
 }
 
 const Favorites = () => {
@@ -45,7 +47,7 @@ const Favorites = () => {
       try {
         const { data, error } = await supabase
           .from("listings")
-          .select("id, title, description, price, city, images, created_at, is_featured, status, category, country, currency")
+          .select("id, title, description, price, city, images, created_at, is_featured, status, category, country, currency, badge_type, custom_plan_key")
           .in("id", favorites);
 
         if (error) throw error;
@@ -130,7 +132,10 @@ const Favorites = () => {
                   location={listing.city}
                   country={listing.country || undefined}
                   time={formatTimeAgo(listing.created_at)}
-                  featured={listing.is_featured || false}
+                  featured={listing.badge_type === "featured" || listing.is_featured || false}
+                  professional={listing.badge_type === "professional"}
+                  business={listing.badge_type === "business"}
+                  customPlanKey={listing.custom_plan_key}
                   status={listing.status}
                   category={listing.category}
                   description={listing.description}
