@@ -1,3 +1,4 @@
+import { customPlanName } from "@/lib/customPlans";
 import { attachPhones } from "@/lib/profilePhones";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,7 +92,7 @@ const AdminSubscriptionsTab = () => {
       (r) =>
         (r.full_name || "").toLowerCase().includes(q) ||
         (r.phone || "").includes(q) ||
-        (planLabels[r.plan_type] || r.plan_type).includes(q),
+        (planLabels[r.plan_type] || customPlanName(r.plan_type)).includes(q),
     );
   }, [rows, search]);
 
@@ -107,8 +108,8 @@ const AdminSubscriptionsTab = () => {
         title: left > 0 ? "باقتك على وشك الانتهاء" : "انتهت باقتك",
         message:
           left > 0
-            ? `باقة ${planLabels[row.plan_type] || row.plan_type} تنتهي بتاريخ ${formatDay(row.expires_at)} (بعد ${left} يوم). جدّدها للحفاظ على المزايا.`
-            : `باقة ${planLabels[row.plan_type] || row.plan_type} انتهت بتاريخ ${formatDay(row.expires_at)}. يمكنك تجديدها الآن.`,
+            ? `باقة ${planLabels[row.plan_type] || customPlanName(row.plan_type)} تنتهي بتاريخ ${formatDay(row.expires_at)} (بعد ${left} يوم). جدّدها للحفاظ على المزايا.`
+            : `باقة ${planLabels[row.plan_type] || customPlanName(row.plan_type)} انتهت بتاريخ ${formatDay(row.expires_at)}. يمكنك تجديدها الآن.`,
         type: "subscription_expiry_reminder",
         relatedId: row.id,
       });
@@ -146,7 +147,7 @@ const AdminSubscriptionsTab = () => {
                     </span>
                   ) : null}
                 </TableCell>
-                <TableCell>{planLabels[row.plan_type] || row.plan_type}</TableCell>
+                <TableCell>{planLabels[row.plan_type] || customPlanName(row.plan_type)}</TableCell>
                 <TableCell dir="ltr">{formatDay(row.starts_at)}</TableCell>
                 <TableCell dir="ltr">{formatDay(row.expires_at)}</TableCell>
                 <TableCell>
@@ -178,7 +179,7 @@ const AdminSubscriptionsTab = () => {
                         <a
                           href={buildWhatsAppUrl(
                             row.phone,
-                            `تنبيه: باقة ${planLabels[row.plan_type] || row.plan_type} تنتهي بتاريخ ${formatDay(row.expires_at)}`,
+                            `تنبيه: باقة ${planLabels[row.plan_type] || customPlanName(row.plan_type)} تنتهي بتاريخ ${formatDay(row.expires_at)}`,
                           )}
                           target="_blank"
                           rel="noopener noreferrer"

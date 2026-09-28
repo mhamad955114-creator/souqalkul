@@ -1,3 +1,4 @@
+import { resolveBaseTier } from "@/lib/customPlans";
 export type SubscriptionPlan = "free" | "featured" | "professional" | "business";
 
 type SubscriptionLike = {
@@ -22,7 +23,7 @@ const subscriptionPriority: Record<SubscriptionPlan, number> = {
 
 export const getSubscriptionPriority = (planType?: string | null) => {
   if (!planType) return subscriptionPriority.free;
-  return subscriptionPriority[planType as SubscriptionPlan] ?? subscriptionPriority.free;
+  return subscriptionPriority[resolveBaseTier(planType) as SubscriptionPlan] ?? subscriptionPriority.free;
 };
 
 export const isSubscriptionActive = (subscription: SubscriptionLike) => {

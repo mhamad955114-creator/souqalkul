@@ -1,3 +1,4 @@
+import { customPlanName } from "@/lib/customPlans";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -306,7 +307,7 @@ const AdminWalletTab = () => {
                 return (
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.user_email}</TableCell>
-                    <TableCell>{req.plan_type ? planNames[req.plan_type] || req.plan_type : "شحن"}</TableCell>
+                    <TableCell>{req.plan_type ? planNames[req.plan_type] || customPlanName(req.plan_type) : "شحن"}</TableCell>
                     <TableCell>{formatPrice(req.amount)}</TableCell>
                     <TableCell className="font-mono text-sm">{req.transaction_number}</TableCell>
                     <TableCell className="text-sm">{formatDate(req.created_at)}</TableCell>

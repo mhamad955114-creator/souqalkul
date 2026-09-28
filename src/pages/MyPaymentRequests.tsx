@@ -1,3 +1,4 @@
+import { customPlanName } from "@/lib/customPlans";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -140,7 +141,7 @@ const MyPaymentRequests = () => {
             {requests.map((req) => {
               const config = statusConfig[req.status] || statusConfig.pending;
               const planLabel = req.plan_type
-                ? planLabels[req.plan_type]?.[isRTL ? "ar" : "en"] || req.plan_type
+                ? planLabels[req.plan_type]?.[isRTL ? "ar" : "en"] || customPlanName(req.plan_type, isRTL ? "ar" : "en")
                 : isRTL ? "شحن رصيد" : "Top-up";
 
               return (
