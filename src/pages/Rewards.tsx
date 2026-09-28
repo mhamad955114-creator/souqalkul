@@ -19,7 +19,7 @@ const copy = {
     invite: "ادعُ أصدقاءك", inviteDesc: "تحصل على 20 نقطة وصديقك 10 نقاط عند تسجيله برابطك",
     yourCode: "رمزك", copyLink: "نسخ رابط الدعوة", copied: "تم نسخ الرابط",
     haveCode: "لديك رمز دعوة؟", apply: "تطبيق", earn: "طرق كسب النقاط",
-    ways: ["نشر إعلان: +5 (حتى 5 يوميًا)", "بيع إعلان: +10", "تقييم بائع: +2", "تقييم 4 نجوم فأكثر لك: +5", "دخول يومي: +2", "دعوة صديق: +20"],
+    ways: ["نشر إعلان","بيع إعلان","تقييم بائع","تقييم 4 نجوم فأكثر لك","دخول يومي","دعوة صديق"],
     redeem: "استبدل نقاطك", days: "7 أيام", redeemBtn: "استبدال", history: "سجل النقاط", empty: "لا توجد حركات بعد",
     plans: { featured: "مميز", professional: "احترافي", business: "أعمال" },
     msgs: { ok: "تم بنجاح", insufficient: "نقاطك غير كافية", invalid: "رمز غير صالح", already: "استخدمت رمز دعوة من قبل", too_late: "رمز الدعوة متاح فقط للحسابات الجديدة", self: "لا يمكنك استخدام رمزك" },
@@ -32,7 +32,7 @@ const copy = {
     invite: "Invite friends", inviteDesc: "You get 20 points and your friend gets 10 when they sign up with your link",
     yourCode: "Your code", copyLink: "Copy invite link", copied: "Link copied",
     haveCode: "Have an invite code?", apply: "Apply", earn: "Ways to earn",
-    ways: ["Post a listing: +5 (up to 5/day)", "Sell a listing: +10", "Rate a seller: +2", "Receive 4+ stars: +5", "Daily login: +2", "Invite a friend: +20"],
+    ways: ["Post a listing","Sell a listing","Rate a seller","Receive 4+ stars","Daily login","Invite a friend"],
     redeem: "Redeem points", days: "7 days", redeemBtn: "Redeem", history: "Points history", empty: "No activity yet",
     plans: { featured: "Featured", professional: "Professional", business: "Business" },
     msgs: { ok: "Done", insufficient: "Not enough points", invalid: "Invalid code", already: "You already used an invite code", too_late: "Invite codes are for new accounts only", self: "You can't use your own code" },
@@ -45,7 +45,7 @@ const copy = {
     invite: "Arkadaşlarını davet et", inviteDesc: "Arkadaşın bağlantınla kaydolduğunda sen 20, o 10 puan kazanır",
     yourCode: "Kodun", copyLink: "Davet bağlantısını kopyala", copied: "Bağlantı kopyalandı",
     haveCode: "Davet kodun var mı?", apply: "Uygula", earn: "Puan kazanma yolları",
-    ways: ["İlan yayınla: +5 (günde 5'e kadar)", "İlan sat: +10", "Satıcı değerlendir: +2", "4+ yıldız al: +5", "Günlük giriş: +2", "Arkadaş davet et: +20"],
+    ways: ["İlan yayınla","İlan sat","Satıcı değerlendir","4+ yıldız al","Günlük giriş","Arkadaş davet et"],
     redeem: "Puanlarını kullan", days: "7 gün", redeemBtn: "Kullan", history: "Puan geçmişi", empty: "Henüz hareket yok",
     plans: { featured: "Öne Çıkan", professional: "Profesyonel", business: "İşletme" },
     msgs: { ok: "Tamamlandı", insufficient: "Yetersiz puan", invalid: "Geçersiz kod", already: "Zaten bir davet kodu kullandın", too_late: "Davet kodları yalnızca yeni hesaplar içindir", self: "Kendi kodunu kullanamazsın" },
@@ -72,6 +72,10 @@ const Rewards = () => {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [code, setCode] = useState("");
+  const [cfg, setCfg] = useState<Record<string, number | boolean>>({});
+  useEffect(() => { supabase.rpc("get_rewards_config").then(({ data }) => setCfg((data as Record<string, number | boolean>) ?? {})); }, []);
+  const n = (k: string, d: number) => Number(cfg[k] ?? d);
+  const wayVals = [n("listing",5), n("sold",10), n("rating_given",2), n("rating_received",5), n("daily",2), n("referral",20)];
 
   const today = new Date().toISOString().slice(0, 10);
   const claimedToday = txs.some((t) => t.reason === "daily" && t.created_at.slice(0, 10) === today);
@@ -185,9 +189,9 @@ const Rewards = () => {
                 {PLANS.map((p) => (
                   <div key={p.key} className="rounded-xl border border-border p-4 text-center space-y-2">
                     <p className="font-bold">{c.plans[p.key]}</p>
-                    <p className="text-sm text-muted-foreground">{c.days}</p>
-                    <p className="text-primary font-bold">{nf.format(p.cost)} {c.pts}</p>
-                    <Button size="sm" className="w-full" disabled={balance < p.cost || busy === p.key} onClick={() => redeem(p.key)}>
+                    <p className="text-sm text-muted-foreground" dir="ltr">{n("redeem_days", 7)} {c.days.split(" ")[1]}</p>
+                    <p className="text-primary font-bold">{nf.format(n("cost_" + p.key, p.cost))} {c.pts}</p>
+                    <Button size="sm" className="w-full" disabled={cfg.enabled === false || balance < n("cost_" + p.key, p.cost) || busy === p.key} onClick={() => redeem(p.key)}>
                       {busy === p.key ? <Loader2 className="h-4 w-4 animate-spin" /> : c.redeemBtn}
                     </Button>
                   </div>
@@ -198,7 +202,7 @@ const Rewards = () => {
             <Card><CardContent className="p-5 space-y-2">
               <div className="flex items-center gap-3"><Star className="h-6 w-6 text-primary" /><span className="font-bold">{c.earn}</span></div>
               <ul className="space-y-1 text-sm">
-                {c.ways.map((w) => <li key={w} className="flex items-center gap-2"><Megaphone className="h-4 w-4 text-muted-foreground" />{w}</li>)}
+                {c.ways.map((w, i) => wayVals[i] > 0 && <li key={w} className="flex items-center gap-2"><Megaphone className="h-4 w-4 text-muted-foreground" />{w}: <span dir="ltr">+{wayVals[i]}</span></li>)}
               </ul>
             </CardContent></Card>
 
