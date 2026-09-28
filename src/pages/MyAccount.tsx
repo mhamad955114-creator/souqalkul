@@ -559,6 +559,9 @@ const MyAccount = () => {
             </p>
           </div>
           <div className="flex gap-2 flex-shrink-0">
+            <Button onClick={() => navigate("/rewards")} variant="default" size="sm">
+              🎁 {language === "en" ? "Rewards" : language === "tr" ? "Ödüller" : "المكافآت"}
+            </Button>
             <Button onClick={() => navigate("/settings")} variant="outline" size="sm">
               <Settings className="h-4 w-4" />
               {t.myAccount.settingsBtn}
