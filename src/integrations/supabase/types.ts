@@ -585,6 +585,7 @@ export type Database = {
           country: string
           created_at: string
           currency: string
+          custom_plan_key: string | null
           description: string | null
           id: string
           images: string[] | null
@@ -609,6 +610,7 @@ export type Database = {
           country?: string
           created_at?: string
           currency?: string
+          custom_plan_key?: string | null
           description?: string | null
           id?: string
           images?: string[] | null
@@ -633,6 +635,7 @@ export type Database = {
           country?: string
           created_at?: string
           currency?: string
+          custom_plan_key?: string | null
           description?: string | null
           id?: string
           images?: string[] | null
@@ -649,7 +652,15 @@ export type Database = {
           user_id?: string
           views_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "listings_custom_plan_key_fkey"
+            columns: ["custom_plan_key"]
+            isOneToOne: false
+            referencedRelation: "custom_plans"
+            referencedColumns: ["plan_key"]
+          },
+        ]
       }
       messages: {
         Row: {
