@@ -64,6 +64,13 @@
       "when": 1790611608977,
       "tag": "0008_badge_glow_config",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790611885950,
+      "tag": "0009_custom_plans",
+      "breakpoints": true
     }
   ]
 }
