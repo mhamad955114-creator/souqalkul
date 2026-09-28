@@ -76,10 +76,14 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
 
   return (
     <div 
-      className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1"
+      className="group relative bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1"
       onClick={handleClick}
+      style={imageGlowStyle}
     >
-      <div className="relative aspect-[4/6] overflow-hidden rounded-t-2xl transition-all duration-300" style={imageGlowStyle}>
+      {innerGlowStyle && (
+        <div className={`pointer-events-none absolute inset-0 z-[2] rounded-2xl ${planGlow.animate ? "animate-pulse" : ""}`} style={innerGlowStyle} />
+      )}
+      <div className="relative aspect-[4/6] overflow-hidden rounded-t-2xl transition-all duration-300">
         {!hasRealImage ? (
           <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-2">
             <img src={appLogo} alt="سوق الكل" className="w-20 h-20 object-contain opacity-60" />
@@ -101,9 +105,6 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
               } ${status === "sold" || status === "expired" ? "opacity-60" : ""}`}
             />
           </>
-        )}
-        {innerGlowStyle && (
-          <div className={`pointer-events-none absolute inset-0 z-[1] rounded-t-2xl ${planGlow.animate ? "animate-pulse" : ""}`} style={innerGlowStyle} />
         )}
         {status === "sold" && (
           <div className="absolute inset-0 flex items-center justify-center">
