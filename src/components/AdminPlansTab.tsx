@@ -24,7 +24,7 @@ const empty: Draft = {
   base_tier: "featured", name_ar: "", name_en: "", name_tr: "",
   features_ar: "", features_en: "", features_tr: "",
   price: 0, duration_days: 30, max_active_listings: 10, max_images: 10,
-  reward_cost: 0, color: "#f97316", display_order: 0, is_active: true,
+  reward_cost: 0, color: "#f97316", glow_color2: "#fb923c", display_order: 0, is_active: true,
 };
 
 const AdminPlansTab = () => {
@@ -129,7 +129,8 @@ const AdminPlansTab = () => {
                     <SelectContent>{TIERS.map((t) => <SelectItem key={t.key} value={t.key}>{t.label}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div><Label>لون الباقة</Label><Input type="color" value={draft.color} onChange={(e) => set("color", e.target.value)} className="h-10 p-1" /></div>
+                <div><Label>لون التوهج الأول</Label><Input type="color" value={draft.color} onChange={(e) => set("color", e.target.value)} className="h-10 p-1" /></div>
+                <div><Label>لون التوهج الثاني</Label><Input type="color" value={draft.glow_color2} onChange={(e) => set("glow_color2", e.target.value)} className="h-10 p-1" /></div>
               </div>
               <div className="grid gap-2">
                 <Label>المزايا بالعربية (سطر لكل ميزة)</Label><Textarea rows={3} value={draft.features_ar} onChange={(e) => set("features_ar", e.target.value)} />

@@ -10,7 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFormatPrice } from "@/hooks/useFormatPrice";
 import { getCountryByName, getCurrencySymbolFromCode } from "@/lib/constants";
 import type { CSSProperties } from "react";
-import { useBadgeGlow, glowOuterStyle, glowInnerStyle } from "@/hooks/useBadgeGlow";
+import { useBadgeGlow, glowOuterStyle, glowInnerStyle, type PlanGlow } from "@/hooks/useBadgeGlow";
+import { getCustomPlanSync, useCustomPlans } from "@/lib/customPlans";
 interface ListingCardProps {
   id?: string;
   image: string;
@@ -33,9 +34,10 @@ interface ListingCardProps {
   description?: string | null;
   averageRating?: number;
   images?: string[];
+  customPlanKey?: string | null;
 }
 
-const ListingCard = ({ id, image, title, price, priceValue, currency, location, country, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images }: ListingCardProps) => {
+const ListingCard = ({ id, image, title, price, priceValue, currency, location, country, time, featured, professional, business, status, category, userId, isOwnerOnline, description, averageRating, images, customPlanKey }: ListingCardProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavoritesContext();
   const { t } = useLanguage();
@@ -46,6 +48,7 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
   const { formatDisplayPrice } = useFormatPrice();
   const isListingFavorite = id ? isFavorite(id) : false;
   const [imageLoaded, setImageLoaded] = useState(false);
+  useCustomPlans();
 
   // Resolve display price: prefer the listing's stored currency, fall back to country, then user pref.
   const displayPrice = (() => {
@@ -69,7 +72,9 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
   const videoCount = images?.filter(url => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url)).length || 0;
   const shouldGlowImage = (business || professional || featured) && status !== "sold" && status !== "expired";
   const glowCfg = useBadgeGlow();
-  const planGlow = business ? glowCfg.business : professional ? glowCfg.professional : glowCfg.featured;
+  const baseGlow = business ? glowCfg.business : professional ? glowCfg.professional : glowCfg.featured;
+  const customPlan = getCustomPlanSync(customPlanKey);
+  const planGlow: PlanGlow = customPlan ? { ...baseGlow, color: customPlan.color, color2: customPlan.glow_color2 || customPlan.color } : baseGlow;
   const glowOn = shouldGlowImage && planGlow.enabled;
   const imageGlowStyle: CSSProperties | undefined = glowOn ? glowOuterStyle(planGlow) : undefined;
   const innerGlowStyle = glowOn ? glowInnerStyle(planGlow) : undefined;

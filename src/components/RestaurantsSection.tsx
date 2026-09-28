@@ -21,6 +21,7 @@ interface Listing {
   category: string;
   user_id: string;
   badge_type?: string | null;
+  custom_plan_key?: string | null;
   _avgRating?: number;
   metadata?: Record<string, string> | null;
 }
@@ -143,6 +144,7 @@ const RestaurantsSection = () => {
                 business={listing.badge_type === "business"}
                 professional={listing.badge_type === "professional"}
                 averageRating={listing._avgRating}
+                customPlanKey={listing.custom_plan_key}
               />
             ))}
           </div>
