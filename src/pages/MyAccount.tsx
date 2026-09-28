@@ -1,3 +1,4 @@
+import { customPlanName } from "@/lib/customPlans";
 import { attachPhones } from "@/lib/profilePhones";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -911,7 +912,7 @@ const MyAccount = () => {
                 <div className="space-y-3 mb-4">
                   <h3 className="text-sm font-semibold text-muted-foreground">الاشتراكات النشطة</h3>
                   {activeSubscriptions.map((sub) => {
-                    const plan = planLabels[sub.plan_type] || { label: sub.plan_type, icon: <Star className="h-5 w-5" />, color: "from-muted to-muted" };
+                    const plan = planLabels[sub.plan_type] || { label: customPlanName(sub.plan_type, language), icon: <Star className="h-5 w-5" />, color: "from-muted to-muted" };
                     const daysLeft = getDaysRemaining(sub.expires_at);
                     return (
                       <div key={sub.id} className="border border-border rounded-xl p-4 bg-card">
@@ -955,7 +956,7 @@ const MyAccount = () => {
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-muted-foreground">الاشتراكات المنتهية</h3>
                   {expiredSubscriptions.map((sub) => {
-                    const plan = planLabels[sub.plan_type] || { label: sub.plan_type, icon: <Star className="h-5 w-5" />, color: "from-muted to-muted" };
+                    const plan = planLabels[sub.plan_type] || { label: customPlanName(sub.plan_type, language), icon: <Star className="h-5 w-5" />, color: "from-muted to-muted" };
                     return (
                       <div key={sub.id} className="border border-border rounded-xl p-4 bg-muted/30 opacity-70">
                         <div className="flex items-center gap-3">

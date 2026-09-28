@@ -1,3 +1,4 @@
+import { customPlanName } from "@/lib/customPlans";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -248,7 +249,7 @@ const AdminUpgradeRequestsTab = () => {
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.user_name}</TableCell>
                     <TableCell>
-                      {req.plan_type ? planNames[req.plan_type] || req.plan_type : "—"}
+                      {req.plan_type ? planNames[req.plan_type] || customPlanName(req.plan_type) : "—"}
                     </TableCell>
                     <TableCell>{req.duration_days ? `${req.duration_days} يوم` : "—"}</TableCell>
                     <TableCell className="font-mono text-xs">{req.transaction_number}</TableCell>
@@ -297,7 +298,7 @@ const AdminUpgradeRequestsTab = () => {
                 <div>
                   <p className="text-muted-foreground">الباقة</p>
                   <p className="font-medium">
-                    {selected.plan_type ? planNames[selected.plan_type] || selected.plan_type : "—"}
+                    {selected.plan_type ? planNames[selected.plan_type] || customPlanName(selected.plan_type) : "—"}
                   </p>
                 </div>
                 <div>

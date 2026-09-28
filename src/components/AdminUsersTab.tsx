@@ -1,3 +1,4 @@
+import { customPlanName } from "@/lib/customPlans";
 import { attachPhones } from "@/lib/profilePhones";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -497,7 +498,7 @@ const AdminUsersTab = () => {
                       {u.plan_type ? (
                         <div className="flex flex-col">
                           <Badge variant="secondary" className="w-fit text-[10px]">
-                            {planLabels[u.plan_type] || u.plan_type}
+                            {planLabels[u.plan_type] || customPlanName(u.plan_type)}
                           </Badge>
                           {u.plan_expires_at && (
                             <span className="text-[10px] text-muted-foreground mt-0.5" dir="ltr">
@@ -638,7 +639,7 @@ const AdminUsersTab = () => {
                 <p>
                   الباقة الحالية:{" "}
                   {editTarget.plan_type
-                    ? planLabels[editTarget.plan_type] || editTarget.plan_type
+                    ? planLabels[editTarget.plan_type] || customPlanName(editTarget.plan_type)
                     : "مجاني"}
                 </p>
                 <p>

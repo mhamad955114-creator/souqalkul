@@ -13,10 +13,12 @@ import { useListingSettings } from "@/hooks/useListingSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { notifyAdmins } from "@/lib/notifyAdmins";
+import { useCustomPlans, customPlanName, customPlanFeatures } from "@/lib/customPlans";
 
 const Pricing = () => {
   const navigate = useNavigate();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
+  const { plans: customPlans } = useCustomPlans();
   const { contact } = useContactSettings();
   const { user } = useAuth();
   const { settings } = useListingSettings();
@@ -27,7 +29,7 @@ const Pricing = () => {
   const formatNum = (n: number) => new Intl.NumberFormat("en-US").format(n);
   const formatLimit = (n: number) => (n < 0 ? t.pricing.planUnlimited : formatNum(n));
 
-  const plans = [
+  const plans: Array<{ key: string; name: string; icon?: any; customIcon?: boolean; iconColor: string; bgColor: string; borderColor: string; features: string[]; price: number; durationDays: number; maxActive: number; maxImages: number; color?: string }> = [
     {
       key: "featured",
       name: t.pricing.featuredName,
@@ -67,9 +69,23 @@ const Pricing = () => {
       maxActive: settings.business_listing.max_active_listings,
       maxImages: settings.business_listing.max_images,
     },
+    ...customPlans.filter((cp) => cp.is_active).map((cp) => ({
+      key: cp.plan_key,
+      name: customPlanName(cp.plan_key, language),
+      icon: Star,
+      iconColor: "text-primary",
+      bgColor: "bg-muted",
+      borderColor: "",
+      color: cp.color,
+      features: customPlanFeatures(cp, language),
+      price: Number(cp.price),
+      durationDays: cp.duration_days,
+      maxActive: cp.max_active_listings,
+      maxImages: cp.max_images,
+    })),
   ];
 
-  const handlePlanRequest = async (plan: typeof plans[number]) => {
+  const handlePlanRequest = async (plan: (typeof plans)[number]) => {
     if (!user) {
       navigate("/auth");
       return;
@@ -135,13 +151,14 @@ const Pricing = () => {
             <Card
               key={idx}
               className={`relative overflow-hidden transition-all hover:shadow-lg ${plan.borderColor}`}
+              style={plan.color ? { borderColor: plan.color, borderWidth: 2 } : undefined}
             >
               <CardHeader className="text-center pt-6">
                 <div className={`w-16 h-16 mx-auto rounded-full ${plan.bgColor} flex items-center justify-center mb-4`}>
                   {plan.customIcon ? (
                     <span className="text-4xl inline-block animate-diamond-spin">💎</span>
                   ) : (
-                    <plan.icon className={`h-8 w-8 ${plan.iconColor}`} />
+                    <plan.icon className={`h-8 w-8 ${plan.iconColor}`} style={plan.color ? { color: plan.color } : undefined} />
                   )}
                 </div>
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>

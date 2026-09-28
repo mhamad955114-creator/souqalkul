@@ -1,3 +1,4 @@
+import { useCustomPlans, customPlanName } from "@/lib/customPlans";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Gift, CalendarCheck, Users, Copy, Loader2, Star, Megaphone, CheckCircle2 } from "lucide-react";
@@ -65,6 +66,7 @@ interface Tx { id: string; points: number; reason: string; created_at: string }
 const Rewards = () => {
   const { user, loading: authLoading } = useAuth();
   const { language, dir } = useLanguage();
+  const { plans: customPlans } = useCustomPlans();
   const c = copy[(language as Lang) in copy ? (language as Lang) : "ar"];
   const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
@@ -193,6 +195,16 @@ const Rewards = () => {
                     <p className="text-primary font-bold">{nf.format(n("cost_" + p.key, p.cost))} {c.pts}</p>
                     <Button size="sm" className="w-full" disabled={cfg.enabled === false || balance < n("cost_" + p.key, p.cost) || busy === p.key} onClick={() => redeem(p.key)}>
                       {busy === p.key ? <Loader2 className="h-4 w-4 animate-spin" /> : c.redeemBtn}
+                    </Button>
+                  </div>
+                ))}
+                {customPlans.filter((cp) => cp.is_active && cp.reward_cost > 0).map((cp) => (
+                  <div key={cp.plan_key} className="rounded-xl border p-4 text-center space-y-2" style={{ borderColor: cp.color }}>
+                    <p className="font-bold">{customPlanName(cp.plan_key, language)}</p>
+                    <p className="text-sm text-muted-foreground" dir="ltr">{cp.duration_days} {c.days.split(" ")[1]}</p>
+                    <p className="text-primary font-bold">{nf.format(cp.reward_cost)} {c.pts}</p>
+                    <Button size="sm" className="w-full" disabled={cfg.enabled === false || balance < cp.reward_cost || busy === cp.plan_key} onClick={() => redeem(cp.plan_key)}>
+                      {busy === cp.plan_key ? <Loader2 className="h-4 w-4 animate-spin" /> : c.redeemBtn}
                     </Button>
                   </div>
                 ))}

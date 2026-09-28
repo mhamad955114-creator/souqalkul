@@ -329,6 +329,72 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_plans: {
+        Row: {
+          base_tier: string
+          color: string
+          created_at: string
+          display_order: number
+          duration_days: number
+          features_ar: string
+          features_en: string
+          features_tr: string
+          id: string
+          is_active: boolean
+          max_active_listings: number
+          max_images: number
+          name_ar: string
+          name_en: string
+          name_tr: string
+          plan_key: string
+          price: number
+          reward_cost: number
+          updated_at: string
+        }
+        Insert: {
+          base_tier?: string
+          color?: string
+          created_at?: string
+          display_order?: number
+          duration_days?: number
+          features_ar?: string
+          features_en?: string
+          features_tr?: string
+          id?: string
+          is_active?: boolean
+          max_active_listings?: number
+          max_images?: number
+          name_ar: string
+          name_en?: string
+          name_tr?: string
+          plan_key?: string
+          price?: number
+          reward_cost?: number
+          updated_at?: string
+        }
+        Update: {
+          base_tier?: string
+          color?: string
+          created_at?: string
+          display_order?: number
+          duration_days?: number
+          features_ar?: string
+          features_en?: string
+          features_tr?: string
+          id?: string
+          is_active?: boolean
+          max_active_listings?: number
+          max_images?: number
+          name_ar?: string
+          name_en?: string
+          name_tr?: string
+          plan_key?: string
+          price?: number
+          reward_cost?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -1197,6 +1263,7 @@ export type Database = {
         }
         Returns: number
       }
+      plan_base_tier: { Args: { _plan: string }; Returns: string }
       process_wallet_payment: {
         Args: {
           _amount: number

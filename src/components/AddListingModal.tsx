@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { getCustomPlanSync, loadCustomPlans } from "@/lib/customPlans";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,6 +136,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   }, [isOpen, draftRestored, formData, images, metadata, selectedCountry, priceCurrency]);
 
 
+  const customPlanRef = useRef<ReturnType<typeof getCustomPlanSync> | null>(null);
   const getUserPlan = async () => {
     if (!user) return "free" as const;
 
@@ -148,10 +150,15 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
 
     if (error) throw error;
 
-    return getEffectivePlanType(data || []) as "free" | "featured" | "professional" | "business";
+    await loadCustomPlans();
+    const raw = getEffectivePlanType(data || []);
+    const cp = getCustomPlanSync(raw);
+    customPlanRef.current = cp ?? null;
+    return (cp ? cp.base_tier : raw) as "free" | "featured" | "professional" | "business";
   };
 
   const getPlanMaxImages = (plan: "free" | "featured" | "professional" | "business") => {
+    if (customPlanRef.current && plan !== "free") return customPlanRef.current.max_images || settings.free_listing.max_images || 5;
     if (plan === "business") return settings.business_listing.max_images || settings.free_listing.max_images || 5;
     if (plan === "professional") return settings.professional_listing.max_images || settings.free_listing.max_images || 5;
     if (plan === "featured") return settings.featured_listing.max_images || settings.free_listing.max_images || 5;
@@ -171,6 +178,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         else if (userPlan === "professional") maxActive = settings.professional_listing.max_active_listings;
         else if (userPlan === "featured") maxActive = settings.featured_listing.max_active_listings;
         else maxActive = settings.free_listing.max_active_listings;
+        if (customPlanRef.current && userPlan !== "free") maxActive = customPlanRef.current.max_active_listings;
 
         if (maxActive === -1) {
           setRemainingListings({ remaining: -1, max: -1, planName: planNames[userPlan] || userPlan });
