@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ListingPointsBadge from "@/components/ListingPointsBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
@@ -579,8 +580,9 @@ const AdminListingsTab = () => {
                             )}
                           </button>
                         </TableCell>
-                        <TableCell className="font-medium max-w-[200px] truncate">
-                          {listing.title}
+                        <TableCell className="font-medium max-w-[200px]">
+                          <div className="truncate">{listing.title}</div>
+                          <ListingPointsBadge listingId={listing.id} />
                         </TableCell>
                         <TableCell className="whitespace-nowrap font-bold text-primary text-sm">
                           {listing.price?.toLocaleString("en-US")}

@@ -50,6 +50,13 @@
       "when": 1790611095690,
       "tag": "0006_rewards_admin_control",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790611403717,
+      "tag": "0007_listing_points",
+      "breakpoints": true
     }
   ]
 }

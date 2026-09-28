@@ -45,6 +45,7 @@ import ReportModal from "@/components/ReportModal";
 import Product360Viewer from "@/components/Product360Viewer";
 import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import ListingPointsBadge from "@/components/ListingPointsBadge";
 import ListingLocationMap from "@/components/ListingLocationMap";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -475,6 +476,9 @@ const ListingDetails = () => {
                     {listing.city}{listing.area && ` - ${listing.area}`}
                   </span>
                 </div>
+
+                <ListingPointsBadge listingId={listing.id} detailed />
+
 
                 {/* Map preview with saved coordinates */}
                 <div className="py-3">
