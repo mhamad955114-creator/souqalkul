@@ -199,21 +199,19 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
         )}
       </div>
 
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-bold text-foreground line-clamp-2 group-hover:text-primary transition-colors flex-1">
-            {title}
-          </h3>
-        </div>
-        <div className="text-xl font-bold text-primary mb-3">{displayPrice}</div>
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="p-2.5">
+        <h3 className="text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors mb-1">
+          {title}
+        </h3>
+        <div className="text-base font-bold text-primary mb-1">{displayPrice}</div>
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground leading-tight">
           <div className="flex items-center gap-1 min-w-0">
-            <MapPin className="h-4 w-4 shrink-0" />
+            <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{country ? `${location}، ${country}` : location}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            <span>{time}</span>
+          <div className="flex items-center gap-1 shrink-0">
+            <Clock className="h-3 w-3" />
+            <span className="truncate max-w-[64px]">{time}</span>
           </div>
         </div>
       </div>
