@@ -1117,6 +1117,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_set_badge_glow_config: {
+        Args: { _config: Json }
+        Returns: undefined
+      }
       admin_set_profile_verified: {
         Args: { _is_verified: boolean; _user_id: string }
         Returns: undefined
@@ -1149,6 +1153,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_badge_glow_config: { Args: never; Returns: Json }
       get_listing_phone: { Args: { _listing_id: string }; Returns: string }
       get_listings_points: {
         Args: { _listing_ids: string[] }
