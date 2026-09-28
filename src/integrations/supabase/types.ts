@@ -796,6 +796,27 @@ export type Database = {
           },
         ]
       }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string
@@ -836,6 +857,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reward_transactions: {
+        Row: {
+          created_at: string
+          id: string
+          points: number
+          reason: string
+          ref_key: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          points: number
+          reason: string
+          ref_key: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          points?: number
+          reason?: string
+          ref_key?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       suppressed_emails: {
         Row: {
@@ -1058,6 +1106,17 @@ export type Database = {
         Args: { _is_verified: boolean; _user_id: string }
         Returns: undefined
       }
+      apply_referral: { Args: { _code: string }; Returns: string }
+      award_points: {
+        Args: {
+          _points: number
+          _reason: string
+          _ref: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      claim_daily_reward: { Args: never; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1089,6 +1148,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_reward_balance: { Args: { _user_id: string }; Returns: number }
       get_user_phone: { Args: { _target_user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -1134,6 +1194,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      redeem_reward: { Args: { _plan_type: string }; Returns: string }
       transfer_wallet_balance: {
         Args: { _amount: number; _receiver_id: string; _sender_id: string }
         Returns: undefined

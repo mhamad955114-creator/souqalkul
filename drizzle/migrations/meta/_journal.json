@@ -36,6 +36,13 @@
       "when": 1790518984201,
       "tag": "0004_ensure_listings_cloud_access",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790610741557,
+      "tag": "0005_rewards_system",
+      "breakpoints": true
     }
   ]
 }
