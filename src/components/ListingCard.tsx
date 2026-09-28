@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFormatPrice } from "@/hooks/useFormatPrice";
 import { getCountryByName, getCurrencySymbolFromCode } from "@/lib/constants";
 import type { CSSProperties } from "react";
+import { useBadgeGlow, glowOuterStyle, glowInnerStyle } from "@/hooks/useBadgeGlow";
 interface ListingCardProps {
   id?: string;
   image: string;
@@ -67,16 +68,11 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
   const imageCount = images?.filter(url => !/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url)).length || 0;
   const videoCount = images?.filter(url => /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url)).length || 0;
   const shouldGlowImage = (business || professional || featured) && status !== "sold" && status !== "expired";
-  const glowToken = business
-    ? "--paid-glow-business"
-    : professional
-      ? "--paid-glow-professional"
-      : "--paid-glow-featured";
-  const imageGlowStyle: CSSProperties | undefined = shouldGlowImage
-    ? {
-        boxShadow: `0 0 0 1px hsl(var(${glowToken}) / 0.24), 0 0 18px 2px hsl(var(${glowToken}) / 0.28), 0 0 34px 6px hsl(var(${glowToken}) / 0.18)`,
-      }
-    : undefined;
+  const glowCfg = useBadgeGlow();
+  const planGlow = business ? glowCfg.business : professional ? glowCfg.professional : glowCfg.featured;
+  const glowOn = shouldGlowImage && planGlow.enabled;
+  const imageGlowStyle: CSSProperties | undefined = glowOn ? glowOuterStyle(planGlow) : undefined;
+  const innerGlowStyle = glowOn ? glowInnerStyle(planGlow) : undefined;
 
   return (
     <div 
@@ -105,6 +101,9 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
               } ${status === "sold" || status === "expired" ? "opacity-60" : ""}`}
             />
           </>
+        )}
+        {innerGlowStyle && (
+          <div className={`pointer-events-none absolute inset-0 z-[1] rounded-t-2xl ${planGlow.animate ? "animate-pulse" : ""}`} style={innerGlowStyle} />
         )}
         {status === "sold" && (
           <div className="absolute inset-0 flex items-center justify-center">
