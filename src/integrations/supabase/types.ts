@@ -339,6 +339,7 @@ export type Database = {
           features_ar: string
           features_en: string
           features_tr: string
+          glow_color2: string
           id: string
           is_active: boolean
           max_active_listings: number
@@ -360,6 +361,7 @@ export type Database = {
           features_ar?: string
           features_en?: string
           features_tr?: string
+          glow_color2?: string
           id?: string
           is_active?: boolean
           max_active_listings?: number
@@ -381,6 +383,7 @@ export type Database = {
           features_ar?: string
           features_en?: string
           features_tr?: string
+          glow_color2?: string
           id?: string
           is_active?: boolean
           max_active_listings?: number
