@@ -33,7 +33,7 @@ const Pricing = () => {
     {
       key: "featured",
       name: t.pricing.featuredName,
-      icon: Star,
+      icon: Crown,
       iconColor: "text-amber-500",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-300",
