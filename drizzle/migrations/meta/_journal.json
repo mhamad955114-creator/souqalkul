@@ -71,6 +71,13 @@
       "when": 1790611885950,
       "tag": "0009_custom_plans",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790613074505,
+      "tag": "0010_notify_admins_new_plan_request",
+      "breakpoints": true
     }
   ]
 }
