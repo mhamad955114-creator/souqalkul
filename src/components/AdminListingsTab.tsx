@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ListingPointsBadge from "@/components/ListingPointsBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
