@@ -35,6 +35,8 @@ interface UpgradeRequest {
   created_at: string;
   plan_type: string | null;
   duration_days: number | null;
+  reviewed_at?: string | null;
+  receipt_url?: string | null;
   user_name?: string;
 }
 
@@ -63,7 +65,7 @@ const AdminUpgradeRequestsTab = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("top_up_requests")
-      .select("id, user_id, amount, transaction_number, status, admin_note, created_at, plan_type, duration_days")
+      .select("id, user_id, amount, transaction_number, status, admin_note, created_at, plan_type, duration_days, reviewed_at, receipt_url")
       .order("created_at", { ascending: false })
       .limit(200);
 
@@ -258,22 +260,18 @@ const AdminUpgradeRequestsTab = () => {
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </TableCell>
                     <TableCell>
-                      {req.status === "pending" ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-1"
-                          onClick={() => {
-                            setSelected(req);
-                            setAdminNote("");
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
-                          مراجعة
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">تمت المراجعة</span>
-                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1"
+                        onClick={() => {
+                          setSelected(req);
+                          setAdminNote(req.admin_note || "");
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                        {req.status === "pending" ? "مراجعة" : "التفاصيل"}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
@@ -286,7 +284,7 @@ const AdminUpgradeRequestsTab = () => {
       <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle>مراجعة طلب الترقية</DialogTitle>
+            <DialogTitle>تفاصيل طلب الباقة</DialogTitle>
           </DialogHeader>
           {selected && (
             <div className="space-y-4">
@@ -311,7 +309,35 @@ const AdminUpgradeRequestsTab = () => {
                   <p className="text-muted-foreground">رقم الطلب</p>
                   <p className="font-mono text-xs">{selected.transaction_number}</p>
                 </div>
+                <div>
+                  <p className="text-muted-foreground">المبلغ</p>
+                  <p className="font-medium">{Number(selected.amount || 0).toLocaleString("en-US")}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">الحالة</p>
+                  <Badge variant={(statusConfig[selected.status] || statusConfig.pending).variant}>
+                    {(statusConfig[selected.status] || statusConfig.pending).label}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">تاريخ الطلب</p>
+                  <p className="text-xs">{formatDate(selected.created_at)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">تاريخ المراجعة</p>
+                  <p className="text-xs">{selected.reviewed_at ? formatDate(selected.reviewed_at) : "—"}</p>
+                </div>
               </div>
+              {selected.receipt_url && (
+                <a href={selected.receipt_url} target="_blank" rel="noreferrer" className="text-sm text-primary underline">عرض الإيصال</a>
+              )}
+              {selected.status !== "pending" && (
+                <div className="text-sm">
+                  <p className="text-muted-foreground">ملاحظة الإدارة</p>
+                  <p>{selected.admin_note || "—"}</p>
+                </div>
+              )}
+              {selected.status === "pending" && (<>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">ملاحظة (اختياري)</label>
@@ -337,6 +363,7 @@ const AdminUpgradeRequestsTab = () => {
                   قبول وتفعيل
                 </Button>
               </DialogFooter>
+              </>)}
             </div>
           )}
         </DialogContent>
