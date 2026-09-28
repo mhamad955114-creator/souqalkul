@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Star, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { Check, Crown, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +33,7 @@ const Pricing = () => {
     {
       key: "featured",
       name: t.pricing.featuredName,
-      icon: Star,
+      icon: Crown,
       iconColor: "text-amber-500",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-300",
@@ -72,7 +72,7 @@ const Pricing = () => {
     ...customPlans.filter((cp) => cp.is_active).map((cp) => ({
       key: cp.plan_key,
       name: customPlanName(cp.plan_key, language),
-      icon: Star,
+       icon: Crown,
       iconColor: "text-primary",
       bgColor: "bg-muted",
       borderColor: "",
