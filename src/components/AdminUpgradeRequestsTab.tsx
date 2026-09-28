@@ -123,7 +123,7 @@ const AdminUpgradeRequestsTab = () => {
         _admin_note: adminNote || null,
       });
       if (error) throw error;
-      toast.success("تم قبول الطلب وتفعيل الباقة");
+      toast.success("تم القبول: فُعّلت الباقة وأُبلغ العميل وحُدّثت إعلاناته");
       setSelected(null);
       setAdminNote("");
       fetchRequests();
@@ -260,6 +260,13 @@ const AdminUpgradeRequestsTab = () => {
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </TableCell>
                     <TableCell>
+                      <div className="flex gap-1">
+                      {req.status === "pending" && (
+                        <Button size="sm" className="gap-1" disabled={processing} onClick={() => handleApprove(req)}>
+                          <CheckCircle className="h-4 w-4" />
+                          قبول
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
@@ -272,6 +279,7 @@ const AdminUpgradeRequestsTab = () => {
                         <Eye className="h-4 w-4" />
                         {req.status === "pending" ? "مراجعة" : "التفاصيل"}
                       </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
