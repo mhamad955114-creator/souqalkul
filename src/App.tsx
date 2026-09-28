@@ -42,6 +42,7 @@ const BuildApkGuide = lazy(() => import("./pages/BuildApkGuide"));
 const BadgeAuditLog = lazy(() => import("./pages/BadgeAuditLog"));
 const ListingMapPage = lazy(() => import("./pages/ListingMapPage"));
 const AiAssistant = lazy(() => import("./pages/AiAssistant"));
+const Rewards = lazy(() => import("./pages/Rewards"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -166,6 +167,7 @@ const AppContent = () => {
             <Route path="/developers" element={<Developers />} />
             <Route path="/docs/build-apk" element={<BuildApkGuide />} />
             <Route path="/ai" element={<AiAssistant />} />
+            <Route path="/rewards" element={<Rewards />} />
             <Route path="/ai/:threadId" element={<AiAssistant />} />
 
             <Route path="*" element={<NotFound />} />

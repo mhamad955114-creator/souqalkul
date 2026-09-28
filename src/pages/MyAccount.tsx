@@ -74,7 +74,7 @@ const planLabels: Record<string, { label: string; icon: React.ReactNode; color: 
 
 const MyAccount = () => {
   const { user, loading: authLoading } = useAuth();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const navigate = useNavigate();
   const { settings } = useListingSettings();
   const [listings, setListings] = useState<Listing[]>([]);
@@ -559,6 +559,9 @@ const MyAccount = () => {
             </p>
           </div>
           <div className="flex gap-2 flex-shrink-0">
+            <Button onClick={() => navigate("/rewards")} variant="default" size="sm">
+              🎁 {language === "en" ? "Rewards" : language === "tr" ? "Ödüller" : "المكافآت"}
+            </Button>
             <Button onClick={() => navigate("/settings")} variant="outline" size="sm">
               <Settings className="h-4 w-4" />
               {t.myAccount.settingsBtn}
