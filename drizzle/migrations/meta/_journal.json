@@ -43,6 +43,13 @@
       "when": 1790610741557,
       "tag": "0005_rewards_system",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790611095690,
+      "tag": "0006_rewards_admin_control",
+      "breakpoints": true
     }
   ]
 }
