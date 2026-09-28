@@ -57,6 +57,13 @@
       "when": 1790611403717,
       "tag": "0007_listing_points",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790611608977,
+      "tag": "0008_badge_glow_config",
+      "breakpoints": true
     }
   ]
 }
