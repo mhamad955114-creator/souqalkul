@@ -24,8 +24,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    try {
+      const ref = new URLSearchParams(window.location.search).get("ref");
+      if (ref && /^[0-9a-f]{8}$/i.test(ref)) localStorage.setItem("pending-ref", ref);
+    } catch { /* ignore */ }
+
     const checkBanAndSet = async (newSession: Session | null) => {
       if (newSession?.user) {
+        try {
+          const pending = localStorage.getItem("pending-ref");
+          if (pending) {
+            localStorage.removeItem("pending-ref");
+            setTimeout(() => { supabase.rpc("apply_referral", { _code: pending }); }, 0);
+          }
+        } catch { /* ignore */ }
         // Check if user is banned (defer to avoid deadlocks inside auth callback)
         setTimeout(async () => {
           const { data: isBanned } = await supabase.rpc("is_banned", {

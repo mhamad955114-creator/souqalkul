@@ -74,7 +74,7 @@ const planLabels: Record<string, { label: string; icon: React.ReactNode; color: 
 
 const MyAccount = () => {
   const { user, loading: authLoading } = useAuth();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const navigate = useNavigate();
   const { settings } = useListingSettings();
   const [listings, setListings] = useState<Listing[]>([]);
