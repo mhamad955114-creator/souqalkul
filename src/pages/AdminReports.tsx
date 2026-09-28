@@ -56,6 +56,8 @@ import AdminCountriesTab from "@/components/AdminCountriesTab";
 import AdminUsersTab from "@/components/AdminUsersTab";
 import AdminCategoriesTab from "@/components/AdminCategoriesTab";
 import AdminSubscriptionsTab from "@/components/AdminSubscriptionsTab";
+import AdminRewardsTab from "@/components/AdminRewardsTab";
+import { Gift } from "lucide-react";
 
 import { toast } from "sonner";
 import { formatDate, categoryLabels } from "@/lib/constants";
@@ -110,7 +112,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries" | "users" | "categories" | "upgrades" | "subscriptions">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries" | "users" | "categories" | "upgrades" | "subscriptions" | "rewards">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -698,6 +700,15 @@ const AdminReports = () => {
               <CalendarClock className="h-4 w-4" />
               تقويم الباقات
             </Button>
+            <Button
+              variant={activeTab === "rewards" ? "default" : "outline"}
+              onClick={() => setActiveTab("rewards")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <Gift className="h-4 w-4" />
+              المكافآت
+            </Button>
 
           </div>
         </div>
@@ -890,6 +901,7 @@ const AdminReports = () => {
         {activeTab === "categories" && <AdminCategoriesTab />}
         {activeTab === "upgrades" && <AdminUpgradeRequestsTab />}
         {activeTab === "subscriptions" && <AdminSubscriptionsTab />}
+        {activeTab === "rewards" && <AdminRewardsTab />}
 
       </main>
 
