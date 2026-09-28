@@ -58,6 +58,7 @@ import AdminCategoriesTab from "@/components/AdminCategoriesTab";
 import AdminSubscriptionsTab from "@/components/AdminSubscriptionsTab";
 import AdminRewardsTab from "@/components/AdminRewardsTab";
 import AdminBadgeGlowTab from "@/components/AdminBadgeGlowTab";
+import AdminPlansTab from "@/components/AdminPlansTab";
 import { Gift, Sparkles as SparklesIcon } from "lucide-react";
 
 import { toast } from "sonner";
@@ -113,7 +114,7 @@ const AdminReports = () => {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries" | "users" | "categories" | "upgrades" | "subscriptions" | "rewards" | "glow">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries" | "users" | "categories" | "upgrades" | "subscriptions" | "rewards" | "glow" | "plans">("reports");
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
@@ -719,6 +720,15 @@ const AdminReports = () => {
               <SparklesIcon className="h-4 w-4" />
               توهج الترقيات
             </Button>
+            <Button
+              variant={activeTab === "plans" ? "default" : "outline"}
+              onClick={() => setActiveTab("plans")}
+              className="gap-1.5 text-xs sm:text-sm shrink-0"
+              size="sm"
+            >
+              <Gift className="h-4 w-4" />
+              الباقات
+            </Button>
 
           </div>
         </div>
@@ -913,6 +923,7 @@ const AdminReports = () => {
         {activeTab === "subscriptions" && <AdminSubscriptionsTab />}
         {activeTab === "rewards" && <AdminRewardsTab />}
         {activeTab === "glow" && <AdminBadgeGlowTab />}
+        {activeTab === "plans" && <AdminPlansTab />}
 
       </main>
 
