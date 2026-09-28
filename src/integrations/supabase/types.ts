@@ -1150,6 +1150,14 @@ export type Database = {
         }[]
       }
       get_listing_phone: { Args: { _listing_id: string }; Returns: string }
+      get_listings_points: {
+        Args: { _listing_ids: string[] }
+        Returns: {
+          details: Json
+          listing_id: string
+          points: number
+        }[]
+      }
       get_plan_config: {
         Args: { _plan_type: string }
         Returns: {
