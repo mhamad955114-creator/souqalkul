@@ -1094,6 +1094,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_points: {
+        Args: { _note?: string; _points: number; _user_id: string }
+        Returns: undefined
+      }
       admin_approve_subscription_request: {
         Args: { _admin_note?: string; _request_id: string }
         Returns: undefined
@@ -1102,10 +1106,22 @@ export type Database = {
         Args: { _admin_note?: string; _request_id: string }
         Returns: undefined
       }
+      admin_rewards_users: {
+        Args: { _search?: string }
+        Returns: {
+          balance: number
+          earned: number
+          full_name: string
+          last_at: string
+          tx_count: number
+          user_id: string
+        }[]
+      }
       admin_set_profile_verified: {
         Args: { _is_verified: boolean; _user_id: string }
         Returns: undefined
       }
+      admin_set_rewards_config: { Args: { _config: Json }; Returns: undefined }
       apply_referral: { Args: { _code: string }; Returns: string }
       award_points: {
         Args: {
@@ -1149,6 +1165,7 @@ export type Database = {
         }[]
       }
       get_reward_balance: { Args: { _user_id: string }; Returns: number }
+      get_rewards_config: { Args: never; Returns: Json }
       get_user_phone: { Args: { _target_user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -1186,6 +1203,7 @@ export type Database = {
         }
         Returns: string
       }
+      rcfg_int: { Args: { _k: string }; Returns: number }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -1195,6 +1213,7 @@ export type Database = {
         }[]
       }
       redeem_reward: { Args: { _plan_type: string }; Returns: string }
+      rewards_enabled: { Args: never; Returns: boolean }
       transfer_wallet_balance: {
         Args: { _amount: number; _receiver_id: string; _sender_id: string }
         Returns: undefined
