@@ -34,7 +34,7 @@ const Pricing = () => {
       key: "featured",
       name: t.pricing.featuredName,
       icon: Star,
-      iconColor: "gold-crown",
+      iconColor: "featured-plan-star",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-300",
       features: [t.pricing.featuredF1, t.pricing.featuredF2, t.pricing.featuredF3],
