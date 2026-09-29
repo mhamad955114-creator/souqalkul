@@ -899,7 +899,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                   {t.listingForm.myLocation}
                 </Button>
               </div>
-              <Popover open={cityPopoverOpen} onOpenChange={setCityPopoverOpen}>
+              <Popover modal open={cityPopoverOpen} onOpenChange={setCityPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     type="button"
@@ -929,7 +929,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
                       value={cityQuery}
                       onValueChange={setCityQuery}
                     />
-                    <CommandList>
+                    <CommandList className="max-h-[min(50vh,320px)] touch-pan-y overscroll-contain">
                       <CommandEmpty>
                         {cityQuery.trim() ? (
                           <button
