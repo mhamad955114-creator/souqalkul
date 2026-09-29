@@ -161,10 +161,22 @@ export const localizeCountry = (code: string, fallback: string, language: Langua
   countryNames[language][code] || fallback;
 
 const turkeyCities: Record<string, string> = {
-  "إسطنبول": "İstanbul", "أنقرة": "Ankara", "إزمير": "İzmir", "بورصة": "Bursa", "أنطاليا": "Antalya",
-  "غازي عنتاب": "Gaziantep", "قونية": "Konya", "أضنة": "Adana", "مرسين": "Mersin", "ديار بكر": "Diyarbakır",
-  "قيصري": "Kayseri", "إسكي شهير": "Eskişehir", "طرابزون": "Trabzon", "أورفة": "Şanlıurfa", "ملاطية": "Malatya",
-  "سامسون": "Samsun", "دنيزلي": "Denizli", "هاتاي": "Hatay", "كيليس": "Kilis", "ماردين": "Mardin",
+  "أضنة": "Adana", "أديامان": "Adıyaman", "أفيون قره حصار": "Afyonkarahisar", "أغري": "Ağrı", "أماسيا": "Amasya",
+  "أنقرة": "Ankara", "أنطاليا": "Antalya", "أرتفين": "Artvin", "أيدين": "Aydın", "باليكسير": "Balıkesir",
+  "بيلجيك": "Bilecik", "بينغول": "Bingöl", "بدليس": "Bitlis", "بولو": "Bolu", "بوردور": "Burdur",
+  "بورصة": "Bursa", "جناق قلعة": "Çanakkale", "جانقري": "Çankırı", "جوروم": "Çorum", "دنيزلي": "Denizli",
+  "ديار بكر": "Diyarbakır", "أدرنة": "Edirne", "إلازيغ": "Elazığ", "أرزنجان": "Erzincan", "أرضروم": "Erzurum",
+  "إسكي شهير": "Eskişehir", "غازي عنتاب": "Gaziantep", "غيرسون": "Giresun", "غوموش خانة": "Gümüşhane", "هاكاري": "Hakkâri",
+  "هاتاي": "Hatay", "إسبرطة": "Isparta", "مرسين": "Mersin", "إسطنبول": "İstanbul", "إزمير": "İzmir",
+  "قارص": "Kars", "قسطموني": "Kastamonu", "قيصري": "Kayseri", "كيركلاريلي": "Kırklareli", "كيرشهير": "Kırşehir",
+  "قوجه إيلي": "Kocaeli", "قونية": "Konya", "كوتاهيا": "Kütahya", "ملاطية": "Malatya", "مانيسا": "Manisa",
+  "كهرمان مرعش": "Kahramanmaraş", "ماردين": "Mardin", "موغلا": "Muğla", "موش": "Muş", "نوشهير": "Nevşehir",
+  "نيغدة": "Niğde", "أوردو": "Ordu", "ريزة": "Rize", "صقاريا": "Sakarya", "سامسون": "Samsun",
+  "سيرت": "Siirt", "سينوب": "Sinop", "سيواس": "Sivas", "تكيرداغ": "Tekirdağ", "توكات": "Tokat",
+  "طرابزون": "Trabzon", "تونجلي": "Tunceli", "أورفة": "Şanlıurfa", "أوشاك": "Uşak", "وان": "Van",
+  "يوزغات": "Yozgat", "زونغولداك": "Zonguldak", "أكسراي": "Aksaray", "بايبورت": "Bayburt", "قرمان": "Karaman",
+  "قيريق قلعة": "Kırıkkale", "باتمان": "Batman", "شرناق": "Şırnak", "بارتين": "Bartın", "أردهان": "Ardahan",
+  "إغدير": "Iğdır", "يالوفا": "Yalova", "كارابوك": "Karabük", "كيليس": "Kilis", "عثمانية": "Osmaniye", "دوزجه": "Düzce",
 };
 
 const syriaCities: Record<Language, Record<string, string>> = {
