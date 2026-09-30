@@ -223,11 +223,11 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       id={listing.id}
                       image={listing.images?.[0] || "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"}
                       title={listing.title}
-                      price={formatPrice(listing.price, (listing.country ? getCountryByName(listing.country) : currentCountry).currencySymbol)}
+                      price={formatPrice(listing.price, ((listing as any).country ? getCountryByName((listing as any).country) : currentCountry).currencySymbol)}
                       priceValue={listing.price}
                       currency={(listing as any).currency}
                       location={listing.city}
-                      country={listing.country || currentCountry.name}
+                      country={(listing as any).country || currentCountry.name}
                       time={formatTime(listing.created_at)}
                       featured={listing.badge_type === "featured" || listing.is_featured}
                       professional={listing.badge_type === "professional"}
