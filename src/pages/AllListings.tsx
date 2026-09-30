@@ -93,7 +93,7 @@ const AllListings = () => {
   // Filter states
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [category, setCategory] = useState(searchParams.get("category") || "all");
-  const [country, setCountryFilter] = useState(searchParams.get("country") || currentCountry.name);
+  const [country, setCountryFilter] = useState(searchParams.get("country") || (localStorage.getItem("countryChosenByUser") === "1" ? currentCountry.name : "all"));
   const [city, setCity] = useState(searchParams.get("city") || "all");
   const [area, setArea] = useState(searchParams.get("area") || "all");
   const [subcategory, setSubcategory] = useState("all");

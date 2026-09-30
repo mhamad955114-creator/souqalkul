@@ -69,6 +69,7 @@ export function CountryProvider({ children }: { children: ReactNode }) {
     const country = getCountryByName(name);
     setCurrentCountry(country);
     localStorage.setItem("selectedCountry", name);
+    localStorage.setItem("countryChosenByUser", "1");
     // تغيير البلد يدوياً يُلغي المدينة المكتشفة سابقاً
     setCurrentCity("");
     localStorage.removeItem("selectedCity");

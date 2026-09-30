@@ -82,12 +82,12 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   const { currentCountry } = useCountry();
 
   const fetchListings = async () => {
-    const { data, error } = await supabase
+    let q: any = supabase
       .from("listings")
       .select("*")
-      .eq("status", "active")
-      .eq("country", currentCountry.name as any)
-      
+      .eq("status", "active");
+    if (localStorage.getItem("countryChosenByUser") === "1") q = q.eq("country", currentCountry.name as any);
+    const { data, error } = await q
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(8);
