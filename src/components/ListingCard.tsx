@@ -81,7 +81,7 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
 
   return (
     <div 
-      className="group relative bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1"
+      className="group relative h-full flex flex-col bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer hover:-translate-y-1"
       onClick={handleClick}
       style={imageGlowStyle}
     >
@@ -205,12 +205,12 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
         )}
       </div>
 
-      <div className="p-2.5">
+      <div className="p-2.5 flex-1 flex flex-col min-w-0">
         <h3 className="text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors mb-1">
           {title}
         </h3>
-        <div className="text-base font-bold text-primary mb-1">{displayPrice}</div>
-        <div className="flex items-center justify-between text-[11px] text-muted-foreground leading-tight">
+        <div className="text-base font-bold text-primary mb-1 truncate whitespace-nowrap">{displayPrice}</div>
+        <div className="mt-auto flex items-center justify-between text-[11px] text-muted-foreground leading-tight">
           <div className="flex items-center gap-1 min-w-0">
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{country ? `${location}، ${country}` : location}</span>

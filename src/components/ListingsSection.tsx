@@ -217,7 +217,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
               ? listings.map((listing, index) => (
                   <div
                     key={listing.id}
-                    className="animate-fade-up"
+                    className="animate-fade-up h-full"
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <ListingCard
@@ -247,7 +247,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
               : fallbackListings.map((listing, index) => (
                   <div
                     key={listing.id}
-                    className="animate-fade-up"
+                    className="animate-fade-up h-full"
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <ListingCard

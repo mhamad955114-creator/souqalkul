@@ -683,7 +683,7 @@ const AllListings = () => {
               {filteredListings.map((listing, index) => (
                 <div
                   key={listing.id}
-                  className="animate-fade-up"
+                  className="animate-fade-up h-full"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
                   <ListingCard
