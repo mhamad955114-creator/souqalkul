@@ -1,3 +1,4 @@
+import { useGridLayout } from "@/hooks/useGridLayout";
 import { ArrowLeft, ArrowRight, Pin, BarChart3, Images, Infinity, ShieldCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import ListingCard from "./ListingCard";
@@ -71,6 +72,7 @@ interface ListingsSectionProps {
 }
 
 const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
+  const { gridClass } = useGridLayout();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -192,7 +194,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className={gridClass}>
             {[...Array(4)].map((_, i) => (
               <div key={i} className="bg-card rounded-2xl overflow-hidden shadow-card animate-pulse">
                 <div className="aspect-square bg-muted" />
@@ -209,7 +211,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className={gridClass}>
             {hasDbListings
               ? listings.map((listing, index) => (
                   <div
