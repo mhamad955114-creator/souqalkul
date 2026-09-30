@@ -1,3 +1,4 @@
+import { useGridLayout } from "@/hooks/useGridLayout";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -676,7 +677,7 @@ const AllListings = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+            <div className={gridClass}>
               {filteredListings.map((listing, index) => (
                 <div
                   key={listing.id}

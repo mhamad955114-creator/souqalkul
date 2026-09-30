@@ -59,6 +59,7 @@ import AdminSubscriptionsTab from "@/components/AdminSubscriptionsTab";
 import AdminRewardsTab from "@/components/AdminRewardsTab";
 import AdminBadgeGlowTab from "@/components/AdminBadgeGlowTab";
 import AdminTopDurationCard from "@/components/AdminTopDurationCard";
+import AdminGridLayoutCard from "@/components/AdminGridLayoutCard";
 import AdminPlansTab from "@/components/AdminPlansTab";
 import { Gift, Sparkles as SparklesIcon } from "lucide-react";
 
@@ -925,7 +926,7 @@ const AdminReports = () => {
         {activeTab === "upgrades" && <AdminUpgradeRequestsTab />}
         {activeTab === "subscriptions" && <AdminSubscriptionsTab />}
         {activeTab === "rewards" && <AdminRewardsTab />}
-        {activeTab === "glow" && <div className="space-y-4"><AdminTopDurationCard /><AdminBadgeGlowTab /></div>}
+        {activeTab === "glow" && <div className="space-y-4"><AdminGridLayoutCard /><AdminTopDurationCard /><AdminBadgeGlowTab /></div>}
         {activeTab === "plans" && <AdminPlansTab />}
 
       </main>

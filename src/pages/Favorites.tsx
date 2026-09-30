@@ -1,3 +1,4 @@
+import { useGridLayout } from "@/hooks/useGridLayout";
 import { useEffect, useState } from "react";
 import { Heart, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -119,7 +120,7 @@ const Favorites = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className={gridClass}>
               {listings.map((listing) => (
                 <ListingCard
                   key={listing.id}
