@@ -146,6 +146,7 @@ const Favorites = () => {
                 />
               ))}
             </div>
+            </>
           )}
         </div>
       </main>
