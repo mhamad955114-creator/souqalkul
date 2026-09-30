@@ -925,6 +925,7 @@ const AdminReports = () => {
         {activeTab === "upgrades" && <AdminUpgradeRequestsTab />}
         {activeTab === "subscriptions" && <AdminSubscriptionsTab />}
         {activeTab === "rewards" && <AdminRewardsTab />}
+        {activeTab === "glow" && <div className="space-y-4"><AdminTopDurationCard /><AdminBadgeGlowTab /></div>}
         {activeTab === "plans" && <AdminPlansTab />}
 
       </main>
