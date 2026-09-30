@@ -202,23 +202,6 @@ Deno.serve(async (req) => {
             }
             await supabase.from("ai_threads").update(updates).eq("id", threadId);
 
-            // Notify the user about the assistant's reply so they can follow up
-            // later without keeping the chat open (also triggers push).
-            try {
-              const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-              if (serviceKey) {
-                const admin = createClient(Deno.env.get("SUPABASE_URL")!, serviceKey);
-                await admin.from("notifications").insert({
-                  user_id: user.id,
-                  title: "رد جديد من المساعد الذكي",
-                  message: full.replace(/\s+/g, " ").slice(0, 180),
-                  type: "ai_reply",
-                  related_id: threadId,
-                });
-              }
-            } catch (notifyErr) {
-              console.error("ai reply notification failed", notifyErr);
-            }
           }
 
         }
