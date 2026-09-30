@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, formatTime, getCountryByName } from "@/lib/constants";
-import { sortListingsByPromotionPriority } from "@/lib/listingPriority";
+import { sortListingsByPromotionPriority, loadTopDuration } from "@/lib/listingPriority";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
 import { useListingSettings } from "@/hooks/useListingSettings";
@@ -115,6 +115,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
         };
       });
 
+      await loadTopDuration();
       setListings(sortListingsByPromotionPriority(enriched));
     }
     setLoading(false);

@@ -35,7 +35,7 @@ import {
   getCitiesByCountry,
   getCountryByName,
 } from "@/lib/constants";
-import { sortListingsByPromotionPriority } from "@/lib/listingPriority";
+import { sortListingsByPromotionPriority, loadTopDuration } from "@/lib/listingPriority";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
 import { useCountry } from "@/contexts/CountryContext";
@@ -195,6 +195,7 @@ const AllListings = () => {
           _avgRating: rEntry ? rEntry.sum / rEntry.count : undefined,
         };
       });
+      await loadTopDuration();
       const sortedListings = sortListingsByPromotionPriority(enriched);
 
       if (append) {

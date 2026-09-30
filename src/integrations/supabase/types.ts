@@ -598,6 +598,7 @@ export type Database = {
           metadata: Json | null
           phone: string | null
           price: number
+          promoted_at: string | null
           sold_at: string | null
           status: string | null
           title: string
@@ -623,6 +624,7 @@ export type Database = {
           metadata?: Json | null
           phone?: string | null
           price: number
+          promoted_at?: string | null
           sold_at?: string | null
           status?: string | null
           title: string
@@ -648,6 +650,7 @@ export type Database = {
           metadata?: Json | null
           phone?: string | null
           price?: number
+          promoted_at?: string | null
           sold_at?: string | null
           status?: string | null
           title?: string
@@ -1206,6 +1209,10 @@ export type Database = {
         Returns: undefined
       }
       admin_set_rewards_config: { Args: { _config: Json }; Returns: undefined }
+      admin_set_top_duration_config: {
+        Args: { _config: Json }
+        Returns: undefined
+      }
       apply_referral: { Args: { _code: string }; Returns: string }
       award_points: {
         Args: {
@@ -1259,6 +1266,7 @@ export type Database = {
       }
       get_reward_balance: { Args: { _user_id: string }; Returns: number }
       get_rewards_config: { Args: never; Returns: Json }
+      get_top_duration_config: { Args: never; Returns: Json }
       get_user_phone: { Args: { _target_user_id: string }; Returns: string }
       has_role: {
         Args: {
