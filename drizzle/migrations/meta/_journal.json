@@ -99,6 +99,13 @@
       "when": 1790806475966,
       "tag": "0013_grid_layout_config",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790808214548,
+      "tag": "0014_add_arabic_listing_search",
+      "breakpoints": true
     }
   ]
 }

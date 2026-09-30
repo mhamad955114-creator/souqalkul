@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Search, SlidersHorizontal, X, Loader2 } from "lucide-react";
+import { Search, SlidersHorizontal, X, Loader2, Mic, MicOff } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -41,6 +41,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePresence } from "@/hooks/usePresence";
 import { useCountry } from "@/contexts/CountryContext";
 import FollowCategoryButton from "@/components/FollowCategoryButton";
+import { localizeCity, localizeCountry } from "@/lib/listingLocalization";
+import { getSearchWords } from "@/lib/searchNormalization";
+import { useSpeechSearch } from "@/hooks/useSpeechSearch";
 
 interface Listing {
   id: string;
@@ -76,7 +79,7 @@ const AllListings = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const currentPageRef = useRef(1);
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { isOnline, onlineCount: realOnlineCount } = usePresence();
   const { currentCountry } = useCountry();
   const [onlineCount, setOnlineCount] = useState(0);
@@ -103,6 +106,7 @@ const AllListings = () => {
     Number(searchParams.get("maxPrice")) || 500000000,
   ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { isListening, toggleListening } = useSpeechSearch(language, setSearchQuery);
 
   const availableSubcategories = category && category !== "all" ? subcategoriesByCategory[category] || [] : [];
   
@@ -141,7 +145,10 @@ const AllListings = () => {
         const fmt = (s: string) => `${s.slice(0,8)}-${s.slice(8,12)}-${s.slice(12,16)}-${s.slice(16,20)}-${s.slice(20,32)}`;
         query = query.gte("id", fmt(h.padEnd(32, "0"))).lte("id", fmt(h.padEnd(32, "f")));
       } else {
-        query = query.ilike("title", `%${searchQuery}%`);
+        const words = getSearchWords(trimmed);
+        if (words.length > 0) {
+          query = query.textSearch("search_text", words.join(" & "), { config: "simple", type: "plain" });
+        }
       }
     }
     if (category && category !== "all") {
@@ -322,7 +329,7 @@ const AllListings = () => {
   // Dynamic cities based on selected country
   const translatedCitiesWithAll = [
     { value: "all", label: t.cities.allCities },
-    ...countryCities.map(c => ({ value: c, label: c })),
+    ...countryCities.map(c => ({ value: c, label: localizeCity(c, selectedCountryInfo.code, language) })),
   ];
 
   const handleCountryFilterChange = (val: string) => {
@@ -475,8 +482,19 @@ const AllListings = () => {
               placeholder={t.listings.search}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={dir === "rtl" ? "pr-10" : "pl-10"}
+              className={dir === "rtl" ? "pr-10 pl-11" : "pl-10 pr-11"}
             />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={toggleListening}
+              aria-label={language === "ar" ? (isListening ? "إيقاف الاستماع" : "البحث بالصوت") : isListening ? "Stop listening" : "Voice search"}
+              title={language === "ar" ? (isListening ? "إيقاف الاستماع" : "البحث بالصوت") : isListening ? "Stop listening" : "Voice search"}
+              className={`absolute ${dir === "rtl" ? "left-1" : "right-1"} top-1/2 -translate-y-1/2 h-9 w-9 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground"}`}
+            >
+              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
           </div>
 
           <div className="hidden lg:flex gap-4">
@@ -696,8 +714,8 @@ const AllListings = () => {
                     price={formatPrice(listing.price, listing.country ? getCountryByName(listing.country as string).currencySymbol : selectedCountryInfo.currencySymbol)}
                     priceValue={listing.price}
                     currency={(listing as any).currency}
-                    location={listing.city}
-                    country={(listing.country as string) || undefined}
+                    location={localizeCity(listing.city, getCountryByName(listing.country || "").code, language)}
+                    country={listing.country ? localizeCountry(getCountryByName(listing.country).code, listing.country, language) : undefined}
                     time={formatTime(listing.created_at)}
                     featured={listing.badge_type === "featured" || listing.is_featured}
                     professional={listing.badge_type === "professional"}

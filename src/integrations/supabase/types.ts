@@ -599,6 +599,7 @@ export type Database = {
           phone: string | null
           price: number
           promoted_at: string | null
+          search_text: string
           sold_at: string | null
           status: string | null
           title: string
@@ -625,6 +626,7 @@ export type Database = {
           phone?: string | null
           price: number
           promoted_at?: string | null
+          search_text?: string
           sold_at?: string | null
           status?: string | null
           title: string
@@ -651,6 +653,7 @@ export type Database = {
           phone?: string | null
           price?: number
           promoted_at?: string | null
+          search_text?: string
           sold_at?: string | null
           status?: string | null
           title?: string
@@ -1290,6 +1293,7 @@ export type Database = {
         }
         Returns: number
       }
+      normalize_arabic_search: { Args: { _value: string }; Returns: string }
       plan_base_tier: { Args: { _plan: string }; Returns: string }
       process_wallet_payment: {
         Args: {
