@@ -72,6 +72,7 @@ interface ListingsSectionProps {
 }
 
 const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
+  const { gridClass } = useGridLayout();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();

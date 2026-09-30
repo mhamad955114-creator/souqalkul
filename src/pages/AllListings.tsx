@@ -65,6 +65,7 @@ interface Listing {
 const ITEMS_PER_PAGE = 20;
 
 const AllListings = () => {
+  const { gridClass } = useGridLayout();
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);

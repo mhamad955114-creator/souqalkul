@@ -31,6 +31,7 @@ interface Listing {
 }
 
 const Favorites = () => {
+  const { gridClass } = useGridLayout();
   const { user, loading: authLoading } = useAuth();
   const { favorites, loading: favoritesLoading } = useFavoritesContext();
   const { t, dir } = useLanguage();
