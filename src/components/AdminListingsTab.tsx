@@ -130,6 +130,29 @@ const AdminListingsTab = () => {
     setDeleteListing(null);
   };
 
+  const [idResults, setIdResults] = useState<ListingRow[]>([]);
+  useEffect(() => {
+    const hex = search.toLowerCase().replace(/[^0-9a-f]/g, "");
+    if (!searchById || hex.length < 4 || hex.length > 32) { setIdResults([]); return; }
+    const fmt = (s: string) => `${s.slice(0,8)}-${s.slice(8,12)}-${s.slice(12,16)}-${s.slice(16,20)}-${s.slice(20,32)}`;
+    const lo = fmt(hex.padEnd(32, "0"));
+    const hi = fmt(hex.padEnd(32, "f"));
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("listings")
+        .select("id, title, user_id, status, badge_type, created_at, category, price, description, images, city, area, phone, metadata")
+        .gte("id", lo).lte("id", hi).limit(20);
+      if (cancelled || !data) return;
+      const uids = [...new Set(data.map((l) => l.user_id))];
+      const { data: profs } = uids.length
+        ? await supabase.from("profiles").select("user_id, full_name").in("user_id", uids)
+        : { data: [] as any[] };
+      const pm = new Map((profs || []).map((p: any) => [p.user_id, p.full_name || "بدون اسم"]));
+      if (!cancelled) setIdResults(data.map((l: any) => ({ ...l, badge_type: l.badge_type ?? null, user_email: pm.get(l.user_id) || "بدون اسم" })));
+    })();
+    return () => { cancelled = true; };
+  }, [search, searchById]);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -369,8 +392,12 @@ const AdminListingsTab = () => {
       l.id.toLowerCase().includes(searchLower)
     );
   };
-  const filtered = listings.filter(filterFn);
-  const filteredPending = pendingListings.filter(filterFn);
+  const mergeById = (base: ListingRow[], extra: ListingRow[]) => {
+    const ids = new Set(base.map((l) => l.id));
+    return [...base, ...extra.filter((l) => !ids.has(l.id))];
+  };
+  const filtered = mergeById(listings, idResults.filter((l) => l.status !== "pending")).filter(filterFn);
+  const filteredPending = mergeById(pendingListings, idResults.filter((l) => l.status === "pending")).filter(filterFn);
 
   if (loading) {
     return (
