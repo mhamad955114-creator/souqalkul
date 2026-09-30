@@ -246,10 +246,14 @@ const LinkedAccountsCard = () => {
     try {
       const { data, error } = await supabase.auth.linkIdentity({
         provider: "google",
-        options: { redirectTo: window.location.origin + "/settings" },
+        options: { redirectTo: window.location.origin + "/settings", queryParams: { prompt: "select_account" } },
       });
       if (error) {
-        toast.error("تعذّر ربط حساب Google: " + error.message);
+        if (/manual linking/i.test(error.message)) {
+          toast.error("لا يمكن ربط بريد Google مختلف حاليًا. سجّل الدخول بـ Google بنفس بريد حسابك وسيُربط تلقائيًا.");
+        } else {
+          toast.error("تعذّر ربط حساب Google: " + error.message);
+        }
         setBusy(null);
         return;
       }
