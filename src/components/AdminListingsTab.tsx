@@ -133,7 +133,8 @@ const AdminListingsTab = () => {
   const [idResults, setIdResults] = useState<ListingRow[]>([]);
   useEffect(() => {
     const hex = search.toLowerCase().replace(/[^0-9a-f]/g, "");
-    if (!searchById || hex.length < 4 || hex.length > 32) { setIdResults([]); return; }
+    const raw = search.trim().replace(/^#/, "");
+    if (!/^[0-9a-fA-F-]{6,36}$/.test(raw) || hex.length > 32) { setIdResults([]); return; }
     const fmt = (s: string) => `${s.slice(0,8)}-${s.slice(8,12)}-${s.slice(12,16)}-${s.slice(16,20)}-${s.slice(20,32)}`;
     const lo = fmt(hex.padEnd(32, "0"));
     const hi = fmt(hex.padEnd(32, "f"));
