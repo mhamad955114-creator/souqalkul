@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -116,6 +116,8 @@ const AdminReports = () => {
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState<"reports" | "messages" | "settings" | "verification" | "listings" | "storage" | "countries" | "users" | "categories" | "upgrades" | "subscriptions" | "rewards" | "glow" | "plans">("reports");
+  const [searchParams] = useSearchParams();
+  useEffect(() => { const t = searchParams.get("tab"); if (t) setActiveTab(t as any); }, [searchParams]);
 
   // Contact messages
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);

@@ -15,6 +15,8 @@ const LISTING_TYPES = new Set([
 export const getNotificationRoute = (type: string, relatedId: string | null): string | null => {
   if (type === "new_message") return relatedId ? `/messages?listing=${relatedId}` : "/messages";
   if (type === "ai_reply" || type === "ai_thread_created") return relatedId ? `/ai/${relatedId}` : "/ai";
+  if (type === "admin" || type === "plan_request")
+    return relatedId ? `/admin/reports?tab=upgrades&request=${relatedId}` : "/admin/reports?tab=upgrades";
   if (type === "admin_report" || type === "report_update" || type === "upgrade_request" || type === "plan_request" || type === "storage_alert")
     return "/admin/reports";
   if (type.startsWith("subscription") || type === "payment" || type === "system") return "/my-account";
