@@ -1,4 +1,4 @@
-import { Search, MapPin, Loader2, Navigation } from "lucide-react";
+import { Search, MapPin, Loader2, Navigation, Mic, MicOff } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useState, useRef, useEffect } from "react";
@@ -7,6 +7,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { cities as allCities, areasByCity } from "@/lib/constants";
+import { useSpeechSearch } from "@/hooks/useSpeechSearch";
 
 const HeroSection = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -15,13 +16,14 @@ const HeroSection = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const { loading: geoLoading, detectLocation } = useGeolocation();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { currentCity, setCity, currentCountry } = useCountry();
   const cities = currentCountry?.cities?.length ? currentCountry.cities : allCities;
   const navigate = useNavigate();
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
   const cityPrefilled = useRef(false);
+  const { isListening, toggleListening } = useSpeechSearch(language, setSearchValue);
 
   // تعبئة المدينة تلقائياً بعد اكتشافها (مرة واحدة، ودون الكتابة فوق اختيار المستخدم)
   useEffect(() => {
@@ -167,8 +169,19 @@ const HeroSection = () => {
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
-                  className={`${dir === "rtl" ? "pr-12" : "pl-12"} h-12 bg-secondary border-0 text-foreground placeholder:text-muted-foreground`}
+                  className={`${dir === "rtl" ? "pr-12 pl-11" : "pl-12 pr-11"} h-12 bg-secondary border-0 text-foreground placeholder:text-muted-foreground`}
                 />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleListening}
+                  aria-label={language === "ar" ? (isListening ? "إيقاف الاستماع" : "البحث بالصوت") : isListening ? "Stop listening" : "Voice search"}
+                  title={language === "ar" ? (isListening ? "إيقاف الاستماع" : "البحث بالصوت") : isListening ? "Stop listening" : "Voice search"}
+                  className={`absolute ${dir === "rtl" ? "left-1" : "right-1"} top-1/2 -translate-y-1/2 h-10 w-10 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground"}`}
+                >
+                  {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                </Button>
               </div>
               <div className="relative flex-1">
                 <MapPin className={`absolute ${dir === "rtl" ? "right-4" : "left-4"} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10`} />
