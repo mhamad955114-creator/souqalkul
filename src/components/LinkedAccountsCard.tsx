@@ -157,6 +157,13 @@ const LinkedAccountsCard = () => {
     if (isResend && resendIn > 0) return;
 
     setBusy("phone");
+    const { data: cur } = await supabase.auth.getUser();
+    const digits = (s?: string | null) => (s || "").replace(/\D/g, "");
+    if (cur.user?.phone && digits(cur.user.phone) === digits(formatted)) {
+      setBusy(null);
+      toast.info("هذا الرقم مرتبط بحسابك بالفعل، لا حاجة لرمز تأكيد.");
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ phone: formatted });
     setBusy(null);
     if (error) {
