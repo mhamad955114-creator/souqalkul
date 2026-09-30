@@ -541,8 +541,8 @@ const AiAssistant = () => {
                 )}
               </div>
             )}
-            <ScrollArea className="flex-1 min-w-0">
-              <div ref={scrollRef} className="p-3 space-y-4 overflow-y-auto overflow-x-hidden min-w-0 max-h-[calc(65vh-110px)]">
+            <div className="flex-1 min-w-0 min-h-0 flex flex-col">
+              <div ref={scrollRef} className="p-3 space-y-4 overflow-y-auto overflow-x-hidden min-w-0 flex-1 min-h-0">
                 {loadingMessages ? (
                   <div className="flex justify-center py-8">
                     <Loader2 className="h-5 w-5 animate-spin text-primary" />
@@ -594,7 +594,7 @@ const AiAssistant = () => {
                   <p className="text-sm text-muted-foreground animate-pulse">يكتب...</p>
                 )}
               </div>
-            </ScrollArea>
+            </div>
 
             {/* Ready-made questions about the linked listing, always reachable */}
             {listing && messages.length > 0 && (
