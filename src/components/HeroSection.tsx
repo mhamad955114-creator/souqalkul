@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { cities, areasByCity } from "@/lib/constants";
+import { cities as allCities, areasByCity } from "@/lib/constants";
 
 const HeroSection = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -16,7 +16,8 @@ const HeroSection = () => {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const { loading: geoLoading, detectLocation } = useGeolocation();
   const { t, dir } = useLanguage();
-  const { currentCity, setCity } = useCountry();
+  const { currentCity, setCity, currentCountry } = useCountry();
+  const cities = currentCountry?.cities?.length ? currentCountry.cities : allCities;
   const navigate = useNavigate();
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
