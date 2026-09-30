@@ -1,4 +1,4 @@
-import { useGridLayout } from "@/hooks/useGridLayout";
+import { useGridLayout, GridLayoutToggle } from "@/hooks/useGridLayout";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -678,6 +678,7 @@ const AllListings = () => {
           </div>
         ) : (
           <>
+            <div className="flex justify-end mb-3"><GridLayoutToggle /></div>
             <div className={gridClass}>
               {filteredListings.map((listing, index) => (
                 <div

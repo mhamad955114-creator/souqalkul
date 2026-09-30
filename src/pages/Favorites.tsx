@@ -1,4 +1,4 @@
-import { useGridLayout } from "@/hooks/useGridLayout";
+import { useGridLayout, GridLayoutToggle } from "@/hooks/useGridLayout";
 import { useEffect, useState } from "react";
 import { Heart, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -121,6 +121,8 @@ const Favorites = () => {
               </p>
             </div>
           ) : (
+            <>
+            <div className="flex justify-end mb-3"><GridLayoutToggle /></div>
             <div className={gridClass}>
               {listings.map((listing) => (
                 <ListingCard
