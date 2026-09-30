@@ -1,4 +1,4 @@
-import { useGridLayout } from "@/hooks/useGridLayout";
+import { useGridLayout, GridLayoutToggle } from "@/hooks/useGridLayout";
 import { ArrowLeft, ArrowRight, Pin, BarChart3, Images, Infinity, ShieldCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import ListingCard from "./ListingCard";
@@ -193,6 +193,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
           </div>
         </div>
 
+        <div className="flex justify-end mb-3"><GridLayoutToggle /></div>
         {loading ? (
           <div className={gridClass}>
             {[...Array(4)].map((_, i) => (
