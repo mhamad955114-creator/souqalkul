@@ -99,7 +99,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
       const { data: ratingsData } = await supabase
         .from("ratings")
         .select("seller_id, rating")
-        .in("seller_id", userIds);
+        .in("seller_id", userIds as string[]);
       const ratingMap = new Map<string, { sum: number; count: number }>();
       (ratingsData || []).forEach((r) => {
         const entry = ratingMap.get(r.seller_id) || { sum: 0, count: 0 };
