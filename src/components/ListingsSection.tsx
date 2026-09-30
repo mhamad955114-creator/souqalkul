@@ -82,12 +82,12 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
   const { currentCountry } = useCountry();
 
   const fetchListings = async () => {
-    const { data, error } = await supabase
+    let q: any = supabase
       .from("listings")
       .select("*")
-      .eq("status", "active")
-      .eq("country", currentCountry.name as any)
-      
+      .eq("status", "active");
+    if (localStorage.getItem("countryChosenByUser") === "1") q = q.eq("country", currentCountry.name as any);
+    const { data, error } = await q
       .order("is_featured", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(8);
@@ -99,7 +99,7 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
       const { data: ratingsData } = await supabase
         .from("ratings")
         .select("seller_id, rating")
-        .in("seller_id", userIds);
+        .in("seller_id", userIds as string[]);
       const ratingMap = new Map<string, { sum: number; count: number }>();
       (ratingsData || []).forEach((r) => {
         const entry = ratingMap.get(r.seller_id) || { sum: 0, count: 0 };
@@ -223,11 +223,11 @@ const ListingsSection = ({ refreshTrigger }: ListingsSectionProps) => {
                       id={listing.id}
                       image={listing.images?.[0] || "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&h=375&fit=crop"}
                       title={listing.title}
-                      price={formatPrice(listing.price, currentCountry.currencySymbol)}
+                      price={formatPrice(listing.price, ((listing as any).country ? getCountryByName((listing as any).country) : currentCountry).currencySymbol)}
                       priceValue={listing.price}
                       currency={(listing as any).currency}
                       location={listing.city}
-                      country={currentCountry.name}
+                      country={(listing as any).country || currentCountry.name}
                       time={formatTime(listing.created_at)}
                       featured={listing.badge_type === "featured" || listing.is_featured}
                       professional={listing.badge_type === "professional"}
