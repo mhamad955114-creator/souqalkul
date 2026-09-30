@@ -360,7 +360,8 @@ const AdminListingsTab = () => {
   const filterFn = (l: ListingRow) => {
     if (!searchLower) return true;
     if (searchById) {
-      return l.id.toLowerCase() === searchLower;
+      const q = searchLower.replace(/^#/, "").replace(/\s+/g, "");
+      return l.id.toLowerCase().startsWith(q) || l.id.toLowerCase().replace(/-/g, "").startsWith(q.replace(/-/g, ""));
     }
     return (
       l.title.toLowerCase().includes(searchLower) ||
