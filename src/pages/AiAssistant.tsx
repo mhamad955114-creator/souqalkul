@@ -578,7 +578,7 @@ const AiAssistant = () => {
                         </div>
                       </div>
                     ) : (
-                      <div key={m.id} className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+                      <div key={m.id} className="max-w-[90%] rounded-2xl bg-muted px-3 py-2 text-sm leading-relaxed text-foreground [&_*]:text-foreground [&_p]:my-1 [&_ul]:list-disc [&_ul]:ps-5 [&_ol]:list-decimal [&_ol]:ps-5 [&_strong]:font-bold">
                         <ReactMarkdown>{m.content}</ReactMarkdown>
                       </div>
                     ),
@@ -586,7 +586,7 @@ const AiAssistant = () => {
                 )}
 
                 {streaming && (
-                  <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+                  <div className="max-w-[90%] rounded-2xl bg-muted px-3 py-2 text-sm leading-relaxed text-foreground [&_*]:text-foreground [&_p]:my-1 [&_ul]:list-disc [&_ul]:ps-5 [&_ol]:list-decimal [&_ol]:ps-5 [&_strong]:font-bold">
                     <ReactMarkdown>{streaming}</ReactMarkdown>
                   </div>
                 )}
