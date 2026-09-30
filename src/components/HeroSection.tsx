@@ -178,9 +178,9 @@ const HeroSection = () => {
                   onClick={toggleListening}
                   aria-label={language === "ar" ? (isListening ? "إيقاف الاستماع" : "البحث بالصوت") : isListening ? "Stop listening" : "Voice search"}
                   title={language === "ar" ? (isListening ? "إيقاف الاستماع" : "البحث بالصوت") : isListening ? "Stop listening" : "Voice search"}
-                  className={`absolute ${dir === "rtl" ? "left-1" : "right-1"} top-1/2 -translate-y-1/2 h-10 w-10 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground"}`}
+                  className={`absolute ${dir === "rtl" ? "left-1" : "right-1"} top-1/2 -translate-y-1/2 h-10 w-10 border shadow-sm ${isListening ? "border-destructive bg-destructive text-destructive-foreground animate-pulse hover:bg-destructive/90" : "border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"}`}
                 >
-                  {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                  {isListening ? <MicOff className="h-5 w-5" strokeWidth={2.5} /> : <Mic className="h-5 w-5" strokeWidth={2.5} />}
                 </Button>
               </div>
               <div className="relative flex-1">
