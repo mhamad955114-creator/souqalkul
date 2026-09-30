@@ -209,7 +209,7 @@ const ListingCard = ({ id, image, title, price, priceValue, currency, location, 
         <h3 className="text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors mb-1">
           {title}
         </h3>
-        <div className="text-base font-bold text-primary mb-1 truncate whitespace-nowrap">{displayPrice}</div>
+        <div className="text-[13px] sm:text-base font-bold text-primary mb-1 truncate whitespace-nowrap">{displayPrice}</div>
         <div className="mt-auto flex items-center justify-between text-[11px] text-muted-foreground leading-tight">
           <div className="flex items-center gap-1 min-w-0">
             <MapPin className="h-3 w-3 shrink-0" />
