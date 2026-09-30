@@ -1,5 +1,6 @@
 import { customPlanName } from "@/lib/customPlans";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,8 @@ const AdminUpgradeRequestsTab = () => {
   const [selected, setSelected] = useState<UpgradeRequest | null>(null);
   const [adminNote, setAdminNote] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const focusId = searchParams.get("request");
   const [filter, setFilter] = useState<string>("pending");
 
   const fetchRequests = async () => {
@@ -167,7 +170,7 @@ const AdminUpgradeRequestsTab = () => {
     }
   };
 
-  const filtered = requests.filter((r) => filter === "all" || r.status === filter);
+  const filtered = focusId ? requests.filter((r) => r.id === focusId) : requests.filter((r) => filter === "all" || r.status === filter);
   const pendingCount = requests.filter((r) => r.status === "pending").length;
 
   if (loading) {
@@ -224,6 +227,9 @@ const AdminUpgradeRequestsTab = () => {
         ))}
       </div>
 
+      {focusId && (
+        <Button variant="outline" size="sm" onClick={() => { searchParams.delete("request"); setSearchParams(searchParams); }}>عرض كل الطلبات</Button>
+      )}
       {filtered.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
