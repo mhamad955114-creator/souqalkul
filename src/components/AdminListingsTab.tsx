@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { Loader2, Search, Star, Crown, Gem, CheckCircle, XCircle, Clock, Eye, ChevronLeft, ChevronRight, Trash2, ImageOff, Pencil, MessageSquare } from "lucide-react";
-import ListingAdminChat from "./ListingAdminChat";
+import ChatModal from "./ChatModal";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog";
 import { formatDate } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -958,25 +958,16 @@ const AdminListingsTab = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Direct messaging with the listing owner */}
-      <Dialog open={!!messageListing} onOpenChange={(open) => !open && setMessageListing(null)}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-right">
-              مراسلة صاحب إعلان: {messageListing?.title}
-            </DialogTitle>
-          </DialogHeader>
-          {messageListing && (
-            <ListingAdminChat
-              listingId={messageListing.id}
-              ownerId={messageListing.user_id}
-              listingTitle={messageListing.title}
-              asAdmin
-              className="border-0 shadow-none"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Direct messaging with the listing owner (regular user chat) */}
+      <ChatModal
+        open={!!messageListing}
+        onOpenChange={(open) => {
+          if (!open) setMessageListing(null);
+        }}
+        listingId={messageListing?.id}
+        sellerId={messageListing?.user_id}
+        listingTitle={messageListing?.title}
+      />
 
       {/* Edit Listing Dialog */}
       <Dialog open={!!editListing} onOpenChange={(open) => !open && setEditListing(null)}>
