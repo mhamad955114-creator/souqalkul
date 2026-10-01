@@ -9,7 +9,6 @@ import {
 } from "./ui/dropdown-menu";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ScrollArea } from "./ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { getNotificationRoute } from "@/lib/notificationRoute";
 
@@ -47,7 +46,7 @@ const NotificationsDropdown = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className="w-[calc(100vw-1rem)] max-w-80">
         <div className="flex items-center justify-between px-3 py-2">
           <span className="font-semibold text-sm">{l.notifications}</span>
           {unreadCount > 0 && (
@@ -58,7 +57,7 @@ const NotificationsDropdown = () => {
           )}
         </div>
         <DropdownMenuSeparator />
-        <ScrollArea className="max-h-72">
+        <div className="max-h-[min(60vh,28rem)] touch-pan-y overflow-y-auto overscroll-contain">
           {notifications.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground text-sm">
               {l.noNotifications}
@@ -82,7 +81,7 @@ const NotificationsDropdown = () => {
               </DropdownMenuItem>
             ))
           )}
-        </ScrollArea>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
