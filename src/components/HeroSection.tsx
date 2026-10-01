@@ -23,7 +23,14 @@ const HeroSection = () => {
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
   const cityPrefilled = useRef(false);
-  const { isListening, toggleListening } = useSpeechSearch(language, setSearchValue);
+  const { isListening, toggleListening } = useSpeechSearch(language, (text) => {
+    setSearchValue(text);
+    const params = new URLSearchParams();
+    params.set("q", text);
+    const matchedCity = selectedCity || cities.find((c) => locationValue.includes(c));
+    if (matchedCity) params.set("city", matchedCity);
+    navigate(`/listings?${params.toString()}`);
+  });
 
   // تعبئة المدينة تلقائياً بعد اكتشافها (مرة واحدة، ودون الكتابة فوق اختيار المستخدم)
   useEffect(() => {
