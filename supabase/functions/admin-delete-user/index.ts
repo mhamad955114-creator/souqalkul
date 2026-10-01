@@ -107,10 +107,11 @@ Deno.serve(async (req) => {
     await adminClient.from("wallets").delete().eq("user_id", targetUserId);
 
     // 7. Sign out & delete the auth user
-    await adminClient.auth.admin.signOut(targetUserId, "global");
+    try { await adminClient.auth.admin.signOut(targetUserId, "global"); } catch { /* ignore */ }
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(targetUserId);
 
-    if (deleteError) {
+    const alreadyGone = deleteError && ((deleteError as any).status === 404 || (deleteError as any).code === "user_not_found");
+    if (deleteError && !alreadyGone) {
       console.error("Delete user error:", deleteError);
       return new Response(JSON.stringify({ error: "Failed to delete user" }), {
         status: 500,
