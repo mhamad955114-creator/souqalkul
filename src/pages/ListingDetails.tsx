@@ -35,7 +35,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatModal from "@/components/ChatModal";
 import PriceEstimateCard from "@/components/PriceEstimateCard";
-import ListingAdminChat from "@/components/ListingAdminChat";
 import { notifyAdmins, notifyUser } from "@/lib/notifyAdmins";
 
 import AuthModal from "@/components/AuthModal";
@@ -679,38 +678,29 @@ const ListingDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Owner: publish the listing + admin messages */}
-            {isOwner && (
-              <div className="space-y-4">
-                {listing.status !== "active" && (
-                  <Card>
-                    <CardContent className="p-4 space-y-2">
-                      <p className="text-sm text-muted-foreground text-center">
-                        هذا الإعلان غير منشور حالياً
-                        {listing.status ? ` (${listing.status})` : ""}
-                      </p>
-                      <Button
-                        onClick={handlePublish}
-                        disabled={publishing}
-                        className="w-full"
-                        size="lg"
-                      >
-                        {publishing ? (
-                          <Loader2 className="h-5 w-5 animate-spin" />
-                        ) : (
-                          <Rocket className="h-5 w-5" />
-                        )}
-                        نشر الإعلان
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-                <ListingAdminChat
-                  listingId={listing.id}
-                  ownerId={listing.user_id}
-                  listingTitle={listing.title}
-                />
-              </div>
+            {/* Owner: publish the listing */}
+            {isOwner && listing.status !== "active" && (
+              <Card>
+                <CardContent className="p-4 space-y-2">
+                  <p className="text-sm text-muted-foreground text-center">
+                    هذا الإعلان غير منشور حالياً
+                    {listing.status ? ` (${listing.status})` : ""}
+                  </p>
+                  <Button
+                    onClick={handlePublish}
+                    disabled={publishing}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {publishing ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Rocket className="h-5 w-5" />
+                    )}
+                    نشر الإعلان
+                  </Button>
+                </CardContent>
+              </Card>
             )}
 
             {/* AI price evaluation */}
