@@ -94,6 +94,10 @@ const Pricing = () => {
     const transactionNumber = `REQ-${Date.now()}`;
     const message = `مرحباً، أريد طلب ${plan.name}. رقم الطلب: ${transactionNumber}`;
 
+    const waUrl = buildWhatsAppUrl(contact.whatsapp, message);
+    // Open synchronously within the tap so mobile browsers don't block the popup
+    const waWindow = window.open("", "_blank");
+
     try {
       setSubmittingPlan(plan.key);
 
@@ -110,13 +114,16 @@ const Pricing = () => {
 
       toast.success("تم إرسال طلب الترقية وسيظهر في لوحة التحكم");
 
-      await notifyAdmins({
+      if (waWindow) waWindow.location.href = waUrl;
+      else window.location.href = waUrl;
+
+      notifyAdmins({
         title: "طلب ترقية جديد",
         message: `طلب ترقية إلى ${plan.name} برقم ${transactionNumber}`,
         type: "upgrade_request",
-      });
-      window.open(buildWhatsAppUrl(contact.whatsapp, message), "_blank", "noopener,noreferrer");
+      }).catch(() => {});
     } catch {
+      waWindow?.close();
       toast.error("تعذر إرسال طلب الترقية، حاول مرة أخرى");
     } finally {
       setSubmittingPlan(null);
