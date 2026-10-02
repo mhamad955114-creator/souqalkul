@@ -18,6 +18,7 @@ import { formatDate } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ScrollArea } from "./ui/scroll-area";
 import { useListingSettings } from "@/hooks/useListingSettings";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ListingRow {
   id: string;
@@ -44,6 +45,7 @@ const badgeConfig: Record<string, { label: string; icon: React.ReactNode; color:
 };
 
 const AdminListingsTab = () => {
+  const { user } = useAuth();
   const { settings } = useListingSettings();
   const [listings, setListings] = useState<ListingRow[]>([]);
   const [pendingListings, setPendingListings] = useState<ListingRow[]>([]);
@@ -695,15 +697,17 @@ const AdminListingsTab = () => {
                               <Pencil className="h-3 w-3" />
                               تعديل
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="gap-1 text-xs"
-                              onClick={() => setMessageListing(listing)}
-                            >
-                              <MessageSquare className="h-3 w-3" />
-                              مراسلة
-                            </Button>
+                            {listing.user_id !== user?.id && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-1 text-xs"
+                                onClick={() => setMessageListing(listing)}
+                              >
+                                <MessageSquare className="h-3 w-3" />
+                                مراسلة
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="destructive"
