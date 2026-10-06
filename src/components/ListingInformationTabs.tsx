@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Copy, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,19 +22,23 @@ interface Props {
     country?: string | null; currency?: string | null; latitude?: number | null;
     longitude?: number | null; metadata?: Record<string, unknown> | null;
   };
-  sellerPhone?: string | null;
+  publisherContent: ReactNode;
   sharedLatitude: number | null;
   sharedLongitude: number | null;
   onOpenMap: () => void;
 }
 
-export default function ListingInformationTabs({ listing, sellerPhone, sharedLatitude, sharedLongitude, onOpenMap }: Props) {
+export default function ListingInformationTabs({ listing, publisherContent, sharedLatitude, sharedLongitude, onOpenMap }: Props) {
   const { language, t, dir } = useLanguage();
   const { getFields } = useCategoryDefinitions();
   const labels = copy[language];
   const country = listing.country ? getCountryByName(listing.country) : null;
   const city = localizeCity(listing.city, country?.code || "", language);
-  const phone = sellerPhone || listing.phone;
+  const tabLabels = {
+    ar: { publisher: "معلومات الناشر", details: "تفاصيل الإعلان" },
+    en: { publisher: "Publisher information", details: "Listing details" },
+    tr: { publisher: "İlan veren bilgileri", details: "İlan detayları" },
+  }[language];
   const shortId = listing.id.split("-")[0].toUpperCase();
   const rows = [
     { key: "price", label: labels.price, value: language === "ar" ? formatListingPrice(listing.price, listing.currency, listing.country) : new Intl.NumberFormat(language === "tr" ? "tr-TR-u-nu-latn" : "en-US-u-nu-latn", { style: "currency", currency: listing.currency || country?.currencyCode || "USD", maximumFractionDigits: 0 }).format(listing.price) },
@@ -47,17 +52,17 @@ export default function ListingInformationTabs({ listing, sellerPhone, sharedLat
       const value = listing.metadata?.[field.key];
       return value == null || value === "" ? [] : [{ key: `metadata-${field.key}`, label: localizeFieldLabel(field.key, field.label, language), value: localizeOption(String(value), language) }];
     }),
-    ...(phone ? [{ key: "phone", label: labels.phone, value: phone }] : []),
   ];
   const triggerClass = "min-w-0 whitespace-normal rounded-t-md rounded-b-none border border-border border-b-0 px-2 py-3 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none";
 
   return (
-    <Tabs defaultValue="information" dir={dir} className="w-full min-w-0">
+    <Tabs key={listing.id} defaultValue="publisher" dir={dir} className="w-full min-w-0">
       <TabsList className="grid h-auto w-full grid-cols-3 gap-1 rounded-none border-b-2 border-primary bg-transparent p-0">
-        <TabsTrigger value="information" className={triggerClass}>{labels.information}</TabsTrigger>
-        <TabsTrigger value="description" className={triggerClass}>{t.details.description}</TabsTrigger>
+        <TabsTrigger value="publisher" className={triggerClass}>{tabLabels.publisher}</TabsTrigger>
+        <TabsTrigger value="information" className={triggerClass}>{tabLabels.details}</TabsTrigger>
         <TabsTrigger value="location" className={triggerClass}>{labels.location}</TabsTrigger>
       </TabsList>
+      <TabsContent value="publisher" className="mt-0 px-3 py-5 sm:px-4">{publisherContent}</TabsContent>
       <TabsContent value="information" className="mt-0">
         <dl className="divide-y divide-border">
           {rows.map(row => (
@@ -69,14 +74,15 @@ export default function ListingInformationTabs({ listing, sellerPhone, sharedLat
                     try { await navigator.clipboard.writeText(shortId); toast.success(labels.copied); }
                     catch { toast.error(t.common.error); }
                   }}><bdi>{shortId}</bdi><Copy className="h-3.5 w-3.5 shrink-0" /></Button>
-                ) : <bdi dir={row.key === "phone" ? "ltr" : "auto"}>{row.value}</bdi>}
+                 ) : <bdi dir="auto">{row.value}</bdi>}
               </dd>
             </div>
           ))}
         </dl>
-      </TabsContent>
-      <TabsContent value="description" className="mt-0 px-3 py-5 sm:px-4">
-        <p dir="auto" className="whitespace-pre-wrap text-sm leading-7 text-foreground [overflow-wrap:anywhere]">{listing.description || t.details.noDescription}</p>
+        <section className="border-t border-border px-3 py-5 sm:px-4">
+          <h2 className="mb-3 text-base font-semibold text-foreground">{t.details.description}</h2>
+          <p dir="auto" className="whitespace-pre-wrap text-sm leading-7 text-foreground [overflow-wrap:anywhere]">{listing.description || t.details.noDescription}</p>
+        </section>
       </TabsContent>
       <TabsContent value="location" className="mt-0 space-y-3 py-4">
         <p className="px-3 text-sm text-muted-foreground">{city}{listing.area ? `، ${listing.area}` : ""}</p>
