@@ -45,11 +45,11 @@ import Product360Viewer from "@/components/Product360Viewer";
 import ImageZoomViewer from "@/components/ImageZoomViewer";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import ListingPointsBadge from "@/components/ListingPointsBadge";
-import ListingLocationMap from "@/components/ListingLocationMap";
+import ListingInformationTabs from "@/components/ListingInformationTabs";
+import { localizeCity } from "@/lib/listingLocalization";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice, formatDate, categoryLabels, getCountryByName, formatListingPrice } from "@/lib/constants";
-import { useCategoryDefinitions } from "@/hooks/useCategoryDefinitions";
 import { useListingAiThread } from "@/hooks/useListingAiThread";
 
 
@@ -69,7 +69,11 @@ interface Listing {
   views_count: number | null;
   created_at: string;
   user_id: string;
-  metadata?: Record<string, string> | any;
+  metadata?: Record<string, unknown> | null;
+  country?: string | null;
+  currency?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface SellerProfile {
@@ -86,9 +90,8 @@ const ListingDetails = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { logoUrl: appLogo } = useBrand();
-  const { getFields } = useCategoryDefinitions();
   const [listing, setListing] = useState<Listing | null>(null);
   const { thread: aiThread } = useListingAiThread(listing?.id);
 
@@ -255,17 +258,19 @@ const ListingDetails = () => {
   };
 
   const nextImage = () => {
-    if (listing?.images && listing.images.length > 0) {
+    const imageCount = listing?.images?.length || 0;
+    if (imageCount > 0) {
       setCurrentImageIndex((prev) => 
-        prev === listing.images!.length - 1 ? 0 : prev + 1
+        prev === imageCount - 1 ? 0 : prev + 1
       );
     }
   };
 
   const prevImage = () => {
-    if (listing?.images && listing.images.length > 0) {
+    const imageCount = listing?.images?.length || 0;
+    if (imageCount > 0) {
       setCurrentImageIndex((prev) => 
-        prev === 0 ? listing.images!.length - 1 : prev - 1
+        prev === 0 ? imageCount - 1 : prev - 1
       );
     }
   };
@@ -284,7 +289,7 @@ const ListingDetails = () => {
 
   const hasRealImages = listing.images && listing.images.length > 0 && 
     !listing.images.every(img => img.includes("placeholder") || img.includes("unsplash"));
-  const images = hasRealImages ? listing.images! : [];
+  const images = hasRealImages ? listing.images || [] : [];
   const showAppLogo = images.length === 0;
   const isOwnerBusiness = listing.badge_type === "business";
   const isOwnerPro = listing.badge_type === "professional";
@@ -311,8 +316,8 @@ const ListingDetails = () => {
           {t.details.back}
         </Button>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid min-w-0 lg:grid-cols-3 gap-8">
+          <div className="min-w-0 lg:col-span-2 space-y-6">
             {/* Image Gallery */}
             <Card className="overflow-hidden">
               <div className="relative aspect-[4/6] sm:aspect-video bg-muted/20">
@@ -427,161 +432,32 @@ const ListingDetails = () => {
               )}
             </Card>
 
-            {/* Listing Info - Table Style */}
-            <Card>
-              <CardContent className="p-4 sm:p-6">
-                {/* Badges Row */}
-                <div className="flex flex-wrap gap-2 mb-4 justify-end">
-                  {listing.status === "sold" && (
-                    <Badge variant="destructive" className="text-sm">
-                      {t.myAccount.soldBadge}
-                    </Badge>
-                  )}
-                  {isOwnerBusiness && (
-                    <Badge className="text-sm bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0">
-                      <span className="animate-pulse">💎</span> رجال أعمال
-                    </Badge>
-                  )}
-                  {isOwnerPro && !isOwnerBusiness && (
-                    <Badge className="text-sm bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
-                      👑 احترافي
-                    </Badge>
-                  )}
-                  {(listing.is_featured || (listing as any).badge_type === "featured") && !isOwnerPro && !isOwnerBusiness && (
-                    <Badge className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
-                      ⭐ {t.listings.featured}
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Price Row */}
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-2xl font-bold text-primary">{formatListingPrice(listing.price, (listing as any).currency, (listing as any).country)}</span>
-                  <span className="text-lg font-semibold text-foreground">السعر</span>
-                </div>
-
-                {/* Title */}
-                <div className="py-3 border-b border-border text-end">
-                  <h1 className="text-lg font-bold text-foreground">{listing.title}</h1>
-                </div>
-
-                {/* Location + Views */}
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <Eye className="h-4 w-4 text-amber-500" />
-                    {listing.views_count || 0}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {listing.city}{listing.area && ` - ${listing.area}`}
-                  </span>
-                </div>
-
-                <ListingPointsBadge listingId={listing.id} detailed />
-
-
-                {/* Map preview with saved coordinates */}
-                <div className="py-3">
-                  <ListingLocationMap
-                    listingId={listing.id}
-                    city={listing.city}
-                    area={listing.area}
-                    country={(listing as any).country}
-                    latitude={(listing as any).latitude}
-                    longitude={(listing as any).longitude}
-                    sharedLatitude={sharedLatitude}
-                    sharedLongitude={sharedLongitude}
-                    compact
-                  />
-                  <Button
-                    onClick={() => navigate(`/listing/${listing.id}/map`)}
-                    variant="outline"
-                    className="w-full mt-2"
-                    size="sm"
-                  >
-                    <MapPin className="h-4 w-4 mr-2" />
-                    عرض الموقع على خريطة أكبر
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-muted-foreground">{formatDate(listing.created_at)}</span>
-                  <span className="font-medium text-foreground">تاريخ الإعلان</span>
-                </div>
-
-                {/* Listing ID - Copyable */}
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <button
-                    onClick={() => {
-                      const shortId = listing.id.split("-")[0].toUpperCase();
-                      navigator.clipboard.writeText(shortId);
-                      toast.success("تم نسخ رقم الإعلان، الصقه في خانة البحث لعرض الإعلان");
-                    }}
-                    className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-                    title="اضغط لنسخ رقم الإعلان"
-                  >
-                    <Copy className="h-3.5 w-3.5" />
-                    <span className="font-mono text-sm">{listing.id.split("-")[0].toUpperCase()}</span>
-                  </button>
-                  <span className="font-medium text-foreground">رقم الإعلان</span>
-                </div>
-
-                {/* Phone */}
-                {(seller?.phone || listing?.phone) && (
-                  <div className="flex items-center justify-between py-3 border-b border-border">
-                    <span className="text-muted-foreground direction-ltr" dir="ltr">{seller?.phone || listing?.phone}</span>
-                    <span className="font-medium text-foreground">رقم هاتف المعلن</span>
-                  </div>
-                )}
-
-                {/* Category */}
-                <div className="flex items-center justify-between py-3 border-b border-border">
-                  <span className="text-muted-foreground">{categoryLabels[listing.category] || listing.category}</span>
-                  <span className="font-medium text-foreground">التصنيف</span>
-                </div>
-
-                {/* Dynamic Metadata Fields */}
-                {listing.metadata && typeof listing.metadata === 'object' && (() => {
-                  const fields = getFields(listing.category);
-                  const meta = listing.metadata as Record<string, string>;
-                  const filledFields = fields.filter(f => meta[f.key]);
-                  if (filledFields.length === 0) return null;
-                  return filledFields.map(field => (
-                    <div key={field.key} className="flex items-center justify-between py-3 border-b border-border">
-                      <span className="text-muted-foreground">{meta[field.key]}</span>
-                      <span className="font-medium text-foreground">{field.label}</span>
-                    </div>
-                  ));
-                })()}
-
-                {/* Description */}
-                <div className="pt-4">
-                  <h2 className="text-lg font-semibold text-foreground mb-3 text-end">
-                    {t.details.description}
-                  </h2>
-                  <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                    {listing.description || t.details.noDescription}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Ratings Section */}
-            <RatingSection
-              sellerId={listing.user_id}
-              listingId={listing.id}
-              sellerName={seller?.full_name || undefined}
-            />
-          </div>
-
-          {/* Sidebar - Seller Info */}
-          <div className="space-y-6">
-            <Card className="sticky top-24">
-              <CardContent className="p-6">
+            <section className="min-w-0 space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                {listing.status === "sold" && <Badge variant="destructive">{t.myAccount.soldBadge}</Badge>}
+                {(listing.is_featured || listing.badge_type === "featured") && !isOwnerPro && !isOwnerBusiness && <Badge>⭐ {t.listings.featured}</Badge>}
+                {isOwnerBusiness && <Badge>💎 {language === "ar" ? "رجال أعمال" : language === "tr" ? "İşletme" : "Business"}</Badge>}
+                {isOwnerPro && !isOwnerBusiness && <Badge>⭐ {language === "ar" ? "احترافي" : language === "tr" ? "Profesyonel" : "Professional"}</Badge>}
+              </div>
+              <h1 dir="auto" className="text-xl font-bold text-foreground [overflow-wrap:anywhere]">{listing.title}</h1>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xl font-bold text-primary">{formatListingPrice(listing.price, listing.currency, listing.country)}</span>
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Eye className="h-4 w-4" />{listing.views_count || 0}</span>
+              </div>
+              <ListingPointsBadge listingId={listing.id} detailed />
+              <ListingInformationTabs
+                listing={listing}
+                sharedLatitude={sharedLatitude}
+                sharedLongitude={sharedLongitude}
+                onOpenMap={() => navigate(`/listing/${listing.id}/map`)}
+                publisherContent={(
+                  <div className="min-w-0">
                 <h2 className="text-lg font-semibold text-foreground mb-4">
                   {t.details.sellerInfo}
                 </h2>
 
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 shrink-0 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                     {seller?.avatar_url ? (
                       <img 
                         src={seller.avatar_url} 
@@ -592,7 +468,7 @@ const ListingDetails = () => {
                       <User className="h-8 w-8 text-muted-foreground" />
                     )}
                   </div>
-                  <div>
+                  <div className="min-w-0 [overflow-wrap:anywhere]">
                     <h3 className="font-semibold text-foreground flex items-center gap-1">
                       {seller?.full_name || t.details.member}
                       {seller?.is_verified && <VerifiedBadge size="sm" />}
@@ -600,17 +476,20 @@ const ListingDetails = () => {
                     {seller?.city && (
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
-                        {seller.city}
+                        {localizeCity(seller.city, getCountryByName(listing.country || "")?.code || "", language)}
                       </p>
                     )}
                     {seller?.created_at && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        {t.details.memberSince} {formatDate(seller.created_at)}
+                        {t.details.memberSince} {new Intl.DateTimeFormat(`${language}-u-nu-latn`, { calendar: "gregory" }).format(new Date(seller.created_at))}
                       </p>
                     )}
                   </div>
                 </div>
 
+                {(seller?.phone || listing.phone) && (
+                  <p className="mb-4 text-sm text-foreground"><bdi dir="ltr">{seller?.phone || listing.phone}</bdi></p>
+                )}
                 <div className="space-y-3">
                   <Button 
                     onClick={handleCall}
@@ -625,7 +504,7 @@ const ListingDetails = () => {
                   <Button 
                     onClick={handleWhatsApp}
                     variant="outline" 
-                    className="w-full bg-[#25D366] hover:bg-[#25D366]/90 text-white border-[#25D366] hover:text-white" 
+                    className="w-full" 
                     size="lg"
                     disabled={!seller?.phone && !listing?.phone}
                   >
@@ -675,9 +554,21 @@ const ListingDetails = () => {
                     {t.details.noPhone}
                   </p>
                 )}
-              </CardContent>
-            </Card>
+                  </div>
+                )}
+              />
+            </section>
 
+            {/* Ratings Section */}
+            <RatingSection
+              sellerId={listing.user_id}
+              listingId={listing.id}
+              sellerName={seller?.full_name || undefined}
+            />
+          </div>
+
+          {/* Sidebar - Seller Info */}
+          <div className="min-w-0 space-y-6">
             {/* Owner: publish the listing */}
             {isOwner && listing.status !== "active" && (
               <Card>
