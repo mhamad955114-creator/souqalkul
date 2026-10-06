@@ -60,7 +60,17 @@ interface UserRow {
   requests_pending?: number;
   active_listings?: number;
   points?: number;
+  auth?: AuthInfo | null;
+}
 
+interface AuthInfo {
+  method: "phone" | "email" | "google";
+  providers: string[];
+  email: string | null;
+  phone: string | null;
+  email_confirmed_at: string | null;
+  phone_confirmed_at: string | null;
+  last_sign_in_at: string | null;
 }
 
 const planLabels: Record<string, string> = {
@@ -162,12 +172,19 @@ const AdminUsersTab = () => {
       activeMap.set(l.user_id, (activeMap.get(l.user_id) || 0) + 1);
     });
 
+    const authMap = new Map<string, AuthInfo>();
+    try {
+      const { data: authData } = await supabase.functions.invoke("admin-users-auth", { body: {} });
+      (authData?.users || []).forEach((a: AuthInfo & { user_id: string }) => authMap.set(a.user_id, a));
+    } catch { /* ignore */ }
+
     setUsers(
       (data || []).map((u) => {
         const planType = planMap.get(u.user_id)?.plan_type ?? null;
         const activeCount = activeMap.get(u.user_id) || 0;
         return {
           ...u,
+          auth: authMap.get(u.user_id) ?? null,
           is_admin: adminIds.has(u.user_id),
           is_banned: banMap.has(u.user_id),
           ban_reason: banMap.get(u.user_id) ?? null,
@@ -416,7 +433,7 @@ const AdminUsersTab = () => {
               <TableRow>
                 <TableHead className="text-right">المستخدم</TableHead>
                 <TableHead className="text-right">النقاط</TableHead>
-                <TableHead className="text-right">الهاتف</TableHead>
+                <TableHead className="text-right">طريقة وبيانات التسجيل</TableHead>
                 <TableHead className="text-right">الموقع</TableHead>
                 <TableHead className="text-right">الباقة</TableHead>
 
@@ -487,9 +504,23 @@ const AdminUsersTab = () => {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm" dir="ltr">
-
-                      {u.phone || "—"}
+                    <TableCell className="text-sm">
+                      <div className="flex flex-col gap-0.5 min-w-[170px]">
+                        <Badge variant={u.auth?.method === "phone" ? "default" : "secondary"} className="w-fit text-[10px]">
+                          {u.auth ? (u.auth.method === "phone" ? "📱 رقم الهاتف" : u.auth.method === "google" ? "🌐 حساب Google" : "✉️ البريد الإلكتروني") : "—"}
+                        </Badge>
+                        {u.auth?.email && <span className="text-xs break-all" dir="ltr">{u.auth.email}</span>}
+                        <span className="text-xs" dir="ltr">{u.auth?.phone || u.phone || "—"}</span>
+                        {u.auth && (u.auth.providers.length > 1) && (
+                          <span className="text-[10px] text-muted-foreground">مرتبط: {u.auth.providers.join(" + ")}</span>
+                        )}
+                        {u.auth && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {(u.auth.email_confirmed_at || u.auth.phone_confirmed_at) ? "✓ مؤكَّد" : "غير مؤكَّد"}
+                            {u.auth.last_sign_in_at && <> · آخر دخول <span dir="ltr">{new Date(u.auth.last_sign_in_at).toLocaleDateString("en-GB")}</span></>}
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-sm">
                       {[u.city, u.country].filter(Boolean).join(" - ") || "—"}
