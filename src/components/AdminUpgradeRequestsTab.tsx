@@ -275,6 +275,18 @@ const AdminUpgradeRequestsTab = () => {
         </Card>
       </div>
 
+      {/* Search by request number */}
+      <div className="relative">
+        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="ابحث برقم الطلب (مثال: REQ-1790662737430)..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pr-10"
+          inputMode="text"
+        />
+      </div>
+
       <div className="flex gap-2 overflow-x-auto">
         {[
           { value: "pending", label: "قيد المراجعة" },
