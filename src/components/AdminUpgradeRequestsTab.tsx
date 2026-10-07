@@ -312,7 +312,7 @@ const AdminUpgradeRequestsTab = () => {
       {filtered.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            لا توجد طلبات ترقية
+            {search.trim() ? "لا يوجد طلب برقم الطلب المكتوب" : "لا توجد طلبات ترقية"}
           </CardContent>
         </Card>
       ) : (
