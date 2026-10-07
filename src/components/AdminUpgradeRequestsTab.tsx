@@ -224,19 +224,18 @@ const AdminUpgradeRequestsTab = () => {
     }
   };
 
-  const statusFiltered = focusId
-    ? requests.filter((r) => r.id === focusId)
-    : requests.filter((r) => filter === "all" || r.status === filter);
   const q = search.trim();
-  const searchFiltered = q && !focusId
-    ? statusFiltered.filter((r) => reqMatch(r, q))
-    : statusFiltered;
-  const dbFiltered = q && !focusId
-    ? dbResults.filter((r) => filter === "all" || r.status === filter)
-    : [];
-  const filtered = [...searchFiltered];
-  for (const r of dbFiltered) {
-    if (!filtered.some((m) => m.id === r.id)) filtered.push(r);
+  let filtered: UpgradeRequest[];
+  if (focusId) {
+    filtered = requests.filter((r) => r.id === focusId);
+  } else if (q) {
+    // عند البحث برقم الطلب نتجاهل فلتر الحالة حتى لا تختفي النتيجة
+    filtered = requests.filter((r) => reqMatch(r, q));
+    for (const r of dbResults) {
+      if (!filtered.some((m) => m.id === r.id)) filtered.push(r);
+    }
+  } else {
+    filtered = requests.filter((r) => filter === "all" || r.status === filter);
   }
   const pendingCount = requests.filter((r) => r.status === "pending").length;
 
