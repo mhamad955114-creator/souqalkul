@@ -58,6 +58,7 @@ interface UserRow {
   plan_expires_at?: string | null;
   requests_total?: number;
   requests_pending?: number;
+  request_numbers?: string[];
   active_listings?: number;
   points?: number;
   auth?: AuthInfo | null;
@@ -150,14 +151,18 @@ const AdminUsersTab = () => {
     // Upgrade / top-up requests sent by each user
     const { data: requests } = await supabase
       .from("top_up_requests")
-      .select("user_id, status");
+      .select("user_id, status, transaction_number");
 
     const reqTotal = new Map<string, number>();
     const reqPending = new Map<string, number>();
+    const reqNumbers = new Map<string, string[]>();
     (requests || []).forEach((r: any) => {
       reqTotal.set(r.user_id, (reqTotal.get(r.user_id) || 0) + 1);
       if (r.status === "pending") {
         reqPending.set(r.user_id, (reqPending.get(r.user_id) || 0) + 1);
+      }
+      if (r.transaction_number) {
+        reqNumbers.set(r.user_id, [...(reqNumbers.get(r.user_id) || []), r.transaction_number]);
       }
     });
 
@@ -192,6 +197,7 @@ const AdminUsersTab = () => {
           plan_expires_at: planMap.get(u.user_id)?.expires_at ?? null,
           requests_total: reqTotal.get(u.user_id) || 0,
           requests_pending: reqPending.get(u.user_id) || 0,
+          request_numbers: reqNumbers.get(u.user_id) || [],
           active_listings: activeCount,
           points: calculateUserPoints({
             planType,
@@ -331,11 +337,16 @@ const AdminUsersTab = () => {
   const filtered = users.filter((u) => {
     if (!search.trim()) return true;
     const q = search.trim().toLowerCase();
+    const reqClean = q.replace(/[\s\-_]/g, "").replace(/^req/, "");
     return (
       (u.full_name || "").toLowerCase().includes(q) ||
       (u.phone || "").toLowerCase().includes(q) ||
       (u.city || "").toLowerCase().includes(q) ||
-      u.user_id.toLowerCase().includes(q)
+      u.user_id.toLowerCase().includes(q) ||
+      (reqClean.length > 0 &&
+        (u.request_numbers || []).some((n) =>
+          n.toLowerCase().replace(/[\s\-_]/g, "").replace(/^req/, "").includes(reqClean)
+        ))
     );
   });
 
@@ -401,7 +412,7 @@ const AdminUsersTab = () => {
       <div className="relative">
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="ابحث بالاسم أو الهاتف أو المدينة..."
+          placeholder="ابحث بالاسم أو الهاتف أو المدينة أو رقم الطلب..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pr-10"
