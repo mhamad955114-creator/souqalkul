@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle, XCircle, Loader2, Eye } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Eye, Search } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/constants";
 
@@ -53,6 +54,20 @@ const planNames: Record<string, string> = {
   business: "رجال أعمال 💎",
 };
 
+// تطبيع رقم الطلب: تجاهل المسافات والشرطات وبادئة REQ وحالة الأحرف
+const normReqNum = (v: string) =>
+  v.toLowerCase().replace(/[\s\-_]/g, "").replace(/^req/, "");
+
+const reqMatch = (r: UpgradeRequest, qRaw: string) => {
+  const q = qRaw.trim().toLowerCase();
+  if (!q) return false;
+  const clean = normReqNum(q);
+  return (
+    (clean.length > 0 && normReqNum(r.transaction_number || "").includes(clean)) ||
+    (r.user_name || "").toLowerCase().includes(q)
+  );
+};
+
 const AdminUpgradeRequestsTab = () => {
   const { user } = useAuth();
   const [requests, setRequests] = useState<UpgradeRequest[]>([]);
@@ -63,6 +78,8 @@ const AdminUpgradeRequestsTab = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const focusId = searchParams.get("request");
   const [filter, setFilter] = useState<string>("pending");
+  const [search, setSearch] = useState("");
+  const [dbResults, setDbResults] = useState<UpgradeRequest[]>([]);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -117,6 +134,43 @@ const AdminUpgradeRequestsTab = () => {
     };
   }, []);
 
+  // بحث في كل الطلبات في قاعدة البيانات (ليس آخر 200 فقط) برقم الطلب
+  useEffect(() => {
+    const q = search.trim();
+    const clean = normReqNum(q);
+    if (!q || clean.length < 4) {
+      setDbResults([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      const { data } = await supabase
+        .from("top_up_requests")
+        .select("id, user_id, amount, transaction_number, status, admin_note, created_at, plan_type, duration_days, reviewed_at, receipt_url")
+        .ilike("transaction_number", `%${clean}%`)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      const rows = (data || []) as UpgradeRequest[];
+      let profileMap = new Map<string, string>();
+      const userIds = [...new Set(rows.map((r) => r.user_id))];
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name")
+          .in("user_id", userIds);
+        profileMap = new Map(
+          (profiles || []).map((p) => [p.user_id, p.full_name || "بدون اسم"])
+        );
+      }
+      setDbResults(
+        rows.map((r) => ({
+          ...r,
+          user_name: profileMap.get(r.user_id) || r.user_id.slice(0, 8),
+        }))
+      );
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const handleApprove = async (request: UpgradeRequest) => {
     if (!user) return;
     setProcessing(true);
@@ -170,7 +224,19 @@ const AdminUpgradeRequestsTab = () => {
     }
   };
 
-  const filtered = focusId ? requests.filter((r) => r.id === focusId) : requests.filter((r) => filter === "all" || r.status === filter);
+  const q = search.trim();
+  let filtered: UpgradeRequest[];
+  if (focusId) {
+    filtered = requests.filter((r) => r.id === focusId);
+  } else if (q) {
+    // عند البحث برقم الطلب نتجاهل فلتر الحالة حتى لا تختفي النتيجة
+    filtered = requests.filter((r) => reqMatch(r, q));
+    for (const r of dbResults) {
+      if (!filtered.some((m) => m.id === r.id)) filtered.push(r);
+    }
+  } else {
+    filtered = requests.filter((r) => filter === "all" || r.status === filter);
+  }
   const pendingCount = requests.filter((r) => r.status === "pending").length;
 
   if (loading) {
@@ -208,6 +274,18 @@ const AdminUpgradeRequestsTab = () => {
         </Card>
       </div>
 
+      {/* Search by request number */}
+      <div className="relative">
+        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="ابحث برقم الطلب (مثال: REQ-1790662737430)..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pr-10"
+          inputMode="text"
+        />
+      </div>
+
       <div className="flex gap-2 overflow-x-auto">
         {[
           { value: "pending", label: "قيد المراجعة" },
@@ -233,7 +311,7 @@ const AdminUpgradeRequestsTab = () => {
       {filtered.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            لا توجد طلبات ترقية
+            {search.trim() ? "لا يوجد طلب برقم الطلب المكتوب" : "لا توجد طلبات ترقية"}
           </CardContent>
         </Card>
       ) : (
