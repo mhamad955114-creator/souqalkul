@@ -23,8 +23,8 @@ const routeFor = (type: string, relatedId: string | null) => {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const pub = Deno.env.get("VAPID_PUBLIC_KEY");
-    const priv = Deno.env.get("VAPID_PRIVATE_KEY");
+    const pub = Deno.env.get("WEB_PUSH_PUBLIC_KEY");
+    const priv = Deno.env.get("WEB_PUSH_PRIVATE_KEY");
     if (!pub || !priv) return json({ error: "VAPID keys not configured" }, 500);
     webpush.setVapidDetails("mailto:support@souqalkul.app", pub, priv);
 

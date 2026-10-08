@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY") || "";
+  const vapidPublicKey = Deno.env.get("WEB_PUSH_PUBLIC_KEY") || "";
 
   return new Response(JSON.stringify({ vapidPublicKey }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
