@@ -162,10 +162,10 @@ const HeroSection = () => {
             {t.hero.title1}
             {t.hero.titleSell && (
               <>
-                <span aria-hidden="true" className="mx-3 text-primary/50">
+                <span aria-hidden="true" className="mx-3 text-primary-foreground/40">
                   •
                 </span>
-                <span className="text-primary">{t.hero.titleSell}</span>
+                <span className="text-primary-foreground">{t.hero.titleSell}</span>
               </>
             )}
             <span className="text-primary">
