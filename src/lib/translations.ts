@@ -596,8 +596,8 @@ export const ar: Translations = {
     addAd: "أضف إعلان",
   },
   hero: {
-    title1: "اِشتَرِ",
-    titleSell: "وَبِع",
+    title1: "اِشْتَرِ",
+    titleSell: "وَبِعْ",
     titleHighlight: "كل شيء",
     subtitle: "أكبر سوق إلكتروني مفتوح - آلاف الإعلانات الجديدة يومياً",
     searchPlaceholder: "ماذا تبحث عنه؟",
