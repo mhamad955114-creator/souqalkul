@@ -159,7 +159,19 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-up">
-            {t.hero.title1}<span className="text-primary">{t.hero.titleHighlight}</span>
+            {t.hero.title1}
+            {t.hero.titleSell && (
+              <>
+                <span aria-hidden="true" className="mx-3 text-primary/50">
+                  •
+                </span>
+                <span className="text-primary">{t.hero.titleSell}</span>
+              </>
+            )}
+            <span className="text-primary">
+              {t.hero.titleSell ? " " : ""}
+              {t.hero.titleHighlight}
+            </span>
           </h1>
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 animate-fade-up" style={{ animationDelay: "0.1s" }}>
             {t.hero.subtitle}

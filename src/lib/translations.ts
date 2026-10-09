@@ -27,6 +27,7 @@ export interface Translations {
   // Hero
   hero: {
     title1: string;
+    titleSell?: string;
     titleHighlight: string;
     subtitle: string;
     searchPlaceholder: string;
@@ -595,7 +596,8 @@ export const ar: Translations = {
     addAd: "أضف إعلان",
   },
   hero: {
-    title1: "اِشْتَرِ وَبِعْ",
+    title1: "اِشْتَرِ",
+    titleSell: "بِعْ",
     titleHighlight: "كل شيء",
     subtitle: "أكبر سوق إلكتروني مفتوح - آلاف الإعلانات الجديدة يومياً",
     searchPlaceholder: "ماذا تبحث عنه؟",
