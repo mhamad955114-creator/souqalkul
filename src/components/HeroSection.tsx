@@ -161,12 +161,7 @@ const HeroSection = () => {
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-up">
             {t.hero.title1}
             {t.hero.titleSell && (
-              <>
-                <span aria-hidden="true" className="mx-3 text-primary-foreground/40">
-                  •
-                </span>
-                <span className="text-primary-foreground">{t.hero.titleSell}</span>
-              </>
+              <span className="text-primary-foreground"> {t.hero.titleSell}</span>
             )}
             <span className="text-primary">
               {t.hero.titleSell ? " " : ""}
