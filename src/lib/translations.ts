@@ -597,7 +597,7 @@ export const ar: Translations = {
   },
   hero: {
     title1: "اِشْتَرِ",
-    titleSell: "بِعْ",
+    titleSell: "وَبِعْ",
     titleHighlight: "كل شيء",
     subtitle: "أكبر سوق إلكتروني مفتوح - آلاف الإعلانات الجديدة يومياً",
     searchPlaceholder: "ماذا تبحث عنه؟",
