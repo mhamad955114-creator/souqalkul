@@ -1,0 +1,1 @@
+CREATE POLICY "Public can read home headline" ON public.listing_settings FOR SELECT TO anon, authenticated USING (setting_key = 'hero_title');
