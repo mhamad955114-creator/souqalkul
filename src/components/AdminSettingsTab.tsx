@@ -14,6 +14,7 @@ import { uploadToB2 } from "@/lib/b2Upload";
 import { useBrand } from "@/contexts/BrandContext";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { guardPublicSettingWrite, guardAdminSettingWrite, NOT_ADMIN_MESSAGE } from "@/lib/settingsGuards";
+import AdminHeroTitleCard from "@/components/AdminHeroTitleCard";
 
 const planConfig = [
   {
@@ -504,6 +505,7 @@ const AdminSettingsTab = () => {
 
   return (
     <div className="space-y-6">
+      <AdminHeroTitleCard />
       {/* Brand / Logo Settings */}
       <Card className="border-primary/30">
         <CardContent className="p-6 space-y-4">

@@ -8,6 +8,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { cities as allCities, areasByCity } from "@/lib/constants";
 import { useSpeechSearch } from "@/hooks/useSpeechSearch";
+import { useHeroTitle } from "@/hooks/useHeroTitle";
+import { defaultHeroTitles } from "@/lib/heroTitle";
 
 const HeroSection = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -17,6 +19,8 @@ const HeroSection = () => {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const { loading: geoLoading, detectLocation } = useGeolocation();
   const { t, dir, language } = useLanguage();
+  const { data: heroTitles } = useHeroTitle();
+  const heroTitle = (heroTitles ?? defaultHeroTitles)[language];
   const { currentCity, setCity, currentCountry } = useCountry();
   const cities = currentCountry?.cities?.length ? currentCountry.cities : allCities;
   const navigate = useNavigate();
@@ -158,14 +162,11 @@ const HeroSection = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-up">
-            {t.hero.title1}
-            {t.hero.titleSell && (
-              <span className="text-primary-foreground"> {t.hero.titleSell}</span>
-            )}
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-up break-words [overflow-wrap:anywhere]">
+            {heroTitle.text}
             <span className="text-primary">
-              {t.hero.titleSell ? " " : ""}
-              {t.hero.titleHighlight}
+              {heroTitle.text && heroTitle.highlight ? " " : ""}
+              {heroTitle.highlight}
             </span>
           </h1>
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 animate-fade-up" style={{ animationDelay: "0.1s" }}>

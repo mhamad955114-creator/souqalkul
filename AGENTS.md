@@ -4,3 +4,4 @@
 - Admin-created packages live in `custom_plans`, map to a built-in base tier for badge and priority, and store `custom_plan_key` on listings so each package can apply its own two-color glow.
 - Listing keyword search uses the normalized `listings.search_text` column maintained by a database trigger so Arabic spelling variants, descriptions, locations, categories, and metadata remain searchable efficiently.
 - Listing publisher/contact, details/description, and location use one dedicated three-tab presentation module with display-only localization to avoid duplicate content and preserve stored listing data.
+- Store localized home headline overrides in the existing public listing settings and share a query between the hero and admin editor, so saved changes appear without altering translation defaults or unrelated content.
