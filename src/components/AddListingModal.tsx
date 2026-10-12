@@ -33,6 +33,7 @@ import { useNavigate } from "react-router-dom";
 import { getEffectivePlanType } from "@/lib/subscriptions";
 import { saveCameraDraft, loadCameraDraft, clearCameraDraft } from "@/lib/cameraDraftStore";
 import {
+  MAX_VIDEO_MB,
   listingUiCopy,
   localizeCategory,
   localizeCity,
@@ -369,7 +370,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
         if (!isVideoFile(file)) {
           file = await compressImage(file);
         }
-        if (isVideoFile(file) && file.size > 15 * 1024 * 1024) {
+        if (isVideoFile(file) && file.size > MAX_VIDEO_MB * 1024 * 1024) {
           toast.error(copy.videoTooLarge);
           continue;
         }
