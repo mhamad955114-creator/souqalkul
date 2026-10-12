@@ -374,6 +374,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           toast.error(copy.videoTooLarge);
           continue;
         }
+        if (isVideoFile(file)) {
+          const toastId = toast.loading(copy.videoCompressing(0));
+          file = await compressVideo(file, (pct) => toast.loading(copy.videoCompressing(pct), { id: toastId }));
+          toast.dismiss(toastId);
+        }
         preparedFiles.push(file);
       }
 
