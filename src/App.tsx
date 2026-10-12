@@ -16,7 +16,8 @@ import PageSkeleton from "@/components/PageSkeleton";
 import UpdateNotification from "@/components/UpdateNotification";
 import InAppNotificationBanner from "@/components/InAppNotificationBanner";
 import MaintenancePage from "@/components/MaintenancePage";
-import LazyLoadBoundary from "@/components/LazyLoadBoundary";
+import LazyLoadBoundary, { purgeCachesAndReload } from "@/components/LazyLoadBoundary";
+import { isStaleBundleError } from "@/lib/staleBundle";
 import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
 import { useCountryStatus } from "@/hooks/useCountryStatus";
 import { useBackButton } from "@/hooks/useBackButton";
@@ -48,22 +49,48 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
+const ROOT_RECOVERY_KEY = "root_error_recovery_done";
+
 type RootBoundaryState = {
   hasError: boolean;
+  autoRecover: boolean;
 };
 
 class RootErrorBoundary extends Component<{ children: ReactNode }, RootBoundaryState> {
-  state: RootBoundaryState = { hasError: false };
+  state: RootBoundaryState = { hasError: false, autoRecover: false };
 
-  static getDerivedStateFromError() {
-    return { hasError: true };
+  static getDerivedStateFromError(error: unknown): RootBoundaryState {
+    return { hasError: true, autoRecover: isStaleBundleError(error) };
   }
 
   componentDidCatch(error: unknown, info: ErrorInfo) {
     console.error("Root render error:", error, info);
   }
 
+  componentDidUpdate(
+    _prevProps: Readonly<{ children: ReactNode }>,
+    prevState: Readonly<RootBoundaryState>,
+  ) {
+    if (prevState.hasError || !this.state.hasError || !this.state.autoRecover) return;
+    try {
+      if (sessionStorage.getItem(ROOT_RECOVERY_KEY)) return;
+      sessionStorage.setItem(ROOT_RECOVERY_KEY, "1");
+    } catch {
+      // ignore sessionStorage access issues
+    }
+    // A stale React/deps bundle needs a cache-busted reload, not just a retry.
+    setTimeout(() => {
+      void purgeCachesAndReload();
+    }, 400);
+  }
+
   handleRetry = async () => {
+    try {
+      sessionStorage.removeItem(ROOT_RECOVERY_KEY);
+    } catch {
+      // ignore sessionStorage access issues
+    }
+
     try {
       if ("serviceWorker" in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();

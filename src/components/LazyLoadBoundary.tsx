@@ -10,7 +10,7 @@ interface State {
   retrying: boolean;
 }
 
-const purgeCachesAndReload = async () => {
+export const purgeCachesAndReload = async () => {
   try {
     if ("serviceWorker" in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
