@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { MAX_VIDEO_MB, listingUiCopy } from "@/lib/listingLocalization";
 
 describe("video upload limit", () => {
-  it("allows videos up to 50 MB", () => {
-    expect(MAX_VIDEO_MB).toBe(50);
+  it("allows videos up to 100 MB", () => {
+    expect(MAX_VIDEO_MB).toBe(100);
   });
 
   it("shows the same limit in every language message and label", () => {
