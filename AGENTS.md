@@ -5,3 +5,4 @@
 - Listing keyword search uses the normalized `listings.search_text` column maintained by a database trigger so Arabic spelling variants, descriptions, locations, categories, and metadata remain searchable efficiently.
 - Listing publisher/contact, details/description, and location use one dedicated three-tab presentation module with display-only localization to avoid duplicate content and preserve stored listing data.
 - Store localized home headline overrides in the existing public listing settings and share a query between the hero and admin editor, so saved changes appear without altering translation defaults or unrelated content.
+- Keep the listing video upload limit in one shared constant that both the client-side validation and every localized warning/label read, so the enforced size and the advertised size can never drift apart.
