@@ -1,5 +1,8 @@
 import type { Language, Translations } from "@/lib/translations";
 
+/** الحد الأقصى لحجم ملف الفيديو بالميجابايت — يُستخدم في التحقق وفي نصوص الواجهة معًا */
+export const MAX_VIDEO_MB = 50;
+
 export const listingUiCopy = {
   ar: {
     draftRestored: "تم استعادة بيانات الإعلان المحفوظة",
@@ -7,7 +10,7 @@ export const listingUiCopy = {
     invalidImage: "الملف المختار ليس صورة",
     imageLimit: (max: number) => `الحد الأقصى للصور هو ${max} للباقة المختارة`,
     remainingMedia: (count: number, max: number) => `يمكنك رفع ${count} صور/فيديو إضافية فقط (الحد الأقصى: ${max})`,
-    videoTooLarge: "حجم الفيديو يجب أن لا يتجاوز 15 ميجابايت",
+    videoTooLarge: `حجم الفيديو يجب أن لا يتجاوز ${MAX_VIDEO_MB} ميجابايت`,
     videosChecking: (count: number) => `تم رفع ${count} فيديو، جاري فحص المحتوى...`,
     videoApproved: "تم قبول الفيديو",
     videoViolation: "محتوى الفيديو مخالف",
@@ -39,7 +42,7 @@ export const listingUiCopy = {
     contactWhatsapp: "تواصل معنا عبر واتساب",
     mediaKinds: "صور وفيديو",
     chooseMedia: "اختر صور/فيديو أو التقط صورة",
-    mediaCount: (count: number, max: number) => `${count}/${max} صور • حجم الفيديو: 50 ميجابايت كحد أقصى`,
+    mediaCount: (count: number, max: number) => `${count}/${max} صور • حجم الفيديو: ${MAX_VIDEO_MB} ميجابايت كحد أقصى`,
     gallery: "من المعرض",
     camera: "الكاميرا",
     cameraPreview: "معاينة الصورة الملتقطة",
@@ -52,7 +55,7 @@ export const listingUiCopy = {
     invalidImage: "The selected file is not an image",
     imageLimit: (max: number) => `The selected plan allows up to ${max} images`,
     remainingMedia: (count: number, max: number) => `You can add only ${count} more media files (maximum: ${max})`,
-    videoTooLarge: "Video size must not exceed 15 MB",
+    videoTooLarge: `Video size must not exceed ${MAX_VIDEO_MB} MB`,
     videosChecking: (count: number) => `${count} video(s) uploaded. Checking content...`,
     videoApproved: "Video approved",
     videoViolation: "Video content violates the policy",
@@ -84,7 +87,7 @@ export const listingUiCopy = {
     contactWhatsapp: "Contact us on WhatsApp",
     mediaKinds: "Photos and video",
     chooseMedia: "Choose photos/video or take a photo",
-    mediaCount: (count: number, max: number) => `${count}/${max} photos • Video limit: 50 MB`,
+    mediaCount: (count: number, max: number) => `${count}/${max} photos • Video limit: ${MAX_VIDEO_MB} MB`,
     gallery: "Gallery",
     camera: "Camera",
     cameraPreview: "Captured photo preview",
@@ -97,7 +100,7 @@ export const listingUiCopy = {
     invalidImage: "Seçilen dosya bir görsel değil",
     imageLimit: (max: number) => `Seçilen paket en fazla ${max} görsele izin verir`,
     remainingMedia: (count: number, max: number) => `Yalnızca ${count} medya dosyası daha ekleyebilirsiniz (en fazla: ${max})`,
-    videoTooLarge: "Video boyutu 15 MB'ı aşamaz",
+    videoTooLarge: `Video boyutu ${MAX_VIDEO_MB} MB'ı aşamaz`,
     videosChecking: (count: number) => `${count} video yüklendi. İçerik kontrol ediliyor...`,
     videoApproved: "Video onaylandı",
     videoViolation: "Video içeriği kurallara aykırı",
@@ -129,7 +132,7 @@ export const listingUiCopy = {
     contactWhatsapp: "WhatsApp üzerinden iletişime geçin",
     mediaKinds: "Fotoğraf ve video",
     chooseMedia: "Fotoğraf/video seçin veya fotoğraf çekin",
-    mediaCount: (count: number, max: number) => `${count}/${max} fotoğraf • Video sınırı: 50 MB`,
+    mediaCount: (count: number, max: number) => `${count}/${max} fotoğraf • Video sınırı: ${MAX_VIDEO_MB} MB`,
     gallery: "Galeri",
     camera: "Kamera",
     cameraPreview: "Çekilen fotoğrafın önizlemesi",
