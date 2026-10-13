@@ -1,7 +1,7 @@
 import type { Language, Translations } from "@/lib/translations";
 
 /** الحد الأقصى لحجم ملف الفيديو بالميجابايت — يُستخدم في التحقق وفي نصوص الواجهة معًا */
-export const MAX_VIDEO_MB = 50;
+export const MAX_VIDEO_MB = 100;
 
 export const listingUiCopy = {
   ar: {
@@ -10,6 +10,7 @@ export const listingUiCopy = {
     invalidImage: "الملف المختار ليس صورة",
     imageLimit: (max: number) => `الحد الأقصى للصور هو ${max} للباقة المختارة`,
     remainingMedia: (count: number, max: number) => `يمكنك رفع ${count} صور/فيديو إضافية فقط (الحد الأقصى: ${max})`,
+    videoCompressing: (p: number) => `جاري ضغط الفيديو لتوفير المساحة... ${p}%`,
     videoTooLarge: `حجم الفيديو يجب أن لا يتجاوز ${MAX_VIDEO_MB} ميجابايت`,
     videosChecking: (count: number) => `تم رفع ${count} فيديو، جاري فحص المحتوى...`,
     videoApproved: "تم قبول الفيديو",
@@ -55,6 +56,7 @@ export const listingUiCopy = {
     invalidImage: "The selected file is not an image",
     imageLimit: (max: number) => `The selected plan allows up to ${max} images`,
     remainingMedia: (count: number, max: number) => `You can add only ${count} more media files (maximum: ${max})`,
+    videoCompressing: (p: number) => `Compressing video to save space... ${p}%`,
     videoTooLarge: `Video size must not exceed ${MAX_VIDEO_MB} MB`,
     videosChecking: (count: number) => `${count} video(s) uploaded. Checking content...`,
     videoApproved: "Video approved",
@@ -100,6 +102,7 @@ export const listingUiCopy = {
     invalidImage: "Seçilen dosya bir görsel değil",
     imageLimit: (max: number) => `Seçilen paket en fazla ${max} görsele izin verir`,
     remainingMedia: (count: number, max: number) => `Yalnızca ${count} medya dosyası daha ekleyebilirsiniz (en fazla: ${max})`,
+    videoCompressing: (p: number) => `Video sıkıştırılıyor... ${p}%`,
     videoTooLarge: `Video boyutu ${MAX_VIDEO_MB} MB'ı aşamaz`,
     videosChecking: (count: number) => `${count} video yüklendi. İçerik kontrol ediliyor...`,
     videoApproved: "Video onaylandı",
