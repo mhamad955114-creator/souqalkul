@@ -1,5 +1,36 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { S3Client, DeleteObjectsCommand } from "npm:@aws-sdk/client-s3@3.700.0";
+
+// Delete listing media (photos + videos) stored on Backblaze B2.
+async function deleteB2Media(urls: string[]): Promise<number> {
+  const bucket = Deno.env.get("B2_BUCKET_NAME");
+  const keyId = Deno.env.get("B2_KEY_ID");
+  const appKey = Deno.env.get("B2_APP_KEY");
+  const rawEndpoint = Deno.env.get("B2_ENDPOINT");
+  if (!bucket || !keyId || !appKey || !rawEndpoint) return 0;
+  const keys = urls
+    .filter((u) => typeof u === "string" && !u.includes("/storage/v1/object/"))
+    .map((u) => {
+      const i = u.indexOf(`/${bucket}/`);
+      return i === -1 ? null : decodeURIComponent(u.slice(i + bucket.length + 2));
+    })
+    .filter((k): k is string => !!k);
+  if (keys.length === 0) return 0;
+  try {
+    const s3 = new S3Client({
+      endpoint: rawEndpoint.startsWith("http") ? rawEndpoint : `https://${rawEndpoint}`,
+      region: "auto",
+      credentials: { accessKeyId: keyId, secretAccessKey: appKey },
+      forcePathStyle: true,
+    });
+    await s3.send(new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: keys.map((Key) => ({ Key })) } }));
+    return keys.length;
+  } catch (e) {
+    console.error("B2 delete failed", e);
+    return 0;
+  }
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -137,6 +168,9 @@ serve(async (req) => {
     let imagesDeleted = 0;
     for (const listing of allExpired) {
       if (listing.images && Array.isArray(listing.images) && listing.images.length > 0) {
+        const b2Deleted = await deleteB2Media(listing.images);
+        imagesDeleted += b2Deleted;
+        if (b2Deleted > 0) await supabase.from('listings').update({ images: [] }).eq('id', listing.id);
         const paths = listing.images
           .map((url: string) => extractStoragePath(url))
           .filter((p: string | null): p is string => p !== null);
@@ -172,6 +206,9 @@ serve(async (req) => {
     if (oldExpired) {
       for (const listing of oldExpired) {
         if (listing.images && Array.isArray(listing.images) && listing.images.length > 0) {
+          const b2Deleted = await deleteB2Media(listing.images);
+          imagesDeleted += b2Deleted;
+          if (b2Deleted > 0) await supabase.from('listings').update({ images: [] }).eq('id', listing.id);
           const paths = listing.images
             .map((url: string) => extractStoragePath(url))
             .filter((p: string | null): p is string => p !== null);

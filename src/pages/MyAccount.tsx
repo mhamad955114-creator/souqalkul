@@ -270,6 +270,7 @@ const MyAccount = () => {
 
     setDeleteLoading(true);
     try {
+      const media = (deletingListing as { images?: string[] | null }).images ?? [];
       const { error } = await supabase
         .from("listings")
         .delete()
@@ -279,6 +280,7 @@ const MyAccount = () => {
         toast.error(t.myAccount.deleteError + ": " + error.message);
       } else {
         toast.success(t.myAccount.deleteSuccess);
+        if (media.length) import("@/lib/b2Delete").then(({ deleteFromB2 }) => deleteFromB2({ urls: media })).catch(() => {});
         setListings((prev) => prev.filter((l) => l.id !== deletingListing.id));
       }
     } finally {
@@ -291,6 +293,7 @@ const MyAccount = () => {
     if (!user) return;
     setDeleteAllLoading(true);
     try {
+      const allMedia = listings.flatMap((l) => ((l as { images?: string[] | null }).images ?? []));
       const { error } = await supabase
         .from("listings")
         .delete()
@@ -301,6 +304,7 @@ const MyAccount = () => {
       } else {
         toast.success("تم حذف جميع الإعلانات بنجاح");
         setListings([]);
+        if (allMedia.length) import("@/lib/b2Delete").then(({ deleteFromB2 }) => deleteFromB2({ urls: allMedia })).catch(() => {});
       }
     } finally {
       setDeleteAllLoading(false);
