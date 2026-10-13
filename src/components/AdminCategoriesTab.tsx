@@ -851,9 +851,29 @@ const AdminCategoriesTab = () => {
                 <textarea
                   className="w-full min-h-[120px] rounded-md border border-input bg-background p-2 text-sm"
                   value={fieldForm.optionsText}
+                  onKeyDown={(e) => e.stopPropagation()}
                   onChange={(e) => setFieldForm({ ...fieldForm, optionsText: e.target.value })}
                   placeholder={"مثلاً:\nبنزين\nديزل\nكهربائي"}
                 />
+                <form
+                  className="flex gap-2 mt-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const input = (e.currentTarget.elements.namedItem("newOpt") as HTMLInputElement);
+                    const v = input.value.trim();
+                    if (!v) return;
+                    const base = fieldForm.optionsText.replace(/\s+$/, "");
+                    setFieldForm({ ...fieldForm, optionsText: base ? `${base}\n${v}` : v });
+                    input.value = "";
+                  }}
+                >
+                  <input
+                    name="newOpt"
+                    className="flex-1 rounded-md border border-input bg-background p-2 text-sm"
+                    placeholder="اكتب خيارًا جديدًا"
+                  />
+                  <Button type="submit" variant="secondary">إضافة خيار</Button>
+                </form>
               </div>
             )}
           </div>
