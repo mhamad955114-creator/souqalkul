@@ -10,6 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Verify checked out commit
+        run: |
+          checked_out_sha="$(git rev-parse HEAD)"
+          if [ "$checked_out_sha" != "$GITHUB_SHA" ]; then
+            echo "Checked out SHA ($checked_out_sha) does not match GITHUB_SHA ($GITHUB_SHA)." >&2
+            exit 1
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -19,7 +26,32 @@ jobs:
         env:
           CAPGO_TOKEN: ${{ secrets.CAPGO_TOKEN }}
         run: |
+          native_version="$(sed -n 's/^[[:space:]]*versionName "\(.*\)"/\1/p' android/app/build.gradle | head -n 1)"
+          native_version_code="$(sed -n 's/^[[:space:]]*versionCode \([0-9][0-9]*\)/\1/p' android/app/build.gradle | head -n 1)"
+          if [ -z "$native_version" ] || [ -z "$native_version_code" ]; then
+            echo "Unable to read the native Android release from android/app/build.gradle." >&2
+            exit 1
+          fi
+
+          # Capgo requires every bundle version to be unique and greater than
+          # the native app version. Keep the release aligned with the native
+          # major/minor version while avoiding collisions between CI runs.
+          IFS=. read -r major minor patch remainder <<EOF
+$native_version
+EOF
+          if [ -n "$remainder" ] || ! [ "$major" -ge 0 ] 2>/dev/null || ! [ "$minor" -ge 0 ] 2>/dev/null || ! [ "$patch" -ge 0 ] 2>/dev/null; then
+            echo "Native version '$native_version' is not a supported three-part version." >&2
+            exit 1
+          fi
+          bundle_patch=$((patch + GITHUB_RUN_NUMBER))
+          if [ "$bundle_patch" -le "$native_version_code" ]; then
+            bundle_patch=$((native_version_code + GITHUB_RUN_NUMBER))
+          fi
+          bundle_version="$major.$minor.$bundle_patch"
+          echo "Uploading Capgo bundle $bundle_version for commit $GITHUB_SHA"
+
           npx @capgo/cli@latest bundle upload \
             --apikey "$CAPGO_TOKEN" \
-            --bundle "1.0.${{ github.run_number }}" \
+            --bundle "$bundle_version" \
+            --comment "Commit $GITHUB_SHA" \
             --channel production
