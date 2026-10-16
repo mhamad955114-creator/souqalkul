@@ -10,6 +10,7 @@ import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, CheckCircle2
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { lovable } from "@/integrations/lovable";
+import { Capacitor } from "@capacitor/core";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -356,7 +357,8 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
               </Button>
             </form>
 
-            {/* Divider + Google Sign-in */}
+            {/* Divider + Google Sign-in (web only: Google blocks OAuth inside app WebViews) */}
+            {!Capacitor.isNativePlatform() && (<>
             <div className="relative my-3">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-border" />
@@ -397,6 +399,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
               </svg>
               المتابعة باستخدام جوجل
             </Button>
+            </>)}
 
             <Button type="button" variant="outline" className="w-full mt-2" size="lg"
               onClick={() => { onClose(); window.location.assign("/phone-login"); }}>
