@@ -66,7 +66,7 @@ const PhoneLogin = () => {
     } catch (e) {
       setLoading(false);
       setCountdown(0);
-      toast.error("تعذّر إرسال الكود");
+      toast.error("تعذّر إرسال الكود: " + (e instanceof Error ? e.message : String(e)));
       console.error(e);
     }
   };
