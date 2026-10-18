@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const FIREBASE_PROJECT_ID = "suok-alkul-9bdf7";
+const FIREBASE_PROJECT_ID = "souk-alkul";
 const CERTS_URL =
   "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
 
