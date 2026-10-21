@@ -35,7 +35,7 @@ const NotificationsDropdown = () => {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
@@ -70,7 +70,7 @@ const NotificationsDropdown = () => {
                 onClick={() => {
                   if (!notif.is_read) markAsRead(notif.id);
                   const route = getNotificationRoute(notif.type, notif.related_id);
-                  if (route) navigate(route);
+                  if (route) setTimeout(() => navigate(route), 50);
                 }}
               >
                 <div className="flex items-center gap-2 w-full">
