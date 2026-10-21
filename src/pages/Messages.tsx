@@ -30,7 +30,8 @@ const Messages = () => {
     const conv = conversations.find((c) => c.id === convParam || c.listing_id === listingParam);
     if (conv) {
       setSelectedConversation({ id: conv.id, listingTitle: conv.listing?.title || t.messagesPage.listing });
-      setChatOpen(true);
+      // Open after the notifications menu finishes closing so the chat isn't dismissed instantly
+      setTimeout(() => setChatOpen(true), 150);
       setSearchParams({}, { replace: true });
     }
   }, [listingParam, convParam, conversations, loading]);
