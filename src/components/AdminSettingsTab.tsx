@@ -1030,11 +1030,11 @@ const AdminSettingsTab = () => {
                 <div className="space-y-2">
                   <Label>السعر (ل.س)</Label>
                   <Input
-                    type="text"
+                    type="tel"
                     inputMode="numeric"
                     lang="en"
                     value={String(values.price ?? 0)}
-                    onChange={(e) => { const v = toAsciiNumber(e.target.value); if (v === null) return; updateField(plan.key, "price", v as any); }}
+                    onChange={(e) => { const v = toAsciiNumber(e.target.value); updateField(plan.key, "price", v as any); }}
                     min={0}
                     dir="ltr"
                     className="text-left"
@@ -1046,11 +1046,11 @@ const AdminSettingsTab = () => {
               <div className="space-y-2">
                 <Label>مدة الإعلان (بالأيام)</Label>
                 <Input
-                  type="text"
+                  type="tel"
                   inputMode="numeric"
                   lang="en"
                   value={String(values.duration_days ?? "")}
-                  onChange={(e) => { const v = toAsciiNumber(e.target.value); if (v === null) return; updateField(plan.key, "duration_days", v as any); }}
+                  onChange={(e) => { const v = toAsciiNumber(e.target.value); updateField(plan.key, "duration_days", v as any); }}
                   min={1}
                   dir="ltr"
                   className="text-left"
@@ -1060,11 +1060,11 @@ const AdminSettingsTab = () => {
               <div className="space-y-2">
                 <Label>الحد الأقصى للصور</Label>
                 <Input
-                  type="text"
+                  type="tel"
                   inputMode="numeric"
                   lang="en"
                   value={String(values.max_images ?? "")}
-                  onChange={(e) => { const v = toAsciiNumber(e.target.value); if (v === null) return; updateField(plan.key, "max_images", v as any); }}
+                  onChange={(e) => { const v = toAsciiNumber(e.target.value); updateField(plan.key, "max_images", v as any); }}
                   min={1}
                   dir="ltr"
                   className="text-left"
@@ -1074,11 +1074,11 @@ const AdminSettingsTab = () => {
               <div className="space-y-2">
                 <Label>الحد الأقصى للإعلانات النشطة</Label>
                 <Input
-                  type="text"
+                  type="tel"
                   inputMode="numeric"
                   lang="en"
                   value={String(values.max_active_listings ?? "")}
-                  onChange={(e) => { const v = toAsciiNumber(e.target.value); if (v === null) return; updateField(plan.key, "max_active_listings", v as any); }}
+                  onChange={(e) => { const v = toAsciiNumber(e.target.value); updateField(plan.key, "max_active_listings", v as any); }}
                   min={-1}
                   dir="ltr"
                   className="text-left"
@@ -1111,7 +1111,7 @@ const toAsciiNumber = (raw: string): number | string | null => {
   const s = raw.replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06F0)).replace(/[^\d-]/g, "");
   if (s === "" || s === "-") return s as any;
   const n = Number(s);
-  return Number.isFinite(n) ? n : null;
+  return Number.isFinite(n) ? n : s;
 };
 
 export default AdminSettingsTab;
