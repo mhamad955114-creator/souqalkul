@@ -1033,7 +1033,7 @@ const AdminSettingsTab = () => {
                     type="text"
                     inputMode="numeric"
                     lang="en"
-                    value={String(values.price || 0 ?? "")}
+                    value={String(values.price ?? 0)}
                     onChange={(e) => { const v = toAsciiNumber(e.target.value); if (v === null) return; updateField(plan.key, "price", v as any); }}
                     min={0}
                     dir="ltr"
