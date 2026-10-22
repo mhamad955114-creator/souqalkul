@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import AdminDetailsRequiredCard from "@/components/AdminDetailsRequiredCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -506,6 +507,7 @@ const AdminSettingsTab = () => {
   return (
     <div className="space-y-6">
       <AdminHeroTitleCard />
+      <AdminDetailsRequiredCard />
       {/* Brand / Logo Settings */}
       <Card className="border-primary/30">
         <CardContent className="p-6 space-y-4">
