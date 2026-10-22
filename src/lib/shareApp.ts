@@ -2,9 +2,12 @@ import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Share } from "@capacitor/share";
 import { toast } from "sonner";
 
-const APP_URL = "https://souqalkul.lovable.app";
+import { fetchShareBaseUrl, DEFAULT_SHARE_URL } from "@/hooks/useShareBaseUrl";
+
+let APP_URL = DEFAULT_SHARE_URL;
+fetchShareBaseUrl().then((u) => { APP_URL = u; }).catch(() => {});
 const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=app.souqalkul";
-const SHARE_TEXT = `حمّل تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء!\n\n📲 Google Play:\n${PLAY_STORE_URL}\n\n🌐 الموقع:\n${APP_URL}`;
+const shareText = () => `حمّل تطبيق سوق الكل - أفضل سوق إلكتروني للبيع والشراء!\n\n📲 Google Play:\n${PLAY_STORE_URL}\n\n🌐 الموقع:\n${APP_URL}`;
 
 /**
  * Typed interface for our custom native ShareApk plugin.
@@ -36,7 +39,7 @@ export async function shareApp(): Promise<void> {
       try {
         await Share.share({
           title: "سوق الكل",
-          text: SHARE_TEXT,
+          text: shareText(),
           url: PLAY_STORE_URL,
           dialogTitle: "مشاركة تطبيق سوق الكل",
         });
@@ -52,7 +55,7 @@ export async function shareApp(): Promise<void> {
     try {
       await Share.share({
         title: "سوق الكل",
-        text: SHARE_TEXT,
+        text: shareText(),
         url: PLAY_STORE_URL,
         dialogTitle: "مشاركة تطبيق سوق الكل",
       });
@@ -67,7 +70,7 @@ export async function shareApp(): Promise<void> {
     try {
       await navigator.share({
         title: "سوق الكل",
-        text: SHARE_TEXT,
+        text: shareText(),
         url: PLAY_STORE_URL,
       });
       return;
