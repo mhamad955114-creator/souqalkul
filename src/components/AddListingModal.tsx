@@ -56,7 +56,8 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
   const { user } = useAuth();
   const { t, dir, language } = useLanguage();
   const copy = listingUiCopy[language];
-  const { settings } = useListingSettings();
+  const { settings, rawSettings } = useListingSettings();
+  const detailsRequired = rawSettings?.listing_details_required?.enabled !== false;
   const { currentCountry } = useCountry();
   const navigate = useNavigate();
   const { getFields, shouldHideField, getFieldOptions } = useCategoryDefinitions();
@@ -578,7 +579,7 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
       (field) => !shouldHideField(field.key, formData.category, metadata)
     );
     const missingMetaFields = requiredMetaFields.filter(field => !metadata[field.key]?.trim());
-    if (missingMetaFields.length > 0) {
+    if (detailsRequired && missingMetaFields.length > 0) {
       toast.error(copy.missingDetails(missingMetaFields.map(f => localizeFieldLabel(f.key, f.label, language)).join(", ")));
       return;
     }
@@ -1115,11 +1116,11 @@ const AddListingModal = ({ isOpen, onClose, onSuccess }: AddListingModalProps) =
           {/* Category-specific metadata fields */}
           {currentMetadataFields.length > 0 && (
             <div className="space-y-3 p-4 rounded-xl border border-border bg-muted/30">
-              <Label className="text-sm font-semibold">{copy.requiredDetails} <span className="text-destructive">*</span></Label>
+              <Label className="text-sm font-semibold">{detailsRequired ? copy.requiredDetails : copy.optionalDetails} {detailsRequired && <span className="text-destructive">*</span>}</Label>
               <div className="grid grid-cols-2 gap-3">
                 {currentMetadataFields.map((field) => (
                   <div key={field.key} className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">{localizeFieldLabel(field.key, field.label, language)} <span className="text-destructive">*</span></Label>
+                    <Label className="text-xs text-muted-foreground">{localizeFieldLabel(field.key, field.label, language)} {detailsRequired && <span className="text-destructive">*</span>}</Label>
                     {field.type === "select" && field.options ? (
                       <Select
                         value={metadata[field.key] || ""}
