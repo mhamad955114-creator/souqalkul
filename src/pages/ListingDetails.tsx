@@ -51,6 +51,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice, formatDate, categoryLabels, getCountryByName, formatListingPrice } from "@/lib/constants";
 import { useListingAiThread } from "@/hooks/useListingAiThread";
+import { useShareBaseUrl } from "@/hooks/useShareBaseUrl";
 
 
 interface Listing {
@@ -87,6 +88,7 @@ interface SellerProfile {
 
 const ListingDetails = () => {
   const { id } = useParams<{ id: string }>();
+  const shareBaseUrl = useShareBaseUrl();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
@@ -398,7 +400,7 @@ const ListingDetails = () => {
                     <Heart className={`h-5 w-5 ${isFavorite ? "fill-destructive text-destructive" : ""}`} />
                   </button>
                   <ShareButtons
-                    url={window.location.href}
+                    url={`${shareBaseUrl}/listing/${id}`}
                     title={listing.title}
                     description={listing.description || undefined}
                   />
