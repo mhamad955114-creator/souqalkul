@@ -198,6 +198,32 @@
 }
 
 @layer components {
+  .auth-dialog {
+    top: calc(var(--auth-viewport-top, 0px) + var(--auth-viewport-height, 100dvh) / 2);
+    max-height: min(calc(var(--auth-viewport-height, 100dvh) * 0.85), calc(var(--auth-viewport-height, 100dvh) - 1rem));
+    overflow-x: hidden;
+    scroll-padding-block: 1rem;
+  }
+
+  .auth-page {
+    position: fixed;
+    inset-inline: 0;
+    top: var(--auth-viewport-top, 0px);
+    height: var(--auth-viewport-height, 100dvh);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-padding-block: 1rem;
+  }
+
+  .auth-confirmation {
+    top: var(--auth-viewport-top, 0px);
+    height: var(--auth-viewport-height, 100dvh);
+  }
+
+  .auth-confirmation-content {
+    max-height: calc(var(--auth-viewport-height, 100dvh) * 0.85);
+  }
+
   .gradient-primary {
     background: var(--gradient-primary);
   }

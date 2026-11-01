@@ -11,6 +11,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBrand } from "@/contexts/BrandContext";
 import { useCountry } from "@/contexts/CountryContext";
+import { useAuthViewport } from "@/hooks/useAuthViewport";
 
 type AuthMode = "login" | "signup" | "forgot";
 type AuthMethod = "email" | "phone";
@@ -34,6 +35,7 @@ const Auth = () => {
   const { logoUrl } = useBrand();
   const { currentCountry } = useCountry();
   const navigate = useNavigate();
+  const viewportStyle = useAuthViewport();
 
   useEffect(() => {
     if (user) navigate("/", { replace: true });
@@ -140,11 +142,11 @@ const Auth = () => {
   const eyeSide = dir === "rtl" ? "left-3" : "right-3";
 
   return (
-    <div className="min-h-screen flex" dir={dir}>
+    <div className="auth-page flex" dir={dir} style={viewportStyle}>
       {/* Email Confirmation Notice */}
       {showEmailConfirmation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md bg-card rounded-2xl shadow-2xl border border-border p-8 text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
+        <div className="auth-confirmation fixed inset-x-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <div className="auth-confirmation-content w-full max-w-md overflow-y-auto overscroll-contain bg-card rounded-2xl shadow-2xl border border-border p-6 sm:p-8 text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
             <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
               <Inbox className="h-10 w-10 text-primary" />
             </div>
@@ -256,8 +258,8 @@ const Auth = () => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-background">
-        <div className="w-full max-w-md">
+      <div className="min-w-0 flex-1 flex p-4 sm:p-12 bg-background">
+        <div className="w-full max-w-md m-auto">
           {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
             <img src={logoUrl} alt="سوق الكل" className="w-16 h-16 object-contain" />
