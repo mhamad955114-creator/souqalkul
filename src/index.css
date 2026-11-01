@@ -198,7 +198,7 @@
 }
 
 @layer components {
-  .auth-dialog {
+  .auth-dialog[data-state] {
     top: calc(var(--auth-viewport-top, 0px) + var(--auth-viewport-height, 100dvh) / 2);
     max-height: min(calc(var(--auth-viewport-height, 100dvh) * 0.85), calc(var(--auth-viewport-height, 100dvh) - 1rem));
     overflow-x: hidden;
