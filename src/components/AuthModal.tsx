@@ -8,7 +8,9 @@ import { toast } from "sonner";
 import { translateAuthError } from "@/lib/authErrors";
 import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, CheckCircle2, Inbox } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCountry } from "@/contexts/CountryContext";
+import { usePhoneCountry } from "@/hooks/usePhoneCountry";
+import { normalizeAuthPhone } from "@/lib/authPhone";
+import { AuthPhoneCountrySelect } from "@/components/AuthPhoneCountrySelect";
 import { lovable } from "@/integrations/lovable";
 import { Capacitor } from "@capacitor/core";
 import { useAuthViewport } from "@/hooks/useAuthViewport";
@@ -35,7 +37,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
   const [confirmationEmail, setConfirmationEmail] = useState("");
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword } = useAuth();
   const { t, dir } = useLanguage();
-  const { currentCountry } = useCountry();
+  const { phoneCountry: currentCountry, setPhoneCountry } = usePhoneCountry();
   const viewportStyle = useAuthViewport(isOpen);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,11 +112,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
   };
 
   const formatPhone = (value: string): string => {
-    let cleaned = value.replace(/[^0-9+]/g, "");
-    const phoneCode = currentCountry.phoneCode;
-    if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
-    else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
-    return cleaned;
+    return normalizeAuthPhone(value, currentCountry);
   };
 
   const resetForm = () => {
@@ -294,6 +292,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
               ) : (
                 <div className="space-y-2">
                   <Label htmlFor="phone">رقم الهاتف</Label>
+                  <AuthPhoneCountrySelect country={currentCountry} onChange={setPhoneCountry} />
                   <div className="relative">
                     <Phone className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
                     <Input
@@ -307,9 +306,6 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
                       required
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    أدخل رقم هاتفك ({currentCountry.name}) (مثال: {currentCountry.phonePlaceholder})
-                  </p>
                 </div>
               )}
 

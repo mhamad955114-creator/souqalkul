@@ -8,13 +8,17 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Phone, ShieldCheck, ArrowRight } from "lucide-react";
+import { usePhoneCountry } from "@/hooks/usePhoneCountry";
+import { normalizeAuthPhone } from "@/lib/authPhone";
+import { AuthPhoneCountrySelect } from "@/components/AuthPhoneCountrySelect";
 
 const E164 = /^\+[1-9]\d{7,14}$/;
 
 const PhoneLogin = () => {
   const navigate = useNavigate();
   const isNative = Capacitor.isNativePlatform();
-  const [phone, setPhone] = useState("+963");
+  const [phone, setPhone] = useState("");
+  const { phoneCountry, setPhoneCountry } = usePhoneCountry();
   const [code, setCode] = useState("");
   const [verificationId, setVerificationId] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(0);
@@ -50,9 +54,9 @@ const PhoneLogin = () => {
   }, [isNative]);
 
   const sendCode = async () => {
-    const cleaned = phone.replace(/[\s-]/g, "");
+    const cleaned = normalizeAuthPhone(phone, phoneCountry);
     if (!E164.test(cleaned)) {
-      toast.error("أدخل الرقم بالصيغة الدولية مثل +963912345678");
+      toast.error(`أدخل رقم هاتف صحيح (${phoneCountry.phoneCode})`);
       return;
     }
     if (!isNative) {
@@ -113,9 +117,10 @@ const PhoneLogin = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">رقم الهاتف (الصيغة الدولية)</Label>
+          <Label htmlFor="phone">رقم الهاتف</Label>
+          <AuthPhoneCountrySelect country={phoneCountry} onChange={setPhoneCountry} />
           <Input id="phone" type="tel" dir="ltr" inputMode="tel" value={phone}
-            onChange={(e) => setPhone(e.target.value)} placeholder="+963912345678" disabled={!!verificationId && loading} />
+            onChange={(e) => setPhone(e.target.value)} placeholder={phoneCountry.phonePlaceholder} disabled={!!verificationId && loading} />
         </div>
 
         {/* Firebase verifies automatically via Play Integrity on Android; this container hosts reCAPTCHA fallback */}
