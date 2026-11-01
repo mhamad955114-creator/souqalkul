@@ -1,5 +1,7 @@
 # Firebase phone login release
 
+- [x] Detect authentication phone country independently of the browsing market, allow manual choice, and normalize local/international numbers consistently.
+
 - [x] Keep registration and login fields scrollable within the visible keyboard viewport; configure Android resize behavior.
 
 - [x] Raise the native release to versionCode 23 / versionName 1.0.23 for the next store upload.

@@ -10,7 +10,9 @@ import { Loader2, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, ShoppingBag,
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBrand } from "@/contexts/BrandContext";
-import { useCountry } from "@/contexts/CountryContext";
+import { usePhoneCountry } from "@/hooks/usePhoneCountry";
+import { normalizeAuthPhone } from "@/lib/authPhone";
+import { AuthPhoneCountrySelect } from "@/components/AuthPhoneCountrySelect";
 import { useAuthViewport } from "@/hooks/useAuthViewport";
 
 type AuthMode = "login" | "signup" | "forgot";
@@ -33,7 +35,7 @@ const Auth = () => {
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, verifyEmailOtp, resendEmailOtp, user } = useAuth();
   const { t, dir } = useLanguage();
   const { logoUrl } = useBrand();
-  const { currentCountry } = useCountry();
+  const { phoneCountry: currentCountry, setPhoneCountry } = usePhoneCountry();
   const navigate = useNavigate();
   const viewportStyle = useAuthViewport();
 
@@ -97,12 +99,7 @@ const Auth = () => {
   };
 
   const formatPhone = (value: string): string => {
-    let cleaned = value.replace(/[^0-9+]/g, "");
-    const phoneCode = currentCountry.phoneCode;
-    // If starts with 0, replace leading 0 with country code
-    if (cleaned.startsWith("0")) cleaned = phoneCode + cleaned.slice(1);
-    else if (!cleaned.startsWith("+")) cleaned = phoneCode + cleaned;
-    return cleaned;
+    return normalizeAuthPhone(value, currentCountry);
   };
 
   const handleVerifyOtp = async () => {
@@ -368,6 +365,7 @@ const Auth = () => {
                 ) : (
                   <div className="space-y-2">
                     <Label htmlFor="phone">رقم الهاتف</Label>
+                    <AuthPhoneCountrySelect country={currentCountry} onChange={setPhoneCountry} />
                     <div className="relative">
                       <Phone className={`absolute ${iconSide} top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground`} />
                       <Input
@@ -381,7 +379,6 @@ const Auth = () => {
                         required
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">أدخل رقم هاتفك ({currentCountry.name}) (مثال: {currentCountry.phonePlaceholder})</p>
                   </div>
                 )}
 

@@ -10,3 +10,4 @@
 - Android builds uploaded to Google Play must be signed with the project's own release keystore in every environment, including CI, and `versionCode`/`versionName` must increase before each new store upload so Play keeps accepting updates from the same key.
 - Keep the Firebase token verifier's issuer and audience aligned with Android's Firebase project configuration; mismatches reject verified phone sessions.
 - Auth forms and overlays use the visual viewport with internal scrolling, and Android explicitly uses adjustResize, so keyboards cannot clip fields outside the visible screen.
+- Authentication uses its own location-detected phone country with manual override and shared international normalization, independent of the listing market selection.
