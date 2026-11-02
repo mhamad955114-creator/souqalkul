@@ -89,7 +89,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
         if (method === "email") {
           const { error } = await signUp(email, password, fullName);
           if (error) {
-            toast.error(translateAuthError(error.message));
+            toast.error(translateAuthError(error.message, language));
           } else {
             setConfirmationEmail(email);
             setShowEmailConfirmation(true);
@@ -98,7 +98,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
           const formattedPhone = formatPhone(phone);
           const { error } = await signUpWithPhone(formattedPhone, password, fullName);
           if (error) {
-            toast.error(translateAuthError(error.message));
+            toast.error(translateAuthError(error.message, language));
           } else {
             toast.success("تم إنشاء الحساب بنجاح!");
             onClose();
