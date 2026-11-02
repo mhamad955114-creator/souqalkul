@@ -36,7 +36,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword } = useAuth();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { phoneCountry: currentCountry, setPhoneCountry } = usePhoneCountry();
   const viewportStyle = useAuthViewport(isOpen);
 
@@ -74,7 +74,7 @@ const AuthModal = ({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) =>
           const formattedPhone = formatPhone(phone);
           const { error } = await signInWithPhone(formattedPhone, password);
           if (error) {
-            toast.error(t.auth.loginError + translateAuthError(error.message));
+            toast.error(t.auth.loginError + translateAuthError(error.message, language));
           } else {
             toast.success(t.auth.loginSuccess);
             onClose();
