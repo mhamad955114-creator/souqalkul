@@ -33,7 +33,7 @@ const Auth = () => {
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const { signIn, signUp, signInWithPhone, signUpWithPhone, resetPassword, verifyEmailOtp, resendEmailOtp, user } = useAuth();
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const { logoUrl } = useBrand();
   const { phoneCountry: currentCountry, setPhoneCountry } = usePhoneCountry();
   const navigate = useNavigate();
@@ -66,12 +66,12 @@ const Auth = () => {
       if (mode === "login") {
         if (method === "email") {
           const { error } = await signIn(email, password);
-          if (error) toast.error(t.auth.loginError + translateAuthError(error.message));
+          if (error) toast.error(t.auth.loginError + translateAuthError(error.message, language));
           else { toast.success(t.auth.loginSuccess); navigate("/"); }
         } else {
           const formattedPhone = formatPhone(phone);
           const { error } = await signInWithPhone(formattedPhone, password);
-          if (error) toast.error(t.auth.loginError + translateAuthError(error.message));
+          if (error) toast.error(t.auth.loginError + translateAuthError(error.message, language));
           else { toast.success(t.auth.loginSuccess); navigate("/"); }
         }
       } else {
@@ -81,7 +81,7 @@ const Auth = () => {
         }
         if (method === "email") {
           const { error } = await signUp(email, password, fullName);
-          if (error) toast.error(translateAuthError(error.message));
+          if (error) toast.error(translateAuthError(error.message, language));
           else {
             setConfirmationEmail(email);
             setShowEmailConfirmation(true);
@@ -89,7 +89,7 @@ const Auth = () => {
         } else {
           const formattedPhone = formatPhone(phone);
           const { error } = await signUpWithPhone(formattedPhone, password, fullName);
-          if (error) toast.error(translateAuthError(error.message));
+          if (error) toast.error(translateAuthError(error.message, language));
           else { toast.success("تم إنشاء الحساب بنجاح!"); }
         }
       }
