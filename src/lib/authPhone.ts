@@ -1,16 +1,15 @@
-import { countries, type CountryInfo } from "@/lib/constants";
+import { phoneCountryByCode, type PhoneCountry } from "@/lib/phoneCountries";
 
-export function normalizeAuthPhone(value: string, country: CountryInfo): string {
+export { phoneCountryByCode };
+export type { PhoneCountry };
+
+export function normalizeAuthPhone(value: string, country: Pick<PhoneCountry, "phoneCode">): string {
   const cleaned = value.replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 1632))
     .replace(/[۰-۹]/g, (digit) => String(digit.charCodeAt(0) - 1776))
     .replace(/[^0-9+]/g, "");
   if (cleaned.startsWith("+")) return cleaned;
   if (cleaned.startsWith("00")) return `+${cleaned.slice(2)}`;
   return country.phoneCode + cleaned.replace(/^0/, "");
-}
-
-export function phoneCountryByCode(code: string | null | undefined) {
-  return countries.find((country) => country.code === code?.toUpperCase());
 }
 
 export function timezonePhoneCountry(timezone: string) {

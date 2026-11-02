@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { countries } from "@/lib/constants";
-import { phoneCountryByCode, timezonePhoneCountry } from "@/lib/authPhone";
+import { phoneCountries, phoneCountryByCode } from "@/lib/phoneCountries";
+import { timezonePhoneCountry } from "@/lib/authPhone";
 
 let detection: Promise<string | undefined> | undefined;
 function detectPhoneCountry() {
@@ -16,7 +16,7 @@ export function usePhoneCountry() {
   const [manualCode, setManualCode] = useState<string | undefined>();
   const [detectedCode, setDetectedCode] = useState(() =>
     timezonePhoneCountry(Intl.DateTimeFormat().resolvedOptions().timeZone)?.code ??
-    phoneCountryByCode(localStorage.getItem("detectedPhoneCountry"))?.code ?? countries[0].code
+    phoneCountryByCode(localStorage.getItem("detectedPhoneCountry"))?.code ?? phoneCountries[0].code
   );
   useEffect(() => {
     let cancelled = false;
@@ -30,7 +30,7 @@ export function usePhoneCountry() {
     return () => { cancelled = true; };
   }, []);
   return {
-    phoneCountry: phoneCountryByCode(manualCode ?? detectedCode) ?? countries[0],
+    phoneCountry: phoneCountryByCode(manualCode ?? detectedCode) ?? phoneCountries[0],
     setPhoneCountry: setManualCode,
   };
 }
