@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { NativePushRegistrar } from "@/components/NativePushRegistrar";
 import { AuthProvider } from "@/hooks/useAuth";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -168,6 +169,7 @@ const AppContent = () => {
       <UpdateNotification />
       <BrowserRouter>
         <InAppNotificationBanner />
+        <NativePushRegistrar />
         <LazyLoadBoundary>
           <Suspense fallback={<PageSkeleton />}>
             {earlyLoading ? <PageSkeleton /> : null}
