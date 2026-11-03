@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Trash2, Search, Users, ShieldAlert, BadgeCheck, Ban, CheckCircle2, Pencil, Award } from "lucide-react";
+import { Loader2, Trash2, Search, Users, ShieldAlert, BadgeCheck, Ban, CheckCircle2, Pencil, Award, KeyRound } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -86,6 +86,25 @@ const AdminUsersTab = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<UserRow | null>(null);
+  const [pwTarget, setPwTarget] = useState<UserRow | null>(null);
+  const [newPw, setNewPw] = useState("");
+  const [savingPw, setSavingPw] = useState(false);
+  const handleSetPassword = async () => {
+    if (!pwTarget) return;
+    setSavingPw(true);
+    const { data, error } = await supabase.functions.invoke("admin-set-password", {
+      body: { user_id: pwTarget.user_id, password: newPw },
+    });
+    setSavingPw(false);
+    if (error || data?.error) {
+      let msg = data?.error || error?.message;
+      try { msg = (await (error as any)?.context?.json())?.error || msg; } catch { /* ignore */ }
+      toast.error("تعذّر تغيير كلمة المرور: " + msg);
+      return;
+    }
+    toast.success("تم تعيين كلمة المرور الجديدة");
+    setPwTarget(null);
+  };
   const [deleteReason, setDeleteReason] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<UserRow | null>(null);
@@ -600,6 +619,15 @@ const AdminUsersTab = () => {
                           )}
                         </Button>
                         <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => { setPwTarget(u); setNewPw(""); }}
+                          disabled={u.is_admin && u.user_id !== currentUser?.id}
+                          title="تعيين كلمة مرور جديدة"
+                        >
+                          <KeyRound className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
                           variant="destructive"
                           size="sm"
                           onClick={() => setDeleteTarget(u)}
@@ -702,6 +730,28 @@ const AdminUsersTab = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!pwTarget} onOpenChange={(o) => !o && setPwTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تعيين كلمة مرور جديدة</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">{pwTarget?.full_name || "مستخدم"}</p>
+            <Label>كلمة المرور الجديدة (6 أحرف على الأقل)</Label>
+            <Input value={newPw} onChange={(e) => setNewPw(e.target.value)} dir="ltr" lang="en" autoComplete="off" />
+            <p className="text-xs text-muted-foreground">أرسلها للمستخدم، وسيتم تسجيل خروجه من كل الأجهزة.</p>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setPwTarget(null)} disabled={savingPw}>إلغاء</Button>
+            <Button onClick={handleSetPassword} disabled={savingPw || newPw.length < 6}>
+              {savingPw && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
+              حفظ
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       {/* Suspend / unsuspend confirmation */}
       <AlertDialog open={!!suspendTarget} onOpenChange={(o) => !o && setSuspendTarget(null)}>
