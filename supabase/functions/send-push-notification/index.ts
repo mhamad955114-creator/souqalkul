@@ -54,7 +54,33 @@ Deno.serve(async (req) => {
 
     let sent = 0;
     const expired: string[] = [];
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const FCM_KEY = Deno.env.get("FIREBASE_MESSAGING_API_KEY");
     for (const s of subs) {
+      if (s.endpoint.startsWith("fcm:")) {
+        if (!LOVABLE_API_KEY || !FCM_KEY) { console.error("FCM not configured"); continue; }
+        const res = await fetch("https://connector-gateway.lovable.dev/firebase_messaging/v1/projects/_/messages:send", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "X-Connection-Api-Key": FCM_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: {
+              token: s.endpoint.slice(4),
+              notification: { title: n.title, body: n.message },
+              data: { type: String(n.type), related_id: String(n.related_id ?? ""), url: routeFor(n.type, n.related_id) },
+              android: { priority: "HIGH", notification: { channel_id: "default", sound: "default" } },
+            },
+          }),
+        });
+        const text = await res.text();
+        if (res.ok) sent++;
+        else if (res.status === 404 || (res.status === 400 && text.includes("registration"))) expired.push(s.endpoint);
+        else console.error(`FCM failed [${res.status}]: ${text}`);
+        continue;
+      }
       try {
         await webpush.sendNotification(
           { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
