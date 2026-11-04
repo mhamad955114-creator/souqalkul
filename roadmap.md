@@ -4,7 +4,9 @@
 
 - [x] Keep registration and login fields scrollable within the visible keyboard viewport; configure Android resize behavior.
 
-- [x] Raise the native release to versionCode 23 / versionName 1.0.23 for the next store upload.
+- [x] Prepare the native release with versionCode 25 / versionName 1.0.25 for the next store upload.
+- [x] Link the matching Firebase messaging project and verify credentials with a delivery-free validation request.
+- [ ] Verify notification delivery on a physical Android device: requires installing the latest APK and granting notification permission.
 
 - [x] Import the original uploaded Firebase configuration and align the phone token verifier.
 - [x] Deploy the phone authentication function; configuration tests pass and the live endpoint rejects missing tokens.
