@@ -5,9 +5,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { verifyAabVersion } from '../../scripts/verify-aab-version.mjs';
 
 describe('generated AAB version gate', () => {
-  let directory;
-  let aab;
-  let tool;
+  let directory: string;
+  let aab: string;
+  let tool: string;
   beforeEach(() => {
     directory = mkdtempSync(join(tmpdir(), 'aab-version-'));
     aab = join(directory, 'app.aab');
@@ -16,7 +16,7 @@ describe('generated AAB version gate', () => {
     writeFileSync(tool, 'fixture');
   });
   afterEach(() => rmSync(directory, { recursive: true, force: true }));
-  const manifest = (code, name) => (_command, args) => ({
+  const manifest = (code: string, name: string) => (_command: string, args: string[]) => ({
     status: 0, stdout: `${args.at(-1).endsWith('versionCode') ? code : name}\n`, stderr: '',
   });
   it('accepts only release 26 (1.0.26)', () => {
