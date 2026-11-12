@@ -64,7 +64,16 @@ jobs:
         run: cp android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/souqalkul.apk
 
       - name: Rename AAB
-        run: cp android/app/build/outputs/bundle/release/app-release.aab android/app/build/outputs/bundle/release/souqalkul.aab
+        run: cp android/app/build/outputs/bundle/release/app-release.aab android/app/build/outputs/bundle/release/souqalkul-v26.aab
+
+      - name: Verify generated AAB is release 26 before any upload
+        run: |
+          curl --fail --location --retry 3 \
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar \
+            --output "$RUNNER_TEMP/bundletool.jar"
+          node scripts/verify-aab-version.mjs \
+            android/app/build/outputs/bundle/release/souqalkul-v26.aab \
+            "$RUNNER_TEMP/bundletool.jar" 26 1.0.26
 
       - name: Upload APK as Artifact
         uses: actions/upload-artifact@v4
@@ -75,16 +84,17 @@ jobs:
       - name: Upload AAB as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-aab
-          path: android/app/build/outputs/bundle/release/souqalkul.aab
+          name: app-release-aab-v26
+          path: android/app/build/outputs/bundle/release/souqalkul-v26.aab
+          if-no-files-found: error
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: "إصدار رقم ${{ github.run_number }}"
+          name: "سوق الكل 26 (1.0.26) — بناء ${{ github.run_number }}"
           files: |
             android/app/build/outputs/apk/release/souqalkul.apk
-            android/app/build/outputs/bundle/release/souqalkul.aab
+            android/app/build/outputs/bundle/release/souqalkul-v26.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

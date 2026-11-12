@@ -8,6 +8,7 @@
 - Keep the listing video upload limit in one shared constant that both the client-side validation and every localized warning/label read, so the enforced size and the advertised size can never drift apart.
 - When a root crash's message shows React hooks resolving on a null or undefined instance (a stale pre-bundled React), recover automatically once per session by purging caches and reloading with a cache-busted URL; other root errors keep showing the manual retry card so genuine bugs are never hidden behind a reload loop.
 - Android builds uploaded to Google Play must be signed with the project's own release keystore in every environment, including CI, and `versionCode`/`versionName` must increase before each new store upload so Play keeps accepting updates from the same key.
+- Gate all Android artifact and release uploads on bundletool inspection of the generated AAB manifest against the explicitly expected release code and name; file names and Gradle source alone cannot prove the bundle version.
 - Keep the Firebase token verifier's issuer and audience aligned with Android's Firebase project configuration; mismatches reject verified phone sessions.
 - Auth forms and overlays use the visual viewport with internal scrolling, and Android explicitly uses adjustResize, so keyboards cannot clip fields outside the visible screen.
 - Authentication uses its own location-detected phone country with manual override and shared international normalization, independent of the listing market selection.
