@@ -2,10 +2,10 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("Firebase phone authentication configuration", () => {
-  it("prepares Android release 25 for the next store upload", () => {
+  it("prepares Android release 26 for the next store upload", () => {
     const gradle = readFileSync("android/app/build.gradle", "utf8");
-    expect(Number(gradle.match(/versionCode\s+(\d+)/)?.[1])).toBe(25);
-    expect(gradle.match(/versionName "([^"]+)"/)?.[1]).toBe("1.0.25");
+    expect(Number(gradle.match(/versionCode\s+(\d+)/)?.[1])).toBe(26);
+    expect(gradle.match(/versionName "([^"]+)"/)?.[1]).toBe("1.0.26");
   });
 
   it("uses the uploaded Firebase project for Android and token verification", () => {

@@ -4,7 +4,8 @@
 
 - [x] Keep registration and login fields scrollable within the visible keyboard viewport; configure Android resize behavior.
 
-- [x] Prepare the native release with versionCode 25 / versionName 1.0.25 for the next store upload.
+- [x] Prepare the native release with versionCode 26 / versionName 1.0.26 for the next store upload.
+- [x] Inspect the generated AAB manifest and block artifact/release uploads unless it is release 26 (1.0.26); test acceptance and rejection paths.
 - [x] Link the matching Firebase messaging project and verify credentials with a delivery-free validation request.
 - [ ] Verify notification delivery on a physical Android device: requires installing the latest APK and granting notification permission.
 
